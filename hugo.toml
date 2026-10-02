@@ -1,0 +1,5 @@
+# Theme configuration (module settings). Site settings live in the site's config.toml.
+[module]
+  [module.hugoVersion]
+    extended = false
+    min = "0.146.0"

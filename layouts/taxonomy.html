@@ -1,0 +1,12 @@
+{{ define "main" }}
+<div class="wrap narrow">
+  <div>
+    {{ with .Content }}{{ . }}{{ end }}
+    <ul class="archive-list">
+      {{ range .Data.Terms.Alphabetical }}
+      <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a> <span class="meta-line">({{ .Count }})</span></li>
+      {{ end }}
+    </ul>
+  </div>
+</div>
+{{ end }}

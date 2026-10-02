@@ -1,0 +1,4 @@
+{{/* Disqus on blog posts only (decision D8). Included from post/page.html. */}}
+{{ if site.Config.Services.Disqus.Shortname }}
+<div class="comments" id="disqus-comment">{{ template "_internal/disqus.html" . }}</div>
+{{ end }}
