@@ -98,8 +98,9 @@ The author's bio and photo live on the About page only.
   column holds nothing else (no bio, no categories).
 - Categories are reachable through the taxonomy pages and the browse controls (type chips), so no categories box is carried over.
 - Config consequence: `sidebar_avatar`, `sidebar_about_description`, `omit_categories`, `friends` and `bookmarks` become unused
-  and are removed from `config.toml` at switch-over; `featured_tags` and `featured_condition_size` are reused by D14.
-- The scaffold in the theme repo still renders the old sidebar on the home page; it is deleted when the D12 layout is built.
+  and are removed from `config.toml` at switch-over; `featured_tags` and `featured_condition_size` are reused by D14 once the tag cloud is built.
+- The scaffold's sidebar (partial, CSS and the `sidebar_*`, `omit_categories`, `featured_*` reads) was removed before 0.5.0, so the
+  home page is a plain post list until the D12 layout and the D14 tag cloud are built.
 
 ## D6. Table of contents
 
