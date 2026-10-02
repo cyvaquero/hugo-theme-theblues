@@ -24,7 +24,7 @@ the current decision; the options and reasoning are kept below it as background.
 | D11 | Analytics | Decided | Keep GA4 with Do Not Track |
 | D12 | Home and post layout | Decided | Direction C v3: masonry, calm popover controls, A+ hero, serif headlines |
 | D13 | License | Decided | Apache-2.0, with a NOTICE crediting Clean White and its upstreams |
-| D14 | Featured tags | Proposed | A "Browse by tag" section on the home page; research done, three styles mocked up |
+| D14 | Featured tags | Decided | A minimalist tag cloud in a right column on the home page (stacks above the type chips on small screens) |
 
 ---
 
@@ -94,7 +94,8 @@ Requirements added 2026-10-02:
 to keep the sidebar there. The layout chosen in D12 has no sidebar, and the author strip that briefly replaced it was removed.
 The author's bio and photo live on the About page only.
 
-- Featured tags, which used to sit in the sidebar, need a new home on the page; see D14.
+- Featured tags, which used to sit in the sidebar, now live in a tag-cloud-only right column on the home page; see D14. That
+  column holds nothing else (no bio, no categories).
 - Categories are reachable through the taxonomy pages and the browse controls (type chips), so no categories box is carried over.
 - Config consequence: `sidebar_avatar`, `sidebar_about_description`, `omit_categories`, `friends` and `bookmarks` become unused
   and are removed from `config.toml` at switch-over; `featured_tags` and `featured_condition_size` are reused by D14.
@@ -146,7 +147,7 @@ Hugo-index options (Lunr, MiniSearch, Fuse.js) do not.
 
 - **Home:** the A+ hero (header photo under a navy scrim, "guyheckman.me" kicker, "Life, *lived.*" with a decorative sand wavy
   underline, tagline), then the browse controls, then a **masonry** wall mixing photos and article tiles. No sidebar, no author strip and no bio
-  (see D5).
+  (see D5); the only right-column content is the tag cloud from D14.
 - **Tiles that differ by shape, icon and label, not just color:** photo tiles are image-only with a camera badge and a caption
   ("Boston gallery · 6 photos") on hover or focus, always visible on touch. Article tiles are text tiles with a sand left bar,
   an ARTICLE label with a document icon, a serif title, an excerpt, date and tags, and a "Part N of 3" chip for series posts.
@@ -181,20 +182,32 @@ Huxblog and Clean Blog, and the cavelab.dev series snippet (license unknown). Th
 
 ## D14. Featured tags
 
-**Status: Proposed.** With the sidebar gone (D5), the featured tags (tags used by more than one post) need a place on the
-home page. Options are mocked in `mockups/directions/direction-c-v3-tags.html`; tags navigate to tag pages rather than filtering the
-wall in place (keeps URLs shareable and the page JavaScript-light).
+**Decision (2026-10-02): move the featured tags into a right column as a minimalist tag cloud.** This replaces the three
+"Browse by tag" strip styles that were mocked up (pills, image tiles, tiles plus pills). Mockup:
+`mockups/directions/direction-c-v3-cloud.html`.
 
-Research summary (2026-10-02; page text only, so layout and accessibility details of the big sites are unverified):
-Unsplash puts a single-line text topics row above the grid and navigates to topic pages; Pexels uses chips with thumbnails and
-counts plus "See more"; Dribbble shows a ranked top 12 with a full A-Z index; Ghost's Array theme shows image-backed tag
-cards with pinned order and a cap; small photographer sites use a few hand-named genres. A single-line scrolling row hides
-items and is hard to use by keyboard, so avoid it with only 5 to 8 featured tags.
+- **Right column, tags only:** the home page has one right column that holds only the tag cloud. There is still no bio,
+  author strip or categories box (D5). On desktop the column (about 13.5 rem) is sticky beside the controls and the masonry
+  wall. **The wall keeps three columns of tiles** from 1100 px wide up, by widening the page container to 86 rem (tiles are
+  about 318 px at 1280 px wide and 258 px at 1100 px); between 900 and 1099 px it uses two columns, and below 900 px one
+  column with the cloud moved above the type chips as a compact wrapped list, so nothing is hidden. The photo post and tag page
+  use the same wider container.
+- **Minimalist cloud:** plain text links only (no pills, borders or icons), sized in about three steps by post count, with the
+  count in each link's accessible name (for example "travel, 3 posts") so size is not the only signal. Links navigate to tag
+  pages; an "All tags" link opens an A-Z index. Tags are real links in a labeled `nav` with visible focus and large enough
+  touch targets.
+- **Which tags:** "featured" means tags used by more than one post (currently hugo, markdown, photography, travel, git). The
+  mockup also lets you view all 10 tags, with single-post tags smallest, to compare.
 
-Candidate styles: (1) wrapping text pills with counts, (2) image-backed tag tiles, with typographic tiles for text-only tags
-(hugo, git, markdown) instead of a fake photo, (3) a few tiles plus pills. All end with an "All tags" link to an A-Z index.
-Open: the chosen style, where tags get cover photos (newest photo with a pinned override in front matter or data), and the
-cap on how many tags show.
+Background (research, 2026-10-02; page text only, so the big sites' layout and accessibility details are unverified): Unsplash
+puts a text topics row above the grid and navigates to topic pages; Pexels uses chips with thumbnails and counts plus "See
+more"; Dribbble shows a ranked top 12 with an A-Z index; Ghost's Array theme shows image-backed tag cards with pinned order;
+small photographer sites use a few hand-named genres. The research flagged a side column as weak against a wide masonry wall and
+hidden on mobile; the stacked mobile placement above addresses the second point, and the widened container keeps the wall at three columns on common desktop widths.
+
+Open: the exact size steps and muted color for single-post tags (contrast must stay at 4.5:1), whether "All tags" shows
+single-post tags in the cloud by default, and the cap if the featured list grows. Alternatives set aside: the pills, image tiles
+and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
 
 ## Out of scope for the theme
 
@@ -204,7 +217,7 @@ cap on how many tags show.
 
 ## Open items before release
 
-- Confirm the provisional D7 and D9, and decide D14 (featured tags).
+- Confirm the provisional D7 and D9; settle D14's open details (size steps, which tags show).
 - Fix or confirm the Disqus shortname (D8).
 - Implement the D12 home layout in the theme; favicon; tablet-width and keyboard/accessibility checks.
 - Wire the theme into the site (submodule, `config.toml`, drop the Algolia output format, the site's `layouts/` overrides and
@@ -212,6 +225,8 @@ cap on how many tags show.
 
 ## Changelog of this file
 
+- 2026-10-02: home wall keeps three columns beside the tag cloud (container widened to 86 rem; two columns from 900 to 1099 px).
+- 2026-10-02: D14 decided (minimalist tag cloud in a right column); D5 and D12 updated to match.
 - 2026-10-02: D3 decided (hand-written CSS, readable source, Hugo-minified for production).
 - 2026-10-02: D5 decided (drop sidebar and bio); added D14 (featured tags, Proposed).
 - 2026-10-02: reorganized so each record leads with its decision; D2 corrected to a separate repo; D5 marked Needs

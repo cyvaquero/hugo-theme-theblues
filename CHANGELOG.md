@@ -5,8 +5,9 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 ## [Unreleased]
 
 ### Planned
-- The chosen home layout: masonry wall of photo and article tiles, type chips with counts, a "View options" popover
-  (Filter or Highlight, Sort, Group by gallery), the hero header, and serif headlines. Photo posts open as a masonry
+- The chosen home layout: masonry wall of photo and article tiles (three columns from 1100 px wide), type chips with counts,
+  a "View options" popover (Filter or Highlight, Sort, Group by gallery), the hero header, serif headlines, and a
+  minimalist tag cloud in a right column (above the type chips on small screens). Photo posts open as a masonry
   gallery; articles get a sticky table of contents and a series box.
 - Favicon; tablet-width and keyboard accessibility checks; a release.
 
