@@ -1,0 +1,5 @@
+{{- with (.GetTerms "series") -}}
+<div class="notice">
+  This post is part of the {{ range $i, $t := . }}{{ if $i }}, {{ end }}<a href="{{ $t.RelPermalink }}">{{ $t.LinkTitle }}</a>{{ end }} series.
+</div>
+{{- end -}}

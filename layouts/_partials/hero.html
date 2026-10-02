@@ -1,0 +1,12 @@
+{{ if .IsHome }}
+<header class="hero" {{ with site.Params.header_image }}style="--hero:url('{{ . }}')"{{ end }}>
+  <h1>{{ site.Title }}</h1>
+  {{ with site.Params.slogan }}<p>{{ . }}</p>{{ end }}
+</header>
+{{ else }}
+{{ $img := .Params.image | default site.Params.header_image }}
+<header class="hero" {{ with $img }}style="--hero:url('{{ . }}')"{{ end }}>
+  <h1>{{ .Title }}</h1>
+  {{ with .Description }}<p>{{ . }}</p>{{ end }}
+</header>
+{{ end }}

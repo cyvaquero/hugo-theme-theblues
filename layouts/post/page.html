@@ -1,0 +1,31 @@
+{{ define "header" }}
+{{ $img := .Params.image | default site.Params.header_image }}
+<header class="hero post" {{ with $img }}style="--hero:url('{{ . }}')"{{ end }}>
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.subtitle }}<p>{{ . }}</p>{{ end }}
+  <div class="meta">
+    <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+    {{ with .Params.author }} &middot; {{ . }}{{ end }}
+    {{ with .Params.categories }} &middot; {{ delimit . ", " }}{{ end }}
+    &middot; {{ .ReadingTime }} min read
+  </div>
+</header>
+{{ end }}
+{{ define "main" }}
+{{ $toc := and (ne (.Param "showtoc") false) (in .TableOfContents "<li>") }}
+<div class="wrap post">
+  <article class="post-body">
+    {{ if .Params.series }}{{ partial "series-top.html" . }}{{ end }}
+    {{ .Content }}
+    <p>{{ range .GetTerms "tags" }}<a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}</p>
+    {{ if .Params.series }}{{ partial "series-bottom.html" . }}{{ end }}
+    {{ partial "comments.html" . }}
+  </article>
+  {{ if $toc }}
+  <aside class="toc" aria-label="On this page">
+    <strong class="visually-hidden">On this page</strong>
+    {{ .TableOfContents }}
+  </aside>
+  {{ end }}
+</div>
+{{ end }}

@@ -1,0 +1,19 @@
+<aside class="sidebar" aria-label="About this site">
+  <div class="box" style="text-align:center">
+    {{ with site.Params.sidebar_avatar }}<img class="avatar" src="{{ . }}" alt="" width="84" height="84" loading="lazy">{{ end }}
+    {{ with site.Params.sidebar_about_description }}{{ . }}{{ end }}
+  </div>
+  {{ if site.Params.featured_tags }}
+  <div class="box">
+    <h2>Featured tags</h2>
+    {{ $min := site.Params.featured_condition_size | default 1 }}
+    {{ range site.Taxonomies.tags.Alphabetical }}{{ if gt .Count $min }}<a class="tag" href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a>{{ end }}{{ end }}
+  </div>
+  {{ end }}
+  {{ if not site.Params.omit_categories }}
+  <div class="box">
+    <h2>Categories</h2>
+    {{ range site.Taxonomies.categories.Alphabetical }}<a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}</a> <span class="meta-line">({{ .Count }})</span><br>{{ end }}
+  </div>
+  {{ end }}
+</aside>

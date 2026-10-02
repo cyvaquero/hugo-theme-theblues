@@ -1,0 +1,15 @@
+name = "The Blues"
+description = "A responsive, accessible blog theme for guyheckman.me with a navy, steel blue, and sand palette, light and dark modes, series, and photo galleries."
+homepage = "https://github.com/cyvaquero/hugo-theme-theblues"
+tags = ["blog", "responsive", "dark mode", "photography", "minimal"]
+features = ["light and dark", "responsive", "series taxonomy", "photo galleries", "table of contents", "google analytics (respects Do Not Track)"]
+min_version = "0.146.0"
+
+[author]
+  name = "Guy Heckman"
+  homepage = "https://guyheckman.me"
+
+# Baseline for the original layout and behavior.
+[original]
+  name = "Clean White"
+  homepage = "https://github.com/zhaohuabing/hugo-theme-cleanwhite"

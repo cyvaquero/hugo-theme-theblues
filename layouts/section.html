@@ -1,0 +1,10 @@
+{{ define "main" }}
+{{ $pag := .Paginate (where .Pages "Section" "post") }}
+<div class="wrap narrow">
+  <div>
+    {{ with .Content }}{{ . }}{{ end }}
+    {{ range $pag.Pages }}{{ partial "post-card.html" . }}{{ end }}
+    {{ partial "pagination.html" $pag }}
+  </div>
+</div>
+{{ end }}

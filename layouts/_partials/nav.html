@@ -1,0 +1,8 @@
+<nav class="site-nav" aria-label="Main">
+  <a class="brand" href="{{ "/" | relURL }}">{{ site.Title }}</a>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">&#9776; Menu</button>
+  <ul class="links" id="site-menu">
+    {{ range site.Params.addtional_menus }}<li><a href="{{ .href | relLangURL }}/">{{ .title }}</a></li>{{ end }}
+    {{ if site.Params.search_enabled }}<li><a href="{{ "search/" | relURL }}">SEARCH</a></li>{{ end }}
+  </ul>
+</nav>

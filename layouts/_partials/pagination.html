@@ -1,0 +1,6 @@
+{{ if gt .TotalPages 1 }}
+<nav class="pager" aria-label="Pagination">
+  {{ if .HasPrev }}<a href="{{ .Prev.URL }}">&larr; Newer posts</a>{{ else }}<span></span>{{ end }}
+  {{ if .HasNext }}<a href="{{ .Next.URL }}">Older posts &rarr;</a>{{ end }}
+</nav>
+{{ end }}
