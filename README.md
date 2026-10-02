@@ -55,7 +55,7 @@ Front matter: `title`, `subtitle`, `description`, `date`, `author`, `image`, `sh
 ## Design decisions
 
 Decision records, the Clean White inventory and the layout mockups are in [docs/retheme/](docs/retheme/decisions.md)
-(Hugo does not publish this folder). Also tracked on issue cyvaquero/hugo-cleanwhite-guyheckman_me#4 and in the project's local decision records. In short: palette B
+(Hugo does not publish this folder; this is the canonical copy). Also tracked on issue cyvaquero/hugo-cleanwhite-guyheckman_me#4 and in the project's local decision records. In short: palette B
 (navy, steel blue, sand, cream) with light and dark modes; responsive with a hamburger nav below 820 px; Disqus on posts
 only; GA4 with Do Not Track; search is a reserved slot until the engine is chosen (issue #3). Still provisional: gallery
 lightbox approach, inline SVG icons, hand-written CSS with Hugo Pipes only.
