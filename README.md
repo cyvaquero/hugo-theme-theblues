@@ -56,4 +56,5 @@ attribution; keep it with any copy or derivative.
 
 ## License
 
-Not yet chosen. Because the theme started from Apache-2.0 work, Apache-2.0 is the straightforward choice.
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE). Copyright (c) 2026 Guy Heckman for The Blues; the
+Clean White origins are credited in NOTICE.
