@@ -10,6 +10,7 @@ min_version = "0.146.0"
   homepage = "https://guyheckman.me"
 
 # Baseline for the original layout and behavior.
+# Started from (see NOTICE).
 [original]
   name = "Clean White"
   homepage = "https://github.com/zhaohuabing/hugo-theme-cleanwhite"
