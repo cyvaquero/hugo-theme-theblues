@@ -5,7 +5,7 @@
   {{ with .Params.subtitle }}<p>{{ . }}</p>{{ end }}
   <div class="meta">
     <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
-    {{ with .Params.author }} &middot; {{ . }}{{ end }}
+    {{ with (.Params.author | default site.Params.author) }} &middot; {{ . }}{{ end }}
     {{ with .Params.categories }} &middot; {{ delimit . ", " }}{{ end }}
     &middot; {{ .ReadingTime }} min read
   </div>
