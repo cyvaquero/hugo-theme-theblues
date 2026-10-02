@@ -48,6 +48,12 @@ Front matter: `title`, `subtitle`, `description`, `date`, `author`, `image`, `sh
 Recorded in the site project's docs (`docs/retheme/decisions.md`, issue cyvaquero/hugo-cleanwhite-guyheckman_me#4).
 Still provisional here: D7 (gallery uses a CSS grid and `<dialog>`), D9 (inline SVG icons), D3 (CSS tooling).
 
+## Credits
+
+Started from the [Clean White](https://github.com/zhaohuabing/hugo-theme-cleanwhite) Hugo theme by Huabing Zhao
+(Apache-2.0), which is based on Huxblog and Clean Blog. The layout has since been reworked. See [NOTICE](NOTICE) for
+attribution; keep it with any copy or derivative.
+
 ## License
 
-Not yet chosen.
+Not yet chosen. Because the theme started from Apache-2.0 work, Apache-2.0 is the straightforward choice.
