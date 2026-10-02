@@ -4,8 +4,11 @@ A responsive, accessible Hugo theme for [guyheckman.me](https://guyheckman.me). 
 Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark modes
 (`prefers-color-scheme`).
 
-Status: scaffold. It builds the site with the same 30 URLs as Clean White and no Hugo warnings; styling and a
-few features are still provisional (see below).
+Status: **scaffold, not released.** It builds the site's real content with the same 30 URLs as Clean White and no
+theme-related Hugo warnings. The layout currently implemented is a simple post list with the landing-page sidebar. The
+chosen design is a masonry home that mixes photo tiles and article tiles, with a calm "View options" popover
+(filter or highlight by type, sort, group by gallery), a hero with a wavy-underlined "Life, lived." and serif headlines;
+that layout is not built yet. The site does not use this theme until it is released.
 
 ## Requirements
 
@@ -45,8 +48,10 @@ Front matter: `title`, `subtitle`, `description`, `date`, `author`, `image`, `sh
 
 ## Design decisions
 
-Recorded in the site project's docs (`docs/retheme/decisions.md`, issue cyvaquero/hugo-cleanwhite-guyheckman_me#4).
-Still provisional here: D7 (gallery uses a CSS grid and `<dialog>`), D9 (inline SVG icons), D3 (CSS tooling).
+Tracked on issue cyvaquero/hugo-cleanwhite-guyheckman_me#4 and in the project's local decision records. In short: palette B
+(navy, steel blue, sand, cream) with light and dark modes; responsive with a hamburger nav below 820 px; Disqus on posts
+only; GA4 with Do Not Track; search is a reserved slot until the engine is chosen (issue #3). Still provisional: gallery
+lightbox approach, inline SVG icons, hand-written CSS with Hugo Pipes only.
 
 ## Credits
 

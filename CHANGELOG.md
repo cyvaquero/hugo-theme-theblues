@@ -4,6 +4,12 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 
 ## [Unreleased]
 
+### Planned
+- The chosen home layout: masonry wall of photo and article tiles, type chips with counts, a "View options" popover
+  (Filter or Highlight, Sort, Group by gallery), the hero header, and serif headlines. Photo posts open as a masonry
+  gallery; articles get a sticky table of contents and a series box.
+- Favicon; tablet-width and keyboard accessibility checks; a release.
+
 ### Added
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 - Initial scaffold: base layout, home with sidebar, post, page, archive, section, taxonomy and term lists, search slot, 404.
