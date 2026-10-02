@@ -17,5 +17,5 @@
 {{ with $img }}<meta property="og:image" content="{{ . }}">{{ end }}
 <meta name="twitter:card" content="{{ cond (ne $img "") "summary_large_image" "summary" }}">
 <meta name="color-scheme" content="light dark">
-{{ with resources.Get "css/main.css" }}{{ with . | minify | fingerprint }}<link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">{{ end }}{{ end }}
+{{ with partial "asset.html" "css/main.css" }}<link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}>{{ end }}
 {{ if site.Config.Services.GoogleAnalytics.ID }}{{ template "_internal/google_analytics.html" . }}{{ end }}
