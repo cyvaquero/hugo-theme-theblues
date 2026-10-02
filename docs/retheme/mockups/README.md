@@ -11,11 +11,12 @@ tabs and Light/Dark buttons.
 |---|---|
 | [directions/direction-c-v3.html](directions/direction-c-v3.html) | **The chosen layout (decision D12).** Masonry home mixing photos and article tiles, calm "View options" popover controls, A+ hero, serif headlines. Tabs: Home, Photo post, Article. |
 
-## Proposed (decision D14)
+## Featured tags (decision D14)
 
 | File | What it is |
 |---|---|
-| [directions/direction-c-v3-tags.html](directions/direction-c-v3-tags.html) | v3 plus a "Browse by tag" section with three styles (1 Pills, 2 Tiles, 3 Tiles + pills; selector in the top bar), a Tag page tab and an All tags tab |
+| [directions/direction-c-v3-cloud.html](directions/direction-c-v3-cloud.html) | **The chosen featured-tags design:** v3 with a minimalist tag cloud in a right column (stacks above the type chips on small screens); three columns of tiles at 1100 px and wider; 'Cloud shows' Featured or All tags |
+| [directions/direction-c-v3-tags.html](directions/direction-c-v3-tags.html) | Earlier option, set aside: v3 plus a "Browse by tag" section with three styles (1 Pills, 2 Tiles, 3 Tiles + pills; selector in the top bar), a Tag page tab and an All tags tab |
 
 ## Kept for reference
 

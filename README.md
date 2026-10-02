@@ -7,7 +7,8 @@ Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, 
 Status: **scaffold, not released.** It builds the site's real content with the same 30 URLs as Clean White and no
 theme-related Hugo warnings. The layout currently implemented is a simple post list with the landing-page sidebar. The
 chosen design is a masonry home that mixes photo tiles and article tiles, with a calm "View options" popover
-(filter or highlight by type, sort, group by gallery), a hero with a wavy-underlined "Life, lived." and serif headlines;
+(filter or highlight by type, sort, group by gallery), a hero with a wavy-underlined "Life, lived.", serif headlines, and a
+minimalist tag cloud in a right column;
 that layout is not built yet. The site does not use this theme until it is released.
 
 ## Requirements
