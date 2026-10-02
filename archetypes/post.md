@@ -4,7 +4,7 @@ slug: "{{ .File.ContentBaseName }}"
 subtitle: ""
 description: ""
 date: {{ .Date }}
-author: "Guy Heckman"
+author: "{{ with site.Params.author }}{{ . }}{{ end }}"
 image: ""
 showtoc: false
 categories: []

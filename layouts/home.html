@@ -1,10 +1,9 @@
 {{ define "main" }}
 {{ $pag := .Paginate (where site.RegularPages "Section" "post") }}
-<div class="wrap with-sidebar">
+<div class="wrap narrow">
   <div>
     {{ range $pag.Pages }}{{ partial "post-card.html" . }}{{ end }}
     {{ partial "pagination.html" $pag }}
   </div>
-  {{ partial "sidebar.html" . }}
 </div>
 {{ end }}

@@ -1,7 +1,7 @@
 /* The Blues: stylesheet source (readable, commented).
    This file is the only stylesheet. It is hand-written: no framework, no @import, no third-party or legacy CSS.
    Hugo minifies and fingerprints it at build time (layouts/_partials/asset.html); this commented source is what you
-   edit, and `hugo server` serves it as is. Sections: tokens, nav, hero, layout, post list, sidebar, post, archive,
+   edit, and `hugo server` serves it as is. Sections: tokens, nav, hero, layout, post list, post, archive,
    galleries, footer.
 
    Palette B: navy #1B3C53, steel #456882, sand #D2C1B6, cream #F9F3EF.
@@ -75,7 +75,6 @@ a:hover { color: var(--text); }
 /* Layout */
 .wrap { max-width: var(--wide); margin: 0 auto; padding: 2rem 1rem; display: grid; gap: 2rem; grid-template-columns: minmax(0, 1fr); }
 .wrap.narrow { max-width: var(--measure); }
-@media (min-width: 821px) { .wrap.with-sidebar { grid-template-columns: minmax(0, 1fr) 17rem; gap: 2.5rem; } }
 @media (min-width: 821px) { .wrap.post { max-width: var(--wide); grid-template-columns: minmax(0, var(--measure)) 14rem; justify-content: center; } }
 
 /* Post list */
@@ -88,16 +87,10 @@ a:hover { color: var(--text); }
 .tag { display: inline-block; border: 1px solid var(--line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem .25rem .15rem 0; text-decoration: none; }
 .pager { display: flex; justify-content: space-between; gap: 1rem; padding: 1.5rem 0; flex-wrap: wrap; }
 
-/* Sidebar (landing page) */
-.sidebar .box { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1.2rem; margin-bottom: 1.2rem; font-size: .95rem; }
-.sidebar h2 { margin: .2rem 0 .6rem; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.avatar { width: 84px; height: 84px; border-radius: 50%; display: block; margin: 0 auto .8rem; border: 3px solid var(--line); object-fit: cover; }
-
 /* Post */
 .post-body h2 { margin-top: 2.2rem; }
 .post-body a { text-decoration: underline; }
 .post-body figure { margin: 1.8rem 0; }
-@media (min-width: 821px) { .post-body figure.wide { margin-inline: -2rem; } }
 figcaption { font-size: .85rem; color: var(--muted); text-align: center; margin-top: .4rem; }
 pre { background: var(--code); border-radius: 8px; padding: 1rem; overflow: auto; font-size: .88rem; line-height: 1.5; }
 code { font-size: .92em; }
