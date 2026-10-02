@@ -11,6 +11,7 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 - Favicon; tablet-width and keyboard accessibility checks; a release.
 
 ### Added
+- `docs/retheme/`: decision records (D1 to D14), the Clean White inventory, and the layout and palette mockups.
 - `layouts/_partials/asset.html`: production builds minify and fingerprint CSS and JS; development builds serve the
   readable commented source. `assets/css/main.css` is documented as the only, hand-written stylesheet.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
