@@ -11,7 +11,7 @@
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
-  {{ with resources.Get "js/menu.js" }}{{ with . | minify | fingerprint }}<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>{{ end }}{{ end }}
-  {{ if .Store.Get "hasGallery" }}{{ with resources.Get "js/gallery.js" }}{{ with . | minify | fingerprint }}<script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>{{ end }}{{ end }}{{ end }}
+  {{ with partial "asset.html" "js/menu.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ end }}
+  {{ if .Store.Get "hasGallery" }}{{ with partial "asset.html" "js/gallery.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ end }}{{ end }}
 </body>
 </html>

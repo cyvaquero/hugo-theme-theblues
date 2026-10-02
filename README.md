@@ -14,6 +14,11 @@ that layout is not built yet. The site does not use this theme until it is relea
 
 - Hugo 0.146.0 or later (uses the `layouts/_partials`, `_shortcodes`, and `_markup` structure). Developed on 0.167.0.
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
+- **CSS is hand-written and has one source file**, `assets/css/main.css`: commented and readable, with no framework, no
+  `@import`, and no third-party or legacy stylesheets. Hugo minifies and fingerprints it at build time
+  (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
+  stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
+  same rule.
 - No external fonts, frameworks, or CDN scripts. Total JS is two small files, loaded only where needed.
 
 ## Layout

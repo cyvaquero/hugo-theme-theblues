@@ -1,4 +1,10 @@
-/* The Blues. Palette B: navy #1B3C53, steel #456882, sand #D2C1B6, cream #F9F3EF.
+/* The Blues: stylesheet source (readable, commented).
+   This file is the only stylesheet. It is hand-written: no framework, no @import, no third-party or legacy CSS.
+   Hugo minifies and fingerprints it at build time (layouts/_partials/asset.html); this commented source is what you
+   edit, and `hugo server` serves it as is. Sections: tokens, nav, hero, layout, post list, sidebar, post, archive,
+   galleries, footer.
+
+   Palette B: navy #1B3C53, steel #456882, sand #D2C1B6, cream #F9F3EF.
    Colors are tokens on :root; dark mode redefines them. Mobile-first. */
 :root {
   --bg: #F9F3EF;

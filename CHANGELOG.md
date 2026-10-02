@@ -11,6 +11,8 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 - Favicon; tablet-width and keyboard accessibility checks; a release.
 
 ### Added
+- `layouts/_partials/asset.html`: production builds minify and fingerprint CSS and JS; development builds serve the
+  readable commented source. `assets/css/main.css` is documented as the only, hand-written stylesheet.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 - Initial scaffold: base layout, home with sidebar, post, page, archive, section, taxonomy and term lists, search slot, 404.
 - Palette B tokens with light and dark modes; responsive layout with a hamburger dropdown nav below 820 px.
