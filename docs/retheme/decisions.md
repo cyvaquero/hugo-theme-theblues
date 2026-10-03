@@ -173,12 +173,14 @@ revisiting are listed in [mockups/README.md](mockups/README.md)); **B** (editori
 
 **Implemented (2026-10-03, on `feature/masonry-home` in the theme repo).** The photo/article split is: categories include `photos`
 (case-insensitive) or the raw content uses the `galleries` shortcode. Each photo post emits one tile per photo, parsed from its
-`gallery` shortcodes; each article emits one text tile. Tiles carry data attributes (`data-type`, `data-date`, `data-order`,
+`gallery` shortcodes (first 4 photos per gallery plus one "see all" tile linking to the gallery post when photos remain); each
+article emits one text tile. Tiles carry data attributes (`data-type`, `data-date`, `data-order`,
 `data-series`, plus `data-gallery` and `data-gallery-title` on photos) that `wall.js` uses for the chips, filter or highlight, sort and
 group by gallery. Verified in headless Chrome: three columns at 1280 px, two at 700 px, one at 375 px, no horizontal overflow at
 375 px, the controls and lightbox work, and the build keeps the 30 sitemap URLs with only the known algolia warning.
-Known limits: the wall paginates **by post**, so chip counts, the caption and group-by are per page (with today's content, page 1
-holds all the photos and two articles, page 2 only articles); CSS columns fill top to bottom, so reading order is column-wise;
+The wall paginates **by tile**, 24 per page, so chip counts, the caption and group-by are per page (today's 5 articles and 3
+galleries make 20 tiles, one page); see-all tiles are excluded from the counts. Known limits: pagination uses a workaround because
+Hugo's `.Paginate` only accepts pages; CSS columns fill top to bottom, so reading order is column-wise;
 `.highlight` code blocks stay light in dark mode; touch devices, screen readers, reduced motion, keyboard tab order and measured
 contrast are untested. Chips and "View options" are 32 px tall on fine pointers and 44 px on coarse pointers.
 
@@ -221,12 +223,13 @@ and how to size them while keeping every tag's contrast at 4.5:1.
 - **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 layout to be reviewed, merged and checked.
 - D14 (featured tags) is deferred; no work needed before release.
 - Fix or confirm the Disqus shortname (D8).
-- D12 home layout is implemented on `feature/masonry-home` (not merged yet). Still to do: decide how the wall paginates (by post today, by tile is the option), favicon, tablet-width, touch, screen-reader and keyboard checks.
+- D12 home layout is implemented on `feature/masonry-home` (not merged yet). Still to do: favicon, tablet-width, touch, screen-reader and keyboard checks.
 - Wire the theme into the site (submodule, `config.toml`, drop the Algolia output format, the site's `layouts/` overrides and
   its `static/css/guyheckman_me-custom.css` (the series styles already live in the theme's `main.css`), update README/CLAUDE/CHANGELOG), compare the build's sitemap with the current 30 URLs.
 
 ## Changelog of this file
 
+- 2026-10-03: the wall paginates by tile (24 per page) and shows the first 4 photos per gallery plus a see-all tile.
 - 2026-10-03: D12 layout implemented in the theme on `feature/masonry-home`; known limits recorded (per-post pagination).
 - 2026-10-03: D14 deferred (tag cloud dropped from the home page); the home wall returns to three full-width columns (3 from 900 px, 2 from 560 px, 1 below); D5 and D12 updated to match.
 - 2026-10-03: added `direction-c-final.html`, the consolidated mockup of D4 to D14, as the file to implement from.
