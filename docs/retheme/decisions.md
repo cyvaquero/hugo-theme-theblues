@@ -171,12 +171,18 @@ Rejected or set aside: **A** and **A+** (card grid, featured strip, Posts|Photos
 revisiting are listed in [mockups/README.md](mockups/README.md)); **B** (editorial, dropped); controls layouts 2 (left panel),
 3 (right panel) and 4 (minimal gear) from `direction-c-plus-controls.html`; the author strip under the hero (removed).
 
-Not yet implemented (the scaffold still has a simple list home): the masonry wall, tile types, filter, highlight, sort and
-group controls, and the popover. Implementation notes for later: the photo/article split needs a rule (for example the
-`photos` category or presence of a `galleries` shortcode); group by gallery needs per-photo gallery and date data (front
-matter or build-time parsing of the shortcodes); CSS columns fill top to bottom, so reading order is column-wise; the
-controls need data attributes on tiles and a small JS file; chips and "View options" are 32 px tall in the mockup (44 px
-targets on phones is a one-line change); keyboard tab-through, reduced-motion emulation and a screen-reader pass are untested.
+**Implemented (2026-10-03, on `feature/masonry-home` in the theme repo).** The photo/article split is: categories include `photos`
+(case-insensitive) or the raw content uses the `galleries` shortcode. Each photo post emits one tile per photo, parsed from its
+`gallery` shortcodes (first 4 photos per gallery plus one "see all" tile linking to the gallery post when photos remain); each
+article emits one text tile. Tiles carry data attributes (`data-type`, `data-date`, `data-order`,
+`data-series`, plus `data-gallery` and `data-gallery-title` on photos) that `wall.js` uses for the chips, filter or highlight, sort and
+group by gallery. Verified in headless Chrome: three columns at 1280 px, two at 700 px, one at 375 px, no horizontal overflow at
+375 px, the controls and lightbox work, and the build keeps the 30 sitemap URLs with only the known algolia warning.
+The wall paginates **by tile**, 24 per page, so chip counts, the caption and group-by are per page (today's 5 articles and 3
+galleries make 20 tiles, one page); see-all tiles are excluded from the counts. Known limits: pagination uses a workaround because
+Hugo's `.Paginate` only accepts pages; CSS columns fill top to bottom, so reading order is column-wise;
+`.highlight` code blocks stay light in dark mode; touch devices, screen readers, reduced motion, keyboard tab order and measured
+contrast are untested. Chips and "View options" are 32 px tall on fine pointers and 44 px on coarse pointers.
 
 ## D13. License
 
@@ -214,15 +220,17 @@ and how to size them while keeping every tag's contrast at 4.5:1.
 
 ## Open items before release
 
-- **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 home layout to be built.
+- **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 layout to be reviewed, merged and checked.
 - D14 (featured tags) is deferred; no work needed before release.
 - Fix or confirm the Disqus shortname (D8).
-- Implement the D12 home layout in the theme; favicon; tablet-width and keyboard/accessibility checks.
+- D12 home layout is implemented on `feature/masonry-home` (not merged yet). Still to do: favicon, tablet-width, touch, screen-reader and keyboard checks.
 - Wire the theme into the site (submodule, `config.toml`, drop the Algolia output format, the site's `layouts/` overrides and
   its `static/css/guyheckman_me-custom.css` (the series styles already live in the theme's `main.css`), update README/CLAUDE/CHANGELOG), compare the build's sitemap with the current 30 URLs.
 
 ## Changelog of this file
 
+- 2026-10-03: the wall paginates by tile (24 per page) and shows the first 4 photos per gallery plus a see-all tile.
+- 2026-10-03: D12 layout implemented in the theme on `feature/masonry-home`; known limits recorded (per-post pagination).
 - 2026-10-03: D14 deferred (tag cloud dropped from the home page); the home wall returns to three full-width columns (3 from 900 px, 2 from 560 px, 1 below); D5 and D12 updated to match.
 - 2026-10-03: added `direction-c-final.html`, the consolidated mockup of D4 to D14, as the file to implement from.
 - 2026-10-03: D7 decided (masonry plus `<dialog>` lightbox) and D9 decided (inline SVG icons with labels); no provisional decisions remain.

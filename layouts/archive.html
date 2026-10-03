@@ -1,15 +1,13 @@
 {{ define "main" }}
-<div class="wrap narrow">
-  <div>
-    {{ with .Content }}{{ . }}{{ end }}
-    {{ range (where site.RegularPages "Section" "post").GroupByDate "2006" }}
-    <h2 class="archive-year">{{ .Key }}</h2>
-    <ul class="archive-list">
-      {{ range .Pages }}
-      <li><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "01/02" }}</time> <a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-      {{ end }}
-    </ul>
+<div class="atw">
+  {{ with .Content }}{{ . }}{{ end }}
+  {{ range (where site.RegularPages "Section" "post").GroupByDate "2006" }}
+  <h2>{{ .Key }}</h2>
+  <ul class="atl">
+    {{ range .Pages }}
+    <li><a href="{{ .RelPermalink }}"><span class="nm">{{ .Title }}</span><span class="c"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2" }}</time></span></a></li>
     {{ end }}
-  </div>
+  </ul>
+  {{ end }}
 </div>
 {{ end }}

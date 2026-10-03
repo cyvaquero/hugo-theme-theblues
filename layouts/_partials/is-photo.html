@@ -1,0 +1,8 @@
+{{- /*
+  Photo or article? A post is a PHOTO post when its categories include "photos" (case-insensitive) or its raw content
+  contains the galleries shortcode. Everything else is an article. Returns a bool.
+*/ -}}
+{{- $cats := slice -}}
+{{- range .Params.categories -}}{{- $cats = $cats | append (lower .) -}}{{- end -}}
+{{- $hasShortcode := gt (len (findRE `\{\{[<%]\s*galleries\b` .RawContent 1)) 0 -}}
+{{- return (or (in $cats "photos") $hasShortcode) -}}
