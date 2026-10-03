@@ -11,12 +11,10 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
   gallery; articles get a sticky table of contents and a series box.
 - Favicon; tablet-width and keyboard accessibility checks.
 
-## [0.5.0] - 2026-10-02
-
-First tagged release: a working scaffold that builds the site's real content to the same 30 URLs as Clean White with
-no theme-related Hugo warnings. The chosen home layout (see Planned) is not built yet.
-
 ### Added
+- The scaffold builds the site's real content to the same 30 URLs as Clean White with no theme-related Hugo warnings. The
+  chosen home layout (see Planned) is not built yet, so there is no release: a 0.5.0 release branch was prepared on
+  2026-10-02, merged back into `develop` without tagging or merging to `main`, and dropped until the layout is built.
 - The post byline reads the post's `author` front matter, falling back to `params.author`; the archetype no longer hardcodes a name.
 - `docs/retheme/`: decision records (D1 to D14), the Clean White inventory, and the layout and palette mockups.
 - `layouts/_partials/asset.html`: production builds minify and fingerprint CSS and JS; development builds serve the
@@ -29,6 +27,3 @@ no theme-related Hugo warnings. The chosen home layout (see Planned) is not buil
 - Series notice and previous/next navigation, Hugo-rendered table of contents, Disqus on posts only.
 - `gallery`, `galleries`, and `embed` shortcodes; gallery uses a CSS grid and a native `<dialog>` lightbox.
 - Inline SVG social icons (RSS, LinkedIn, GitHub); Google Analytics through Hugo's internal template.
-
-[Unreleased]: https://github.com/cyvaquero/hugo-theme-theblues/compare/v0.5.0...HEAD
-[0.5.0]: https://github.com/cyvaquero/hugo-theme-theblues/releases/tag/v0.5.0
