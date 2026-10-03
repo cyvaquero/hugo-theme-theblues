@@ -4,12 +4,13 @@ A responsive, accessible Hugo theme for [guyheckman.me](https://guyheckman.me). 
 Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark modes
 (`prefers-color-scheme`).
 
-Status: **scaffold, not released.** (A 0.5.0 release was prepared and dropped until the layout is built; there are no
-tags yet.) It builds the site's real content with the same 30 URLs as Clean White and no
-theme-related Hugo warnings. The layout currently implemented is a simple post list. The
-chosen design is a masonry home that mixes photo tiles and article tiles, with a calm "View options" popover
-(filter or highlight by type, sort, group by gallery), a hero with a wavy-underlined "Life, lived.", and serif headlines.
-That layout is not built yet. The site still uses Clean White; this theme is not wired into it yet.
+Status: **implemented on `feature/masonry-home`, not released.** (A 0.5.0 release was prepared and dropped until the layout was
+built; there are no tags yet.) The chosen design is built: a hero with a wavy-underlined slogan, a full-width masonry wall
+(three columns from 900 px) that mixes photo tiles and article tiles, a calm "View options" popover (filter or highlight by
+type, sort, group by gallery), photo posts with a masonry gallery and a `<dialog>` lightbox, articles with a table of contents
+and series box, tag pages, and serif headlines. It builds the site's real content to the same 30 URLs as Clean White with no
+theme-related Hugo warnings. Known limits: see "Known limits" below. The site still uses Clean White; this theme is not wired
+into it yet.
 
 ## Requirements
 
@@ -20,28 +21,48 @@ That layout is not built yet. The site still uses Clean White; this theme is not
   (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
   stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
   same rule.
-- No external fonts, frameworks, or CDN scripts. Total JS is two small files, loaded only where needed.
+- No external fonts, frameworks, or CDN scripts. JavaScript is three small files (`menu.js`, `wall.js`, `gallery.js`); the wall and gallery scripts load only where needed.
 
 ## Layout
 
 ```
 assets/css/main.css        tokens (palette) and all styles
 assets/js/menu.js          hamburger dropdown for the nav (below 820 px)
+assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
 assets/js/gallery.js       <dialog> lightbox, only loaded on pages with a gallery
 layouts/baseof.html        page shell
-layouts/home.html          landing page: post list
-layouts/section.html       /post/ list
-layouts/term.html          tag, category, and series pages
-layouts/taxonomy.html      /tags/, /categories/, /series/
+layouts/home.html          landing page: hero, controls, masonry wall, pagination
+layouts/section.html       /post/ list (same wall)
+layouts/term.html          tag, category, and series pages (hero plus the same wall)
+layouts/taxonomy.html      /tags/, /categories/, /series/ (A-Z list with counts)
 layouts/page.html          generic pages (About)
 layouts/archive.html       pages with layout: archive
-layouts/post/page.html     blog posts (hero, series, TOC, comments)
+layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
 layouts/search/section.html  search page (engine chosen in issue #3)
 layouts/404.html
-layouts/_partials/         head, nav, hero, post-card, pagination, series, comments, social, footer, search, asset
-layouts/_shortcodes/       gallery, galleries, embed
+layouts/_partials/         head, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, cover,
+                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset
+layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 ```
+
+### How the wall works
+
+- A post is a **photo post** if its categories include `photos` (case-insensitive) or its raw content uses the `galleries`
+  shortcode; everything else is an **article**.
+- A photo post becomes **one image tile per photo**, read from its `gallery` shortcodes (`src` and `title`), each linking to
+  the post. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
+  for series posts). A photo post with no parsable photos falls back to a single article tile.
+- Tiles carry `data-type`, `data-date`, `data-order`, `data-series` (and `data-gallery`, `data-gallery-title` on photos);
+  `wall.js` reads them. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+- The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
+
+### Known limits
+
+- The wall is paginated **by post** (`pagination.pagerSize`), so chip counts, the caption and group-by are per page. With the
+  current content, page 1 holds the three gallery posts' photos plus two articles and page 2 holds only articles.
+- `.highlight` code blocks stay light in dark mode (Hugo's inline `monokailight` styling).
+- Not yet checked: touch devices, screen readers, reduced motion, keyboard tab order, contrast measured with a tool.
 
 ## Site settings it reads
 
@@ -60,8 +81,7 @@ Decision records, the Clean White inventory and the layout mockups are in [docs/
 (Hugo does not publish this folder; this is the canonical copy). The work is tracked on issue
 cyvaquero/hugo-cleanwhite-guyheckman_me#4. In short: palette B
 (navy, steel blue, sand, cream) with light and dark modes; responsive with a hamburger nav below 820 px; Disqus on posts
-only; GA4 with Do Not Track; search is a reserved slot until the engine is chosen (issue #3). Still provisional: gallery
-lightbox approach, inline SVG icons, hand-written CSS with Hugo Pipes only.
+only; GA4 with Do Not Track; search is a reserved slot until the engine is chosen (issue #3). The featured-tags cloud (D14) is deferred.
 
 ## Credits
 
