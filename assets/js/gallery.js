@@ -1,31 +1,54 @@
-// Native <dialog> lightbox for .gallery grids (provisional, see decision D7).
+// Native <dialog> lightbox for the masonry galleries (.gal) on photo posts (decision D7).
+// Previous/next buttons, arrow keys, counter, Esc to close, focus returns to the photo that was opened.
+// Each link points at the large image (X3); the thumbnail in the page stays X2.
 (function () {
+  var galleries = document.querySelectorAll('.gal');
+  if (!galleries.length || typeof HTMLDialogElement === 'undefined') return;
+
   var dlg = document.createElement('dialog');
-  dlg.className = 'lightbox';
-  dlg.setAttribute('aria-label', 'Image viewer');
-  dlg.innerHTML = '<div class="lb-inner"><img alt=""><div class="lb-bar">' +
-    '<button type="button" data-a="prev">Previous</button><span class="lb-cap"></span>' +
-    '<button type="button" data-a="next">Next</button><button type="button" data-a="close">Close</button></div></div>';
+  dlg.className = 'lb';
+  dlg.setAttribute('aria-label', 'Photo viewer');
+  dlg.innerHTML = '<div class="in"><img alt="">' +
+    '<div class="bb"><button type="button" data-a="p" aria-label="Previous photo">Previous</button>' +
+    '<span class="count" aria-live="polite"></span>' +
+    '<button type="button" data-a="n" aria-label="Next photo">Next</button>' +
+    '<button type="button" data-a="c" aria-label="Close photo viewer">Close</button></div></div>';
   document.body.appendChild(dlg);
-  var img = dlg.querySelector('img'), cap = dlg.querySelector('.lb-cap'), items = [], i = 0;
+
+  var img = dlg.querySelector('img'), count = dlg.querySelector('.count');
+  var list = [], idx = 0, opener = null;
+
   function show(n) {
-    i = (n + items.length) % items.length;
-    img.src = items[i].href; img.alt = items[i].textContent.trim(); cap.textContent = img.alt;
+    idx = (n + list.length) % list.length;
+    var a = list[idx], thumb = a.querySelector('img');
+    img.onerror = function () { img.onerror = null; if (thumb) img.src = thumb.src; };
+    img.src = a.href;
+    img.alt = thumb ? thumb.alt : '';
+    count.textContent = (idx + 1) + ' / ' + list.length;
   }
-  document.querySelectorAll('.gallery').forEach(function (g) {
+
+  galleries.forEach(function (g) {
     g.addEventListener('click', function (e) {
-      var a = e.target.closest('a'); if (!a) return;
+      var a = e.target.closest('a');
+      if (!a || !g.contains(a)) return;
       e.preventDefault();
-      items = Array.prototype.slice.call(g.querySelectorAll('a'));
-      show(items.indexOf(a)); dlg.showModal();
+      list = [].slice.call(g.querySelectorAll('a'));
+      opener = a;
+      show(list.indexOf(a));
+      dlg.showModal();
+      dlg.querySelector('[data-a="c"]').focus();
     });
   });
+
+  dlg.addEventListener('close', function () { if (opener) opener.focus(); });
   dlg.addEventListener('click', function (e) {
     var a = e.target.dataset && e.target.dataset.a;
-    if (a === 'next') show(i + 1); else if (a === 'prev') show(i - 1);
-    else if (a === 'close' || e.target === dlg) dlg.close();
+    if (a === 'n') show(idx + 1);
+    else if (a === 'p') show(idx - 1);
+    else if (a === 'c' || e.target === dlg || e.target.classList.contains('in') || e.target.classList.contains('bb')) dlg.close();
   });
   dlg.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowRight') show(i + 1); else if (e.key === 'ArrowLeft') show(i - 1);
+    if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
   });
 })();
