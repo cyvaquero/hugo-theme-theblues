@@ -1,7 +1,0 @@
-<article class="card">
-  <div class="date"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>{{ with .Params.categories }} &middot; {{ delimit . ", " }}{{ end }}</div>
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-  {{ with .Params.subtitle }}<div class="sub">{{ . }}</div>{{ end }}
-  <p>{{ with .Description }}{{ . }}{{ else }}{{ .Summary | plainify | truncate 220 }}{{ end }}</p>
-  <div>{{ range .GetTerms "tags" }}<a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}</div>
-</article>

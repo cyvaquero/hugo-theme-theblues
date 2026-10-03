@@ -1,0 +1,4 @@
+{{- /* Page title with a fallback to the title-cased file name (the About page has no title in its front matter). */ -}}
+{{- $t := .Title -}}
+{{- if and (not $t) .File -}}{{- $t = .File.ContentBaseName | title -}}{{- end -}}
+{{- return $t -}}

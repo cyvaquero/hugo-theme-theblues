@@ -1,17 +1,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{{ $title := cond .IsHome (site.Params.SEOTitle | default site.Title) (printf "%s | %s" .Title (site.Params.SEOTitle | default site.Title)) }}
+{{ $pt := partial "page-title.html" . }}
+{{ $title := cond .IsHome (site.Params.SEOTitle | default site.Title) (printf "%s | %s" $pt (site.Params.SEOTitle | default site.Title)) }}
 {{ $desc := .Description | default site.Params.description }}
-{{ $img := .Params.image | default site.Params.header_image }}
+{{ $img := partial "cover.html" . }}
 <title>{{ $title }}</title>
 {{ with $desc }}<meta name="description" content="{{ . }}">{{ end }}
 {{ with site.Params.keyword }}<meta name="keywords" content="{{ . }}">{{ end }}
 <link rel="canonical" href="{{ .Permalink }}">
-<link rel="icon" href="{{ "img/favicon.ico" | relURL }}">
+{{ if fileExists "static/img/favicon.ico" }}<link rel="icon" href="{{ "img/favicon.ico" | relURL }}">{{ else }}<link rel="icon" href="data:,">{{ end }}
 {{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">{{ end }}
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:type" content="{{ cond .IsPage "article" "website" }}">
-<meta property="og:title" content="{{ .Title | default site.Title }}">
+<meta property="og:title" content="{{ $pt | default site.Title }}">
 <meta property="og:url" content="{{ .Permalink }}">
 {{ with $desc }}<meta property="og:description" content="{{ . }}">{{ end }}
 {{ with $img }}<meta property="og:image" content="{{ . }}">{{ end }}

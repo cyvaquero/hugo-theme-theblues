@@ -1,8 +1,6 @@
 {{ define "main" }}
-<div class="wrap narrow">
-  <div>
-    {{ with .Content }}{{ . }}{{ end }}
-    {{ partial "search.html" . }}
-  </div>
+<div class="pb">
+  {{ with .Content }}{{ . }}{{ end }}
+  {{ partial "search.html" . }}
 </div>
 {{ end }}

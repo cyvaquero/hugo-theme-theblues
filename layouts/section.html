@@ -1,10 +1,4 @@
 {{ define "main" }}
-{{ $pag := .Paginate (where .Pages "Section" "post") }}
-<div class="wrap narrow">
-  <div>
-    {{ with .Content }}{{ . }}{{ end }}
-    {{ range $pag.Pages }}{{ partial "post-card.html" . }}{{ end }}
-    {{ partial "pagination.html" $pag }}
-  </div>
-</div>
+{{ with .Content }}<div class="pb">{{ . }}</div>{{ end }}
+{{ partial "wall-page.html" (dict "page" . "posts" ((where .RegularPagesRecursive "Section" "post").ByDate.Reverse)) }}
 {{ end }}
