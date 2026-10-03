@@ -5,13 +5,15 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 ## [Unreleased]
 
 ### Planned
-- Paginate the wall by tile instead of by post; favicon; tablet-width, touch, screen-reader and keyboard accessibility checks.
+- Favicon; tablet-width, touch, screen-reader and keyboard accessibility checks.
 - The featured-tags cloud is deferred (D14).
 
 ### Added
 - The chosen home layout: hero with a wavy-underlined slogan, a full-width masonry wall (three columns from 900 px, two from
   560 px) of photo tiles (one per gallery photo) and article tiles, a "View options" popover (Filter or Highlight, Sort,
   Group by gallery), type chips with counts, and a live caption; `assets/js/wall.js`.
+- The wall paginates by tile (`params.wall.tilesPerPage`, default 24), and each photo post shows only its first few photos
+  (`params.wall.photosPerGallery`, default 4) followed by a "see all" tile that links to the gallery post.
 - Photo posts with a cover hero, a masonry gallery from the existing `gallery`/`galleries` shortcodes, and a native
   `<dialog>` lightbox using the larger SmugMug size; articles with a hero, sticky table of contents, and a "Part N of M" series
   box; tag, category and series pages that reuse the wall; an A-Z `/tags/` index.

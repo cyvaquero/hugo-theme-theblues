@@ -50,24 +50,28 @@ layouts/_markup/           render-link, render-image
 
 - A post is a **photo post** if its categories include `photos` (case-insensitive) or its raw content uses the `galleries`
   shortcode; everything else is an **article**.
-- A photo post becomes **one image tile per photo**, read from its `gallery` shortcodes (`src` and `title`), each linking to
-  the post. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
+- A photo post becomes **image tiles for its first few photos** (default 4, `params.wall.photosPerGallery`), read from its
+  `gallery` shortcodes (`src` and `title`) in source order, each linking to the post, followed by one dashed **see-all tile**
+  ("Boston Gallery, 14 more photos") that links to the gallery post when photos remain. The gallery post itself shows every
+  photo. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
   for series posts). A photo post with no parsable photos falls back to a single article tile.
 - Tiles carry `data-type`, `data-date`, `data-order`, `data-series` (and `data-gallery`, `data-gallery-title` on photos);
-  `wall.js` reads them. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+  `wall.js` reads them; see-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
 
 ### Known limits
 
-- The wall is paginated **by post** (`pagination.pagerSize`), so chip counts, the caption and group-by are per page. With the
-  current content, page 1 holds the three gallery posts' photos plus two articles and page 2 holds only articles.
+- The wall is paginated **by tile**, 24 per page (`params.wall.tilesPerPage`), so chip counts, the caption and group-by are per
+  page. With the current content (5 articles and 3 galleries) everything fits on one page of 20 tiles. Hugo's `.Paginate` only
+  accepts a collection of pages, so `layouts/_partials/wall-page.html` paginates a stand-in collection with one entry per tile
+  and slices the real tile list with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround.
 - `.highlight` code blocks stay light in dark mode (Hugo's inline `monokailight` styling).
 - Not yet checked: touch devices, screen readers, reduced motion, keyboard tab order, contrast measured with a tool.
 
 ## Site settings it reads
 
 It keeps the parameter names the site already uses, so `config.toml` needs little change: `title`, `params.header_image`,
-`slogan`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`, `[[menus.main]]` (or the legacy
+`slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`, `[[menus.main]]` (or the legacy
 `addtional_menus` list), `image_404`, `title_404`,
 `googleAnalytics`, `disqusShortname`, and `search_enabled` (new, default off).
 
