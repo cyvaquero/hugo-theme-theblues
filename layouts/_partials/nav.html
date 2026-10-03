@@ -1,12 +1,13 @@
 {{- /*
   Main navigation. Items come from Hugo's menu system ([[menus.main]] in the site config). If no main menu is defined, the
   legacy params.addtional_menus list (Clean White's spelling, a list of title/href pairs) is used so older site configs keep
-  working.
+  working. Below 820px the links collapse behind a hamburger button (assets/js/menu.js). Search is listed only when
+  params.search_enabled is set.
 */ -}}
 {{ $page := . }}
-<nav class="site-nav" aria-label="Main">
+<nav class="site" aria-label="Main">
   <a class="brand" href="{{ "/" | relURL }}">{{ site.Title }}</a>
-  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">&#9776; Menu</button>
+  <button class="menu" type="button" aria-expanded="false" aria-controls="site-menu">&#9776; Menu</button>
   <ul class="links" id="site-menu">
     {{- if site.Menus.main }}
     {{- range site.Menus.main }}

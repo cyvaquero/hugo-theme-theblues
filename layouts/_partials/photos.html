@@ -1,0 +1,19 @@
+{{- /*
+  Parses the gallery shortcodes out of a page's raw Markdown and returns a slice of photos, each a map with
+  src (thumbnail, as written), full (lightbox URL, see smug-full.html) and title. Source order is kept.
+  Matches the gallery shortcode in both its angle-bracket and percent forms, with double-quoted src and title
+  arguments; the opening galleries wrapper does not match, and neither do escaped (commented) examples.
+  Usage: {{ $photos := partial "photos.html" $page }}
+*/ -}}
+{{- $out := slice -}}
+{{- range findRESubmatch `\{\{[<%]\s*gallery\s([^}]*)\}\}` .RawContent -}}
+  {{- $args := index . 1 -}}
+  {{- $src := "" -}}
+  {{- $title := "" -}}
+  {{- with findRESubmatch `\bsrc="([^"]*)"` $args 1 -}}{{- $src = index (index . 0) 1 -}}{{- end -}}
+  {{- with findRESubmatch `\btitle="([^"]*)"` $args 1 -}}{{- $title = index (index . 0) 1 -}}{{- end -}}
+  {{- if $src -}}
+    {{- $out = $out | append (dict "src" $src "full" (partial "smug-full.html" $src) "title" $title) -}}
+  {{- end -}}
+{{- end -}}
+{{- return $out -}}
