@@ -26,8 +26,5 @@
 </header>
 {{ end }}
 {{ define "main" }}
-{{ $pag := .Paginate ((where .RegularPages "Section" "post").ByDate.Reverse) }}
-{{ partial "controls.html" . }}
-{{ partial "wall.html" (dict "pages" $pag.Pages) }}
-{{ partial "pagination.html" $pag }}
+{{ partial "wall-page.html" (dict "page" . "posts" ((where .RegularPages "Section" "post").ByDate.Reverse)) }}
 {{ end }}

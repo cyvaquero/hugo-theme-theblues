@@ -1,7 +1,4 @@
 {{ define "main" }}
-{{ $pag := .Paginate ((where .RegularPagesRecursive "Section" "post").ByDate.Reverse) }}
 {{ with .Content }}<div class="pb">{{ . }}</div>{{ end }}
-{{ partial "controls.html" . }}
-{{ partial "wall.html" (dict "pages" $pag.Pages) }}
-{{ partial "pagination.html" $pag }}
+{{ partial "wall-page.html" (dict "page" . "posts" ((where .RegularPagesRecursive "Section" "post").ByDate.Reverse)) }}
 {{ end }}

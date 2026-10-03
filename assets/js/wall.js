@@ -3,7 +3,9 @@
 // hidden until this script runs. Behaviour follows the final mockup (decision D12): type chips with counts, a
 // "View options" popover (Mode, Sort, Group by gallery, Reset), a Clear link and a live caption.
 // Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-date, data-order and data-series.
-// Counts and groups are computed from the tiles on the current page (the wall is paginated).
+// Counts and groups are computed from the tiles on the current page (the wall is paginated by tile). The "see all" tile of a
+// gallery (data-more) is a link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and
+// groups like a photo tile and always stays last in its gallery.
 (function () {
   var stage = document.getElementById('stage'), ctl = document.getElementById('ctl');
   if (!stage || !ctl) return;
@@ -17,17 +19,19 @@
   [].slice.call(stage.querySelectorAll('.tile')).forEach(function (el) {
     var d = el.dataset, it = {
       t: d.type === 'article' ? 'a' : 'p', date: d.date || '', ord: +d.order || 0,
-      key: d.gallery || '', name: d.galleryTitle || '', el: el
+      key: d.gallery || '', name: d.galleryTitle || '', el: el,
+      more: d.more !== undefined ? (+d.more || 0) : -1  // see-all link tile: not a photo, never counted
     };
     items.push(it);
     if (it.t === 'p') {
       var g = galleries[it.key];
       if (!g) { g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, n: 0 }; galleryList.push(g); }
-      g.n++;
+      g.n += it.more >= 0 ? it.more : 1;  // heading counts the whole gallery (shown plus hidden)
     }
   });
   var NA = items.filter(function (i) { return i.t === 'a'; }).length;
-  var NP = items.length - NA;
+  var NP = items.filter(function (i) { return i.t === 'p' && i.more < 0; }).length;
+  var NT = NA + NP;
 
   var DEF = { f: 'all', m: 'filter', s: 'new', g: false };
   var S = { f: DEF.f, m: DEF.m, s: DEF.s, g: DEF.g };
@@ -57,7 +61,7 @@
       var m = matches(it), e = it.el;
       if (S.m === 'filter') { e.hidden = !m; e.classList.remove('dim', 'hl'); }
       else { e.hidden = false; e.classList.toggle('dim', S.f !== 'all' && !m); e.classList.toggle('hl', S.f !== 'all' && m); }
-      if (!e.hidden) vis[it.t]++;
+      if (!e.hidden && it.more < 0) vis[it.t]++;
     });
     [].slice.call(stage.querySelectorAll('details.grp')).forEach(function (d) {
       d.hidden = !d.querySelector('.tile:not([hidden])');
@@ -129,7 +133,7 @@
 
   // Chip counts come from the tiles on this page.
   qa('[data-f]').forEach(function (b) {
-    b.querySelector('.n').textContent = b.dataset.f === 'all' ? items.length : b.dataset.f === 'article' ? NA : NP;
+    b.querySelector('.n').textContent = b.dataset.f === 'all' ? NT : b.dataset.f === 'article' ? NA : NP;
   });
 
   // Popover: closes on Esc (focus returns to the button) and on outside click.
