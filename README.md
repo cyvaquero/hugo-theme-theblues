@@ -73,7 +73,8 @@ layouts/_markup/           render-link, render-image
 It keeps the parameter names the site already uses, so `config.toml` needs little change: `title`, `params.header_image`,
 `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`, `[[menus.main]]` (or the legacy
 `addtional_menus` list), `image_404`, `title_404`,
-`googleAnalytics`, `disqusShortname`, and `search_enabled` (new, default off).
+`googleAnalytics`, `disqusShortname`, `search_enabled` (new, default off), and the optional `[params.wall]` table:
+`tilesPerPage` (default 24) and `photosPerGallery` (default 4).
 
 Front matter: `title`, `subtitle`, `description`, `date`, `author`, `image`, `showtoc`, `categories`, `tags`, `series`.
 The byline comes from each post's `author` front matter, falling back to the site's `params.author` if set; new posts made
