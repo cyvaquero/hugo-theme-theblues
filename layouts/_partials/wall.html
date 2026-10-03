@@ -1,0 +1,25 @@
+{{- /*
+  The masonry wall. Context: a map with "pages" (the pages to show, already paginated and sorted newest first).
+  A photo post emits one tile per photo; an article emits one text tile. Without JavaScript this is the whole feature:
+  one CSS-columns flow, newest first. assets/js/wall.js re-sorts, filters and groups the tiles.
+*/ -}}
+<div id="stage" class="wall" data-pv="all">
+  <div class="mas">
+    {{- $order := 0 -}}
+    {{- range .pages -}}
+      {{- $post := . -}}
+      {{- $photos := slice -}}
+      {{- if partial "is-photo.html" $post -}}{{- $photos = partial "photos.html" $post -}}{{- end -}}
+      {{- if $photos -}}
+        {{- $n := len $photos -}}
+        {{- range $i, $ph := $photos }}
+    {{ partial "tile-photo.html" (dict "page" $post "photo" $ph "i" $i "n" $n "order" $order) }}
+          {{- $order = add $order 1 -}}
+        {{- end -}}
+      {{- else }}
+    {{ partial "tile-article.html" (dict "page" $post "order" $order) }}
+        {{- $order = add $order 1 -}}
+      {{- end -}}
+    {{- end }}
+  </div>
+</div>

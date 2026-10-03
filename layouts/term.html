@@ -1,9 +1,33 @@
-{{ define "main" }}
-{{ $pag := .Paginate (where .Pages "Section" "post") }}
-<div class="wrap narrow">
-  <div>
-    {{ range $pag.Pages }}{{ partial "post-card.html" . }}{{ end }}
-    {{ partial "pagination.html" $pag }}
+{{ define "header" }}
+{{- /* Term hero: "Tagged: x" (or Category / Series for those taxonomies) with post and photo counts. */ -}}
+{{ $labels := dict "tags" "Tagged" "categories" "Category" "series" "Series" }}
+{{ $kinds := dict "tags" "Tag" "categories" "Category" "series" "Series" }}
+{{ $plural := .Data.Plural }}
+{{ $label := index $labels $plural | default (.Data.Singular | title) }}
+{{ $kind := index $kinds $plural | default (.Data.Singular | title) }}
+{{ $posts := where .RegularPages "Section" "post" }}
+{{ $photos := 0 }}
+{{ $cover := site.Params.header_image | default "" }}
+{{ $found := false }}
+{{ range $posts.ByDate.Reverse }}
+  {{ if partial "is-photo.html" . }}
+    {{ $photos = add $photos (len (partial "photos.html" .)) }}
+    {{ if not $found }}{{ $cover = partial "cover.html" . }}{{ $found = true }}{{ end }}
+  {{ end }}
+{{ end }}
+<header class="phero thero"{{ with $cover }} style="--hi:url('{{ . }}')"{{ end }}>
+  <div class="in">
+    <a class="tl" href="{{ "/" | relURL }}">&larr; Back to all posts</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">All {{ .Title | lower }} &rarr;</a>{{ end }}
+    <div class="ptype">{{ $kind }}</div>
+    <h1>{{ $label }}: {{ .Title }}</h1>
+    <div class="meta">{{ len $posts }} {{ cond (eq (len $posts) 1) "post" "posts" }}{{ if $photos }} &middot; {{ $photos }} {{ cond (eq $photos 1) "photo" "photos" }}{{ end }}</div>
+    {{ with .Description }}<p class="sub">{{ . }}</p>{{ end }}
   </div>
-</div>
+</header>
+{{ end }}
+{{ define "main" }}
+{{ $pag := .Paginate ((where .RegularPages "Section" "post").ByDate.Reverse) }}
+{{ partial "controls.html" . }}
+{{ partial "wall.html" (dict "pages" $pag.Pages) }}
+{{ partial "pagination.html" $pag }}
 {{ end }}
