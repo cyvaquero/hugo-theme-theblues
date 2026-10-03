@@ -1,9 +1,9 @@
 # Retheme decision records (issue #4)
 
 Started 2026-10-01 on branch `feature/retheme` in the site repo. Evidence is in
-[clean-white-inventory.md](clean-white-inventory.md); the chosen layout mockup is
-[mockups/directions/direction-c-v3.html](mockups/directions/direction-c-v3.html) (see [mockups/README.md](mockups/README.md)).
-Last updated 2026-10-02.
+[clean-white-inventory.md](clean-white-inventory.md); the current consolidated mockup is
+[mockups/directions/direction-c-final.html](mockups/directions/direction-c-final.html) (see [mockups/README.md](mockups/README.md)).
+Last updated 2026-10-03.
 
 **Status key:** `Decided` = confirmed by Guy. `Provisional` = implemented or implied by an accepted mockup but not
 explicitly confirmed. `Proposed` = options written, awaiting a decision. `TBD` = deferred. Each record leads with
@@ -231,6 +231,7 @@ and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
 
 ## Changelog of this file
 
+- 2026-10-03: added `direction-c-final.html`, the consolidated mockup of D4 to D14, as the file to implement from.
 - 2026-10-03: D7 decided (masonry plus `<dialog>` lightbox) and D9 decided (inline SVG icons with labels); no provisional decisions remain.
 - 2026-10-02: the 0.5.0 release was merged back into develop and dropped; the first release now waits for the D12 layout and D14 tag cloud.
 - 2026-10-02: home wall keeps three columns beside the tag cloud (container widened to 86 rem; two columns from 900 to 1099 px).
