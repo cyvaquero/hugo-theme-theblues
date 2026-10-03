@@ -4,7 +4,8 @@ A responsive, accessible Hugo theme for [guyheckman.me](https://guyheckman.me). 
 Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark modes
 (`prefers-color-scheme`).
 
-Status: **0.5.0, a scaffold (first release).** It builds the site's real content with the same 30 URLs as Clean White and no
+Status: **scaffold, not released.** (A 0.5.0 release was prepared and dropped until the layout is built; there are no
+tags yet.) It builds the site's real content with the same 30 URLs as Clean White and no
 theme-related Hugo warnings. The layout currently implemented is a simple post list. The
 chosen design is a masonry home that mixes photo tiles and article tiles, with a calm "View options" popover
 (filter or highlight by type, sort, group by gallery), a hero with a wavy-underlined "Life, lived.", serif headlines, and a

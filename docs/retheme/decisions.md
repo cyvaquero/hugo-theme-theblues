@@ -99,7 +99,7 @@ The author's bio and photo live on the About page only.
 - Categories are reachable through the taxonomy pages and the browse controls (type chips), so no categories box is carried over.
 - Config consequence: `sidebar_avatar`, `sidebar_about_description`, `omit_categories`, `friends` and `bookmarks` become unused
   and are removed from `config.toml` at switch-over; `featured_tags` and `featured_condition_size` are reused by D14 once the tag cloud is built.
-- The scaffold's sidebar (partial, CSS and the `sidebar_*`, `omit_categories`, `featured_*` reads) was removed before 0.5.0, so the
+- The scaffold's sidebar (partial, CSS and the `sidebar_*`, `omit_categories`, `featured_*` reads) was removed on 2026-10-02, so the
   home page is a plain post list until the D12 layout and the D14 tag cloud are built.
 
 ## D6. Table of contents
@@ -218,6 +218,7 @@ and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
 
 ## Open items before release
 
+- **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 home layout and the D14 tag cloud to be built.
 - Confirm the provisional D7 and D9; settle D14's open details (size steps, which tags show).
 - Fix or confirm the Disqus shortname (D8).
 - Implement the D12 home layout in the theme; favicon; tablet-width and keyboard/accessibility checks.
@@ -226,6 +227,7 @@ and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
 
 ## Changelog of this file
 
+- 2026-10-02: the 0.5.0 release was merged back into develop and dropped; the first release now waits for the D12 layout and D14 tag cloud.
 - 2026-10-02: home wall keeps three columns beside the tag cloud (container widened to 86 rem; two columns from 900 to 1099 px).
 - 2026-10-02: D14 decided (minimalist tag cloud in a right column); D5 and D12 updated to match.
 - 2026-10-02: D3 decided (hand-written CSS, readable source, Hugo-minified for production).
