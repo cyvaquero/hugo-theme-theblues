@@ -1,8 +1,24 @@
+{{- /*
+  Main navigation. Items come from Hugo's menu system ([[menus.main]] in the site config). If no main menu is defined, the
+  legacy params.addtional_menus list (Clean White's spelling, a list of title/href pairs) is used so older site configs keep
+  working.
+*/ -}}
+{{ $page := . }}
 <nav class="site-nav" aria-label="Main">
   <a class="brand" href="{{ "/" | relURL }}">{{ site.Title }}</a>
   <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">&#9776; Menu</button>
   <ul class="links" id="site-menu">
-    {{ range site.Params.addtional_menus }}<li><a href="{{ .href | relLangURL }}/">{{ .title }}</a></li>{{ end }}
-    {{ if site.Params.search_enabled }}<li><a href="{{ "search/" | relURL }}">SEARCH</a></li>{{ end }}
+    {{- if site.Menus.main }}
+    {{- range site.Menus.main }}
+    <li><a href="{{ .URL }}"{{ if $page.IsMenuCurrent "main" . }} aria-current="page"{{ end }}>{{ .Name }}</a></li>
+    {{- end }}
+    {{- else }}
+    {{- range site.Params.addtional_menus }}
+    <li><a href="{{ .href | relLangURL }}/">{{ .title }}</a></li>
+    {{- end }}
+    {{- end }}
+    {{- if site.Params.search_enabled }}
+    <li><a href="{{ "search/" | relURL }}">SEARCH</a></li>
+    {{- end }}
   </ul>
 </nav>
