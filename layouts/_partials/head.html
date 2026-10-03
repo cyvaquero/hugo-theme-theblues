@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {{ $title := cond .IsHome (site.Params.SEOTitle | default site.Title) (printf "%s | %s" .Title (site.Params.SEOTitle | default site.Title)) }}
 {{ $desc := .Description | default site.Params.description }}
-{{ $img := .Params.thumbnail | default .Params.image | default site.Params.header_image }}
+{{ $img := .Params.image | default site.Params.header_image }}
 <title>{{ $title }}</title>
 {{ with $desc }}<meta name="description" content="{{ . }}">{{ end }}
 {{ with site.Params.keyword }}<meta name="keywords" content="{{ . }}">{{ end }}

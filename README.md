@@ -4,12 +4,12 @@ A responsive, accessible Hugo theme for [guyheckman.me](https://guyheckman.me). 
 Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark modes
 (`prefers-color-scheme`).
 
-Status: **scaffold, not released.** It builds the site's real content with the same 30 URLs as Clean White and no
-theme-related Hugo warnings. The layout currently implemented is a simple post list with the landing-page sidebar. The
+Status: **0.5.0, a scaffold (first release).** It builds the site's real content with the same 30 URLs as Clean White and no
+theme-related Hugo warnings. The layout currently implemented is a simple post list. The
 chosen design is a masonry home that mixes photo tiles and article tiles, with a calm "View options" popover
 (filter or highlight by type, sort, group by gallery), a hero with a wavy-underlined "Life, lived.", serif headlines, and a
 minimalist tag cloud in a right column;
-that layout is not built yet. The site does not use this theme until it is released.
+that layout is not built yet. The site still uses Clean White; this theme is not wired into it yet.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ assets/css/main.css        tokens (palette) and all styles
 assets/js/menu.js          hamburger dropdown for the nav (below 820 px)
 assets/js/gallery.js       <dialog> lightbox, only loaded on pages with a gallery
 layouts/baseof.html        page shell
-layouts/home.html          landing page: post list + sidebar
+layouts/home.html          landing page: post list
 layouts/section.html       /post/ list
 layouts/term.html          tag, category, and series pages
 layouts/taxonomy.html      /tags/, /categories/, /series/
@@ -38,7 +38,7 @@ layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts (hero, series, TOC, comments)
 layouts/search/section.html  search page (engine chosen in issue #3)
 layouts/404.html
-layouts/_partials/         head, nav, hero, post-card, pagination, sidebar, series, comments, social, footer, search
+layouts/_partials/         head, nav, hero, post-card, pagination, series, comments, social, footer, search, asset
 layouts/_shortcodes/       gallery, galleries, embed
 layouts/_markup/           render-link, render-image
 ```
@@ -46,16 +46,19 @@ layouts/_markup/           render-link, render-image
 ## Site settings it reads
 
 It keeps the parameter names the site already uses, so `config.toml` needs little change: `title`, `params.header_image`,
-`slogan`, `description`, `SEOTitle`, `keyword`, `sidebar_avatar`, `sidebar_about_description`, `featured_tags`,
-`featured_condition_size`, `omit_categories`, `social.rss|linkedin|github`, `addtional_menus`, `image_404`, `title_404`,
+`slogan`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`, `[[menus.main]]` (or the legacy
+`addtional_menus` list), `image_404`, `title_404`,
 `googleAnalytics`, `disqusShortname`, and `search_enabled` (new, default off).
 
 Front matter: `title`, `subtitle`, `description`, `date`, `author`, `image`, `showtoc`, `categories`, `tags`, `series`.
+The byline comes from each post's `author` front matter, falling back to the site's `params.author` if set; new posts made
+from the archetype get `author` pre-filled from `params.author` (empty if unset).
 
 ## Design decisions
 
 Decision records, the Clean White inventory and the layout mockups are in [docs/retheme/](docs/retheme/decisions.md)
-(Hugo does not publish this folder; this is the canonical copy). Also tracked on issue cyvaquero/hugo-cleanwhite-guyheckman_me#4 and in the project's local decision records. In short: palette B
+(Hugo does not publish this folder; this is the canonical copy). The work is tracked on issue
+cyvaquero/hugo-cleanwhite-guyheckman_me#4. In short: palette B
 (navy, steel blue, sand, cream) with light and dark modes; responsive with a hamburger nav below 820 px; Disqus on posts
 only; GA4 with Do Not Track; search is a reserved slot until the engine is chosen (issue #3). Still provisional: gallery
 lightbox approach, inline SVG icons, hand-written CSS with Hugo Pipes only.
