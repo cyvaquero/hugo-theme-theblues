@@ -5,10 +5,10 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 ## [Unreleased]
 
 ### Planned
-- The chosen home layout: masonry wall of photo and article tiles (three columns from 1100 px wide), type chips with counts,
-  a "View options" popover (Filter or Highlight, Sort, Group by gallery), the hero header, serif headlines, and a
-  minimalist tag cloud in a right column (above the type chips on small screens). Photo posts open as a masonry
-  gallery; articles get a sticky table of contents and a series box.
+- The chosen home layout: masonry wall of photo and article tiles (three columns from 900 px wide, two from 560 px), type
+  chips with counts, a "View options" popover (Filter or Highlight, Sort, Group by gallery), the hero header, and serif
+  headlines. Photo posts open as a masonry gallery with a native `<dialog>` lightbox; articles get a sticky table of
+  contents and a series box. The featured-tags cloud is deferred.
 - Favicon; tablet-width and keyboard accessibility checks.
 
 ### Added
@@ -16,7 +16,7 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
   chosen home layout (see Planned) is not built yet, so there is no release: a 0.5.0 release branch was prepared on
   2026-10-02, merged back into `develop` without tagging or merging to `main`, and dropped until the layout is built.
 - The post byline reads the post's `author` front matter, falling back to `params.author`; the archetype no longer hardcodes a name.
-- `docs/retheme/`: decision records (D1 to D14), the Clean White inventory, and the layout and palette mockups.
+- `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - `layouts/_partials/asset.html`: production builds minify and fingerprint CSS and JS; development builds serve the
   readable commented source. `assets/css/main.css` is documented as the only, hand-written stylesheet.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.

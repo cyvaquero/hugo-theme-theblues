@@ -9,7 +9,7 @@ tabs and Light/Dark buttons.
 
 | File | What it is |
 |---|---|
-| [directions/direction-c-final.html](directions/direction-c-final.html) | **The consolidated mockup of every decision (D4 to D14).** Masonry home with calm popover controls, A+ hero, serif headlines, tag cloud in a right column (three-column wall from 1100 px), no sidebar or bio on Home, nav of Archive and About only, About page with the bio, photo post with masonry and `<dialog>` lightbox, article with TOC and series box, Disqus on posts only, footer with inline SVG icons. Tabs: Home, Photo post, Article, Tag page, All tags, About. Not mocked: an Archive page. |
+| [directions/direction-c-final.html](directions/direction-c-final.html) | **The consolidated mockup of every current decision (D4 to D13; the tag cloud, D14, is deferred).** Masonry home with calm popover controls, A+ hero, serif headlines, a full-width three-column wall (no right column), no sidebar or bio on Home, nav of Archive and About only, About page with the bio, photo post with masonry and `<dialog>` lightbox, article with TOC and series box, Disqus on posts only, footer with inline SVG icons. Tabs: Home, Photo post, Article, Tag page, All tags, About. Not mocked: an Archive page. |
 
 ## Earlier steps (superseded by the file above)
 
@@ -17,11 +17,11 @@ tabs and Light/Dark buttons.
 |---|---|
 | [directions/direction-c-v3.html](directions/direction-c-v3.html) | The chosen layout (decision D12), before the tag cloud. Masonry home mixing photos and article tiles, calm "View options" popover controls, A+ hero, serif headlines. Tabs: Home, Photo post, Article. |
 
-## Featured tags (decision D14)
+## Featured tags (decision D14, deferred: kept as history)
 
 | File | What it is |
 |---|---|
-| [directions/direction-c-v3-cloud.html](directions/direction-c-v3-cloud.html) | The chosen featured-tags design (D14), before the final consolidation: v3 with a minimalist tag cloud in a right column (stacks above the type chips on small screens); three columns of tiles at 1100 px and wider; 'Cloud shows' Featured or All tags |
+| [directions/direction-c-v3-cloud.html](directions/direction-c-v3-cloud.html) | The tag cloud design that was chosen on 2026-10-02 and then deferred: v3 with a minimalist tag cloud in a right column (stacks above the type chips on small screens); three columns of tiles at 1100 px and wider; 'Cloud shows' Featured or All tags |
 | [directions/direction-c-v3-tags.html](directions/direction-c-v3-tags.html) | Earlier option, set aside: v3 plus a "Browse by tag" section with three styles (1 Pills, 2 Tiles, 3 Tiles + pills; selector in the top bar), a Tag page tab and an All tags tab |
 
 ## Kept for reference

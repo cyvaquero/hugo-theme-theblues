@@ -24,7 +24,7 @@ the current decision; the options and reasoning are kept below it as background.
 | D11 | Analytics | Decided | Keep GA4 with Do Not Track |
 | D12 | Home and post layout | Decided | Direction C v3: masonry, calm popover controls, A+ hero, serif headlines |
 | D13 | License | Decided | Apache-2.0, with a NOTICE crediting Clean White and its upstreams |
-| D14 | Featured tags | Decided | A minimalist tag cloud in a right column on the home page (stacks above the type chips on small screens) |
+| D14 | Featured tags | Deferred | The tag cloud is dropped from the home page for now; revisit later. Tags stay reachable through tag links and tag pages |
 
 ---
 
@@ -94,13 +94,13 @@ Requirements added 2026-10-02:
 to keep the sidebar there. The layout chosen in D12 has no sidebar, and the author strip that briefly replaced it was removed.
 The author's bio and photo live on the About page only.
 
-- Featured tags, which used to sit in the sidebar, now live in a tag-cloud-only right column on the home page; see D14. That
-  column holds nothing else (no bio, no categories).
+- Featured tags, which used to sit in the sidebar, have no place on the home page for now: the tag cloud that was going to
+  replace the sidebar is deferred (D14). The home page has no right column at all.
 - Categories are reachable through the taxonomy pages and the browse controls (type chips), so no categories box is carried over.
 - Config consequence: `sidebar_avatar`, `sidebar_about_description`, `omit_categories`, `friends` and `bookmarks` become unused
-  and are removed from `config.toml` at switch-over; `featured_tags` and `featured_condition_size` are reused by D14 once the tag cloud is built.
+  and are removed from `config.toml` at switch-over; `featured_tags` and `featured_condition_size` stay unused until D14 is revisited.
 - The scaffold's sidebar (partial, CSS and the `sidebar_*`, `omit_categories`, `featured_*` reads) was removed on 2026-10-02, so the
-  home page is a plain post list until the D12 layout and the D14 tag cloud are built.
+  home page is a plain post list until the D12 layout is built.
 
 ## D6. Table of contents
 
@@ -151,8 +151,9 @@ Hugo-index options (Lunr, MiniSearch, Fuse.js) do not.
 **Decision (2026-10-02): Direction C v3.** Mockup: [mockups/directions/direction-c-v3.html](mockups/directions/direction-c-v3.html).
 
 - **Home:** the A+ hero (header photo under a navy scrim, "guyheckman.me" kicker, "Life, *lived.*" with a decorative sand wavy
-  underline, tagline), then the browse controls, then a **masonry** wall mixing photos and article tiles. No sidebar, no author strip and no bio
-  (see D5); the only right-column content is the tag cloud from D14.
+  underline, tagline), then the browse controls, then a **masonry** wall mixing photos and article tiles. No sidebar, no right column, no author strip and no bio
+  (see D5). The wall is **three columns** of tiles from 900 px wide, two from 560 px, and one below that, in the normal page
+  container (about 72 rem), with the controls row above it.
 - **Tiles that differ by shape, icon and label, not just color:** photo tiles are image-only with a camera badge and a caption
   ("Boston gallery · 6 photos") on hover or focus, always visible on touch. Article tiles are text tiles with a sand left bar,
   an ARTICLE label with a document icon, a serif title, an excerpt, date and tags, and a "Part N of 3" chip for series posts.
@@ -187,32 +188,23 @@ Huxblog and Clean Blog, and the cavelab.dev series snippet (license unknown). Th
 
 ## D14. Featured tags
 
-**Decision (2026-10-02): move the featured tags into a right column as a minimalist tag cloud.** This replaces the three
-"Browse by tag" strip styles that were mocked up (pills, image tiles, tiles plus pills). Mockup:
-`mockups/directions/direction-c-v3-cloud.html`.
+**Status: Deferred (2026-10-03). The tag cloud is dropped from the home page for now and will be revisited at a later point.** The home
+page returns to the plain full-width three-column masonry wall (D12). Nothing about featured tags is built or mocked in the current
+mockup.
 
-- **Right column, tags only:** the home page has one right column that holds only the tag cloud. There is still no bio,
-  author strip or categories box (D5). On desktop the column (about 13.5 rem) is sticky beside the controls and the masonry
-  wall. **The wall keeps three columns of tiles** from 1100 px wide up, by widening the page container to 86 rem (tiles are
-  about 318 px at 1280 px wide and 258 px at 1100 px); between 900 and 1099 px it uses two columns, and below 900 px one
-  column with the cloud moved above the type chips as a compact wrapped list, so nothing is hidden. The photo post and tag page
-  use the same wider container.
-- **Minimalist cloud:** plain text links only (no pills, borders or icons), sized in about three steps by post count, with the
-  count in each link's accessible name (for example "travel, 3 posts") so size is not the only signal. Links navigate to tag
-  pages; an "All tags" link opens an A-Z index. Tags are real links in a labeled `nav` with visible focus and large enough
-  touch targets.
-- **Which tags:** "featured" means tags used by more than one post (currently hugo, markdown, photography, travel, git). The
-  mockup also lets you view all 10 tags, with single-post tags smallest, to compare.
+- Tags are still reachable: tag links on article tiles and in posts open the tag pages, `/tags/` lists every tag (an A-Z index), and the
+  type chips and browse controls (D12) handle filtering the wall.
+- Config consequence: `featured_tags` and `featured_condition_size` stay unused.
+- The deferral reverses the 2026-10-02 decision to put a minimalist tag cloud in a right column (stacked above the type chips on small
+  screens, with the wall widened to 86 rem to keep three columns). That design is kept as history in
+  `mockups/directions/direction-c-v3-cloud.html`; the strip styles (pills, tiles, tiles plus pills) are in `direction-c-v3-tags.html`.
 
-Background (research, 2026-10-02; page text only, so the big sites' layout and accessibility details are unverified): Unsplash
-puts a text topics row above the grid and navigates to topic pages; Pexels uses chips with thumbnails and counts plus "See
-more"; Dribbble shows a ranked top 12 with an A-Z index; Ghost's Array theme shows image-backed tag cards with pinned order;
-small photographer sites use a few hand-named genres. The research flagged a side column as weak against a wide masonry wall and
-hidden on mobile; the stacked mobile placement above addresses the second point, and the widened container keeps the wall at three columns on common desktop widths.
-
-Open: the exact size steps and muted color for single-post tags (contrast must stay at 4.5:1), whether "All tags" shows
-single-post tags in the cloud by default, and the cap if the featured list grows. Alternatives set aside: the pills, image tiles
-and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
+Background kept for when this is revisited (research, 2026-10-02; page text only, so the big sites' layout and accessibility details
+are unverified): Unsplash puts a text topics row above the grid and navigates to topic pages; Pexels uses chips with thumbnails and
+counts plus "See more"; Dribbble shows a ranked top 12 with an A-Z index; Ghost's Array theme shows image-backed tag cards with pinned
+order; small photographer sites use a few hand-named genres. The research flagged a side column as weak against a wide masonry wall,
+and a single-line scrolling row as hiding items. Open questions for later: where tags live on a wall-first page, how many to feature,
+and how to size them while keeping every tag's contrast at 4.5:1.
 
 ## Out of scope for the theme
 
@@ -222,8 +214,8 @@ and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
 
 ## Open items before release
 
-- **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 home layout and the D14 tag cloud to be built.
-- Settle D14's open details (size steps, which tags show).
+- **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 home layout to be built.
+- D14 (featured tags) is deferred; no work needed before release.
 - Fix or confirm the Disqus shortname (D8).
 - Implement the D12 home layout in the theme; favicon; tablet-width and keyboard/accessibility checks.
 - Wire the theme into the site (submodule, `config.toml`, drop the Algolia output format, the site's `layouts/` overrides and
@@ -231,6 +223,7 @@ and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
 
 ## Changelog of this file
 
+- 2026-10-03: D14 deferred (tag cloud dropped from the home page); the home wall returns to three full-width columns (3 from 900 px, 2 from 560 px, 1 below); D5 and D12 updated to match.
 - 2026-10-03: added `direction-c-final.html`, the consolidated mockup of D4 to D14, as the file to implement from.
 - 2026-10-03: D7 decided (masonry plus `<dialog>` lightbox) and D9 decided (inline SVG icons with labels); no provisional decisions remain.
 - 2026-10-02: the 0.5.0 release was merged back into develop and dropped; the first release now waits for the D12 layout and D14 tag cloud.

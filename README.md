@@ -8,9 +8,8 @@ Status: **scaffold, not released.** (A 0.5.0 release was prepared and dropped un
 tags yet.) It builds the site's real content with the same 30 URLs as Clean White and no
 theme-related Hugo warnings. The layout currently implemented is a simple post list. The
 chosen design is a masonry home that mixes photo tiles and article tiles, with a calm "View options" popover
-(filter or highlight by type, sort, group by gallery), a hero with a wavy-underlined "Life, lived.", serif headlines, and a
-minimalist tag cloud in a right column;
-that layout is not built yet. The site still uses Clean White; this theme is not wired into it yet.
+(filter or highlight by type, sort, group by gallery), a hero with a wavy-underlined "Life, lived.", and serif headlines.
+That layout is not built yet. The site still uses Clean White; this theme is not wired into it yet.
 
 ## Requirements
 

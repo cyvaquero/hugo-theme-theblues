@@ -10,7 +10,7 @@ Decisions implemented:
  D9  footer text links with inline aria-hidden SVG icons (RSS, LinkedIn, GitHub), currentColor, hover #D2C1B6.
  D10 search is a reserved slot only: no Search link in the nav; nav is ARCHIVE and ABOUT.
  D12 A+ hero with wavy sand underline, masonry wall of photo and article tiles, calm "View options" popover, series box, pagination.
- D14 minimalist tag cloud (featured = tags on more than one post) in the right column, All tags link; 3 columns from 1100px, 2 from 900px, 1 below with the cloud above the chips.
+ D14 (featured tags / tag cloud) is deferred and NOT in this mockup. Home is a full-width masonry wall: 1 column below 560px, 2 from 560px, 3 from 900px. Tag and All tags pages stay reachable from the tag links on tiles and posts.
 -->
 <!doctype html><html lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The Blues: Final layout</title><style>
 :root,:root[data-theme=light]{--bg:#F9F3EF;--text:#1B3C53;--muted:#456882;--link:#456882;--hv:#D2C1B6;--band:#1B3C53;--bt:#F9F3EF;--line:#D2C1B6;--surface:#fff;--code:#EFE6DF;--on-bg:#1B3C53;--on-fg:#F9F3EF;--art-bg:#1B3C53;--art-fg:#F9F3EF;--art-sub:#D2C1B6;--art-line:#D2C1B6}
@@ -22,7 +22,7 @@ img{max-width:100%;display:block}a{color:var(--link)}a:hover{color:var(--text)}:
 [hidden]{display:none!important}
 .bar{background:#fff;color:#222;border-bottom:1px solid #ccc;padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;font:14px system-ui}
 .bar button{border:1px solid #888;background:#f4f4f4;border-radius:6px;padding:.25rem .7rem;cursor:pointer;font:inherit;color:#222}.bar button.on{background:#222;color:#fff;border-color:#222}.bar .sp{margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap}.bar small{flex-basis:100%;color:#555}.bar :focus-visible{outline-color:#1B3C53}
-nav.site{position:relative;background:var(--band);color:var(--bt);display:flex;align-items:center;justify-content:space-between;padding:.6rem max(1rem,calc((100% - var(--wide))/2))}
+nav.site{position:relative;background:var(--band);color:var(--bt);display:flex;align-items:center;justify-content:space-between;padding:.6rem max(1rem,calc((100% - 72rem)/2))}
 nav.site a,nav.site .menu{color:var(--bt);text-decoration:none}nav.site a:hover,nav.site .menu:hover{color:var(--hv)}nav.site .brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;padding:.35rem 0}
 nav.site .menu{background:none;border:1px solid var(--hv);border-radius:6px;padding:.35rem .7rem;font:inherit;font-size:.9rem;cursor:pointer;min-height:44px}
 nav.site .links{display:none;position:absolute;left:0;right:0;top:100%;z-index:20;flex-direction:column;background:var(--band);border-top:1px solid var(--muted);box-shadow:0 8px 16px rgba(0,0,0,.3);padding:.25rem 1rem .75rem;margin:0;list-style:none}
@@ -48,12 +48,12 @@ svg.ic{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width
 .hero h1{margin:.3rem 0 0;font:700 clamp(2.4rem,9vw,4.4rem)/1.05 var(--serif)}.hero p.sub{margin:.8rem 0 0}
 .u{position:relative;display:inline-block;font-style:italic}.u svg{position:absolute;left:0;bottom:-.12em;width:100%;height:.25em;color:#D2C1B6}
 .phero{color:#F9F3EF;min-height:min(52vh,26rem);display:flex;align-items:flex-end;background:linear-gradient(rgba(15,35,50,.45) 0%,rgba(15,35,50,.92)),var(--hi,none) center/cover,var(--band)}
-.phero .in{width:100%;max-width:var(--wide);margin:0 auto;padding:5rem 1rem 2rem}.phero h1{margin:.3rem 0;font:700 clamp(2rem,6.5vw,3.4rem)/1.1 var(--serif)}
+.phero .in{width:100%;max-width:72rem;margin:0 auto;padding:5rem 1rem 2rem}.phero h1{margin:.3rem 0;font:700 clamp(2rem,6.5vw,3.4rem)/1.1 var(--serif)}
 .phero .meta,.phero .ptype,.phero .exif{color:#D2C1B6}.phero .exif{font-size:.95rem;margin:.2rem 0 0}
 .phero .tag{color:#F9F3EF;border-color:#D2C1B6}.phero .tag:hover{color:#D2C1B6}
 .ptype{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;letter-spacing:.14em;font-weight:700;text-transform:uppercase;color:var(--muted)}
 /* controls: calm popover */
-.ctl{position:relative;max-width:var(--wide);margin:0 auto;padding:.6rem 1rem .5rem;display:flex;flex-wrap:wrap;gap:.2rem .7rem;align-items:center}
+.ctl{position:relative;max-width:72rem;margin:0 auto;padding:.6rem 1rem .5rem;display:flex;flex-wrap:wrap;gap:.2rem .7rem;align-items:center}
 .seg{display:inline-flex;flex-wrap:wrap;gap:.3rem}
 .seg button{border:1px solid var(--line);background:none;color:var(--text);border-radius:99px;padding:.1rem .75rem;font:inherit;font-size:.85rem;font-weight:400;cursor:pointer;min-height:32px}
 .seg button:hover{border-color:var(--muted)}
@@ -82,7 +82,7 @@ label.swt .r{display:inline-flex;align-items:center;gap:.4rem}.swt .st{font-size
 .pop .clr{font-size:.85rem;min-height:44px}
 /* masonry + tiles */
 .mas{columns:1;column-gap:12px}@media(min-width:560px){.mas{columns:2}}@media(min-width:900px){.mas{columns:3}}
-#stage{max-width:var(--wide);margin:0 auto;padding:.4rem 1rem 0}
+#stage{max-width:72rem;margin:0 auto;padding:.4rem 1rem 0}
 .tile{margin:0 0 12px;break-inside:avoid;position:relative;border-radius:8px;display:block}
 .tile[hidden],details[hidden]{display:none}
 .tile.photo{overflow:hidden;background:var(--code)}.tile.photo img{width:100%;height:auto;min-height:80px}
@@ -108,11 +108,11 @@ label.swt .r{display:inline-flex;align-items:center;gap:.4rem}.swt .st{font-size
 details.grp{margin:0 0 1.5rem}details.grp>summary{cursor:pointer;font:700 1.3rem/1.3 var(--serif);padding:.6rem .2rem;min-height:44px;border-bottom:2px solid var(--line);margin-bottom:12px;display:flex;align-items:center;gap:.5rem;list-style:none}
 details.grp>summary::-webkit-details-marker{display:none}details.grp>summary::before{content:"\25B8";display:inline-block}details.grp[open]>summary::before{content:"\25BE"}
 details.grp>summary .meta{font:400 .85rem var(--sans)}
-.nav2{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:var(--wide);margin:2rem auto 0;padding:1rem;border-top:1px solid var(--line)}
-.pg{max-width:var(--wide);margin:1rem auto 0;padding:1rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;border-top:1px solid var(--line)}
+.nav2{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:72rem;margin:2rem auto 0;padding:1rem;border-top:1px solid var(--line)}
+.pg{max-width:72rem;margin:1rem auto 0;padding:1rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;border-top:1px solid var(--line)}
 .pg a{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;text-decoration:none;padding:0 .8rem}.pg a[aria-current=page]{background:var(--on-bg);color:var(--on-fg);border-color:var(--on-bg);font-weight:700}
 .pb{max-width:46rem;margin:0 auto;padding:0 1rem}.pb h2{font:700 1.5rem/1.3 var(--serif);margin:2rem 0 .5rem}
-.gal{max-width:var(--wide);margin:1.5rem auto 0;padding:0 1rem}.gal figure{margin:0 0 12px;break-inside:avoid;border-radius:8px;overflow:hidden;background:var(--code)}.gal img{width:100%;height:auto}
+.gal{max-width:72rem;margin:1.5rem auto 0;padding:0 1rem}.gal figure{margin:0 0 12px;break-inside:avoid;border-radius:8px;overflow:hidden;background:var(--code)}.gal img{width:100%;height:auto}
 .apage{max-width:72rem;margin:0 auto;padding:2rem 1rem 0;display:grid;grid-template-columns:minmax(0,1fr);gap:1rem}.apage>*{min-width:0}
 .abody{font-family:var(--serif);font-size:1.1rem;line-height:1.75;max-width:42rem}.abody h2{font:700 1.5rem/1.3 var(--serif);margin:2rem 0 .5rem}.abody pre{background:var(--code);padding:1rem;overflow:auto;border-radius:6px;font-size:.85rem;line-height:1.5}
 .alead{border-left:8px solid var(--hv);padding-left:1rem}
@@ -122,43 +122,18 @@ details.grp>summary .meta{font:400 .85rem var(--sans)}
 .av{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--hv);flex:none}
 .abt2{max-width:46rem;margin:1.5rem auto 0;padding:0 1rem}
 @media(max-width:420px){.abt{flex-direction:column;align-items:flex-start}}
+/* tag links on tiles and posts */
+.tile .meta a{color:inherit;text-decoration:underline;text-underline-offset:.15em}.tile .meta a:hover{color:var(--hv)}
 /* touch targets: 44px for chips, popover controls, tags */
 @media(pointer:coarse){.seg button,.vbtn,.clr{min-height:44px}.seg button{padding:.1rem 1rem}.tag{min-height:44px;display:inline-flex;align-items:center;padding:0 .9rem}.seg.mode button{min-height:44px}}
-@media(max-width:380px){.cloud ul{column-gap:.8rem}}
-/* tag cloud column; --wide lets the home wall hold three columns of tiles beside the cloud */
-:root{--wide:86rem}
-.hw{max-width:var(--wide);margin:0 auto;padding:0 1rem;display:grid;grid-template-columns:minmax(0,1fr)}
-.hw .ctl{max-width:none;margin:0;padding-left:0;padding-right:0}.hw #stage{max-width:none;margin:0;padding-left:0;padding-right:0}.hw .pg{max-width:none;margin:1rem 0 0;padding-left:0;padding-right:0}
-.hw .pop{left:0;right:0}@media(min-width:700px){.hw .pop{left:auto}}
-.cloud{padding:.7rem 0 .3rem}
-.cloud h2{font:700 .8rem/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 .1rem}
-.cloud ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 .95rem}
-.cloud a{display:inline-block;padding:.2rem 0;font-family:var(--serif);color:var(--link);text-decoration:none;line-height:1.3}
-.cloud a:hover,.cloud a:focus-visible{text-decoration:underline;text-underline-offset:.2em;text-decoration-thickness:1.5px;color:var(--link)}
-.cloud a.s3{font-size:1.15rem;font-weight:700}.cloud a.s2{font-size:1rem;font-weight:600}.cloud a.s1{font-size:.85rem;font-weight:400;color:var(--cmute)}
-:root,:root[data-theme=light]{--cmute:#52718B}:root[data-theme=dark]{--cmute:#A99B91}
-.cloud li.more{margin-left:.1rem}.cloud li.more a{font:600 .8rem/1.3 var(--sans);color:var(--link)}
-@media(pointer:coarse){.cloud a{min-height:44px;display:inline-flex;align-items:center;padding:0}.cloud ul{column-gap:1.1rem}}
-@media(min-width:900px){
-.hw{grid-template-columns:minmax(0,1fr) 13.5rem;column-gap:2.5rem}
-.hw>.ctl,.hw>#stage,.hw>.pg{grid-column:1}
-.cloud{grid-column:2;grid-row:1/span 3;align-self:start;position:sticky;top:1rem;padding:.6rem 0 0;border-top:1px solid var(--line);margin-top:.6rem}
-.cloud h2{font:700 1.1rem/1.3 var(--serif);letter-spacing:0;text-transform:none;color:var(--text);margin:.5rem 0 .3rem}
-.cloud ul{gap:.15rem 1.1rem}
-.cloud a{padding:.15rem 0}.cloud a.s3{font-size:1.4rem}.cloud a.s2{font-size:1.1rem}.cloud a.s1{font-size:.9rem}
-.cloud li.more{flex-basis:100%;margin:.5rem 0 0}
-.hw .mas{columns:2}
-}
-@media(min-width:1100px){.hw .mas{columns:3}}
-.thero .tl{display:inline-block;margin:0 0 .6rem;color:#F9F3EF;min-height:44px;line-height:44px}.thero .tl:hover{color:#D2C1B6}.thero p.d{margin:.3rem 0 0;color:#F9F3EF;max-width:40rem}
-.tgw{max-width:var(--wide);margin:0 auto;padding:1.2rem 1rem 0}.tgw .note{font-size:.85rem;color:var(--muted);border-left:3px solid var(--hv);padding-left:.7rem;margin:0 0 1rem}
+.thero .tl{display:inline-block;margin:0 1.2rem .6rem 0;color:#F9F3EF;min-height:44px;line-height:44px}.thero .tl:hover{color:#D2C1B6}.thero p.d{margin:.3rem 0 0;color:#F9F3EF;max-width:40rem}
+.tgw{max-width:72rem;margin:0 auto;padding:1.2rem 1rem 0}.tgw .note{font-size:.85rem;color:var(--muted);border-left:3px solid var(--hv);padding-left:.7rem;margin:0 0 1rem}
 .atw{max-width:46rem;margin:0 auto;padding:2rem 1rem 0}.atw h1{font:700 clamp(2rem,6vw,3rem)/1.1 var(--serif);margin:0 0 .4rem}.atw h2{font:700 1.3rem/1.3 var(--serif);border-bottom:2px solid var(--line);margin:1.6rem 0 .3rem;padding-bottom:.2rem}
 ul.atl{list-style:none;margin:0;padding:0}ul.atl li{border-bottom:1px solid var(--line)}ul.atl a{display:flex;justify-content:space-between;gap:1rem;align-items:center;min-height:44px;text-decoration:none;color:var(--text)}ul.atl a:hover .nm{text-decoration:underline}ul.atl .c{color:var(--muted);font-size:.85rem}
 @media(prefers-reduced-motion:no-preference){.tile.photo figcaption{transition:opacity .2s}.tile{transition:opacity .2s}.tile.photo img{transition:transform .25s}.tile.photo:hover img{transform:scale(1.03)}.swt input,.swt input::before{transition:all .15s}.vbtn .chev{transition:transform .15s}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style></head><body><div class="bar"><strong>The Blues: final layout</strong><span class="sp"><button data-v="home">Home</button><button data-v="post">Photo post</button><button data-v="article">Article</button><button data-v="tag">Tag page</button><button data-v="alltags">All tags</button><button data-v="about">About</button><button data-m="light">Light</button><button data-m="dark">Dark</button></span><small>Mockup controls only. Light and Dark override the system setting.</small></div><nav class="site" aria-label="Main"><a class="brand" href="#" data-nav="home">guyheckman.me</a><button class="menu" type="button" aria-expanded="false" aria-controls="m">&#9776; Menu</button><ul class="links" id="m"><li><a href="#" data-nav="archive">ARCHIVE</a></li><li><a href="#" data-nav="about">ABOUT</a></li></ul></nav>
 <div class="view" id="home"><header class="hero"><p class="k">guyheckman.me</p><h1>Life, <span class="u">lived<svg viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M1 5 C6 0 11 0 15 4 S25 8 30 4 S42 0 46 4 S55 7 59 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span>.</h1><p class="sub">Technology, motorcycles, photography and travel.</p></header>
-<div class="hw"><nav class="cloud" aria-label="Tags"><h2>Tags</h2><ul id="cul"></ul></nav>
 <div class="ctl" id="rowc" role="region" aria-label="Browse controls">
 <div class="seg" role="group" aria-label="Show type" data-slot="chips"></div>
 <button type="button" class="vbtn" id="vb" aria-expanded="false" aria-controls="pop">View options<span class="bdg" data-badge="opts" hidden></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -170,15 +145,15 @@ ul.atl{list-style:none;margin:0;padding:0}ul.atl li{border-bottom:1px solid var(
 <button type="button" class="clr" data-role="reset" hidden>Reset</button></div>
 </div>
 <div id="stage" data-pv="all"></div>
-<nav class="pg" aria-label="Pagination"><a href="#" aria-current="page">1</a><a href="#">2</a><a href="#">3</a><a href="#">Older &rarr;</a></nav></div></div>
+<nav class="pg" aria-label="Pagination"><a href="#" aria-current="page">1</a><a href="#">2</a><a href="#">3</a><a href="#">Older &rarr;</a></nav></div>
 <div class="view" id="post"><header class="phero" id="phero1"><div class="in"><div class="ptype"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo gallery</div><div class="meta">Photos &middot; Feb 3, 2025 &middot; 6 photos</div><h1>Uptown Charlotte, NC</h1><p class="exif">A walk around Uptown Charlotte, NC</p></div></header><div class="mas gal" id="galpost"></div><div class="pb"><h2>About this walk</h2><p>Photo posts lead with the pictures. Masonry columns keep natural proportions; a click opens the viewer with previous/next and keyboard arrows.</p><div class="series"><strong class="t">How I Built This Site series</strong><ol><li><a href="#">How I Built This Site</a><span class="meta">Mar 2023</span></li><li><a href="#">Introduction to Markdown</a><span class="meta">Apr 2023</span></li><li><strong aria-current="page">How My Hugo Project Is Organized</strong><span class="meta">May 2025</span></li></ol><div class="pager"><a href="#">&larr; Introduction to Markdown</a><span></span></div></div><div class="comments">Disqus comments load here (posts only)</div></div><nav class="nav2" aria-label="Post navigation"><a href="#">&larr; Boston, MA</a><a href="#">Monterrey, Mexico &rarr;</a></nav></div>
-<div class="view" id="article"><header class="phero" id="phero2"><div class="in"><div class="ptype"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Article</div><h1>How My Hugo Project Is Organized</h1><div class="meta">May 4, 2025 &middot; Tech &middot; <a class="tag" href="#">git</a><a class="tag" href="#">hugo</a></div></div></header>
+<div class="view" id="article"><header class="phero" id="phero2"><div class="in"><div class="ptype"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Article</div><h1>How My Hugo Project Is Organized</h1><div class="meta">May 4, 2025 &middot; Tech &middot; <a class="tag" href="#" data-tag="git">git</a><a class="tag" href="#" data-tag="hugo">hugo</a></div></div></header>
 <div class="apage"><aside class="toc" aria-label="Table of contents"><strong>On this page</strong><a href="#s1">Top-level layout</a><a href="#s2">Content and archetypes</a><a href="#s3">Themes and config</a><a href="#s4">Deploying</a></aside><article>
 <div class="abody"><p class="alead">A tour of the folders, archetypes and config that keep this Hugo site tidy, and how git ties it together.</p><h2 id="s1">Top-level layout</h2><p>Every Hugo project starts with the same handful of folders. Mine keeps content, theme and deployment scripts apart so each can change on its own.</p><pre>content/ archetypes/ themes/ static/ hugo.toml</pre><h2 id="s2">Content and archetypes</h2><p>Posts live under content/post, one folder per post, with galleries referenced by shortcode rather than copied in.</p><h2 id="s3">Themes and config</h2><p>The theme is a git submodule, so upgrades are a pull and a rebuild.</p><h2 id="s4">Deploying</h2><p>Build, sync to the bucket, invalidate the cache. Three commands.</p></div>
 <div class="series"><strong class="t">Part 3 of 3: How I Built This Site</strong><ol><li><a href="#">1. How I Built This Site</a><span class="meta">Mar 2023</span></li><li><a href="#">2. Introduction to Markdown</a><span class="meta">Apr 2023</span></li><li><strong aria-current="page">3. How My Hugo Project Is Organized</strong><span class="meta">May 2025</span></li></ol><div class="pager"><a href="#">&larr; Introduction to Markdown</a><span></span></div></div>
 <div class="comments">Disqus comments load here (posts only)</div></article></div><nav class="nav2" aria-label="Post navigation"><a href="#">&larr; Introduction to Markdown</a><a href="#">Newer posts: none</a></nav></div>
-<div class="view" id="tag"><header class="phero thero" id="phero3"><div class="in"><a class="tl" href="#" data-back>&larr; Back to all posts</a><div class="ptype">Tag</div><h1 id="tgH">Tagged: travel</h1><div class="meta" id="tgM">3 posts &middot; 19 photos</div><p class="d" id="tgD">Photo walks and trips: Boston, Charlotte and Monterrey.</p></div></header><div class="tgw"><p class="note" id="tgN" hidden></p><div class="mas" id="tgstage"></div></div></div>
-<div class="view" id="alltags"><div class="atw"><a href="#" data-back>&larr; Back to all posts</a><h1>All tags</h1><p class="meta">Every tag on the site, A to Z, with post counts. Tags used by more than one post are featured on the home page.</p><div id="atl"></div></div></div>
+<div class="view" id="tag"><header class="phero thero" id="phero3"><div class="in"><a class="tl" href="#" data-back>&larr; Back to all posts</a><a class="tl" href="#" data-alltags>All tags &rarr;</a><div class="ptype">Tag</div><h1 id="tgH">Tagged: travel</h1><div class="meta" id="tgM">3 posts &middot; 19 photos</div><p class="d" id="tgD">Photo walks and trips: Boston, Charlotte and Monterrey.</p></div></header><div class="tgw"><p class="note" id="tgN" hidden></p><div class="mas" id="tgstage"></div></div></div>
+<div class="view" id="alltags"><div class="atw"><a href="#" data-back>&larr; Back to all posts</a><h1>All tags</h1><p class="meta">Every tag on the site, A to Z, with post counts.</p><div id="atl"></div></div></div>
 <div class="view" id="about"><div class="abt"><img class="av" src="https://photos.smugmug.com/photos/i-8jTrZs3/0/Ljtm9MzkrpCwWNVDVSC8TCjs4PtCSSrCPR4gN36Sj/Th/i-8jTrZs3-Th.jpg" alt="Portrait of Guy Heckman" width="100" height="100"><div><h1>About</h1><p class="role">Technologist, motorcyclist, photographer, traveler</p></div></div>
 <div class="abody abt2">
 <!-- PLACEHOLDER COPY: the paragraphs below are invented filler for the mockup; replace with Guy's real About text. No Disqus on this page (D8). -->
@@ -206,7 +181,7 @@ GAL.forEach(function(g){g.urls.forEach(function(u,i){var n=g.urls.length;var el=
 el.innerHTML='<a class="cover" href="#" data-go="post" aria-label="'+esc(g.key)+' gallery, '+n+' photos, '+fd(g.date)+'. Photo '+(i+1)+' of '+n+'"><img src="'+u[0]+'" alt="" loading="lazy"><span class="badge">'+IC_CAM+'Photo</span></a><figcaption>'+esc(g.key)+' gallery &middot; '+n+' photos<div class="meta">'+fd(g.date)+'</div></figcaption>';
 items.push({t:"p",g:g,date:g.date,ord:ix++,el:el})})});
 ART.forEach(function(a){var el=document.createElement("article");el.className="tile article";el.dataset.type="article";
-el.innerHTML='<div class="lbl">'+IC_DOC+'Article'+(a.part?'<span class="chip">Part '+a.part+' of '+a.total+'</span>':'')+'</div><h3><a href="#" data-go="article">'+esc(a.title)+'</a></h3><p>'+esc(a.desc)+'</p><div class="meta"><time datetime="'+a.date+'">'+fd(a.date)+'</time> &middot; '+esc(a.cat)+' &middot; '+a.tags.map(function(t){return "#"+t}).join(" ")+'</div>';
+el.innerHTML='<div class="lbl">'+IC_DOC+'Article'+(a.part?'<span class="chip">Part '+a.part+' of '+a.total+'</span>':'')+'</div><h3><a href="#" data-go="article">'+esc(a.title)+'</a></h3><p>'+esc(a.desc)+'</p><div class="meta"><time datetime="'+a.date+'">'+fd(a.date)+'</time> &middot; '+esc(a.cat)+' &middot; '+a.tags.map(function(t){return '<a href="#" data-tag="'+esc(t)+'">#'+esc(t)+'</a>'}).join(" ")+'</div>';
 items.push({t:"a",a:a,date:a.date,ord:ix++,el:el})});
 var NA=ART.length,NP=items.length-NA;
 var S={f:"all",m:"filter",s:"new",g:false},stage=document.getElementById("stage"),open={};
@@ -283,17 +258,14 @@ dlg.addEventListener('close',function(){if(opener)opener.focus()});
 dlg.addEventListener('click',function(e){var a=e.target.dataset&&e.target.dataset.a;if(a==='n')sh(li+1);else if(a==='p')sh(li-1);else if(a==='c'||e.target===dlg)dlg.close()});
 dlg.addEventListener('keydown',function(e){if(e.key==='ArrowRight')sh(li+1);if(e.key==='ArrowLeft')sh(li-1)});
 
-/* tag cloud */
+/* tags */
 var TAGS=[["aws",1],["boston",1],["charlotte",1],["food & drinks",1],["git",2],["hugo",3],["markdown",3],["monterrey",1],["photography",3],["travel",3]];
 var COV={travel:GAL[0].urls[0][0],photography:GAL[2].urls[0][0]};
 function pl2(n){return n+" post"+(n===1?"":"s")}
-function drawCloud(){var h=TAGS.filter(function(t){return t[1]>1}).map(function(t){var c=Math.min(3,t[1]);return '<li><a class="s'+c+'" href="#" data-tag="'+esc(t[0])+'" aria-label="'+esc(t[0])+', '+pl2(t[1])+'" title="'+pl2(t[1])+'">'+esc(t[0])+'</a></li>'}).join("");
-$("cul").innerHTML=h+'<li class="more"><a href="#" data-alltags>All tags &rarr;</a></li>'}
-drawCloud();
 (function(){var h="";GAL.forEach(function(g){g.urls.forEach(function(u,i){h+='<figure class="tile photo"><a class="cover" href="#" data-go="post" aria-label="'+esc(g.key)+' gallery, photo '+(i+1)+' of '+g.urls.length+'"><img src="'+u[0]+'" alt="" loading="lazy"><span class="badge">'+IC_CAM+'Photo</span></a><figcaption>'+esc(g.key)+' gallery<div class="meta">'+fd(g.date)+'</div></figcaption></figure>'})});$("tgstage").innerHTML=h;
 $("phero3").style.setProperty("--hi","url("+COV.travel+")");
 var ab={},l="";TAGS.forEach(function(t){(ab[t[0][0].toUpperCase()]=ab[t[0][0].toUpperCase()]||[]).push(t)});
-Object.keys(ab).sort().forEach(function(L){l+='<h2>'+L+'</h2><ul class="atl">'+ab[L].map(function(t){return '<li><a href="#" data-tag="'+esc(t[0])+'" aria-label="'+esc(t[0])+', '+pl2(t[1])+(t[1]>1?', featured':'')+'"><span class="nm">#'+esc(t[0])+(t[1]>1?' <span class="meta">featured</span>':'')+'</span><span class="c">'+pl2(t[1])+'</span></a></li>'}).join("")+'</ul>'});$("atl").innerHTML=l})();
+Object.keys(ab).sort().forEach(function(L){l+='<h2>'+L+'</h2><ul class="atl">'+ab[L].map(function(t){return '<li><a href="#" data-tag="'+esc(t[0])+'" aria-label="'+esc(t[0])+', '+pl2(t[1])+'"><span class="nm">#'+esc(t[0])+'</span><span class="c">'+pl2(t[1])+'</span></a></li>'}).join("")+'</ul>'});$("atl").innerHTML=l})();
 function openTag(n){var c=TAGS.filter(function(t){return t[0]===n})[0],nt=$("tgN");$("tgH").textContent="Tagged: "+n;
 $("tgM").textContent=pl2(c?c[1]:3)+(n==="travel"?" · 19 photos":"");
 $("tgD").textContent=n==="travel"?"Photo walks and trips: Boston, Charlotte and Monterrey.":"Posts tagged “"+n+"”.";
