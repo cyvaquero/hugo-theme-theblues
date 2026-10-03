@@ -17,9 +17,9 @@ the current decision; the options and reasoning are kept below it as background.
 | D4 | Palette and design basics | Decided | Palette B, light and dark, responsive with a hamburger nav |
 | D5 | Sidebar and bio | Decided | Drop the sidebar and the bio from the landing page; the bio lives on the About page only |
 | D6 | Table of contents | Decided | Keep, rendered by Hugo, no JavaScript |
-| D7 | Gallery component | Provisional | Masonry plus native `<dialog>` lightbox (as in the chosen mockup) |
+| D7 | Gallery component | Decided | Masonry for photo posts plus a native `<dialog>` lightbox, no library (as in the chosen mockup) |
 | D8 | Comments | Decided | Disqus on blog posts only; drop on pages |
-| D9 | Social links and icons | Provisional | Three inline SVGs: RSS, LinkedIn, GitHub (what the scaffold does) |
+| D9 | Social links and icons | Decided | Three inline SVGs with text labels: RSS, LinkedIn, GitHub; no icon font |
 | D10 | Search UI | Decided | Engine chosen in #3; layout reserves a slot |
 | D11 | Analytics | Decided | Keep GA4 with Do Not Track |
 | D12 | Home and post layout | Decided | Direction C v3: masonry, calm popover controls, A+ hero, serif headlines |
@@ -109,14 +109,16 @@ small ones, CSS only. `showtoc` front matter is unchanged.
 
 ## D7. Gallery component
 
-**Status: Provisional.** The chosen mockup (D12) uses masonry columns for photo posts and a native `<dialog>` lightbox
-(previous/next, arrow keys, counter), with no jQuery or library. The scaffold's current `gallery`/`galleries` shortcodes
-use a CSS grid plus the same lightbox. Keep the existing shortcode syntax so no content changes:
-`{{< galleries >}}` wrapping `{{< gallery src= title= >}}`, plus `embed`.
+**Decision (2026-10-03): masonry for photo posts with a native `<dialog>` lightbox**, as in the chosen mockup (D12). CSS columns keep
+each photo's true proportions; the lightbox has previous/next, arrow keys, a counter, Esc to close and focus return, and uses no
+jQuery or library. Keep the existing shortcode syntax so no content changes: `{{< galleries >}}` wrapping
+`{{< gallery src= title= >}}`, plus `embed`. The scaffold's current shortcodes use a CSS grid with the same lightbox; the masonry
+layout replaces the grid when the D12 layout is built.
 
 Open points: SmugMug size variants are chosen from the URL suffix (X2, X3, XL), which the local docs do not cover, so thumbnails
-currently load X2; confirm Guy does not rely on nanogallery2's download and zoom buttons. Background: 38 `gallery` calls in 6
-`galleries` blocks across 3 posts and 2 `embed` iframes; the old shortcode emitted a nested `<html>` document.
+currently load X2 and the lightbox X3; confirm Guy does not rely on nanogallery2's download and zoom buttons (they are dropped).
+Background: 38 `gallery` calls in 6 `galleries` blocks across 3 posts and 2 `embed` iframes; the old shortcode emitted a nested
+`<html>` document. CSS columns fill top to bottom, so reading order is column-wise.
 
 ## D8. Comments
 
@@ -128,8 +130,10 @@ admin before release, and confirm whether any real comments exist on the live si
 
 ## D9. Social links and icons
 
-**Status: Provisional.** Inline SVG icons for the three links that are set (RSS, LinkedIn, GitHub) in a footer partial, driven
-by the existing `params.social` keys, with text labels. Font Awesome is dropped (it shipped about 59 KB of CSS plus webfonts).
+**Decision (2026-10-03): inline SVG icons** for the links that are set (RSS, LinkedIn, GitHub) in a footer partial, each with a visible
+text label, driven by the existing `params.social` keys. The SVGs are `aria-hidden`, use `currentColor`, and take the nav and
+footer hover color `#D2C1B6`. Font Awesome (about 59 KB of CSS plus webfonts) is dropped, and no icon font or icon image files
+are used. The scaffold already does this (`layouts/_partials/social.html`).
 
 ## D10. Search UI
 
@@ -219,7 +223,7 @@ and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
 ## Open items before release
 
 - **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 home layout and the D14 tag cloud to be built.
-- Confirm the provisional D7 and D9; settle D14's open details (size steps, which tags show).
+- Settle D14's open details (size steps, which tags show).
 - Fix or confirm the Disqus shortname (D8).
 - Implement the D12 home layout in the theme; favicon; tablet-width and keyboard/accessibility checks.
 - Wire the theme into the site (submodule, `config.toml`, drop the Algolia output format, the site's `layouts/` overrides and
@@ -227,6 +231,7 @@ and tiles-plus-pills strips (mocked in `direction-c-v3-tags.html`).
 
 ## Changelog of this file
 
+- 2026-10-03: D7 decided (masonry plus `<dialog>` lightbox) and D9 decided (inline SVG icons with labels); no provisional decisions remain.
 - 2026-10-02: the 0.5.0 release was merged back into develop and dropped; the first release now waits for the D12 layout and D14 tag cloud.
 - 2026-10-02: home wall keeps three columns beside the tag cloud (container widened to 86 rem; two columns from 900 to 1099 px).
 - 2026-10-02: D14 decided (minimalist tag cloud in a right column); D5 and D12 updated to match.
