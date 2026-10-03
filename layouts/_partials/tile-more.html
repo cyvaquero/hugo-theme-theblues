@@ -1,0 +1,13 @@
+{{- /*
+  "See all" tile: the last tile of a gallery on the wall, linking to the gallery post. Context: page, n (photos in the gallery),
+  more (photos not shown), order. Keeps data-type=photo with the gallery's data-gallery/-title/-date; data-more marks it so
+  assets/js/wall.js excludes it from counts. Distinct by shape (dashed frame), icon, and label, not color.
+*/ -}}
+{{- $pg := .page -}}
+<div class="tile photo more" data-type="photo" data-more="{{ .more }}" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $pg.Title }}" data-date="{{ $pg.Date.Format "2006-01-02" }}" data-order="{{ .order }}" data-series="{{ with partial "series-info.html" $pg }}{{ .name }}{{ end }}">
+  <a class="seeall" href="{{ $pg.RelPermalink }}" aria-label="See all {{ .n }} photos in {{ $pg.Title }}">
+    <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    <span class="t">{{ $pg.Title }}</span>
+    <span class="m">{{ .more }} more {{ cond (eq .more 1) "photo" "photos" }} <span aria-hidden="true">&rarr;</span></span>
+  </a>
+</div>

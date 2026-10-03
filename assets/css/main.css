@@ -192,6 +192,14 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.photo figcaption .meta { color: #D2C1B6; }
 .tile.photo:has(a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
 .tile.photo a:focus-visible { outline: 0; }
+/* "See all" tile: last tile of a gallery on the wall. Dashed frame, large camera icon and an arrow label, so it differs from
+   photo and article tiles by shape and icon, not color. */
+.tile.photo.more { background: var(--surface); border: 2px dashed var(--muted); border-radius: 8px; overflow: visible; }
+.tile.photo.more a.seeall { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; min-height: 9rem; padding: 1.2rem 1rem; text-align: center; color: var(--text); text-decoration: none; }
+.tile.photo.more .ic.big { width: 2rem; height: 2rem; }
+.tile.photo.more .t { font: 700 1.1rem/1.25 var(--serif); }
+.tile.photo.more .m { font-size: .9rem; font-weight: 600; color: var(--link); }
+.tile.photo.more a.seeall:hover .m { text-decoration: underline; }
 /* Article tile: text, sand left bar, ARTICLE label with a document icon, serif title. */
 .tile.article { background: var(--art-bg); color: var(--art-fg); border: 1px solid var(--art-line); border-left: 8px solid var(--hv); border-radius: 4px 10px 10px 4px; padding: 1rem 1.1rem 1rem 1rem; }
 .tile.article .lbl { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; font-size: .72rem; letter-spacing: .14em; font-weight: 700; color: var(--art-sub); text-transform: uppercase; }
