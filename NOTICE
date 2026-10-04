@@ -14,9 +14,10 @@ Clean White is in turn based on:
   Huxblog Jekyll Theme   https://github.com/Huxpro/huxpro.github.io
   Clean Blog Jekyll Theme   https://github.com/BlackrockDigital/startbootstrap-clean-blog-jekyll
 
-The layout, markup, and styles of The Blues have since been rewritten and keep changing;
-this notice credits the origin of the work.
+The layout, markup, and styles of The Blues have since been rewritten. No Clean White,
+Huxblog, or Clean Blog code remains beyond a few generic lines; this notice credits the
+origin of the work.
 
-The series notice and previous/next navigation (layouts/_partials/series-info.html,
-series-box.html and post-nav.html) are adapted from "Series taxonomy in Hugo" by cavelab.dev:
+The series box and series chip (layouts/_partials/series-box.html and series-info.html)
+were inspired by "Series taxonomy in Hugo" by cavelab.dev; no code from it is used:
 https://blog.cavelab.dev/series/series-taxonomy-in-hugo/

@@ -1,9 +1,12 @@
-# Retheme decision records (issue #4)
+# Retheme decision records (site issue #4)
 
 Started 2026-10-01 on branch `feature/retheme` in the site repo (since merged and deleted). Evidence is in
 [clean-white-inventory.md](clean-white-inventory.md); the current consolidated mockup is
 [mockups/directions/direction-c-final.html](mockups/directions/direction-c-final.html) (see [mockups/README.md](mockups/README.md)).
-Last updated 2026-10-03.
+Last updated 2026-10-04.
+
+Issue references: "site issue #N" is in the site repo (`cyvaquero/hugo-cleanwhite-guyheckman_me`); a bare `#N` is in this theme
+repo (for example `#10`, the release tracker).
 
 **Status key:** `Decided` = confirmed by Guy. `Provisional` = implemented or implied by an accepted mockup but not
 explicitly confirmed. `Proposed` = options written, awaiting a decision. `Deferred` and `TBD` = postponed. Each record leads with
@@ -20,8 +23,8 @@ the current decision; the options and reasoning are kept below it as background.
 | D7 | Gallery component | Decided | Masonry for photo posts plus a native `<dialog>` lightbox, no library (as in the chosen mockup) |
 | D8 | Comments | Decided | Disqus on blog posts only; drop on pages |
 | D9 | Social links and icons | Decided | Three inline SVGs with text labels: RSS, LinkedIn, GitHub; no icon font |
-| D10 | Search UI | Decided | Engine chosen in #3; layout reserves a slot |
-| D11 | Analytics | Decided | Keep GA4 with Do Not Track |
+| D10 | Search UI | Decided | Engine chosen in site issue #3; layout reserves a slot |
+| D11 | Analytics | Decided | Keep GA4 through Hugo's internal template, with the site's Do Not Track setting |
 | D12 | Home and post layout | Decided | Direction C v3: masonry, calm popover controls, A+ hero, serif headlines |
 | D13 | License | Decided | Apache-2.0, with a NOTICE crediting Clean White and its upstreams |
 | D14 | Featured tags | Deferred | The tag cloud is dropped from the home page for now; revisit later. Tags stay reachable through tag links and tag pages |
@@ -36,8 +39,8 @@ layout, series, archive, taxonomies); leave out the Bootstrap/jQuery stack and u
 
 Background: forking Clean White would keep Bootstrap 3, jQuery and a 445-line footer; adopting another theme would swap
 one upstream for another and turn series, galleries and SmugMug needs into overrides again. The site uses well under
-half of Clean White's roughly 1,950 template lines. Consequence: more up-front work; the template count drops from 38
-files to roughly a dozen.
+half of Clean White's roughly 1,950 template lines. Consequence: more up-front work. (The original estimate was "roughly a
+dozen" templates; the 1.0.0 theme has about 40 layout files, most of them small partials.)
 
 ## D2. Name and location
 
@@ -61,7 +64,8 @@ source of truth; the site uses a minified copy.
 
 - **Hugo can do the minifying dynamically**, so no extra tooling is needed. Checked on Hugo 0.167.0: piping the source through
   Hugo Pipes `minify | fingerprint` turned 8,578 bytes with 10 comment blocks into a 7,104-byte file with no comments and a
-  content-hash file name. It is the same in production and development environments; the `--minify` build flag only affects HTML.
+  content-hash file name. The `--minify` build flag only affects HTML; whether CSS and JS are minified is decided by the partial
+  below.
 - **Production vs development:** `layouts/_partials/asset.html` returns the minified, fingerprinted resource in production
   builds (`hugo`) and the readable commented source in development (`hugo server`), so debugging stays easy. The JavaScript files
   use the same partial.
@@ -99,9 +103,9 @@ The author's bio and photo live on the About page only.
   replace the sidebar is deferred (D14). The home page has no right column at all.
 - Categories are reachable through the taxonomy pages and the browse controls (type chips), so no categories box is carried over.
 - Config consequence: `sidebar_avatar`, `sidebar_about_description`, `omit_categories`, `friends` and `bookmarks` become unused
-  and are removed from `config.toml` at switch-over; `featured_tags` and `featured_condition_size` stay unused until D14 is revisited.
-- The scaffold's sidebar (partial, CSS and the `sidebar_*`, `omit_categories`, `featured_*` reads) was removed on 2026-10-02, so the
-  home page is a plain post list until the D12 layout is built.
+  and were removed from `config.toml` at switch-over, along with `featured_tags` and `featured_condition_size` (D14).
+- The scaffold's sidebar (partial, CSS and the `sidebar_*`, `omit_categories`, `featured_*` reads) was removed on 2026-10-02; the
+  D12 layout has since replaced the interim plain post list.
 
 ## D6. Table of contents
 
@@ -113,11 +117,12 @@ small ones, CSS only. `showtoc` front matter is unchanged.
 **Decision (2026-10-03): masonry for photo posts with a native `<dialog>` lightbox**, as in the chosen mockup (D12). CSS columns keep
 each photo's true proportions; the lightbox has previous/next, arrow keys, a counter, Esc to close and focus return, and uses no
 jQuery or library. Keep the existing shortcode syntax so no content changes: `{{< galleries >}}` wrapping
-`{{< gallery src= title= >}}`, plus `embed`. The scaffold's current shortcodes use a CSS grid with the same lightbox; the masonry
-layout replaces the grid when the D12 layout is built.
+`{{< gallery src= title= >}}`, plus `embed`. The galleries shortcode emits a CSS-columns masonry (`.mas.gal`); the earlier
+scaffold's CSS grid is gone.
 
-Open points: SmugMug size variants are chosen from the URL suffix (X2, X3, XL), which the local docs do not cover, so thumbnails
-currently load X2 and the lightbox X3; confirm Guy does not rely on nanogallery2's download and zoom buttons (they are dropped).
+Follow-ups (not blocking the release): SmugMug size variants are chosen from the URL suffix (X2, X3, XL), which the local docs do
+not cover, so thumbnails load X2 and the lightbox X3; nanogallery2's download and zoom buttons are dropped (restore only if
+missed).
 Background: 38 `gallery` calls in 6 `galleries` blocks across 3 posts and 2 `embed` iframes; the old shortcode emitted a nested
 `<html>` document. CSS columns fill top to bottom, so reading order is column-wise.
 
@@ -126,8 +131,9 @@ Background: 38 `gallery` calls in 6 `galleries` blocks across 3 posts and 2 `emb
 **Decision (2026-10-01): keep Disqus on blog posts, drop it on pages** (About, Archive, Search, taxonomy pages). Clean White
 includes comments on pages and term lists too, so this is a change; in The Blues only the post template includes them.
 
-Open: `disqusShortname` is `/guyheckman-me` with a leading slash, which looks wrong. Check the real shortname in the Disqus
-admin before release, and confirm whether any real comments exist on the live site (export them first if so).
+Site-side follow-up (not a theme change, tracked in site issue #7): the site's `[services.disqus] shortname` is
+`/guyheckman-me` with a leading slash, which looks wrong. Check the real shortname in the Disqus admin, and confirm whether any
+real comments exist on the live site (export them first if so).
 
 ## D9. Social links and icons
 
@@ -138,7 +144,7 @@ are used. The scaffold already does this (`layouts/_partials/social.html`).
 
 ## D10. Search UI
 
-**Decision (2026-10-01): the engine is chosen in issue #3.** The theme has a search page template and a nav slot behind a
+**Decision (2026-10-01): the engine is chosen in site issue #3.** The theme has a search page template and a nav slot behind a
 `search_enabled` param (off). `/search/` is currently broken in the Clean White build because it references Pagefind assets
 that a plain `hugo` build does not produce. Pagefind needs a post-build step in both `deploy_live.sh` and CodeBuild; the
 Hugo-index options (Lunr, MiniSearch, Fuse.js) do not.
@@ -146,6 +152,9 @@ Hugo-index options (Lunr, MiniSearch, Fuse.js) do not.
 ## D11. Analytics
 
 **Decision (2026-10-01): keep GA4** (`G-XVJ8880GDE`) through Hugo's internal template with `respectDoNotTrack = true`.
+
+Note (2026-10-04 review): with Hugo's template, Do Not Track only skips the `gtag('config')` call; the gtag loader script is still
+requested from Google. A stricter privacy setup is tracked in this repo's issue #16.
 
 ## D12. Home and post layout
 
@@ -159,7 +168,7 @@ Hugo-index options (Lunr, MiniSearch, Fuse.js) do not.
   ("Boston gallery · 6 photos") on hover or focus, always visible on touch. Article tiles are text tiles with a sand left bar,
   an ARTICLE label with a document icon, a serif title, an excerpt, date and tags, and a "Part N of 3" chip for series posts.
 - **Controls (calm Popover layout):** type chips with counts (All / Articles / Photos), one quiet "View options" button with a
-  badge for non-default settings, a Clear link only when something changed, and a muted live caption. The popover holds
+  badge for non-default settings, a Clear button only when something changed, and a muted live caption. The popover holds
   Mode (Filter hides, Highlight dims the other type to 35% and outlines matches), Sort (Newest, Oldest, Galleries first,
   Articles first), Group by gallery, and Reset. It closes on Esc and outside click.
 - **Typography:** system serif stack (Georgia, "Iowan Old Style", "Times New Roman", serif) for the hero, post and article
@@ -178,18 +187,21 @@ revisiting are listed in [mockups/README.md](mockups/README.md)); **B** (editori
 article emits one text tile. Tiles carry data attributes (`data-type`, `data-date`, `data-order`,
 `data-series`, plus `data-gallery` and `data-gallery-title` on photos) that `wall.js` uses for the chips, filter or highlight, sort and
 group by gallery. Verified in headless Chrome: three columns at 1280 px, two at 700 px, one at 375 px, no horizontal overflow at
-375 px, the controls and lightbox work, and the build keeps the 30 sitemap URLs with only the known search-index warning.
+375 px, the controls and lightbox work, and the build keeps the 30 sitemap URLs (with no warnings since the site dropped the
+search-index output format).
 The wall paginates **by tile**, 24 per page, so chip counts, the caption and group-by are per page (today's 5 articles and 3
 galleries make 20 tiles, one page); see-all tiles are excluded from the counts. Known limits: pagination uses a workaround because
 Hugo's `.Paginate` only accepts pages; CSS columns fill top to bottom, so reading order is column-wise;
-`.highlight` code blocks stay light in dark mode; touch devices, screen readers, reduced motion, keyboard tab order and measured
-contrast are untested. Chips and "View options" are 32 px tall on fine pointers and 44 px on coarse pointers.
+`.highlight` code blocks stay light in dark mode. Reduced motion is handled. Touch devices and screen readers are untested on real
+hardware; keyboard behaviour and contrast were measured in the October 2026 independent review, whose findings are open issues. Chips and "View options" are 32 px tall on fine pointers and 44 px on coarse pointers.
 
 ## D13. License
 
-**Decision (2026-10-02): Apache-2.0**, because The Blues started from Clean White (Apache-2.0). The theme repo has `LICENSE`
-(upstream's text, which carries Clean White's copyright line "2018-2019 Huabing Zhao") and a `NOTICE` that credits Clean White,
-Huxblog and Clean Blog, and the cavelab.dev series snippet (license unknown). The layout has since been reworked.
+**Decision (2026-10-02): Apache-2.0**, because The Blues started from Clean White (Apache-2.0). `LICENSE` is the standard
+Apache-2.0 text with "Copyright 2026 Guy Heckman" (2026-10-04; it was previously Clean White's file, appendix and third-party
+notes included). `NOTICE` credits Clean White and its upstreams, Huxblog and Clean Blog. An independent review (2026-10-04)
+found that only a few generic lines of Clean White remain, and that the series partials share only the approach, not code, with
+the cavelab.dev article, so NOTICE credits it as an inspiration.
 
 ---
 
@@ -201,7 +213,7 @@ mockup.
 
 - Tags are still reachable: tag links on article tiles and in posts open the tag pages, `/tags/` lists every tag (an A-Z index), and the
   type chips and browse controls (D12) handle filtering the wall.
-- Config consequence: `featured_tags` and `featured_condition_size` stay unused.
+- Config consequence: `featured_tags` and `featured_condition_size` were removed from the site config.
 - The deferral reverses the 2026-10-02 decision to put a minimalist tag cloud in a right column (stacked above the type chips on small
   screens, with the wall widened to 86 rem to keep three columns). That design is kept as history in
   `mockups/directions/direction-c-v3-cloud.html`; the strip styles (pills, tiles, tiles plus pills) are in `direction-c-v3-tags.html`.
@@ -219,17 +231,19 @@ and how to size them while keeping every tag's contrast at 4.5:1.
 - URL structure stays unchanged; see the parity checklist in the inventory (30 sitemap URLs).
 - Deploy scripts change only if D3 or D10 introduces a build step.
 
-## Open items before release
+## Status at release (1.0.0)
 
-- **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 layout to be reviewed, merged and checked.
-- D14 (featured tags) is deferred; no work needed before release.
-- Fix or confirm the Disqus shortname (D8).
-- D12 home layout is implemented and merged to `develop`. Still to do: favicon, tablet-width, touch, screen-reader and keyboard checks.
-- Wire the theme into the site (submodule, `config.toml`, drop the third-party search output format, the site's `layouts/` overrides and
-  its `static/css/guyheckman_me-custom.css` (the series styles already live in the theme's `main.css`), update README/CLAUDE/CHANGELOG), compare the build's sitemap with the current 30 URLs.
+- Done: the D12 layout is built, independently reviewed (2026-10-04) and wired into the site's `develop` (submodule,
+  `config.toml`, search output format and site overrides removed, Clean White removed; 30 sitemap URLs unchanged). An earlier
+  0.5.0 release branch was dropped without a tag.
+- Deferred: D14 (featured tags).
+- Follow-ups after release, tracked as issues in this repo: favicon (#1), accessibility and device checks (#3, #4, #19), the
+  review's bug and security findings, and the Disqus shortname on the site side (D8).
 
 ## Changelog of this file
 
+- 2026-10-04: release prep: D13 updated for the new LICENSE and NOTICE; stale "until D12 is built" text, the D7 grid note and
+  the open-items list replaced; D11 notes the gtag loader; issue references clarified.
 - 2026-10-03: the wall paginates by tile (24 per page) and shows the first 4 photos per gallery plus a see-all tile.
 - 2026-10-03: D12 layout implemented in the theme on `feature/masonry-home`; known limits recorded (per-post pagination).
 - 2026-10-03: layout merged to `develop`; the theme was added to the site repo as a submodule and wired into its `develop`.
