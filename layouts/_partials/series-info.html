@@ -1,6 +1,6 @@
 {{- /*
   Position of a page in its (first) series: returns a map with name, url, part (1-based), total and pages (oldest first),
-  or an empty map when the page is not in a series. Used for the "Part N of M" chip and the series box.
+  or an empty map when the page is not in a series. Used for the "Part N of M" chip on wall tiles (series-box.html renders every series itself).
 */ -}}
 {{- $page := . -}}
 {{- $info := dict -}}
