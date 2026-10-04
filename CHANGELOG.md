@@ -8,6 +8,12 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 - Favicon; tablet-width, touch, screen-reader and keyboard accessibility checks.
 - The featured-tags cloud is deferred (D14).
 
+### Fixed
+- The footer social links no longer fail the build when `params.social` is not defined.
+- The `gallery` shortcode now reports a clear error when `src` is missing (and accepts it as the first positional argument).
+- Gallery thumbnails open in a new tab on Ctrl/Cmd/Shift/middle-click instead of the lightbox.
+- `NOTICE` names the series partials that actually exist.
+
 ### Added
 - The chosen home layout: hero with a wavy-underlined slogan, a full-width masonry wall (three columns from 900 px, two from
   560 px) of photo tiles (the first few photos of each gallery) and article tiles, a "View options" popover (Filter or Highlight, Sort,
