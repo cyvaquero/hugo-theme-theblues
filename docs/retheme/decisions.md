@@ -178,7 +178,7 @@ revisiting are listed in [mockups/README.md](mockups/README.md)); **B** (editori
 article emits one text tile. Tiles carry data attributes (`data-type`, `data-date`, `data-order`,
 `data-series`, plus `data-gallery` and `data-gallery-title` on photos) that `wall.js` uses for the chips, filter or highlight, sort and
 group by gallery. Verified in headless Chrome: three columns at 1280 px, two at 700 px, one at 375 px, no horizontal overflow at
-375 px, the controls and lightbox work, and the build keeps the 30 sitemap URLs with only the known algolia warning.
+375 px, the controls and lightbox work, and the build keeps the 30 sitemap URLs with only the known search-index warning.
 The wall paginates **by tile**, 24 per page, so chip counts, the caption and group-by are per page (today's 5 articles and 3
 galleries make 20 tiles, one page); see-all tiles are excluded from the counts. Known limits: pagination uses a workaround because
 Hugo's `.Paginate` only accepts pages; CSS columns fill top to bottom, so reading order is column-wise;
@@ -225,7 +225,7 @@ and how to size them while keeping every tag's contrast at 4.5:1.
 - D14 (featured tags) is deferred; no work needed before release.
 - Fix or confirm the Disqus shortname (D8).
 - D12 home layout is implemented and merged to `develop`. Still to do: favicon, tablet-width, touch, screen-reader and keyboard checks.
-- Wire the theme into the site (submodule, `config.toml`, drop the Algolia output format, the site's `layouts/` overrides and
+- Wire the theme into the site (submodule, `config.toml`, drop the third-party search output format, the site's `layouts/` overrides and
   its `static/css/guyheckman_me-custom.css` (the series styles already live in the theme's `main.css`), update README/CLAUDE/CHANGELOG), compare the build's sitemap with the current 30 URLs.
 
 ## Changelog of this file
