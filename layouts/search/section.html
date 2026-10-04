@@ -1,0 +1,6 @@
+{{ define "main" }}
+<div class="pb">
+  {{ with .Content }}{{ . }}{{ end }}
+  {{ partial "search.html" . }}
+</div>
+{{ end }}

@@ -1,0 +1,28 @@
+{{- /*
+  Builds the wall as a flat slice of tile descriptions, in display order (newest first), so the wall can be paginated by tile.
+  Input: the posts (already sorted newest first). Output: a slice of maps with type ("photo", "more" or "article"), page, and for
+  photos: photo, i (0-based), n (photos in the gallery).
+  Rules: an article is one "article" tile. A photo post contributes its first photosPerGallery photos (params.wall.photosPerGallery,
+  default 4, source order), then ONE "more" tile (a link to the gallery) only when photos remain. A photo post with no parsable
+  photos falls back to an article tile.
+*/ -}}
+{{- $per := 4 -}}
+{{- with site.Params.wall }}{{ with .photosPerGallery }}{{ $per = int . }}{{ end }}{{ end -}}
+{{- $out := slice -}}
+{{- range . -}}
+  {{- $post := . -}}
+  {{- $photos := slice -}}
+  {{- if partial "is-photo.html" $post -}}{{- $photos = partial "photos.html" $post -}}{{- end -}}
+  {{- if $photos -}}
+    {{- $n := len $photos -}}
+    {{- range $i, $ph := first $per $photos -}}
+      {{- $out = $out | append (dict "type" "photo" "page" $post "photo" $ph "i" $i "n" $n) -}}
+    {{- end -}}
+    {{- if gt $n $per -}}
+      {{- $out = $out | append (dict "type" "more" "page" $post "n" $n "more" (sub $n $per)) -}}
+    {{- end -}}
+  {{- else -}}
+    {{- $out = $out | append (dict "type" "article" "page" $post) -}}
+  {{- end -}}
+{{- end -}}
+{{- return $out -}}

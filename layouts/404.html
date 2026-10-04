@@ -1,0 +1,9 @@
+{{ define "header" }}
+<header class="hero"{{ with site.Params.image_404 }} style="--hi:url('{{ . | relURL }}')"{{ end }}>
+  <h1>404</h1>
+  <p class="sub">{{ site.Params.title_404 | default "Page not found" }}</p>
+</header>
+{{ end }}
+{{ define "main" }}
+<div class="pb"><p><a href="{{ "/" | relURL }}">Back to the home page</a></p></div>
+{{ end }}

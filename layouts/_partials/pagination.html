@@ -1,0 +1,8 @@
+{{- /* Numbered pager for a Paginate result. Chip counts and the wall are per page. */ -}}
+{{ if gt .TotalPages 1 }}
+<nav class="pg" aria-label="Pagination">
+  {{ if .HasPrev }}<a href="{{ .Prev.URL }}" rel="prev">&larr; Newer</a>{{ end }}
+  {{ range .Pagers }}<a href="{{ .URL }}"{{ if eq .PageNumber $.PageNumber }} aria-current="page"{{ end }} aria-label="Page {{ .PageNumber }}">{{ .PageNumber }}</a>{{ end }}
+  {{ if .HasNext }}<a href="{{ .Next.URL }}" rel="next">Older &rarr;</a>{{ end }}
+</nav>
+{{ end }}

@@ -1,0 +1,4 @@
+{{ define "main" }}
+{{ with .Content }}<div class="pb">{{ . }}</div>{{ end }}
+{{ partial "wall-page.html" (dict "page" . "posts" ((where .RegularPagesRecursive "Section" "post").ByDate.Reverse)) }}
+{{ end }}
