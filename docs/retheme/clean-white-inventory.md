@@ -1,4 +1,4 @@
-# Clean White inventory (issue #4, step 1)
+# Clean White inventory (site issue #4, step 1)
 
 Written 2026-10-01 on branch `feature/retheme`. Read-only analysis; nothing in the site repo was changed. Historical: the site overrides described in section 1 were removed on 2026-10-03 when The Blues was wired in.
 
@@ -12,7 +12,7 @@ Written 2026-10-01 on branch `feature/retheme`. Read-only analysis; nothing in t
 | Hugo | extended v0.167.0 |
 | Evidence | `hugo --destination <scratch>` build (53 pages, 47 HTML files, 30 sitemap URLs, no warnings) and a grep of the built HTML. Disqus/Pagefind notes come from the built output, not the live site. |
 
-The live site may not match what is committed (see HANDOFF.md), so "used" below means "emitted by a local build of the committed content".
+The live site may not match what is committed (the site repo's notes record this), so "used" below means "emitted by a local build of the committed content".
 
 > **Update 2026-10-02.** Written before any theme code existed. Since then: the decisions are in [decisions.md](decisions.md);
 > a theme scaffold (`themes/hugo-theme-theblues/`, its own repo) builds the same 30 URLs with no theme-related warnings
@@ -25,9 +25,9 @@ The live site may not match what is committed (see HANDOFF.md), so "used" below 
 | File | vs. theme | Why it exists | Retheme note |
 |---|---|---|---|
 | `layouts/_default/baseof.html` | full copy, 1 line changed | `.Site.LanguageCode` deprecated; uses `.Site.Language.Locale` | Disappears with the theme |
-| `layouts/_default/` JSON search-index template | full copy | Hugo 0.167 deprecation fix | The third-party search index was disabled but still emitted on the home page. Dropped with #3 |
+| `layouts/_default/` JSON search-index template | full copy | Hugo 0.167 deprecation fix | The third-party search index was disabled but still emitted on the home page. Dropped with site issue #3 |
 | `layouts/partials/head.html` | theme + a search-vendor verification meta | Search-vendor site verification | Drop the meta; the vendor is dropped |
-| `layouts/partials/nav.html` | theme + a commented-out block | Hides something in the nav (the search box) | Re-decide with #3 |
+| `layouts/partials/nav.html` | theme + a commented-out block | Hides something in the nav (the search box) | Re-decide with site issue #3 |
 | `layouts/_default/single.html` | theme + series top/bottom + `<hr>` + "Table of Contents" label | Series feature | Series must be first-class in the new theme |
 | `layouts/partials/series_top_content.html`, `series_bottom_content.html` | site only | Series notice and prev/next/list | Port. Uses `<details>`, no JS |
 | `layouts/taxonomy/series.html` | site only | Renders series list via theme `category.html` | Port |
@@ -63,7 +63,7 @@ Conditionally loaded:
 | Side catalog (TOC) script + `jquery.nav.js` | pages where `showtoc` is not false (inline in footer) | Rebuild with `{{ .TableOfContents }}` and CSS `position: sticky`; no JS needed |
 | `tagcloud` | `#tag_cloud` exists (tags index) | Replace with plain list or CSS-scaled list |
 | nanogallery2 3.0.5 + jQuery (jsDelivr) | the 3 gallery posts | See section 4. Note `galleries.html` emits a full `<html><head><body>` inside the post body, which is invalid markup |
-| Pagefind UI (`/_pagefind/pagefind-ui.*`) | `/search/` | **Broken today**: no `_pagefind/` directory is produced by a plain `hugo` build, so the search page 404s its assets. Tied to #3 |
+| Pagefind UI (`/_pagefind/pagefind-ui.*`) | `/search/` | **Broken today**: no `_pagefind/` directory is produced by a plain `hugo` build, so the search page 404s its assets. Tied to site issue #3 |
 | Disqus `embed.js` | posts | Emitted by Hugo's internal Disqus template. `disqusShortname = "/guyheckman-me"` has a leading slash, which looks like a typo. **Unconfirmed that comments work live.** Decide keep or drop |
 | iDisqus, giscus, Twikoo, leancloud, Baidu push/Tongji, PlantUML | only if params set | None set. All dead code for this site |
 | Mindmap (kity, kityminder), PhotoSwipe, bilibili, reward | only via their shortcodes/params | No content uses them |
@@ -114,7 +114,7 @@ Regenerate the exact list with `hugo --destination <scratch>` and compare `sitem
 
 ## 6. Findings worth acting on
 
-1. `/search/` references Pagefind assets that are not built. Search is effectively broken until #3 lands.
+1. `/search/` references Pagefind assets that are not built. Search is effectively broken until site issue #3 lands.
 2. Disqus loads on posts with a probably wrong shortname (`/guyheckman-me`). Confirm whether comments are wanted before deciding what to port.
 3. The third-party search output, its verification meta, and the nav stub are leftovers; the 2023-era search-index JSON is still published.
 4. `galleries.html` outputs a nested `<html>` document in post bodies and loads jQuery plus nanogallery2 from a CDN on top of the theme's own jQuery.
