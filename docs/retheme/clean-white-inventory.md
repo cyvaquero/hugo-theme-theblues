@@ -1,6 +1,6 @@
 # Clean White inventory (issue #4, step 1)
 
-Written 2026-10-01 on branch `feature/retheme`. Read-only analysis; nothing in the site repo was changed.
+Written 2026-10-01 on branch `feature/retheme`. Read-only analysis; nothing in the site repo was changed. Historical: the site overrides described in section 1 were removed on 2026-10-03 when The Blues was wired in.
 
 ## Basis
 
@@ -25,8 +25,8 @@ The live site may not match what is committed (see HANDOFF.md), so "used" below 
 | File | vs. theme | Why it exists | Retheme note |
 |---|---|---|---|
 | `layouts/_default/baseof.html` | full copy, 1 line changed | `.Site.LanguageCode` deprecated; uses `.Site.Language.Locale` | Disappears with the theme |
-| `layouts/_default/list.algolia.json` | full copy | Hugo 0.167 deprecation fix | Algolia is disabled; `algolia.json` is still emitted on the home page. Drop with #3 |
-| `layouts/partials/head.html` | theme + Algolia verification meta | Algolia site verification | Drop the meta; Algolia is dropped |
+| `layouts/_default/` JSON search-index template | full copy | Hugo 0.167 deprecation fix | The third-party search index was disabled but still emitted on the home page. Dropped with #3 |
+| `layouts/partials/head.html` | theme + a search-vendor verification meta | Search-vendor site verification | Drop the meta; the vendor is dropped |
 | `layouts/partials/nav.html` | theme + a commented-out block | Hides something in the nav (the search box) | Re-decide with #3 |
 | `layouts/_default/single.html` | theme + series top/bottom + `<hr>` + "Table of Contents" label | Series feature | Series must be first-class in the new theme |
 | `layouts/partials/series_top_content.html`, `series_bottom_content.html` | site only | Series notice and prev/next/list | Port. Uses `<details>`, no JS |
@@ -36,7 +36,7 @@ The live site may not match what is committed (see HANDOFF.md), so "used" below 
 | `static/css/guyheckman_me-custom.css` | site only | Series box and `.notice-info` styles (uses CSS nesting) | Port |
 | `static/img/404-bg.jpg`, `search.png` | site only | 404 header image; search icon | 404 background is used; `search.png` only by the disabled search |
 
-Config that drives the theme (`config.toml`): `header_image`, `slogan`, `sidebar_avatar`, `sidebar_about_description`, `featured_tags`, `social.*` (only `rss`, `linkedin`, `github` are set), `addtional_menus` (Archive, About), `custom_css`, `bookmark_link` (defined but `bookmarks = false`), `[taxonomies]` incl. `series`, `[markup]` (TOC levels 1-3, highlight style `monokailight` with line numbers), `[outputs] home` incl. `Algolia`.
+Config that drives the theme (`config.toml`): `header_image`, `slogan`, `sidebar_avatar`, `sidebar_about_description`, `featured_tags`, `social.*` (only `rss`, `linkedin`, `github` are set), `addtional_menus` (Archive, About), `custom_css`, `bookmark_link` (defined but `bookmarks = false`), `[taxonomies]` incl. `series`, `[markup]` (TOC levels 1-3, highlight style `monokailight` with line numbers), `[outputs] home` incl. a third-party search-index format.
 
 ## 2. What the built site actually loads
 
@@ -85,7 +85,7 @@ Theme has 38 layout files (about 1,950 lines; `footer.html` alone is 445 lines o
 | 404 | `404.html` |
 | Every page | `baseof.html` (overridden), `head.html` (overridden), `nav.html` (overridden), `footer.html` |
 
-Not used by this site: `section.html`, `top.html`, `top/single.html`, `portfolio.html`, `reward.html`, `page_view_counter.html`, `multilingual-sel.html`, `search-algolia.html`, shortcodes `bilibili`, `figure`, `mind`, `notice`, `post-image`, `rawhtml`, `load-photoswipe*`, and the render-image hook (check this one: images with a title may rely on it).
+Not used by this site: `section.html`, `top.html`, `top/single.html`, `portfolio.html`, `reward.html`, `page_view_counter.html`, `multilingual-sel.html`, the third-party search partial, shortcodes `bilibili`, `figure`, `mind`, `notice`, `post-image`, `rawhtml`, `load-photoswipe*`, and the render-image hook (check this one: images with a title may rely on it).
 
 Sidebar content: avatar, about text, featured tags, categories/tags list, bookmark and friend links (both off).
 
@@ -97,7 +97,7 @@ Shortcodes in content: `gallery` (38 uses), `galleries` (6), `embed` (2), `youtu
 
 Images are SmugMug-hosted (47 `photos.smugmug.com` URLs); the site has no local images. Header image comes from the `image` param or `header_image`. Size is chosen by the `-X2`/`-X3`/`-XL` suffix in the URL (undocumented, see docs/ gap).
 
-Output formats: HTML, home RSS (`index.xml`), sitemap, plus the unused `algolia.json`.
+Output formats: HTML, home RSS (`index.xml`), sitemap, plus an unused third-party search-index JSON.
 
 ## 5. URL parity checklist
 
@@ -116,7 +116,7 @@ Regenerate the exact list with `hugo --destination <scratch>` and compare `sitem
 
 1. `/search/` references Pagefind assets that are not built. Search is effectively broken until #3 lands.
 2. Disqus loads on posts with a probably wrong shortname (`/guyheckman-me`). Confirm whether comments are wanted before deciding what to port.
-3. The Algolia output, verification meta, and nav stub are leftovers; the 2023-era `algolia.json` is still published.
+3. The third-party search output, its verification meta, and the nav stub are leftovers; the 2023-era search-index JSON is still published.
 4. `galleries.html` outputs a nested `<html>` document in post bodies and loads jQuery plus nanogallery2 from a CDN on top of the theme's own jQuery.
 5. The footer script loads FastClick from a CDN on every page; it has no purpose on modern mobile browsers.
 6. The theme ships roughly 2.4 MB of unused or dead CSS/JS into `public/` regardless of what pages use.
