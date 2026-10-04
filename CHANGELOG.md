@@ -4,7 +4,9 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 
 ## [Unreleased]
 
-### Planned
+## [1.0.0] - TBD (release candidate, under independent review)
+
+### Known gaps at release
 - Favicon; tablet-width, touch, screen-reader and keyboard accessibility checks.
 - The featured-tags cloud is deferred (D14).
 
