@@ -1,12 +1,12 @@
 # Retheme decision records (issue #4)
 
-Started 2026-10-01 on branch `feature/retheme` in the site repo. Evidence is in
+Started 2026-10-01 on branch `feature/retheme` in the site repo (since merged and deleted). Evidence is in
 [clean-white-inventory.md](clean-white-inventory.md); the current consolidated mockup is
 [mockups/directions/direction-c-final.html](mockups/directions/direction-c-final.html) (see [mockups/README.md](mockups/README.md)).
 Last updated 2026-10-03.
 
 **Status key:** `Decided` = confirmed by Guy. `Provisional` = implemented or implied by an accepted mockup but not
-explicitly confirmed. `Proposed` = options written, awaiting a decision. `TBD` = deferred. Each record leads with
+explicitly confirmed. `Proposed` = options written, awaiting a decision. `Deferred` and `TBD` = postponed. Each record leads with
 the current decision; the options and reasoning are kept below it as background.
 
 | # | Decision | Status | Outcome |
@@ -45,8 +45,9 @@ files to roughly a dozen.
 `themes/hugo-theme-theblues/` inside the site project.** `config.toml` will use `theme = "hugo-theme-theblues"` and
 `theme.toml` carries the display name. The directory follows Clean White's `hugo-theme-<name>` convention.
 
-- The nested clone is **untracked in the site repo** and is not wired in until the theme is released. At release it becomes a
-  submodule, replacing `themes/hugo-theme-cleanwhite` in `.gitmodules`. Do not `git add` it from the site repo before then.
+- The theme is a **submodule of the site repo** (added 2026-10-03, branch `develop`) and is wired into the site's `develop`.
+  Commit and push in the theme repo first, then commit the updated pointer in the site repo. Do not merge the site's
+  `develop` to `main` until the theme is released (issue #10).
 - The theme repo uses git-flow; its work is on `develop`. Pushes are Guy's.
 - Earlier text in this file said the theme would live inside the site repo; that was superseded when Guy created the
   separate GitHub repo.
@@ -171,7 +172,7 @@ Rejected or set aside: **A** and **A+** (card grid, featured strip, Posts|Photos
 revisiting are listed in [mockups/README.md](mockups/README.md)); **B** (editorial, dropped); controls layouts 2 (left panel),
 3 (right panel) and 4 (minimal gear) from `direction-c-plus-controls.html`; the author strip under the hero (removed).
 
-**Implemented (2026-10-03, on `feature/masonry-home` in the theme repo).** The photo/article split is: categories include `photos`
+**Implemented (2026-10-03; built on `feature/masonry-home`, merged to `develop`).** The photo/article split is: categories include `photos`
 (case-insensitive) or the raw content uses the `galleries` shortcode. Each photo post emits one tile per photo, parsed from its
 `gallery` shortcodes (first 4 photos per gallery plus one "see all" tile linking to the gallery post when photos remain); each
 article emits one text tile. Tiles carry data attributes (`data-type`, `data-date`, `data-order`,
@@ -223,7 +224,7 @@ and how to size them while keeping every tag's contrast at 4.5:1.
 - **No release yet.** A 0.5.0 release branch was prepared and dropped (merged to `develop` only; no tag, `main` untouched). The first release waits for the D12 layout to be reviewed, merged and checked.
 - D14 (featured tags) is deferred; no work needed before release.
 - Fix or confirm the Disqus shortname (D8).
-- D12 home layout is implemented on `feature/masonry-home` (not merged yet). Still to do: favicon, tablet-width, touch, screen-reader and keyboard checks.
+- D12 home layout is implemented and merged to `develop`. Still to do: favicon, tablet-width, touch, screen-reader and keyboard checks.
 - Wire the theme into the site (submodule, `config.toml`, drop the Algolia output format, the site's `layouts/` overrides and
   its `static/css/guyheckman_me-custom.css` (the series styles already live in the theme's `main.css`), update README/CLAUDE/CHANGELOG), compare the build's sitemap with the current 30 URLs.
 
@@ -231,6 +232,7 @@ and how to size them while keeping every tag's contrast at 4.5:1.
 
 - 2026-10-03: the wall paginates by tile (24 per page) and shows the first 4 photos per gallery plus a see-all tile.
 - 2026-10-03: D12 layout implemented in the theme on `feature/masonry-home`; known limits recorded (per-post pagination).
+- 2026-10-03: layout merged to `develop`; the theme was added to the site repo as a submodule and wired into its `develop`.
 - 2026-10-03: D14 deferred (tag cloud dropped from the home page); the home wall returns to three full-width columns (3 from 900 px, 2 from 560 px, 1 below); D5 and D12 updated to match.
 - 2026-10-03: added `direction-c-final.html`, the consolidated mockup of D4 to D14, as the file to implement from.
 - 2026-10-03: D7 decided (masonry plus `<dialog>` lightbox) and D9 decided (inline SVG icons with labels); no provisional decisions remain.

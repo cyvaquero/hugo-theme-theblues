@@ -4,13 +4,13 @@ A responsive, accessible Hugo theme for [guyheckman.me](https://guyheckman.me). 
 Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark modes
 (`prefers-color-scheme`).
 
-Status: **implemented on `feature/masonry-home`, not released.** (A 0.5.0 release was prepared and dropped until the layout was
+Status: **implemented on `develop`, not released.** (A 0.5.0 release was prepared and dropped until the layout was
 built; there are no tags yet.) The chosen design is built: a hero with a wavy-underlined slogan, a full-width masonry wall
 (three columns from 900 px) that mixes photo tiles and article tiles, a calm "View options" popover (filter or highlight by
 type, sort, group by gallery), photo posts with a masonry gallery and a `<dialog>` lightbox, articles with a table of contents
 and series box, tag pages, and serif headlines. It builds the site's real content to the same 30 URLs as Clean White with no
-theme-related Hugo warnings. Known limits: see "Known limits" below. The site still uses Clean White; this theme is not wired
-into it yet.
+theme-related Hugo warnings. Known limits: see "Known limits" below. It is wired into the site's `develop` branch as a submodule
+(site issue #6); production still uses Clean White until this theme is released (release tracker: issue #10).
 
 ## Requirements
 
@@ -41,7 +41,7 @@ layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery)
 layouts/search/section.html  search page (engine chosen in issue #3)
 layouts/404.html
 layouts/_partials/         head, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, cover,
-                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset
+                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-page
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 ```
