@@ -4,7 +4,6 @@ slug: "{{ .File.ContentBaseName }}"
 subtitle: ""
 description: ""
 date: {{ .Date }}
-author: "{{ with site.Params.author }}{{ . }}{{ end }}"
 image: ""
 showtoc: false
 categories: []
