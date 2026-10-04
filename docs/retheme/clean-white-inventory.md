@@ -1,6 +1,6 @@
 # Clean White inventory (issue #4, step 1)
 
-Written 2026-10-01 on branch `feature/retheme`. Read-only analysis; nothing in the site repo was changed.
+Written 2026-10-01 on branch `feature/retheme`. Read-only analysis; nothing in the site repo was changed. Historical: the site overrides described in section 1 were removed on 2026-10-03 when The Blues was wired in.
 
 ## Basis
 

@@ -10,7 +10,7 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
 
 ### Added
 - The chosen home layout: hero with a wavy-underlined slogan, a full-width masonry wall (three columns from 900 px, two from
-  560 px) of photo tiles (one per gallery photo) and article tiles, a "View options" popover (Filter or Highlight, Sort,
+  560 px) of photo tiles (the first few photos of each gallery) and article tiles, a "View options" popover (Filter or Highlight, Sort,
   Group by gallery), type chips with counts, and a live caption; `assets/js/wall.js`.
 - The wall paginates by tile (`params.wall.tilesPerPage`, default 24), and each photo post shows only its first few photos
   (`params.wall.photosPerGallery`, default 4) followed by a "see all" tile that links to the gallery post.
@@ -19,7 +19,7 @@ All notable changes to this theme are documented here. Format follows [Keep a Ch
   box; tag, category and series pages that reuse the wall; an A-Z `/tags/` index.
 - The theme builds the site's real content to the same 30 URLs as Clean White with no theme-related Hugo warnings. There is no
   release yet: a 0.5.0 release branch was prepared on 2026-10-02, merged back into `develop` without tagging or merging to
-  `main`, and dropped until the layout was built; the layout is now built on `feature/masonry-home`.
+  `main`, and dropped until the layout was built; the layout is now built and merged to `develop`.
 - The post byline reads the post's `author` front matter, falling back to `params.author`; the archetype no longer hardcodes a name.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - `layouts/_partials/asset.html`: production builds minify and fingerprint CSS and JS; development builds serve the

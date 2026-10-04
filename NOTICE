@@ -17,6 +17,6 @@ Clean White is in turn based on:
 The layout, markup, and styles of The Blues have since been rewritten and keep changing;
 this notice credits the origin of the work.
 
-The series notice and previous/next navigation (layouts/_partials/series-top.html and
-series-bottom.html) are adapted from "Series taxonomy in Hugo" by cavelab.dev:
+The series notice and previous/next navigation (layouts/_partials/series-info.html,
+series-box.html and post-nav.html) are adapted from "Series taxonomy in Hugo" by cavelab.dev:
 https://blog.cavelab.dev/series/series-taxonomy-in-hugo/
