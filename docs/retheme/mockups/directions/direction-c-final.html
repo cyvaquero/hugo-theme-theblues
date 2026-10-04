@@ -1,0 +1,277 @@
+<!--
+THE BLUES: final consolidated layout mockup (single file, inline CSS and JS, no libraries or fonts).
+Decisions implemented:
+ D3  one commented inline stylesheet, hand-written, no frameworks or icon fonts.
+ D4  palette B tokens (navy/steel/sand/cream), light and dark via prefers-color-scheme with Light/Dark override, hamburger nav below 820px, system serif headlines.
+ D5  no sidebar, bio or author strip on Home; bio and avatar only on the About tab.
+ D6  table of contents beside the article (sticky from 821px, stacked below), CSS only, no scrollspy.
+ D7  photo post masonry (CSS columns, real proportions) and native <dialog> lightbox (prev/next, arrows, counter, Esc, focus return).
+ D8  Disqus placeholder on photo post and article only; none on About, Tag page, All tags.
+ D9  footer text links with inline aria-hidden SVG icons (RSS, LinkedIn, GitHub), currentColor, hover #D2C1B6.
+ D10 search is a reserved slot only: no Search link in the nav; nav is ARCHIVE and ABOUT.
+ D12 A+ hero with wavy sand underline, masonry wall of photo and article tiles, calm "View options" popover, series box, pagination.
+ D14 (featured tags / tag cloud) is deferred and NOT in this mockup. Home is a full-width masonry wall: 1 column below 560px, 2 from 560px, 3 from 900px. Tag and All tags pages stay reachable from the tag links on tiles and posts.
+-->
+<!doctype html><html lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The Blues: Final layout</title><style>
+:root,:root[data-theme=light]{--bg:#F9F3EF;--text:#1B3C53;--muted:#456882;--link:#456882;--hv:#D2C1B6;--band:#1B3C53;--bt:#F9F3EF;--line:#D2C1B6;--surface:#fff;--code:#EFE6DF;--on-bg:#1B3C53;--on-fg:#F9F3EF;--art-bg:#1B3C53;--art-fg:#F9F3EF;--art-sub:#D2C1B6;--art-line:#D2C1B6}
+:root[data-theme=dark]{--bg:#142E40;--text:#F9F3EF;--muted:#D2C1B6;--link:#D2C1B6;--band:#0F2332;--line:#456882;--surface:#1B3C53;--code:#0F2332;--on-bg:#D2C1B6;--on-fg:#142E40;--art-bg:#1E4560;--art-fg:#F9F3EF;--art-sub:#D2C1B6;--art-line:#456882}
+:root{--serif:Georgia,"Iowan Old Style","Times New Roman",serif;--sans:system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.65 var(--sans);overflow-x:hidden}
+img{max-width:100%;display:block}a{color:var(--link)}a:hover{color:var(--text)}:focus-visible{outline:3px solid var(--hv);outline-offset:2px}
+:root[data-theme=light] :focus-visible{outline-color:var(--muted)}:root[data-theme=light] nav.site :focus-visible,:root[data-theme=light] footer.site :focus-visible,:root[data-theme=light] .phero :focus-visible{outline-color:var(--hv)}
+[hidden]{display:none!important}
+.bar{background:#fff;color:#222;border-bottom:1px solid #ccc;padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;font:14px system-ui}
+.bar button{border:1px solid #888;background:#f4f4f4;border-radius:6px;padding:.25rem .7rem;cursor:pointer;font:inherit;color:#222}.bar button.on{background:#222;color:#fff;border-color:#222}.bar .sp{margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap}.bar small{flex-basis:100%;color:#555}.bar :focus-visible{outline-color:#1B3C53}
+nav.site{position:relative;background:var(--band);color:var(--bt);display:flex;align-items:center;justify-content:space-between;padding:.6rem max(1rem,calc((100% - 72rem)/2))}
+nav.site a,nav.site .menu{color:var(--bt);text-decoration:none}nav.site a:hover,nav.site .menu:hover{color:var(--hv)}nav.site .brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;padding:.35rem 0}
+nav.site .menu{background:none;border:1px solid var(--hv);border-radius:6px;padding:.35rem .7rem;font:inherit;font-size:.9rem;cursor:pointer;min-height:44px}
+nav.site .links{display:none;position:absolute;left:0;right:0;top:100%;z-index:20;flex-direction:column;background:var(--band);border-top:1px solid var(--muted);box-shadow:0 8px 16px rgba(0,0,0,.3);padding:.25rem 1rem .75rem;margin:0;list-style:none}
+nav.site .links.open{display:flex}nav.site .links a{display:block;padding:.8rem 0;border-bottom:1px solid var(--muted);font-size:.9rem;letter-spacing:.06em}
+@media(min-width:821px){nav.site .menu{display:none}nav.site .links{display:flex;position:static;flex-direction:row;gap:1.25rem;background:none;border:0;box-shadow:none;padding:0}nav.site .links a{border:0;padding:.35rem 0}}
+.view{display:none}.view.on{display:block}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:0 .7rem;font-size:.8rem;margin:.15rem .25rem .15rem 0;text-decoration:none}
+.meta{font-size:.85rem;color:var(--muted)}
+footer.site{background:var(--band);color:var(--bt);text-align:center;padding:2rem 1rem;font-size:.9rem;margin-top:3rem}footer.site a{color:var(--bt);margin:0 .6rem;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;min-height:44px}footer.site svg{width:1.15em;height:1.15em;fill:currentColor;flex:none}footer.site .soc{display:flex;flex-wrap:wrap;justify-content:center}footer.site a:hover{color:var(--hv)}
+.toc{font-size:.88rem;border-left:2px solid var(--line);padding-left:1rem;margin-bottom:1.5rem}.toc strong{display:block;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.toc a{display:block;text-decoration:none;padding:.25rem 0}
+.series{border:1px solid var(--line);border-left:.9rem solid var(--link);border-radius:4px;padding:1rem;background:var(--surface);margin:2.5rem 0}
+.series .t{display:block;font:700 1.15rem/1.3 var(--serif)}
+.series ol{list-style:none;margin:.5rem 0 1rem;padding:0}.series li{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px solid var(--line);padding:.35rem 0;font-size:.95rem}
+.pager{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.comments{margin-top:2rem;border:2px dashed var(--line);border-radius:8px;padding:1.5rem;text-align:center;color:var(--muted);font-size:.9rem}
+dialog.lb{border:0;padding:0;background:transparent;width:100%;height:100%;max-width:100vw;max-height:100vh}dialog.lb::backdrop{background:rgba(0,0,0,.9)}
+dialog.lb .in{height:100%;display:grid;grid-template-rows:1fr auto;place-items:center;padding:1rem;color:#F9F3EF}dialog.lb img{max-height:80vh;object-fit:contain}
+dialog.lb .bb{display:flex;gap:.8rem;align-items:center;padding-top:.5rem;flex-wrap:wrap;justify-content:center}dialog.lb button{background:none;color:#F9F3EF;border:1px solid #D2C1B6;border-radius:6px;padding:.4rem .9rem;font:inherit;cursor:pointer;min-height:44px}dialog.lb :focus-visible{outline-color:#D2C1B6}
+svg.ic{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.12em}
+/* hero (from A+) */
+.hero{color:#F9F3EF;padding:3.5rem 1rem 3rem;text-align:center;background:linear-gradient(rgba(15,35,50,.5),rgba(15,35,50,.8)),url(https://photos.smugmug.com/photos/i-TPkW8FJ/0/KDRFzCBpqgHmrq56Fx8gJWM9S8J6s2wb8fqgnH7X4/X2/i-TPkW8FJ-X2.jpg) center/cover,var(--band)}
+.hero .k{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:#D2C1B6;margin:0}
+.hero h1{margin:.3rem 0 0;font:700 clamp(2.4rem,9vw,4.4rem)/1.05 var(--serif)}.hero p.sub{margin:.8rem 0 0}
+.u{position:relative;display:inline-block;font-style:italic}.u svg{position:absolute;left:0;bottom:-.12em;width:100%;height:.25em;color:#D2C1B6}
+.phero{color:#F9F3EF;min-height:min(52vh,26rem);display:flex;align-items:flex-end;background:linear-gradient(rgba(15,35,50,.45) 0%,rgba(15,35,50,.92)),var(--hi,none) center/cover,var(--band)}
+.phero .in{width:100%;max-width:72rem;margin:0 auto;padding:5rem 1rem 2rem}.phero h1{margin:.3rem 0;font:700 clamp(2rem,6.5vw,3.4rem)/1.1 var(--serif)}
+.phero .meta,.phero .ptype,.phero .exif{color:#D2C1B6}.phero .exif{font-size:.95rem;margin:.2rem 0 0}
+.phero .tag{color:#F9F3EF;border-color:#D2C1B6}.phero .tag:hover{color:#D2C1B6}
+.ptype{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;letter-spacing:.14em;font-weight:700;text-transform:uppercase;color:var(--muted)}
+/* controls: calm popover */
+.ctl{position:relative;max-width:72rem;margin:0 auto;padding:.6rem 1rem .5rem;display:flex;flex-wrap:wrap;gap:.2rem .7rem;align-items:center}
+.seg{display:inline-flex;flex-wrap:wrap;gap:.3rem}
+.seg button{border:1px solid var(--line);background:none;color:var(--text);border-radius:99px;padding:.1rem .75rem;font:inherit;font-size:.85rem;font-weight:400;cursor:pointer;min-height:32px}
+.seg button:hover{border-color:var(--muted)}
+.seg button .n{font-variant-numeric:tabular-nums;color:var(--muted);margin-left:.25rem;font-size:.78rem}
+.seg button[aria-pressed=true]{background:var(--on-bg);color:var(--on-fg);border-color:var(--on-bg);font-weight:600}.seg button[aria-pressed=true] .n{color:var(--on-fg)}
+.seg button[aria-pressed=true]::before{content:"\2713\00a0"}
+.vbtn{display:inline-flex;align-items:center;gap:.35rem;background:none;border:0;border-radius:6px;color:var(--link);font:inherit;font-size:.85rem;cursor:pointer;min-height:32px;padding:0 .35rem}
+.vbtn:hover{color:var(--text);text-decoration:underline}
+.vbtn .chev{width:.8em;height:.8em}
+.vbtn[aria-expanded=true] .chev{transform:rotate(180deg)}
+.bdg{background:var(--on-bg);color:var(--on-fg);border-radius:99px;min-width:1.1rem;height:1.1rem;font-size:.7rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 .3rem;line-height:1}
+.clr{background:none;border:0;color:var(--link);font:inherit;font-size:.8rem;text-decoration:underline;cursor:pointer;min-height:32px;padding:0 .3rem}.clr:hover{color:var(--text)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cap{margin:0;font-size:.8rem;line-height:1.4;color:var(--muted);flex:1 1 12rem;text-align:right}
+@media(max-width:699px){.cap{text-align:left}}
+.pop{position:absolute;z-index:15;top:calc(100% - .2rem);left:1rem;right:1rem;background:var(--surface);color:var(--text);border:1px solid var(--muted);border-radius:12px;padding:1rem 1rem .6rem;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+@media(min-width:700px){.pop{left:auto;width:20rem}}
+.ps{display:block;margin:0 0 .9rem}.ps>.pl{display:block;font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:.35rem}
+.seg.mode{display:flex;border:1px solid var(--line);border-radius:99px;padding:2px;gap:0}.seg.mode button{flex:1;border:0;min-height:36px;font-size:.9rem}
+.sel{width:100%;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:.9rem;padding:.4rem .6rem}
+label.swt{display:flex;align-items:center;justify-content:space-between;gap:.6rem;min-height:44px;font-size:.9rem;cursor:pointer}
+label.swt .r{display:inline-flex;align-items:center;gap:.4rem}.swt .st{font-size:.75rem;color:var(--muted);min-width:1.3rem;text-align:right}
+.swt input{appearance:none;-webkit-appearance:none;width:2.4rem;height:1.5rem;border-radius:99px;border:2px solid var(--muted);background:transparent;position:relative;flex:none;margin:0;cursor:pointer}
+.swt input::before{content:"";position:absolute;top:2px;left:2px;width:1rem;height:1rem;border-radius:50%;background:var(--muted)}
+.swt input:checked{background:var(--on-bg);border-color:var(--on-bg)}.swt input:checked::before{left:calc(100% - 1rem - 2px);background:var(--on-fg)}
+.pop .clr{font-size:.85rem;min-height:44px}
+/* masonry + tiles */
+.mas{columns:1;column-gap:12px}@media(min-width:560px){.mas{columns:2}}@media(min-width:900px){.mas{columns:3}}
+#stage{max-width:72rem;margin:0 auto;padding:.4rem 1rem 0}
+.tile{margin:0 0 12px;break-inside:avoid;position:relative;border-radius:8px;display:block}
+.tile[hidden],details[hidden]{display:none}
+.tile.photo{overflow:hidden;background:var(--code)}.tile.photo img{width:100%;height:auto;min-height:80px}
+.tile.photo .badge{position:absolute;top:.5rem;left:.5rem;display:inline-flex;gap:.35rem;align-items:center;background:rgba(15,35,50,.88);color:#F9F3EF;border-radius:99px;padding:.15rem .6rem;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.tile.photo figcaption{position:absolute;inset:auto 0 0 0;padding:2.5rem .8rem .7rem;background:linear-gradient(transparent,rgba(15,35,50,.92));color:#F9F3EF;font-size:.92rem;opacity:0}
+.tile.photo:hover figcaption,.tile.photo:focus-within figcaption{opacity:1}@media(hover:none){.tile.photo figcaption{opacity:1}}
+.tile.photo figcaption .meta{color:#D2C1B6}
+.tile.photo a.cover{display:block}
+.tile.article{background:var(--art-bg);color:var(--art-fg);border-left:8px solid var(--hv);border-radius:4px 10px 10px 4px;padding:1rem 1.1rem 1rem 1rem;border-top:1px solid var(--art-line);border-right:1px solid var(--art-line);border-bottom:1px solid var(--art-line)}
+.tile.article .lbl{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;font-size:.72rem;letter-spacing:.14em;font-weight:700;color:var(--art-sub);text-transform:uppercase}
+.tile.article .chip{margin-left:auto;border:1px solid var(--art-sub);border-radius:99px;padding:0 .6rem;letter-spacing:.04em;text-transform:none;font-weight:600;font-size:.76rem}
+.tile.article h3{font:700 1.3rem/1.25 var(--serif);margin:.55rem 0 .4rem}.tile.article h3 a{color:var(--art-fg);text-decoration:none}.tile.article h3 a::after{content:"";position:absolute;inset:0;border-radius:inherit}
+.tile.article h3 a:hover{color:var(--hv);text-decoration:underline}
+.tile.article:has(h3 a:focus-visible){outline:3px solid var(--hv);outline-offset:2px}.tile.article h3 a:focus-visible{outline:0}
+.tile.article p{margin:0 0 .6rem;font-size:.95rem;line-height:1.5;color:var(--art-fg);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tile.article .meta{color:var(--art-sub);font-size:.8rem}
+.tile.photo:has(a:focus-visible){outline:3px solid var(--hv);outline-offset:2px}:root[data-theme=light] .tile.photo:has(a:focus-visible){outline-color:var(--muted)}.tile.photo a:focus-visible{outline:0}
+.tile.photo:has(a:focus-visible) figcaption{opacity:1}
+.tile.dim,#stage[data-pv=article] .tile.photo,#stage[data-pv=photo] .tile.article{opacity:.35}
+.tile.dim:hover,.tile.dim:focus-within{opacity:.85}
+.tile.hl,#stage[data-pv=article] .tile.article,#stage[data-pv=photo] .tile.photo{outline:3px solid var(--hv);outline-offset:3px}
+:root[data-theme=light] .tile.hl,:root[data-theme=light] #stage[data-pv=article] .tile.article,:root[data-theme=light] #stage[data-pv=photo] .tile.photo{outline-color:var(--hv);box-shadow:0 0 0 1px var(--muted)}
+details.grp{margin:0 0 1.5rem}details.grp>summary{cursor:pointer;font:700 1.3rem/1.3 var(--serif);padding:.6rem .2rem;min-height:44px;border-bottom:2px solid var(--line);margin-bottom:12px;display:flex;align-items:center;gap:.5rem;list-style:none}
+details.grp>summary::-webkit-details-marker{display:none}details.grp>summary::before{content:"\25B8";display:inline-block}details.grp[open]>summary::before{content:"\25BE"}
+details.grp>summary .meta{font:400 .85rem var(--sans)}
+.nav2{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;max-width:72rem;margin:2rem auto 0;padding:1rem;border-top:1px solid var(--line)}
+.pg{max-width:72rem;margin:1rem auto 0;padding:1rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;border-top:1px solid var(--line)}
+.pg a{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;text-decoration:none;padding:0 .8rem}.pg a[aria-current=page]{background:var(--on-bg);color:var(--on-fg);border-color:var(--on-bg);font-weight:700}
+.pb{max-width:46rem;margin:0 auto;padding:0 1rem}.pb h2{font:700 1.5rem/1.3 var(--serif);margin:2rem 0 .5rem}
+.gal{max-width:72rem;margin:1.5rem auto 0;padding:0 1rem}.gal figure{margin:0 0 12px;break-inside:avoid;border-radius:8px;overflow:hidden;background:var(--code)}.gal img{width:100%;height:auto}
+.apage{max-width:72rem;margin:0 auto;padding:2rem 1rem 0;display:grid;grid-template-columns:minmax(0,1fr);gap:1rem}.apage>*{min-width:0}
+.abody{font-family:var(--serif);font-size:1.1rem;line-height:1.75;max-width:42rem}.abody h2{font:700 1.5rem/1.3 var(--serif);margin:2rem 0 .5rem}.abody pre{background:var(--code);padding:1rem;overflow:auto;border-radius:6px;font-size:.85rem;line-height:1.5}
+.alead{border-left:8px solid var(--hv);padding-left:1rem}
+@media(min-width:821px){.apage{grid-template-columns:14rem minmax(0,1fr);gap:3rem}.toc{position:sticky;top:1rem;align-self:start}}
+/* about page (D5) */
+.abt{max-width:46rem;margin:0 auto;padding:2.5rem 1rem 0;display:flex;gap:1.2rem;align-items:center}.abt h1{margin:0;font:700 clamp(2rem,6vw,3rem)/1.1 var(--serif)}.abt .role{margin:.3rem 0 0;color:var(--muted);font-family:var(--serif);font-size:1.1rem}
+.av{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--hv);flex:none}
+.abt2{max-width:46rem;margin:1.5rem auto 0;padding:0 1rem}
+@media(max-width:420px){.abt{flex-direction:column;align-items:flex-start}}
+/* tag links on tiles and posts */
+.tile .meta a{color:inherit;text-decoration:underline;text-underline-offset:.15em}.tile .meta a:hover{color:var(--hv)}
+/* touch targets: 44px for chips, popover controls, tags */
+@media(pointer:coarse){.seg button,.vbtn,.clr{min-height:44px}.seg button{padding:.1rem 1rem}.tag{min-height:44px;display:inline-flex;align-items:center;padding:0 .9rem}.seg.mode button{min-height:44px}}
+.thero .tl{display:inline-block;margin:0 1.2rem .6rem 0;color:#F9F3EF;min-height:44px;line-height:44px}.thero .tl:hover{color:#D2C1B6}.thero p.d{margin:.3rem 0 0;color:#F9F3EF;max-width:40rem}
+.tgw{max-width:72rem;margin:0 auto;padding:1.2rem 1rem 0}.tgw .note{font-size:.85rem;color:var(--muted);border-left:3px solid var(--hv);padding-left:.7rem;margin:0 0 1rem}
+.atw{max-width:46rem;margin:0 auto;padding:2rem 1rem 0}.atw h1{font:700 clamp(2rem,6vw,3rem)/1.1 var(--serif);margin:0 0 .4rem}.atw h2{font:700 1.3rem/1.3 var(--serif);border-bottom:2px solid var(--line);margin:1.6rem 0 .3rem;padding-bottom:.2rem}
+ul.atl{list-style:none;margin:0;padding:0}ul.atl li{border-bottom:1px solid var(--line)}ul.atl a{display:flex;justify-content:space-between;gap:1rem;align-items:center;min-height:44px;text-decoration:none;color:var(--text)}ul.atl a:hover .nm{text-decoration:underline}ul.atl .c{color:var(--muted);font-size:.85rem}
+@media(prefers-reduced-motion:no-preference){.tile.photo figcaption{transition:opacity .2s}.tile{transition:opacity .2s}.tile.photo img{transition:transform .25s}.tile.photo:hover img{transform:scale(1.03)}.swt input,.swt input::before{transition:all .15s}.vbtn .chev{transition:transform .15s}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style></head><body><div class="bar"><strong>The Blues: final layout</strong><span class="sp"><button data-v="home">Home</button><button data-v="post">Photo post</button><button data-v="article">Article</button><button data-v="tag">Tag page</button><button data-v="alltags">All tags</button><button data-v="about">About</button><button data-m="light">Light</button><button data-m="dark">Dark</button></span><small>Mockup controls only. Light and Dark override the system setting.</small></div><nav class="site" aria-label="Main"><a class="brand" href="#" data-nav="home">guyheckman.me</a><button class="menu" type="button" aria-expanded="false" aria-controls="m">&#9776; Menu</button><ul class="links" id="m"><li><a href="#" data-nav="archive">ARCHIVE</a></li><li><a href="#" data-nav="about">ABOUT</a></li></ul></nav>
+<div class="view" id="home"><header class="hero"><p class="k">guyheckman.me</p><h1>Life, <span class="u">lived<svg viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M1 5 C6 0 11 0 15 4 S25 8 30 4 S42 0 46 4 S55 7 59 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span>.</h1><p class="sub">Technology, motorcycles, photography and travel.</p></header>
+<div class="ctl" id="rowc" role="region" aria-label="Browse controls">
+<div class="seg" role="group" aria-label="Show type" data-slot="chips"></div>
+<button type="button" class="vbtn" id="vb" aria-expanded="false" aria-controls="pop">View options<span class="bdg" data-badge="opts" hidden></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+<button type="button" class="clr" data-role="clear" hidden>Clear</button>
+<p class="cap" aria-live="polite"></p>
+<div class="pop" id="pop" role="group" aria-label="View options" hidden>
+<div class="ps"><span class="pl">Mode</span><div class="seg mode" role="group" aria-label="Filter mode" data-slot="modes"></div></div>
+<label class="ps" data-slot="sort"></label><div data-slot="grp"></div>
+<button type="button" class="clr" data-role="reset" hidden>Reset</button></div>
+</div>
+<div id="stage" data-pv="all"></div>
+<nav class="pg" aria-label="Pagination"><a href="#" aria-current="page">1</a><a href="#">2</a><a href="#">3</a><a href="#">Older &rarr;</a></nav></div>
+<div class="view" id="post"><header class="phero" id="phero1"><div class="in"><div class="ptype"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo gallery</div><div class="meta">Photos &middot; Feb 3, 2025 &middot; 6 photos</div><h1>Uptown Charlotte, NC</h1><p class="exif">A walk around Uptown Charlotte, NC</p></div></header><div class="mas gal" id="galpost"></div><div class="pb"><h2>About this walk</h2><p>Photo posts lead with the pictures. Masonry columns keep natural proportions; a click opens the viewer with previous/next and keyboard arrows.</p><div class="series"><strong class="t">How I Built This Site series</strong><ol><li><a href="#">How I Built This Site</a><span class="meta">Mar 2023</span></li><li><a href="#">Introduction to Markdown</a><span class="meta">Apr 2023</span></li><li><strong aria-current="page">How My Hugo Project Is Organized</strong><span class="meta">May 2025</span></li></ol><div class="pager"><a href="#">&larr; Introduction to Markdown</a><span></span></div></div><div class="comments">Disqus comments load here (posts only)</div></div><nav class="nav2" aria-label="Post navigation"><a href="#">&larr; Boston, MA</a><a href="#">Monterrey, Mexico &rarr;</a></nav></div>
+<div class="view" id="article"><header class="phero" id="phero2"><div class="in"><div class="ptype"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Article</div><h1>How My Hugo Project Is Organized</h1><div class="meta">May 4, 2025 &middot; Tech &middot; <a class="tag" href="#" data-tag="git">git</a><a class="tag" href="#" data-tag="hugo">hugo</a></div></div></header>
+<div class="apage"><aside class="toc" aria-label="Table of contents"><strong>On this page</strong><a href="#s1">Top-level layout</a><a href="#s2">Content and archetypes</a><a href="#s3">Themes and config</a><a href="#s4">Deploying</a></aside><article>
+<div class="abody"><p class="alead">A tour of the folders, archetypes and config that keep this Hugo site tidy, and how git ties it together.</p><h2 id="s1">Top-level layout</h2><p>Every Hugo project starts with the same handful of folders. Mine keeps content, theme and deployment scripts apart so each can change on its own.</p><pre>content/ archetypes/ themes/ static/ hugo.toml</pre><h2 id="s2">Content and archetypes</h2><p>Posts live under content/post, one folder per post, with galleries referenced by shortcode rather than copied in.</p><h2 id="s3">Themes and config</h2><p>The theme is a git submodule, so upgrades are a pull and a rebuild.</p><h2 id="s4">Deploying</h2><p>Build, sync to the bucket, invalidate the cache. Three commands.</p></div>
+<div class="series"><strong class="t">Part 3 of 3: How I Built This Site</strong><ol><li><a href="#">1. How I Built This Site</a><span class="meta">Mar 2023</span></li><li><a href="#">2. Introduction to Markdown</a><span class="meta">Apr 2023</span></li><li><strong aria-current="page">3. How My Hugo Project Is Organized</strong><span class="meta">May 2025</span></li></ol><div class="pager"><a href="#">&larr; Introduction to Markdown</a><span></span></div></div>
+<div class="comments">Disqus comments load here (posts only)</div></article></div><nav class="nav2" aria-label="Post navigation"><a href="#">&larr; Introduction to Markdown</a><a href="#">Newer posts: none</a></nav></div>
+<div class="view" id="tag"><header class="phero thero" id="phero3"><div class="in"><a class="tl" href="#" data-back>&larr; Back to all posts</a><a class="tl" href="#" data-alltags>All tags &rarr;</a><div class="ptype">Tag</div><h1 id="tgH">Tagged: travel</h1><div class="meta" id="tgM">3 posts &middot; 19 photos</div><p class="d" id="tgD">Photo walks and trips: Boston, Charlotte and Monterrey.</p></div></header><div class="tgw"><p class="note" id="tgN" hidden></p><div class="mas" id="tgstage"></div></div></div>
+<div class="view" id="alltags"><div class="atw"><a href="#" data-back>&larr; Back to all posts</a><h1>All tags</h1><p class="meta">Every tag on the site, A to Z, with post counts.</p><div id="atl"></div></div></div>
+<div class="view" id="about"><div class="abt"><img class="av" src="https://photos.smugmug.com/photos/i-8jTrZs3/0/Ljtm9MzkrpCwWNVDVSC8TCjs4PtCSSrCPR4gN36Sj/Th/i-8jTrZs3-Th.jpg" alt="Portrait of Guy Heckman" width="100" height="100"><div><h1>About</h1><p class="role">Technologist, motorcyclist, photographer, traveler</p></div></div>
+<div class="abody abt2">
+<!-- PLACEHOLDER COPY: the paragraphs below are invented filler for the mockup; replace with Guy's real About text. No Disqus on this page (D8). -->
+<p>Hello, I am Guy. By day I build and run software; the rest of the time I am usually on two wheels, behind a camera, or both. This site is where those pieces meet.</p>
+<p>The photography is mostly travel and street walks: a city on foot, a long weekend, a ride that went further than planned. The writing is mostly notes to my future self about the tools I use, from Hugo and Markdown to git and a little cloud plumbing.</p>
+<p>Nothing here is sponsored or tracked beyond basic, privacy-respecting analytics. If something is useful, or wrong, I would like to hear about it.</p>
+<p class="meta">Built with Hugo and The Blues theme, hosted on S3 and CloudFront.</p>
+</div></div></div>
+<footer class="site"><div class="soc"><a href="#" data-dead><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9h-3a6 6 0 0 0-6-6v-3zm0-7a16 16 0 0 1 16 16h-3A13 13 0 0 0 4 7V4zm2.5 12a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"/></svg>RSS</a><a href="#" data-dead><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.75h4V21H3V9.75zm6.5 0h3.8v1.6h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.65 4.77 6.1V21h-4v-4.9c0-1.17-.02-2.67-1.63-2.67s-1.88 1.27-1.88 2.58V21h-4V9.75z"/></svg>LinkedIn</a><a href="#" data-dead><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.4-5.27 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>GitHub</a></div><p>&copy; guyheckman.me 2026 &middot; The Blues mockup</p></footer>
+<script>
+var GAL=[{"key": "Monterrey", "name": "Monterrey, Mexico", "date": "2025-02-13", "ids": ["i-8Nr9Vp5", "i-9CL66VD", "i-VMFgJdG", "i-9SJGDCR", "i-4xmMTc9", "i-FPBdrkM", "i-25Xwh4F"], "urls": [["https://photos.smugmug.com/photos/i-8Nr9Vp5/0/LtqCm7STrJ5RmbT2tXzMSRJG82twnvrhqdmZ6mD2H/X2/i-8Nr9Vp5-X2.jpg", "https://photos.smugmug.com/photos/i-8Nr9Vp5/0/LtqCm7STrJ5RmbT2tXzMSRJG82twnvrhqdmZ6mD2H/X3/i-8Nr9Vp5-X3.jpg"], ["https://photos.smugmug.com/photos/i-9CL66VD/0/MXTL85mxpfdPPvqwt5Krw9s33hQqRnD6x6n3pC4hr/X2/i-9CL66VD-X2.jpg", "https://photos.smugmug.com/photos/i-9CL66VD/0/MXTL85mxpfdPPvqwt5Krw9s33hQqRnD6x6n3pC4hr/X3/i-9CL66VD-X3.jpg"], ["https://photos.smugmug.com/photos/i-VMFgJdG/0/LdVsLFGCkRBLXRDsSs4fqvqPV8Lr2jzf7tSnQWDP2/X2/i-VMFgJdG-X2.jpg", "https://photos.smugmug.com/photos/i-VMFgJdG/0/LdVsLFGCkRBLXRDsSs4fqvqPV8Lr2jzf7tSnQWDP2/X3/i-VMFgJdG-X3.jpg"], ["https://photos.smugmug.com/photos/i-9SJGDCR/0/MvM9PwwCqR46M3X3jwSn4PNmK5fkQR7V9g75tvr4q/X2/i-9SJGDCR-X2.jpg", "https://photos.smugmug.com/photos/i-9SJGDCR/0/MvM9PwwCqR46M3X3jwSn4PNmK5fkQR7V9g75tvr4q/X3/i-9SJGDCR-X3.jpg"], ["https://photos.smugmug.com/photos/i-4xmMTc9/0/MxbKJ6ztj8VMWjPmVk79PgqRdBxj6whxVMw4jQ2KL/X2/i-4xmMTc9-X2.jpg", "https://photos.smugmug.com/photos/i-4xmMTc9/0/MxbKJ6ztj8VMWjPmVk79PgqRdBxj6whxVMw4jQ2KL/X3/i-4xmMTc9-X3.jpg"], ["https://photos.smugmug.com/photos/i-FPBdrkM/0/LMmjTZJnH2d7tnsjbTnwVMSkQcTR9kBSXc2LZbwzP/X2/i-FPBdrkM-X2.jpg", "https://photos.smugmug.com/photos/i-FPBdrkM/0/LMmjTZJnH2d7tnsjbTnwVMSkQcTR9kBSXc2LZbwzP/X3/i-FPBdrkM-X3.jpg"], ["https://photos.smugmug.com/photos/i-25Xwh4F/0/LPgbbcwJRzjbBPTCGzcHwKkJhMTndzNfMFwrrZ53V/X2/i-25Xwh4F-X2.jpg", "https://photos.smugmug.com/photos/i-25Xwh4F/0/LPgbbcwJRzjbBPTCGzcHwKkJhMTndzNfMFwrrZ53V/X3/i-25Xwh4F-X3.jpg"]]}, {"key": "Charlotte", "name": "Charlotte, NC", "date": "2025-02-03", "ids": ["i-v62W6rb", "i-NBtP2Jj", "i-XkdRsww", "i-CknNzKS", "i-tfzSjQc", "i-RpmBLpg"], "urls": [["https://photos.smugmug.com/photos/i-v62W6rb/0/MbvM7ZPLSr9hWGF4ct7jfCc8RjZpz67Nz6HW5zNjr/X2/i-v62W6rb-X2.jpg", "https://photos.smugmug.com/photos/i-v62W6rb/0/MbvM7ZPLSr9hWGF4ct7jfCc8RjZpz67Nz6HW5zNjr/X3/i-v62W6rb-X3.jpg"], ["https://photos.smugmug.com/photos/i-NBtP2Jj/0/LXSnR9xbf5nQxHzVfDX97KnvP7kxv8ZXS9PQ9mHfM/X2/i-NBtP2Jj-X2.jpg", "https://photos.smugmug.com/photos/i-NBtP2Jj/0/LXSnR9xbf5nQxHzVfDX97KnvP7kxv8ZXS9PQ9mHfM/X3/i-NBtP2Jj-X3.jpg"], ["https://photos.smugmug.com/photos/i-XkdRsww/0/MTtbWRM9prRQTmD729WJPJ2sZWwhLSvrXXtB93dxh/X2/i-XkdRsww-X2.jpg", "https://photos.smugmug.com/photos/i-XkdRsww/0/MTtbWRM9prRQTmD729WJPJ2sZWwhLSvrXXtB93dxh/X3/i-XkdRsww-X3.jpg"], ["https://photos.smugmug.com/photos/i-CknNzKS/0/LmNBRjwNMfbsLjd56HvfSVvqgLSPLQbd32WpDPTC5/X2/i-CknNzKS-X2.jpg", "https://photos.smugmug.com/photos/i-CknNzKS/0/LmNBRjwNMfbsLjd56HvfSVvqgLSPLQbd32WpDPTC5/X3/i-CknNzKS-X3.jpg"], ["https://photos.smugmug.com/photos/i-tfzSjQc/0/LTf3n2FMBFFPsQj9BbKRNX82d3tn7Krt2ff49XgKt/X2/i-tfzSjQc-X2.jpg", "https://photos.smugmug.com/photos/i-tfzSjQc/0/LTf3n2FMBFFPsQj9BbKRNX82d3tn7Krt2ff49XgKt/X3/i-tfzSjQc-X3.jpg"], ["https://photos.smugmug.com/photos/i-RpmBLpg/0/KkwLHRTVVwjnbpCKkmTcZ2dNjjWP8M94m3Nhd4j9d/X2/i-RpmBLpg-X2.jpg", "https://photos.smugmug.com/photos/i-RpmBLpg/0/KkwLHRTVVwjnbpCKkmTcZ2dNjjWP8M94m3Nhd4j9d/X3/i-RpmBLpg-X3.jpg"]]}, {"key": "Boston", "name": "Boston, MA", "date": "2025-02-01", "ids": ["i-Hjdfrck", "i-K6V6bXs", "i-V8hxnh4", "i-Xmr7fw4", "i-Trm7HnC", "i-6B89r8j"], "urls": [["https://photos.smugmug.com/photos/i-Hjdfrck/0/MsK84fLVqb6cDKgbFtkJnvNW6hzHHwvkwdsK542Hp/X2/i-Hjdfrck-X2.jpg", "https://photos.smugmug.com/photos/i-Hjdfrck/0/MsK84fLVqb6cDKgbFtkJnvNW6hzHHwvkwdsK542Hp/X3/i-Hjdfrck-X3.jpg"], ["https://photos.smugmug.com/photos/i-K6V6bXs/0/Nb6GWZCh7x74CmB5P4dTLZzTKmfv4JH43fvGHrJrk/X2/i-K6V6bXs-X2.jpg", "https://photos.smugmug.com/photos/i-K6V6bXs/0/Nb6GWZCh7x74CmB5P4dTLZzTKmfv4JH43fvGHrJrk/X3/i-K6V6bXs-X3.jpg"], ["https://photos.smugmug.com/photos/i-V8hxnh4/0/NK7KWbV3gB78gMG9XsX2kQkGLwFTxPhb4MrF9GN3r/X2/i-V8hxnh4-X2.jpg", "https://photos.smugmug.com/photos/i-V8hxnh4/0/NK7KWbV3gB78gMG9XsX2kQkGLwFTxPhb4MrF9GN3r/X3/i-V8hxnh4-X3.jpg"], ["https://photos.smugmug.com/photos/i-Xmr7fw4/0/LDR83Q2snkT2GX7zj37RgCzPckfdtz9ZHkNhmtR8J/X2/i-Xmr7fw4-X2.jpg", "https://photos.smugmug.com/photos/i-Xmr7fw4/0/LDR83Q2snkT2GX7zj37RgCzPckfdtz9ZHkNhmtR8J/X3/i-Xmr7fw4-X3.jpg"], ["https://photos.smugmug.com/photos/i-Trm7HnC/0/LbN3VQMNLrk4NBxCZsd8qZpM8DhhJvvQfw98L7Bxt/X2/i-Trm7HnC-X2.jpg", "https://photos.smugmug.com/photos/i-Trm7HnC/0/LbN3VQMNLrk4NBxCZsd8qZpM8DhhJvvQfw98L7Bxt/X3/i-Trm7HnC-X3.jpg"], ["https://photos.smugmug.com/photos/i-6B89r8j/0/Mr29NLzdRmgJn2NRShNBP5rR3LLQGzghT4tVT8q7X/X2/i-6B89r8j-X2.jpg", "https://photos.smugmug.com/photos/i-6B89r8j/0/Mr29NLzdRmgJn2NRShNBP5rR3LLQGzghT4tVT8q7X/X3/i-6B89r8j-X3.jpg"]]}];
+var ART=[
+{title:"How My Hugo Project Is Organized",date:"2025-05-04",cat:"Tech",tags:["git","hugo"],part:3,total:3,desc:"A tour of the folders, archetypes and config that keep this Hugo site tidy, and how git ties it together."},
+{title:"Introduction to Markdown",date:"2023-04-15",cat:"Tech",tags:["markdown","hugo"],part:2,total:3,desc:"Hugo + Markdown + Git + AWS = Blog"},
+{title:"How I Built This Site",date:"2023-03-19",cat:"Tech",tags:["hugo","aws"],part:1,total:3,desc:"Hugo + Markdown + Git + AWS = Blog"},
+{title:"Markdown Cheatsheet",date:"2023-03-01",cat:"Tech",tags:["markdown","hugo"],desc:"A Markdown cheatsheet for Hugo built sites."},
+{title:"Hello Herbal Limeade",date:"2023-03-15",cat:"Life",tags:["life"],desc:"A Hello World post with a twist of lime."}];
+var MO=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fd(d){var p=d.split("-");return MO[+p[1]-1]+" "+(+p[2])+", "+p[0]}
+var IC_CAM='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+var IC_DOC='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>';
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+var items=[],ix=0;
+GAL.forEach(function(g){g.urls.forEach(function(u,i){var n=g.urls.length;var el=document.createElement("figure");el.className="tile photo";el.dataset.type="photo";
+el.innerHTML='<a class="cover" href="#" data-go="post" aria-label="'+esc(g.key)+' gallery, '+n+' photos, '+fd(g.date)+'. Photo '+(i+1)+' of '+n+'"><img src="'+u[0]+'" alt="" loading="lazy"><span class="badge">'+IC_CAM+'Photo</span></a><figcaption>'+esc(g.key)+' gallery &middot; '+n+' photos<div class="meta">'+fd(g.date)+'</div></figcaption>';
+items.push({t:"p",g:g,date:g.date,ord:ix++,el:el})})});
+ART.forEach(function(a){var el=document.createElement("article");el.className="tile article";el.dataset.type="article";
+el.innerHTML='<div class="lbl">'+IC_DOC+'Article'+(a.part?'<span class="chip">Part '+a.part+' of '+a.total+'</span>':'')+'</div><h3><a href="#" data-go="article">'+esc(a.title)+'</a></h3><p>'+esc(a.desc)+'</p><div class="meta"><time datetime="'+a.date+'">'+fd(a.date)+'</time> &middot; '+esc(a.cat)+' &middot; '+a.tags.map(function(t){return '<a href="#" data-tag="'+esc(t)+'">#'+esc(t)+'</a>'}).join(" ")+'</div>';
+items.push({t:"a",a:a,date:a.date,ord:ix++,el:el})});
+var NA=ART.length,NP=items.length-NA;
+var S={f:"all",m:"filter",s:"new",g:false},stage=document.getElementById("stage"),open={};
+function cmpDate(dir){return function(x,y){return x.date===y.date?x.ord-y.ord:(x.date<y.date?1:-1)*dir}}
+function sorter(){var d=S.s==="old"?-1:1,c=cmpDate(d);
+if(S.s==="gal")return function(x,y){return x.t!==y.t?(x.t==="p"?-1:1):c(x,y)};
+if(S.s==="art")return function(x,y){return x.t!==y.t?(x.t==="a"?-1:1):c(x,y)};return c}
+function match(it){return S.f==="all"||(S.f==="article"&&it.t==="a")||(S.f==="photo"&&it.t==="p")}
+function paint(){var vis={a:0,p:0};items.forEach(function(it){var m=match(it),e=it.el;
+if(S.m==="filter"){e.hidden=!m;e.classList.remove("dim","hl")}else{e.hidden=false;e.classList.toggle("dim",S.f!=="all"&&!m);e.classList.toggle("hl",S.f!=="all"&&m)}
+if(!e.hidden)vis[it.t]++});
+stage.querySelectorAll("details.grp").forEach(function(d){d.hidden=!d.querySelector(".tile:not([hidden])")});
+var s,pl=function(n,w){return n+" "+w+(n===1?"":"s")};
+if(S.m==="filter")s="Showing "+pl(vis.a,"article")+", "+pl(vis.p,"photo");
+else if(S.f==="all")s="Showing "+pl(NA,"article")+", "+pl(NP,"photo")+" (highlight: pick a type)";
+else s="Highlighting "+(S.f==="article"?pl(NA,"article")+"; "+pl(NP,"photo")+" dimmed":pl(NP,"photo")+"; "+pl(NA,"article")+" dimmed");
+if(S.g&&vis.p)s+=", grouped into "+pl(GAL.length,"gallery").replace("gallerys","galleries");
+document.querySelectorAll(".cap").forEach(function(c){c.textContent=s});sync()}
+function render(){var cmp=sorter(),mk=function(){var d=document.createElement("div");d.className="mas";return d};stage.textContent="";
+if(!S.g){var m=mk();items.slice().sort(cmp).forEach(function(it){m.appendChild(it.el)});stage.appendChild(m)}
+else{var secs=[],dir=S.s==="old"?-1:1;
+GAL.slice().sort(function(x,y){return(x.date<y.date?1:-1)*dir}).forEach(function(g){secs.push({k:g.key,h:esc(g.name)+' &middot; '+fd(g.date)+' &middot; <span class="meta">'+g.urls.length+' photos</span>',its:items.filter(function(i){return i.t==="p"&&i.g===g}).sort(cmp)})});
+var as={k:"Articles",h:'Articles &middot; <span class="meta">'+NA+' articles</span>',its:items.filter(function(i){return i.t==="a"}).sort(cmp)};
+if(S.s==="art")secs.unshift(as);else secs.push(as);
+secs.forEach(function(sc){var d=document.createElement("details");d.className="grp";d.open=open[sc.k]!==false;d.addEventListener("toggle",function(){open[sc.k]=d.open});
+d.innerHTML='<summary>'+sc.h+'</summary>';var m=mk();sc.its.forEach(function(it){m.appendChild(it.el)});d.appendChild(m);stage.appendChild(d)})}
+paint()}
+var DEF={f:"all",m:"filter",s:"new",g:false},$=function(i){return document.getElementById(i)},qa=function(x){return [].slice.call(document.querySelectorAll(x))};
+var SL={chips:function(){return [["all","All"],["article","Articles"],["photo","Photos"]].map(function(c){return '<button type="button" data-f="'+c[0]+'" aria-pressed="false">'+c[1]+'<span class="n"></span></button>'}).join("")},
+modes:function(){return '<button type="button" data-m2="filter" aria-pressed="true">Filter</button><button type="button" data-m2="highlight" aria-pressed="false">Highlight</button>'},
+sort:function(){return '<span class="pl">Sort</span><select class="sel" data-role="sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="gal">Galleries first</option><option value="art">Articles first</option></select>'},
+grp:function(){return '<label class="swt"><span>Group by gallery</span><span class="r"><span class="st">Off</span><input type="checkbox" role="switch" data-role="grp"></span></label>'}};
+["chips","modes","sort","grp"].forEach(function(k){qa('[data-slot="'+k+'"]').forEach(function(e){e.innerHTML=SL[k]()})});
+qa("[data-f]").forEach(function(b){var t=b.dataset.f==="all"?items.length:b.dataset.f==="article"?NA:NP;b.querySelector(".n").textContent=t});
+function sync(){qa("[data-f]").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.f===S.f)});
+qa("[data-m2]").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.m2===S.m)});
+qa('[data-role=sort]').forEach(function(x){x.value=S.s});
+qa('[data-role=grp]').forEach(function(c){c.checked=S.g;c.parentNode.querySelector(".st").textContent=S.g?"On":"Off"});
+var n3=(S.m!==DEF.m)+(S.s!==DEF.s)+(S.g?1:0),n4=n3+(S.f!==DEF.f);
+qa('[data-badge=opts]').forEach(function(e){e.hidden=!n3;e.innerHTML=n3+'<span class="vh"> active</span>'});
+qa("[data-role=clear],[data-role=reset]").forEach(function(e){e.hidden=!n4})}
+var vb=$("vb"),pop=$("pop");
+function closePop(ret){if(!pop.hidden){pop.hidden=true;vb.setAttribute("aria-expanded","false");if(ret)vb.focus()}}
+function togglePop(){if(pop.hidden){pop.hidden=false;vb.setAttribute("aria-expanded","true")}else closePop()}
+document.addEventListener("click",function(e){var t=e.target,c;
+if(!t.closest)return;
+if((c=t.closest("[data-f]"))){S.f=c.dataset.f;stage.dataset.pv="all";paint();return}
+if((c=t.closest("[data-m2]"))){S.m=c.dataset.m2;paint();return}
+if(t.closest("[data-role=clear],[data-role=reset]")){S.f=DEF.f;S.m=DEF.m;S.s=DEF.s;S.g=DEF.g;render();return}
+if(t.closest("#vb")){togglePop();return}
+if(!t.closest("#pop"))closePop()});
+document.addEventListener("change",function(e){var t=e.target;if(t.dataset.role==="sort"){S.s=t.value;render()}else if(t.dataset.role==="grp"){S.g=t.checked;render()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!pop.hidden){e.preventDefault();closePop(true)}});
+var pvOn=function(e){var b=e.target.closest&&e.target.closest("[data-f]");if(b&&b.dataset.f!=="all"&&b.dataset.f!==S.f)stage.dataset.pv=b.dataset.f},pvOff=function(e){if(e.target.closest&&e.target.closest("[data-f]"))stage.dataset.pv="all"};
+["mouseover","focusin"].forEach(function(n){document.addEventListener(n,pvOn)});["mouseout","focusout"].forEach(function(n){document.addEventListener(n,pvOff)});
+stage.addEventListener("click",function(e){var a=e.target.closest("[data-go]");if(a){e.preventDefault();view(a.dataset.go)}});
+document.querySelectorAll(".pg a,.series a,.nav2 a").forEach(function(a){a.addEventListener("click",function(e){e.preventDefault()})});
+/* photo post gallery + hero */
+(function(){var g=GAL[1],order=["i-tfzSjQc","i-v62W6rb","i-CknNzKS","i-NBtP2Jj","i-XkdRsww","i-RpmBLpg"],h="";
+order.forEach(function(id,n){var u=g.urls[g.ids.indexOf(id)];h+='<figure><a href="'+u[0]+'" data-full="'+u[1]+'"><img src="'+u[0]+'" alt="Uptown Charlotte, photo '+(n+1)+' of 6" loading="lazy"></a></figure>'});
+$("galpost").innerHTML=h;var cv=g.urls[g.ids.indexOf(order[0])][0];$("phero1").style.setProperty("--hi","url("+cv+")");
+$("phero2").style.setProperty("--hi","url(https://photos.smugmug.com/photos/i-TPkW8FJ/0/KDRFzCBpqgHmrq56Fx8gJWM9S8J6s2wb8fqgnH7X4/X2/i-TPkW8FJ-X2.jpg)")})();
+var r=document.documentElement,q=function(s){return document.querySelectorAll(s)};
+function mode(m){r.dataset.theme=m;q('[data-m]').forEach(function(b){b.classList.toggle('on',b.dataset.m===m);b.setAttribute('aria-pressed',b.dataset.m===m)})}
+function view(v){closePop();q('.view').forEach(function(e){e.classList.toggle('on',e.id===v)});q('[data-v]').forEach(function(b){b.classList.toggle('on',b.dataset.v===v);b.setAttribute('aria-pressed',b.dataset.v===v)});window.scrollTo(0,0)}
+q('[data-m]').forEach(function(b){b.onclick=function(){mode(b.dataset.m)}});q('[data-v]').forEach(function(b){b.onclick=function(){view(b.dataset.v)}});
+var mn=document.querySelector('.menu'),ml=document.getElementById('m');mn.onclick=function(){var o=ml.classList.toggle('open');mn.setAttribute('aria-expanded',o)};
+document.addEventListener('click',function(e){var n=e.target.closest&&e.target.closest('[data-nav],[data-dead]');if(!n)return;e.preventDefault();if(n.dataset.nav){ml.classList.remove('open');mn.setAttribute('aria-expanded',false);if(n.dataset.nav!=='archive')view(n.dataset.nav)}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&ml.classList.contains('open')){ml.classList.remove('open');mn.setAttribute('aria-expanded',false);mn.focus()}});
+var dlg=document.createElement('dialog');dlg.className='lb';dlg.setAttribute('aria-label','Photo viewer');dlg.innerHTML='<div class="in"><img alt=""><div class="bb"><button type="button" data-a="p">Previous</button><span aria-live="polite"></span><button type="button" data-a="n">Next</button><button type="button" data-a="c">Close</button></div></div>';document.body.appendChild(dlg);
+var li,lg=[],opener;function sh(n){li=(n+lg.length)%lg.length;dlg.querySelector('img').src=lg[li].dataset.full||lg[li].querySelector('img').src;dlg.querySelector('span').textContent=(li+1)+' / '+lg.length}
+q('.gal').forEach(function(g){g.addEventListener('click',function(e){var a=e.target.closest('a');if(!a)return;e.preventDefault();lg=[].slice.call(g.querySelectorAll('a'));opener=a;sh(lg.indexOf(a));dlg.showModal()})});
+dlg.addEventListener('close',function(){if(opener)opener.focus()});
+dlg.addEventListener('click',function(e){var a=e.target.dataset&&e.target.dataset.a;if(a==='n')sh(li+1);else if(a==='p')sh(li-1);else if(a==='c'||e.target===dlg)dlg.close()});
+dlg.addEventListener('keydown',function(e){if(e.key==='ArrowRight')sh(li+1);if(e.key==='ArrowLeft')sh(li-1)});
+
+/* tags */
+var TAGS=[["aws",1],["boston",1],["charlotte",1],["food & drinks",1],["git",2],["hugo",3],["markdown",3],["monterrey",1],["photography",3],["travel",3]];
+var COV={travel:GAL[0].urls[0][0],photography:GAL[2].urls[0][0]};
+function pl2(n){return n+" post"+(n===1?"":"s")}
+(function(){var h="";GAL.forEach(function(g){g.urls.forEach(function(u,i){h+='<figure class="tile photo"><a class="cover" href="#" data-go="post" aria-label="'+esc(g.key)+' gallery, photo '+(i+1)+' of '+g.urls.length+'"><img src="'+u[0]+'" alt="" loading="lazy"><span class="badge">'+IC_CAM+'Photo</span></a><figcaption>'+esc(g.key)+' gallery<div class="meta">'+fd(g.date)+'</div></figcaption></figure>'})});$("tgstage").innerHTML=h;
+$("phero3").style.setProperty("--hi","url("+COV.travel+")");
+var ab={},l="";TAGS.forEach(function(t){(ab[t[0][0].toUpperCase()]=ab[t[0][0].toUpperCase()]||[]).push(t)});
+Object.keys(ab).sort().forEach(function(L){l+='<h2>'+L+'</h2><ul class="atl">'+ab[L].map(function(t){return '<li><a href="#" data-tag="'+esc(t[0])+'" aria-label="'+esc(t[0])+', '+pl2(t[1])+'"><span class="nm">#'+esc(t[0])+'</span><span class="c">'+pl2(t[1])+'</span></a></li>'}).join("")+'</ul>'});$("atl").innerHTML=l})();
+function openTag(n){var c=TAGS.filter(function(t){return t[0]===n})[0],nt=$("tgN");$("tgH").textContent="Tagged: "+n;
+$("tgM").textContent=pl2(c?c[1]:3)+(n==="travel"?" · 19 photos":"");
+$("tgD").textContent=n==="travel"?"Photo walks and trips: Boston, Charlotte and Monterrey.":"Posts tagged “"+n+"”.";
+nt.hidden=n==="travel";nt.textContent="Mockup note: this tag page reuses the travel layout; the real "+n+" page would list only its own posts.";view("tag")}
+document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-tag],[data-alltags],[data-back]");if(!t)return;e.preventDefault();
+if(t.dataset.tag)openTag(t.dataset.tag);else if(t.hasAttribute("data-alltags"))view("alltags");else view("home")});
+$("tgstage").addEventListener("click",function(e){var a=e.target.closest("[data-go]");if(a){e.preventDefault();view(a.dataset.go)}});
+mode(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');render();view('home');
+</script></body></html>

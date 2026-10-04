@@ -1,0 +1,63 @@
+<!doctype html><html lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>The Blues mockup: home</title><style>
+:root{--bg:#F9F3EF;--text:#1B3C53;--muted:#456882;--link:#456882;--band:#1B3C53;--band-text:#F9F3EF;--line:#D2C1B6;--surface:#fff;--code:#EFE6DF}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#142E40;--text:#F9F3EF;--muted:#D2C1B6;--link:#D2C1B6;--band:#0F2332;--band-text:#F9F3EF;--line:#456882;--surface:#1B3C53;--code:#0F2332}}
+:root[data-theme=dark]{--bg:#142E40;--text:#F9F3EF;--muted:#D2C1B6;--link:#D2C1B6;--band:#0F2332;--band-text:#F9F3EF;--line:#456882;--surface:#1B3C53;--code:#0F2332}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--link)}a:hover{color:var(--text)}
+nav{background:var(--band);color:var(--band-text);display:flex;gap:1.25rem;align-items:center;padding:.7rem max(1rem,calc((100% - 1100px)/2))}
+nav a{color:var(--band-text);text-decoration:none;font-size:.9rem;letter-spacing:.06em}nav .brand{font-weight:700;margin-right:auto;letter-spacing:0}
+nav button{background:none;border:1px solid var(--line);color:var(--band-text);border-radius:6px;padding:.2rem .6rem;cursor:pointer;font:inherit;font-size:.8rem}
+.hero{color:#F9F3EF;text-align:center;padding:5rem 1rem 4rem;background:linear-gradient(rgba(27,60,83,.55),rgba(27,60,83,.85)),linear-gradient(135deg,#456882,#D2C1B6 55%,#1B3C53)}
+.hero h1{margin:0;font-size:2.6rem;line-height:1.15}.hero p{margin:.5rem 0 0;opacity:.9;font-size:1.1rem}
+.hero.post{text-align:left;padding:4rem max(1rem,calc((100% - 760px)/2)) 3rem}
+.hero .meta{font-size:.9rem;opacity:.85;margin-top:1rem}
+.wrap{max-width:1100px;margin:0 auto;padding:2rem 1rem;display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:2.5rem}
+.wrap.post{max-width:1100px;grid-template-columns:minmax(0,720px) 220px;justify-content:center}
+.card{padding:1.4rem 0;border-bottom:1px solid var(--line)}.card h2{margin:.1rem 0;font-size:1.5rem;line-height:1.25}.card h2 a{text-decoration:none;color:var(--text)}
+.card .sub{color:var(--muted);margin:.1rem 0 .5rem}.card .date{font-size:.85rem;color:var(--muted)}
+.tag{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:0 .7rem;font-size:.8rem;margin:.15rem .25rem .15rem 0;text-decoration:none}
+.thumb{height:150px;border-radius:8px;margin:.8rem 0;background:linear-gradient(120deg,#456882,#D2C1B6)}
+aside .box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.2rem;margin-bottom:1.2rem;font-size:.95rem}
+.avatar{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#456882,#D2C1B6);display:block;margin:0 auto .8rem;border:3px solid var(--line)}
+aside h3{margin:.2rem 0 .6rem;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pager{display:flex;justify-content:space-between;padding:1.5rem 0;font-size:.95rem}
+footer{background:var(--band);color:var(--band-text);text-align:center;padding:2rem 1rem;font-size:.9rem;margin-top:2rem}
+footer a{color:var(--band-text);margin:0 .6rem}
+.toc{position:sticky;top:1rem;font-size:.88rem;border-left:2px solid var(--line);padding-left:1rem}.toc a{display:block;text-decoration:none;margin:.35rem 0}
+.notice{border:1px solid var(--line);border-left:.9rem solid var(--link);border-radius:4px;padding:.6rem 1rem;margin:0 0 1.5rem;background:var(--surface);font-size:.95rem}
+article h2{margin-top:2.2rem}article figure{margin:1.8rem -2rem}article figure div{height:300px;border-radius:8px;background:linear-gradient(110deg,#1B3C53,#456882 50%,#D2C1B6)}
+figcaption{font-size:.85rem;color:var(--muted);text-align:center;margin-top:.4rem}
+pre{background:var(--code);border-radius:8px;padding:1rem;overflow:auto;font-size:.88rem;line-height:1.5}
+.series{border:1px solid var(--line);border-left:.9rem solid var(--link);border-radius:4px;padding:1rem;margin-top:2.5rem;background:var(--surface)}
+.series b.t{display:block;border-bottom:1px solid var(--line);padding-bottom:.4rem;margin-bottom:.6rem}
+.comments{margin-top:2.5rem;border:2px dashed var(--line);border-radius:8px;padding:1.5rem;text-align:center;color:var(--muted);font-size:.9rem}
+@media(max-width:820px){.wrap,.wrap.post{grid-template-columns:1fr}.toc{position:static;margin-bottom:1rem}article figure{margin:1.5rem 0}.hero h1{font-size:2rem}}
+nav a:hover,nav a:focus-visible,footer a:hover,footer a:focus-visible{color:#D2C1B6}
+nav a,footer a{padding:.35rem 0;display:inline-block}
+/* responsive */
+img,svg,video,iframe{max-width:100%;height:auto}
+h1,h2{overflow-wrap:anywhere}
+.hero h1{font-size:clamp(1.8rem,5vw,2.6rem)}
+@media(max-width:820px){.hero{padding:3rem 1rem 2.5rem}.hero.post{padding:2.5rem 1rem 2rem}aside{order:2}}
+@media(max-width:480px){body{font-size:16px}.thumb{height:110px}article figure div{height:200px}.pager{flex-direction:column;gap:.5rem}.bar .sp{margin-left:0}}
+
+/* collapsing nav: hamburger dropdown on small screens */
+nav{position:relative}nav .menu{display:none;background:none;border:1px solid #D2C1B6;color:var(--bandtext);border-radius:6px;padding:.35rem .7rem;font:inherit;font-size:.9rem;cursor:pointer;min-height:44px}
+nav .menu:hover,nav .menu:focus-visible{color:#D2C1B6}
+nav .links{display:flex;gap:1.25rem;align-items:center}
+@media(max-width:820px){nav{flex-wrap:nowrap;justify-content:space-between}nav .brand{flex-basis:auto}nav .menu{display:inline-block}
+nav .links{display:none;position:absolute;left:0;right:0;top:100%;z-index:10;flex-direction:column;align-items:stretch;gap:0;background:var(--band);border-top:1px solid #456882;box-shadow:0 8px 16px rgba(0,0,0,.25);padding:.25rem 1rem .75rem}
+nav .links.open{display:flex}nav .links a,nav .links button{padding:.8rem 0;border-bottom:1px solid #456882}nav .links button{text-align:left;border-width:0 0 1px;border-radius:0}}
+</style></head><body><nav><a class="brand" href="#">guyheckman.me</a><button class="menu" type="button" aria-expanded="false" aria-controls="menu">&#9776; Menu</button><div class="links" id="menu"><a href="#">ARCHIVE</a><a href="#">ABOUT</a><a href="#">SEARCH</a><button id="t" type="button">light / dark</button></div></nav>
+<header class="hero"><h1>guyheckman.me</h1><p>Life lived.</p></header>
+<div class="wrap"><main>
+ <div class="card"><div class="date">February 13, 2025 &middot; Photos</div><h2><a href="#">Monterrey, Nuevo Le&oacute;n, Mexico</a></h2><div class="sub">A gallery</div><div class="thumb"></div><a class="tag" href="#">travel</a><a class="tag" href="#">photography</a><a class="tag" href="#">monterrey</a></div>
+ <div class="card"><div class="date">May 4, 2025 &middot; Tech</div><h2><a href="#">How My Hugo Project Is Organized</a></h2><div class="sub">Part of the How I Built This Site series</div><p>The site repo, the content repo, and the theme, and how they fit together for local builds and deploys.</p><a class="tag" href="#">hugo</a><a class="tag" href="#">git</a><a class="tag" href="#">aws</a></div>
+ <div class="card"><div class="date">February 3, 2025 &middot; Photos</div><h2><a href="#">Uptown Charlotte, NC</a></h2><div class="sub">A gallery</div><div class="thumb"></div><a class="tag" href="#">charlotte</a><a class="tag" href="#">photography</a></div>
+ <div class="card"><div class="date">February 1, 2025 &middot; Photos</div><h2><a href="#">Boston, MA</a></h2><div class="sub">A gallery</div><a class="tag" href="#">boston</a><a class="tag" href="#">travel</a></div>
+ <div class="pager"><span></span><a href="#">Older posts &rarr;</a></div>
+</main>
+<aside><div class="box" style="text-align:center"><span class="avatar"></span><strong>Guy Heckman</strong><br>Technologist, motorcyclist, photographer, traveler</div>
+<div class="box"><h3>Featured tags</h3><a class="tag" href="#">travel</a><a class="tag" href="#">photography</a><a class="tag" href="#">hugo</a><a class="tag" href="#">markdown</a></div>
+<div class="box"><h3>Categories</h3><a href="#">Life</a><br><a href="#">Photos</a><br><a href="#">Tech</a></div></aside></div>
+<footer><div><a href="#">RSS</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div><p>&copy; guyheckman.me 2026 &middot; Mockup for The Blues theme, palette B</p></footer><script>(function(){var b=document.getElementById('t'),r=document.documentElement;b.onclick=function(){var d=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=d?'light':'dark'}})()</script><script>(function(){var m=document.querySelector('nav .menu'),l=document.getElementById('menu');m.onclick=function(){var o=l.classList.toggle('open');m.setAttribute('aria-expanded',o)};l.onclick=function(e){if(e.target.tagName==='A')l.classList.remove('open'),m.setAttribute('aria-expanded',false)}})()</script></body></html>

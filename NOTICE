@@ -1,0 +1,22 @@
+The Blues
+Copyright (c) 2026 Guy Heckman
+
+This theme started from, and its design and behavior were originally modeled on, the
+Clean White Hugo theme:
+
+  Clean White (hugo-theme-cleanwhite)
+  https://github.com/zhaohuabing/hugo-theme-cleanwhite
+  Copyright 2018-2019 Huabing Zhao
+  Licensed under the Apache License, Version 2.0
+
+Clean White is in turn based on:
+
+  Huxblog Jekyll Theme   https://github.com/Huxpro/huxpro.github.io
+  Clean Blog Jekyll Theme   https://github.com/BlackrockDigital/startbootstrap-clean-blog-jekyll
+
+The layout, markup, and styles of The Blues have since been rewritten and keep changing;
+this notice credits the origin of the work.
+
+The series notice and previous/next navigation (layouts/_partials/series-info.html,
+series-box.html and post-nav.html) are adapted from "Series taxonomy in Hugo" by cavelab.dev:
+https://blog.cavelab.dev/series/series-taxonomy-in-hugo/

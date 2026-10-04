@@ -1,0 +1,3 @@
+{{- /* Wraps gallery shortcodes in a CSS-columns masonry. Flags the page so baseof loads assets/js/gallery.js. */ -}}
+{{- .Page.Store.Set "hasGallery" true -}}
+<div class="mas gal" role="group" aria-label="Photo gallery">{{ .Inner }}</div>

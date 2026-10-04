@@ -1,0 +1,16 @@
+{{- /*
+  Position of a page in its (first) series: returns a map with name, url, part (1-based), total and pages (oldest first),
+  or an empty map when the page is not in a series. Used for the "Part N of M" chip and the series box.
+*/ -}}
+{{- $page := . -}}
+{{- $info := dict -}}
+{{- with .GetTerms "series" -}}
+  {{- $t := index . 0 -}}
+  {{- $pages := $t.RegularPages.ByDate -}}
+  {{- $part := 0 -}}
+  {{- range $i, $p := $pages -}}{{- if eq $p.RelPermalink $page.RelPermalink -}}{{- $part = add $i 1 -}}{{- end -}}{{- end -}}
+  {{- if $part -}}
+    {{- $info = dict "name" $t.LinkTitle "url" $t.RelPermalink "part" $part "total" (len $pages) "pages" $pages -}}
+  {{- end -}}
+{{- end -}}
+{{- return $info -}}
