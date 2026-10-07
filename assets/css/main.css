@@ -129,7 +129,7 @@ nav.site .links a[aria-current] { text-decoration: underline; text-underline-off
 .pb { max-width: var(--measure); margin: 0 auto; padding: 0 1rem; }
 .pb h2 { font: 700 1.5rem / 1.3 var(--serif); margin: 2rem 0 .5rem; }
 .pb > :first-child { margin-top: 2rem; }
-.smugmug-gallery { width: 100%; border: 0; }
+.embed, .smugmug-gallery { width: 100%; border: 0; }
 
 /* 6 Footer ------------------------------------------------------------------------------------------------ */
 footer.site { background: var(--band); color: var(--bt); text-align: center; padding: 2rem 1rem; font-size: .9rem; margin-top: 3rem; }

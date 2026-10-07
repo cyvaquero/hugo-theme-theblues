@@ -15,7 +15,7 @@
     <h1>{{ .Title }}</h1>
     {{ with (.Params.subtitle | default .Description) }}<p class="sub">{{ . }}</p>{{ end }}
     <div class="meta">
-      {{- with .Params.categories }}{{ delimit . ", " | title }} &middot; {{ end -}}
+      {{- with .Params.categories }}{{ delimit (cond (reflect.IsSlice .) . (slice .)) ", " | title }} &middot; {{ end -}}
       <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
       {{- if $photo }}{{ with partial "photos.html" . }} &middot; {{ len . }} {{ cond (eq (len .) 1) "photo" "photos" }}{{ end }}
       {{- else }} &middot; {{ .ReadingTime }} min read{{ end -}}

@@ -8,6 +8,8 @@
     <li><a href="{{ .RelPermalink }}"><span class="nm">{{ .Title }}</span><span class="c"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2" }}</time></span></a></li>
     {{ end }}
   </ul>
+  {{ else }}
+  <p class="meta">No posts yet.</p>
   {{ end }}
 </div>
 {{ end }}
