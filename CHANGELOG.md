@@ -9,6 +9,30 @@ All notable changes to this theme are documented here. The format follows
 - References to the site repo use its new name, `hugo-site-guyheckman_me` (README, `docs/retheme/decisions.md`, a
   template comment in `search.html`). No change to built output.
 
+## [1.0.2] - Unreleased
+
+Template bugs and missing defaults from review (#12).
+
+### Changed
+- `embed` shortcode: requires an `https://` URL, width and height (the build fails otherwise), takes an optional fourth
+  argument for the iframe title (default "Embedded content", was "Photo gallery"), and adds `sandbox`, `referrerpolicy`
+  and an `embed` class (`smugmug-gallery` is kept).
+- The post archetype sets `showtoc: true`, matching the template default.
+- Cover and header images (`image`, `header_image`, `image_404`) are output as absolute URLs, so relative paths work in
+  heroes on nested pages and in `og:image`.
+- Taxonomy indexes count posts only, matching term pages, and leave out terms with no posts.
+- The search nav label can be set with `params.search_label` (default `SEARCH`).
+
+### Fixed
+- Legacy `params.addtional_menus` links no longer get a double slash (`/archive//`) or a slash after full URLs, and follow a
+  sub-path `baseURL`.
+- Home links (nav brand, term pages, 404) use the home page's permalink, so they work with a sub-path `baseURL` or a
+  language prefix.
+- `categories` given as a single string no longer breaks the build (`is-photo.html`, `post/page.html`).
+- Article tile excerpts decode HTML entities (an `&` in a summary showed as `&amp;`).
+- Walls and the archive show "No posts yet." instead of empty controls when there are no posts.
+- Repeated spaces in the slogan no longer produce empty words in the home hero.
+
 ## [1.0.1] - 2026-10-04
 
 Documentation, licence and metadata only; the built site is byte-identical to 1.0.0.
@@ -60,5 +84,6 @@ First release. Known limits are listed in the README.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
 [1.0.3]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
+[1.0.2]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.1]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/cyvaquero/hugo-theme-theblues/releases/tag/1.0.0
