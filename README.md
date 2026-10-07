@@ -143,9 +143,9 @@ Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `c
 
 Decision records, the Clean White inventory and the layout mockups are in [docs/retheme/](docs/retheme/decisions.md)
 (Hugo does not publish this folder; this is the canonical copy). The work is tracked on issue
-cyvaquero/hugo-cleanwhite-guyheckman_me#4. In short: palette B (navy, steel blue, sand, cream) with light and dark modes;
+cyvaquero/hugo-site-guyheckman_me#4. In short: palette B (navy, steel blue, sand, cream) with light and dark modes;
 responsive with a hamburger nav at 820 px and narrower; Disqus on posts only; GA4 through Hugo's internal template; search is
-a reserved slot until the engine is chosen (cyvaquero/hugo-cleanwhite-guyheckman_me#3). The featured-tags cloud (D14) is
+a reserved slot until the engine is chosen (cyvaquero/hugo-site-guyheckman_me#3). The featured-tags cloud (D14) is
 deferred.
 
 ## Credits
