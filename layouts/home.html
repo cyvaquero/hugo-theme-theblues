@@ -1,7 +1,7 @@
 {{ define "header" }}
 {{- /* A+ hero: header photo under a navy scrim, kicker (site title), slogan with a wavy underline under its last word, tagline. */ -}}
 {{ $slogan := site.Params.slogan | default site.Title }}
-{{ $words := split (strings.TrimSpace $slogan) " " }}
+{{ $words := split (replaceRE `\s+` " " (strings.TrimSpace $slogan)) " " }}
 {{ $count := len $words }}
 {{ $last := index $words (sub $count 1) }}
 {{ $m := index (findRESubmatch `^(.*?)([.,;:!?…]*)$` $last) 0 }}
@@ -9,7 +9,7 @@
 {{ $punct := index $m 2 }}
 {{ $head := delimit (first (sub $count 1) $words) " " }}
 {{ $tagline := site.Params.tagline | default site.Params.description }}
-<header class="hero"{{ with site.Params.header_image }} style="--hi:url('{{ . }}')"{{ end }}>
+<header class="hero"{{ with site.Params.header_image }} style="--hi:url('{{ . | absURL }}')"{{ end }}>
   <p class="k">{{ site.Title }}</p>
   <h1>{{ with $head }}{{ . }} {{ end }}{{ if $core }}<span class="u">{{ $core }}<svg viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M1 5 C6 0 11 0 15 4 S25 8 30 4 S42 0 46 4 S55 7 59 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span>{{ $punct }}{{ else }}{{ $last }}{{ end }}</h1>
   {{ with $tagline }}<p class="sub">{{ . }}</p>{{ end }}
