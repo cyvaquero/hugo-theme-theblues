@@ -1,11 +1,16 @@
 {{ define "main" }}
-{{- /* Taxonomy index: default hero, then an A-Z list with post counts (no tag cloud, decision D14). */ -}}
+{{- /*
+  Taxonomy index: default hero, then an A-Z list with post counts (no tag cloud, decision D14). Counts and the list cover
+  the "post" section only, matching the term pages; terms used only outside it are left out.
+*/ -}}
 {{ $isTag := eq .Data.Singular "tag" }}
 <div class="atw">
   <p class="meta">Every {{ .Data.Singular }} on the site, A to Z, with post counts.</p>
   {{ with .Content }}{{ . }}{{ end }}
   {{ $cur := "" }}
   {{- range .Data.Terms.Alphabetical }}
+    {{- $n := len (where .Pages "Section" "post") }}
+    {{- if not $n }}{{ continue }}{{ end }}
     {{- $name := .Page.Title }}
     {{- $letter := upper (substr $name 0 1) }}
     {{- if ne $letter $cur }}
@@ -14,7 +19,7 @@
   <h2>{{ $letter }}</h2>
   <ul class="atl">
     {{- end }}
-    <li><a href="{{ .Page.RelPermalink }}" aria-label="{{ $name }}, {{ .Count }} {{ cond (eq .Count 1) "post" "posts" }}"><span class="nm">{{ if $isTag }}#{{ end }}{{ $name }}</span><span class="c">{{ .Count }} {{ cond (eq .Count 1) "post" "posts" }}</span></a></li>
+    <li><a href="{{ .Page.RelPermalink }}" aria-label="{{ $name }}, {{ $n }} {{ cond (eq $n 1) "post" "posts" }}"><span class="nm">{{ if $isTag }}#{{ end }}{{ $name }}</span><span class="c">{{ $n }} {{ cond (eq $n 1) "post" "posts" }}</span></a></li>
   {{- end }}
   {{ if $cur }}</ul>{{ end }}
 </div>

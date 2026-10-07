@@ -42,7 +42,9 @@ Pin the submodule to a release tag (for example `1.0.1`). The theme is not packa
 The templates assume this layout; other structures are not supported yet.
 
 - **Posts live in the `post` section** (`content/post/`). The home wall, section and term walls, the archive and post
-  navigation only list pages in that section, and `layouts/post/page.html` is the post template.
+  navigation only list pages in that section, and `layouts/post/page.html` is the post template. Pages outside it get no
+  series box, comments, previous/next links or table of contents. Taxonomy indexes (`/tags/` and so on) count posts only and
+  leave out terms used only outside the section; a term page with no posts says "No posts yet."
 - **Taxonomies:** declare `series` next to the default ones:
 
   ```toml
@@ -67,7 +69,7 @@ The templates assume this layout; other structures are not supported yet.
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. The content between the tags is output as raw HTML. |
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the alt text and caption. |
-| `embed` | `{{< embed "https://…" 800 600 >}}` | An iframe (URL, width, height), meant for SmugMug gallery embeds. |
+| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing or the URL is not `https://`. |
 
 ## Layout
 
@@ -128,16 +130,20 @@ It keeps the parameter names the site already uses, so `config.toml` needs littl
 
 - `title`, `locale` (sets `<html lang>`)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
-  `image_404`, `title_404`, `search_enabled` (default off), `showtoc` (site-wide default for the TOC), and the optional
+  `image_404`, `title_404`, `search_enabled` (default off), `search_label` (default `SEARCH`), `showtoc` (site-wide default for
+  the TOC; on when unset, and shown only when a post has headings), and the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4)
-- `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined
+- `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
+  Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
 - `[services.googleAnalytics] id` and `[services.disqus] shortname`. Analytics uses Hugo's internal template; Do Not Track
   applies only if the site sets `[privacy.googleAnalytics] respectDoNotTrack = true`, and even then the gtag loader is
   requested.
 
-Use site-root image paths or absolute URLs for `header_image` and `image`; relative paths break on nested pages.
+`header_image`, `image` and `image_404` may be absolute URLs or paths under the site root (`img/x.jpg`); the theme turns paths
+into absolute URLs.
 
-Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `categories` (a list), `tags`, `series`.
+Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `categories` (a list, or a single string),
+`tags`, `series`.
 
 ## Design decisions
 
