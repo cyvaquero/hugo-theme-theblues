@@ -4,8 +4,11 @@
   (sorted newest first).
   Hugo's .Paginate only accepts a collection of pages, not a slice of arbitrary values. So the pager is driven by a stand-in
   collection with exactly one entry per tile (the home page repeated); the pager supplies the page count, page number and
-  URLs, and the tile slice is cut with the same offsets.
+  URLs, and the tile slice is cut with the same offsets. With no posts it shows a short empty state instead of the controls.
 */ -}}
+{{- if not .posts }}
+<div class="pb"><p class="meta">No posts yet.</p></div>
+{{- else }}
 {{- $size := 24 -}}
 {{- with site.Params.wall }}{{ with .tilesPerPage }}{{ $size = int . }}{{ end }}{{ end -}}
 {{- $tiles := partial "wall-tiles.html" .posts -}}
@@ -16,3 +19,4 @@
 {{ partial "controls.html" .page }}
 {{ partial "wall.html" (dict "tiles" (first $size (after $start $tiles))) }}
 {{ partial "pagination.html" $pag }}
+{{- end }}

@@ -1,6 +1,10 @@
-{{- /* Cover image for a page: params.image, else the first photo (large size), else the site header image. */ -}}
+{{- /*
+  Cover image for a page: params.image, else the first photo (large size), else the site header image. Returned as an
+  absolute URL (absURL leaves full URLs alone), so a relative path works in a hero on any page and in og:image.
+*/ -}}
 {{- $c := .Params.image -}}
 {{- if not $c -}}
   {{- with partial "photos.html" . -}}{{- $c = (index . 0).full -}}{{- end -}}
 {{- end -}}
-{{- return ($c | default site.Params.header_image | default "") -}}
+{{- $c = $c | default site.Params.header_image | default "" -}}
+{{- return (cond (ne $c "") ($c | absURL) "") -}}

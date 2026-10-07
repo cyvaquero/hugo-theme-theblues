@@ -2,11 +2,14 @@
   Main navigation. Items come from Hugo's menu system ([[menus.main]] in the site config). If no main menu is defined, the
   legacy params.addtional_menus list (Clean White's spelling, a list of title/href pairs) is used so older site configs keep
   working. Below 820px the links collapse behind a hamburger button (assets/js/menu.js). Search is listed only when
-  params.search_enabled is set.
+  params.search_enabled is set; its label is params.search_label (default "SEARCH").
+  Legacy hrefs: absolute URLs (scheme or //) are used as is. Site paths drop their leading slash (so a sub-path baseURL
+  applies), go through relLangURL, and get a trailing slash only when they have neither one nor a file extension, so
+  "/about" and "/about/" both become "/about/".
 */ -}}
 {{ $page := . }}
 <nav class="site" aria-label="Main">
-  <a class="brand" href="{{ "/" | relURL }}">{{ site.Title }}</a>
+  <a class="brand" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
   <button class="menu" type="button" aria-expanded="false" aria-controls="site-menu">&#9776; Menu</button>
   <ul class="links" id="site-menu">
     {{- if site.Menus.main }}
@@ -15,11 +18,16 @@
     {{- end }}
     {{- else }}
     {{- range site.Params.addtional_menus }}
-    <li><a href="{{ .href | relLangURL }}/">{{ .title }}</a></li>
+    {{- $href := .href }}
+    {{- if not (findRE `^([a-zA-Z][a-zA-Z0-9+.-]*:|//)` $href 1) }}
+      {{- $href = strings.TrimPrefix "/" $href | relLangURL }}
+      {{- if not (or (strings.HasSuffix $href "/") (findRE `\.[a-zA-Z0-9]+$` $href 1)) }}{{ $href = printf "%s/" $href }}{{ end }}
+    {{- end }}
+    <li><a href="{{ $href }}">{{ .title }}</a></li>
     {{- end }}
     {{- end }}
     {{- if site.Params.search_enabled }}
-    <li><a href="{{ "search/" | relURL }}">SEARCH</a></li>
+    <li><a href="{{ "search/" | relLangURL }}">{{ site.Params.search_label | default "SEARCH" }}</a></li>
     {{- end }}
   </ul>
 </nav>
