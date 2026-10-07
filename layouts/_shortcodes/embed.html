@@ -1,1 +1,11 @@
-<iframe class="smugmug-gallery" src="{{ .Get 0 }}" width="{{ .Get 1 }}" height="{{ .Get 2 }}" loading="lazy" title="Photo gallery"></iframe>
+{{- /*
+  An iframe embed, meant for SmugMug gallery embeds. Positional: URL, width, height and an optional title
+  (default "Embedded content"; Hugo does not allow mixing positional and named arguments). The URL must be https. The
+  frame is sandboxed and sends no referrer beyond the origin.
+*/ -}}
+{{- $src := .Get 0 -}}
+{{- $w := .Get 1 -}}
+{{- $h := .Get 2 -}}
+{{- if not (and $src $w $h) }}{{ errorf "embed: URL, width and height are required (%s)" .Position }}{{ end -}}
+{{- if not (strings.HasPrefix $src "https://") }}{{ errorf "embed: the URL must start with https:// (%s)" .Position }}{{ end -}}
+<iframe class="embed smugmug-gallery" src="{{ $src }}" width="{{ $w }}" height="{{ $h }}" loading="lazy" title="{{ .Get 3 | default "Embedded content" }}" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="strict-origin-when-cross-origin"></iframe>
