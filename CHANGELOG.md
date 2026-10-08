@@ -10,6 +10,24 @@ All notable changes to this theme are documented here. The format follows
   as `<script>` or `<img onerror=…>`, went into the post and the RSS feed as working markup even though the site has raw
   HTML turned off. Each `gallery` photo is now handed to its `galleries` block, which outputs only those photos; anything
   else in the block is dropped. Gallery pages are otherwise unchanged apart from the whitespace between photos.
+## [1.0.9] - Unreleased
+
+### Security
+- Markdown links and images no longer publish `javascript:`, `vbscript:`, `data:` or other unsafe URLs (#11). The render
+  hooks passed every destination through `safeURL`, which turned off Hugo's URL filtering, so `[x](javascript:…)` became a
+  live link in the post and the RSS feed. Links now keep only `http`, `https`, `mailto`, `tel` and scheme-less URLs and
+  images only `http`, `https` and scheme-less ones; anything else renders the link text with no `href` and the image with
+  no `src`.
+
+### Fixed
+- Links to other sites open in a new tab when written as `HTTPS://…` or `//host/…`, and links to the site's own
+  absolute URLs no longer do; `httpfoo/`-style relative paths no longer count as external (#11).
+- Relative links and images that name a page or page resource (`../about.md`, `pic.png` in a page bundle) resolve to its
+  URL, and `#fragment` links point at the post, so they also work in list pages and the RSS feed (#11).
+- No stray space after every link and image: `[x](y).` rendered as "x ." because the hook files ended with a newline (#11).
+- A titled inline image no longer emits a `<figure>` inside a paragraph (invalid HTML). It renders as an image with the
+  title as tooltip; a standalone image gets the `<figure>` and caption when the site sets
+  `wrapStandAloneImageWithinParagraph = false`, and keeps its `class`, `id`, `width` and `height` attributes (#11).
 
 ## [1.0.8] - Unreleased
 
