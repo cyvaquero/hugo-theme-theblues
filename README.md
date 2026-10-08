@@ -75,8 +75,13 @@ The templates assume this layout; other structures are not supported yet.
 
 | Shortcode | Usage | Notes |
 |---|---|---|
+<<<<<<< HEAD
+| `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. The content between the tags is output as raw HTML. |
+| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. |
+=======
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the alt text and caption. |
+>>>>>>> origin/release/1.1.0
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing or the URL is not `https://`. |
 
 ## Extending from a site
@@ -90,8 +95,9 @@ A site can add its own page types without overriding theme files:
   `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
-  `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--serif`, `--sans`, `--wide` and `--measure`. Their names are
-  kept stable; a rename or removal is called out in the CHANGELOG.
+  `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
+  `--serif`, `--sans`, `--wide` and `--measure`. Their names are kept stable; a rename or removal is called out in the
+  CHANGELOG.
 
 ## Layout
 
@@ -142,7 +148,7 @@ layouts/_markup/           render-link, render-image
 - Without JavaScript, at 820 px and narrower the nav links are hidden and the Menu button does nothing.
 - `.highlight` code blocks stay light in dark mode (Hugo's inline `monokailight` styling).
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
-  devices and screen readers. An independent review (October 2026) measured contrast and keyboard behaviour; its findings
+  devices and screen readers. An independent review (October 2026) measured contrast and keyboard behavior; its findings
   are open issues.
 - Build time grows quickly with the number of posts (the wall is rebuilt for each pager page); fine for a small site.
 

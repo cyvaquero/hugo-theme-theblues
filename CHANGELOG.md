@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.0.11] - Unreleased
+
+### Fixed
+- Documentation matches the code (#35): the README no longer says a gallery photo's `title` is shown as a caption (it
+  is the alt text only), lists `--hv` among the custom properties a site can rely on, and the nav, menu script and
+  stylesheet comments put the hamburger at 820px and narrower. American spelling in the README, comments and design
+  notes. No change to built pages.
 ## [1.0.10] - Unreleased
 
 ### Security
