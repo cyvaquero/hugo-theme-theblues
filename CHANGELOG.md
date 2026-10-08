@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.0.8] - Unreleased
+
+### Changed
+- Faster builds as the number of posts grows (#7). The partials that depend only on one post or one image URL
+  (`is-photo`, `photos`, `cover`, `series-info`, `smug-full`) and the CSS/JS asset lookups are cached per post or URL
+  with `partialCached` instead of re-run on every list page, and the previous/next post links use Hugo's `Pages.Next` and
+  `Pages.Prev` instead of scanning every post. Measured on guyheckman.me (Hugo 0.167.0, median of 30 builds): 87.3 ms to
+  83.9 ms with 8 posts; with the posts copied to 80, 431 ms to 133 ms. Built output is byte-identical apart from the
+  footer's theme version; `hugo server` still picks up content edits.
+
 ## [1.0.7] - Unreleased
 
 ### Fixed
@@ -111,6 +121,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.0.8]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.7]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.6]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.5]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop

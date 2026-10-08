@@ -12,7 +12,7 @@
 {{- range . -}}
   {{- $post := . -}}
   {{- $photos := slice -}}
-  {{- if partial "is-photo.html" $post -}}{{- $photos = partial "photos.html" $post -}}{{- end -}}
+  {{- if partialCached "is-photo.html" $post $post.Path -}}{{- $photos = partialCached "photos.html" $post $post.Path -}}{{- end -}}
   {{- if $photos -}}
     {{- $n := len $photos -}}
     {{- range $i, $ph := first $per $photos -}}

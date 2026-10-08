@@ -3,7 +3,7 @@
 {{ $pt := partial "page-title.html" . }}
 {{ $title := cond .IsHome (site.Params.SEOTitle | default site.Title) (printf "%s | %s" $pt (site.Params.SEOTitle | default site.Title)) }}
 {{ $desc := .Description | default site.Params.description }}
-{{ $img := partial "cover.html" . }}
+{{ $img := partialCached "cover.html" . .Path }}
 <title>{{ $title }}</title>
 {{ with $desc }}<meta name="description" content="{{ . }}">{{ end }}
 {{ with site.Params.keyword }}<meta name="keywords" content="{{ . }}">{{ end }}
@@ -18,6 +18,6 @@
 {{ with $img }}<meta property="og:image" content="{{ . }}">{{ end }}
 <meta name="twitter:card" content="{{ cond (ne $img "") "summary_large_image" "summary" }}">
 <meta name="color-scheme" content="light dark">
-{{ with partial "asset.html" "css/main.css" }}<link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}>{{ end }}
+{{ with partialCached "asset.html" "css/main.css" "css/main.css" }}<link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}>{{ end }}
 {{ if site.Config.Services.GoogleAnalytics.ID }}{{ template "_internal/google_analytics.html" . }}{{ end }}
 {{ partial "head-end.html" . -}}

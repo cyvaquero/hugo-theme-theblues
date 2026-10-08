@@ -4,8 +4,8 @@
   box, Disqus (posts only) and previous/next posts.
 */ -}}
 {{ define "header" }}
-{{ $photo := partial "is-photo.html" . }}
-{{ $cover := partial "cover.html" . }}
+{{ $photo := partialCached "is-photo.html" . .Path }}
+{{ $cover := partialCached "cover.html" . .Path }}
 <header class="phero"{{ with $cover }} style="--hi:url('{{ . }}')"{{ end }}>
   <div class="in">
     <div class="ptype">
@@ -17,7 +17,7 @@
     <div class="meta">
       {{- with .Params.categories }}{{ delimit (cond (reflect.IsSlice .) . (slice .)) ", " | title }} &middot; {{ end -}}
       <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
-      {{- if $photo }}{{ with partial "photos.html" . }} &middot; {{ len . }} {{ cond (eq (len .) 1) "photo" "photos" }}{{ end }}
+      {{- if $photo }}{{ with partialCached "photos.html" . .Path }} &middot; {{ len . }} {{ cond (eq (len .) 1) "photo" "photos" }}{{ end }}
       {{- else }} &middot; {{ .ReadingTime }} min read{{ end -}}
       {{- range .GetTerms "tags" }} <a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}
     </div>
@@ -25,7 +25,7 @@
 </header>
 {{ end }}
 {{ define "main" }}
-{{ if partial "is-photo.html" . }}
+{{ if partialCached "is-photo.html" . .Path }}
 <div class="pbody">{{ .Content }}</div>
 <div class="pb">
   {{ partial "series-box.html" . }}
