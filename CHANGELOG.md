@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.0.4] - Unreleased
+
+### Added
+- The footer shows the Hugo version and the theme version: "Built with Hugo 0.167.0 and The Blues 1.0.4" (#25). The
+  theme version comes from `data/theblues.toml`, which is bumped with every version. Verified on a build of the site:
+  all 47 pages differ only by that line and the stylesheet hash; contrast 10.5:1 (light) and 14.6:1 (dark).
+
 ## [1.0.3] - Unreleased
 
 ### Changed
@@ -83,6 +90,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.0.4]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.3]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.2]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.1]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.0...1.0.1

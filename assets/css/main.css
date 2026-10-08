@@ -138,6 +138,7 @@ footer.site a:hover { color: var(--hv); }
 footer.site svg { width: 1.15em; height: 1.15em; fill: currentColor; flex: none; }
 footer.site .soc { display: flex; flex-wrap: wrap; justify-content: center; }
 footer.site p { margin: .5rem 0 0; }
+footer.site .ver { font-size: .8rem; }
 
 /* 7 Browse controls: calm popover ------------------------------------------------------------------------- */
 .ctl { position: relative; max-width: var(--wide); margin: 0 auto; padding: .6rem 1rem .5rem; display: flex; flex-wrap: wrap; gap: .2rem .7rem; align-items: center; }
