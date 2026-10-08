@@ -1,4 +1,5 @@
 <footer class="site">
   <div class="soc">{{ partial "social.html" . }}</div>
   <p>&copy; {{ site.Title }} {{ now.Year }}</p>
+  <p class="ver">Built with Hugo {{ hugo.Version }}{{ with site.Data.theblues.version }} and The Blues {{ . }}{{ end }}</p>
 </footer>
