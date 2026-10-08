@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.0.6] - Unreleased
+
+### Added
+- `layouts/_partials/head-end.html`, an empty partial included last in `<head>`, so a site can add its own stylesheet
+  or meta tags without overriding `head.html` (cyvaquero/hugo-site-guyheckman_me#23). No other change to built output.
+- README section "Extending from a site": the `header` and `main` blocks, the new partial, and the CSS custom
+  properties a site's own styles should use, whose names are now kept stable.
+
 ## [1.0.4] - Unreleased
 
 ### Added
@@ -14,7 +22,7 @@ All notable changes to this theme are documented here. The format follows
 
 ### Changed
 - References to the site repo use its new name, `hugo-site-guyheckman_me` (README, `docs/retheme/decisions.md`, a
-  template comment in `search.html`). No change to built output.
+  template comment in `search.html`). No other change to built output.
 
 ## [1.0.2] - Unreleased
 
@@ -90,6 +98,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.0.6]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.4]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.3]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.2]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
