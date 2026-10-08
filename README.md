@@ -74,6 +74,20 @@ The templates assume this layout; other structures are not supported yet.
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the alt text and caption. |
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing or the URL is not `https://`. |
 
+## Extending from a site
+
+A site can add its own page types without overriding theme files:
+
+- **Templates:** a site's `layouts/<section>/page.html` or `section.html` renders inside the theme's `baseof.html`. It
+  fills the `main` block, and can replace the default hero by defining the `header` block. The nav, footer, stylesheet
+  and menu script still come from the theme.
+- **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
+  `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
+- **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
+  CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
+  `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--serif`, `--sans`, `--wide` and `--measure`. Their names are
+  kept stable; a rename or removal is called out in the CHANGELOG.
+
 ## Layout
 
 ```
@@ -91,7 +105,7 @@ layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
 layouts/search/section.html  search page (placeholder until the engine is chosen)
 layouts/404.html
-layouts/_partials/         head, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, cover,
+layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, cover,
                            series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-page
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
