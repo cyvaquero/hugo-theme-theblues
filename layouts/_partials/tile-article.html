@@ -3,7 +3,7 @@
   chip for series posts). Context: page, order (position in the wall). Data attributes are read by assets/js/wall.js.
 */ -}}
 {{- $pg := .page -}}
-{{- $s := partial "series-info.html" $pg -}}
+{{- $s := partialCached "series-info.html" $pg $pg.Path -}}
 <article class="tile article" data-type="article" data-date="{{ $pg.Date.Format "2006-01-02" }}" data-order="{{ .order }}" data-series="{{ with $s }}{{ .name }}{{ end }}">
   <div class="lbl"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Article{{ with $s }}<span class="chip">Part {{ .part }} of {{ .total }}</span>{{ end }}</div>
   <h3><a href="{{ $pg.RelPermalink }}">{{ $pg.Title }}</a></h3>

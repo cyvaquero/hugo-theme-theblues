@@ -1,17 +1,10 @@
 {{- /* Previous (older) and next (newer) post by date, across all posts. */ -}}
-{{- $page := . -}}
 {{- $all := (where site.RegularPages "Section" "post").ByDate -}}
-{{- $idx := -1 -}}
-{{- range $i, $p := $all -}}{{- if eq $p.RelPermalink $page.RelPermalink -}}{{- $idx = $i -}}{{- end -}}{{- end -}}
-{{- if ge $idx 0 -}}
-{{- $older := false -}}
-{{- $newer := false -}}
-{{- if gt $idx 0 -}}{{- $older = index $all (sub $idx 1) -}}{{- end -}}
-{{- if lt (add $idx 1) (len $all) -}}{{- $newer = index $all (add $idx 1) -}}{{- end -}}
+{{- $older := $all.Next . -}}
+{{- $newer := $all.Prev . -}}
 {{- if or $older $newer }}
 <nav class="nav2" aria-label="Post navigation">
   {{ with $older }}<a href="{{ .RelPermalink }}" rel="prev">&larr; {{ .Title }}</a>{{ else }}<span></span>{{ end }}
   {{ with $newer }}<a href="{{ .RelPermalink }}" rel="next">{{ .Title }} &rarr;</a>{{ end }}
 </nav>
-{{- end -}}
 {{- end -}}

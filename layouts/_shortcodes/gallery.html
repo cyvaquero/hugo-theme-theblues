@@ -5,4 +5,4 @@
 {{- $src := .Get "src" | default (.Get 0) -}}
 {{- if not $src }}{{ errorf "gallery: src is required (%s)" .Position }}{{ end -}}
 {{- $title := .Get "title" -}}
-<figure><a href="{{ partial "smug-full.html" $src }}"><img src="{{ $src }}" alt="{{ $title | default (printf "Photo %d" (add .Ordinal 1)) }}" loading="lazy" decoding="async"></a></figure>
+<figure><a href="{{ partialCached "smug-full.html" $src $src }}"><img src="{{ $src }}" alt="{{ $title | default (printf "Photo %d" (add .Ordinal 1)) }}" loading="lazy" decoding="async"></a></figure>

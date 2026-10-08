@@ -1,7 +1,7 @@
 {{- /*
   Returns a CSS/JS resource from assets/. Production builds are minified and fingerprinted (comments stripped, content
   hash in the file name). Development builds (hugo server) return the readable, commented source unchanged.
-  Usage: {{ with partial "asset.html" "css/main.css" }}...{{ .RelPermalink }}...{{ end }}
+  Usage: {{ with partialCached "asset.html" "css/main.css" "css/main.css" }}...{{ .RelPermalink }}...{{ end }}
 */ -}}
 {{- $r := resources.Get . -}}
 {{- if and $r (not hugo.IsDevelopment) -}}

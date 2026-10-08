@@ -11,8 +11,8 @@
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
-  {{ with partial "asset.html" "js/menu.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ end }}
-  {{ if .Store.Get "hasWall" }}{{ with partial "asset.html" "js/wall.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ end }}{{ end }}
-  {{ if .Store.Get "hasGallery" }}{{ with partial "asset.html" "js/gallery.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ end }}{{ end }}
+  {{ with partialCached "asset.html" "js/menu.js" "js/menu.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ end }}
+  {{ if .Store.Get "hasWall" }}{{ with partialCached "asset.html" "js/wall.js" "js/wall.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ end }}{{ end }}
+  {{ if .Store.Get "hasGallery" }}{{ with partialCached "asset.html" "js/gallery.js" "js/gallery.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ end }}{{ end }}
 </body>
 </html>
