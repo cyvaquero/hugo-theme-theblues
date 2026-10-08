@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.0.12] - Unreleased
+
+### Fixed
+- The README's shortcode table lost its `galleries` and `gallery` rows to leftover merge-conflict markers in 1.0.11;
+  both rows are back, with the 1.0.10 and 1.0.11 wording. No change to built pages.
+
 ## [1.0.11] - Unreleased
 
 ### Fixed
