@@ -3,7 +3,7 @@
   at a page that doesn't exist (for example a category with no published posts yet) is left out; Hugo gives such an
   entry no URL, so it would otherwise link to the current page. If no main menu is defined, the
   legacy params.addtional_menus list (Clean White's spelling, a list of title/href pairs) is used so older site configs keep
-  working. Below 820px the links collapse behind a hamburger button (assets/js/menu.js). Search is listed only when
+  working. At 820px and narrower the links collapse behind a hamburger button (assets/js/menu.js). Search is listed only when
   params.search_enabled is set; its label is params.search_label (default "SEARCH").
   Legacy hrefs: absolute URLs (scheme or //) are used as is. Site paths drop their leading slash (so a sub-path baseURL
   applies), go through relLangURL, and get a trailing slash only when they have neither one nor a file extension, so
