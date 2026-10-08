@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.0.10] - Unreleased
+
+### Security
+- The `galleries` shortcode no longer publishes the raw content between its tags (#15). Text or HTML in the block, such
+  as `<script>` or `<img onerror=…>`, went into the post and the RSS feed as working markup even though the site has raw
+  HTML turned off. Each `gallery` photo is now handed to its `galleries` block, which outputs only those photos; anything
+  else in the block is dropped. Gallery pages are otherwise unchanged apart from the whitespace between photos.
 ## [1.0.9] - Unreleased
 
 ### Security

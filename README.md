@@ -75,7 +75,7 @@ The templates assume this layout; other structures are not supported yet.
 
 | Shortcode | Usage | Notes |
 |---|---|---|
-| `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. The content between the tags is output as raw HTML. |
+| `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the alt text and caption. |
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing or the URL is not `https://`. |
 
@@ -110,7 +110,7 @@ layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
 layouts/search/section.html  search page (placeholder until the engine is chosen)
 layouts/404.html
-layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, cover,
+layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, gallery-figure, cover,
                            series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-page
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
