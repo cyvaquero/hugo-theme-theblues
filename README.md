@@ -65,6 +65,11 @@ The templates assume this layout; other structures are not supported yet.
 - **Syntax highlighting:** the CSS assumes Hugo's inline highlighting with a light style; the site uses
   `[markup.highlight] style = "monokailight"`.
 - **Favicon:** if the site has `static/img/favicon.ico`, it is linked; otherwise the page sets an empty icon.
+- **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
+  also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
+  no `src`. A path to a page or page resource resolves to its permalink, as with Hugo's built-in hooks. Links to other
+  hosts open in a new tab. A titled image is a `<figure>` with a caption only when it stands alone and the site sets
+  `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title is the tooltip.
 
 ## Shortcodes
 
