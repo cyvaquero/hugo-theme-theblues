@@ -1,5 +1,7 @@
 {{- /*
-  Main navigation. Items come from Hugo's menu system ([[menus.main]] in the site config). If no main menu is defined, the
+  Main navigation. Items come from Hugo's menu system ([[menus.main]] in the site config). An entry whose pageRef points
+  at a page that doesn't exist (for example a category with no published posts yet) is left out; Hugo gives such an
+  entry no URL, so it would otherwise link to the current page. If no main menu is defined, the
   legacy params.addtional_menus list (Clean White's spelling, a list of title/href pairs) is used so older site configs keep
   working. Below 820px the links collapse behind a hamburger button (assets/js/menu.js). Search is listed only when
   params.search_enabled is set; its label is params.search_label (default "SEARCH").
@@ -14,7 +16,9 @@
   <ul class="links" id="site-menu">
     {{- if site.Menus.main }}
     {{- range site.Menus.main }}
+    {{- if or (not .PageRef) .Page }}
     <li><a href="{{ .URL }}"{{ if $page.IsMenuCurrent "main" . }} aria-current="page"{{ end }}>{{ .Name }}</a></li>
+    {{- end }}
     {{- end }}
     {{- else }}
     {{- range site.Params.addtional_menus }}

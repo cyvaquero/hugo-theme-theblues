@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.0.7] - Unreleased
+
+### Fixed
+- The nav leaves out a `[[menus.main]]` entry whose `pageRef` points at a page that doesn't exist, such as a category
+  with no published posts. Hugo gives such an entry no URL, so it rendered as a link to the current page
+  (cyvaquero/hugo-site-guyheckman_me#8). No change for entries that resolve or that use `url`.
+
 ## [1.0.4] - Unreleased
 
 ### Added
@@ -90,6 +97,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.0.7]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.4]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.3]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
 [1.0.2]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
