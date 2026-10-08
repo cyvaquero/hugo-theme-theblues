@@ -1,1 +1,27 @@
-{{ if .Title }}<figure><img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" loading="lazy"><figcaption>{{ .Title }}</figcaption></figure>{{ else }}<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" loading="lazy">{{ end }}
+{{- /*
+  Markdown images. Only http and https URLs and scheme-less paths are used; anything else renders the image with no
+  src. A path that names a page resource or a file in assets/ resolves to its permalink. A titled image becomes a
+  <figure> with a caption only when it stands alone (.IsBlock, which needs
+  markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false); inline, the title is the tooltip. Of a block
+  image's Markdown attributes, only class, id, width and height are kept.
+*/ -}}
+{{- $src := "" -}}
+{{- $r := try (urls.Parse .Destination) -}}
+{{- if not $r.Err -}}
+  {{- $u := $r.Value -}}
+  {{- if in (slice "" "http" "https") (lower $u.Scheme) -}}
+    {{- $src = .Destination -}}
+    {{- if and (not $u.Scheme) (not $u.Host) $u.Path -}}
+      {{- $path := strings.TrimPrefix "./" $u.Path -}}
+      {{- with or (.PageInner.Resources.Get $path) (resources.Get $path) -}}
+        {{- $src = .RelPermalink -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $fig := and .IsBlock .Title -}}
+{{- if $fig }}<figure>{{ end -}}
+<img{{ with $src }} src="{{ . | safeURL }}"{{ end }} alt="{{ .PlainText }}"{{ if not $fig }}{{ with .Title }} title="{{ . }}"{{ end }}{{ end }}
+  {{- range $k, $v := .Attributes }}{{ if in (slice "class" "id" "width" "height") $k }} {{ $k }}="{{ $v }}"{{ end }}{{ end }} loading="lazy">
+{{- if $fig }}<figcaption>{{ .Title }}</figcaption></figure>{{ end -}}
+{{- /* No trailing newline: it would add a space after every image. */ -}}

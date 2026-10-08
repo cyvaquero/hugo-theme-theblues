@@ -1,6 +1,6 @@
 // Browse controls for the masonry wall (home, tag, category, series and section pages).
 // Progressive enhancement: the wall is complete and sorted newest first without this file; the controls markup is
-// hidden until this script runs. Behaviour follows the final mockup (decision D12): type chips with counts, a
+// hidden until this script runs. Behavior follows the final mockup (decision D12): type chips with counts, a
 // "View options" popover (Mode, Sort, Group by gallery, Reset), a Clear button and a live caption.
 // Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-date and data-order (data-series is not read).
 // Counts and groups are computed from the tiles on the current page (the wall is paginated by tile). The "see all" tile of a
