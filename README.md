@@ -35,7 +35,7 @@ git submodule add https://github.com/cyvaquero/hugo-theme-theblues.git themes/hu
 theme = "hugo-theme-theblues"
 ```
 
-Pin the submodule to a release tag (for example `1.0.1`). The theme is not packaged as a Hugo Module (there is no `go.mod`).
+Pin the submodule to a release tag (for example `1.1.0`). The theme is not packaged as a Hugo Module (there is no `go.mod`).
 
 The footer shows the Hugo version and the theme version. The theme version lives in `data/theblues.toml`; bump it
 with every CHANGELOG version. A site can override it with its own `data/theblues.toml`.

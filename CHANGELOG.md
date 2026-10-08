@@ -3,27 +3,59 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.0.12] - Unreleased
+## [1.1.0] - 2026-10-08
+
+### Added
+- The footer shows the Hugo version and the theme version: "Built with Hugo 0.167.0 and The Blues 1.1.0" (#25). The
+  theme version comes from `data/theblues.toml` and is read with `hugo.Data`, so builds print no deprecation warning
+  (#27). Contrast 10.5:1 (light) and 14.6:1 (dark).
+- `layouts/_partials/head-end.html`, an empty partial included last in `<head>`, so a site can add its own stylesheet
+  or meta tags without overriding `head.html` (cyvaquero/hugo-site-guyheckman_me#23). The README's "Extending from a
+  site" section documents it, the `header` and `main` blocks, and the CSS custom properties a site's styles should use
+  (now including `--hv`), whose names are kept stable (cyvaquero/hugo-site-guyheckman_me#23, #35).
+
+### Changed
+- Minimum Hugo version raised from 0.146.0 to 0.163.3 (`hugo.toml`, `theme.toml`): earlier versions have published Hugo
+  security advisories, and the theme uses `.Language.Locale`.
+- Faster builds as the number of posts grows (#7). The partials that depend only on one post or one image URL
+  (`is-photo`, `photos`, `cover`, `series-info`, `smug-full`) and the CSS/JS asset lookups are cached per post or URL
+  with `partialCached` instead of re-run on every list page, and the previous/next post links use Hugo's `Pages.Next` and
+  `Pages.Prev` instead of scanning every post. Measured on guyheckman.me (Hugo 0.167.0, median of 30 builds): 87.3 ms to
+  83.9 ms with 8 posts; with the posts copied to 80, 431 ms to 133 ms. Built output is byte-identical apart from the
+  footer's theme version; `hugo server` still picks up content edits.
+- `embed` shortcode: requires an `https://` URL, width and height (the build fails otherwise), takes an optional fourth
+  argument for the iframe title (default "Embedded content", was "Photo gallery"), and adds `sandbox`, `referrerpolicy`
+  and an `embed` class (`smugmug-gallery` is kept) (#12).
+- Cover and header images (`image`, `header_image`, `image_404`) are output as absolute URLs, so relative paths work in
+  heroes on nested pages and in `og:image` (#12).
+- Taxonomy indexes count posts only, matching term pages, and leave out terms with no posts (#12).
+- The search nav label can be set with `params.search_label` (default `SEARCH`) (#12).
+- The post archetype sets `showtoc: true`, matching the template default, and no longer writes an `author` field
+  (nothing reads it) (#12).
+- A titled inline Markdown image renders as an image with the title as tooltip instead of a `<figure>` inside a
+  paragraph (invalid HTML); a standalone image gets the `<figure>` and caption when the site sets
+  `wrapStandAloneImageWithinParagraph = false`, and keeps its `class`, `id`, `width` and `height` attributes (#11).
+- `LICENSE` is the standard Apache-2.0 text with this theme's copyright; `NOTICE` keeps the credits and states that no
+  upstream code remains. `theme.toml` no longer says Google Analytics "respects Do Not Track" (the gtag loader is always
+  requested).
+- The README matches the code: Installation, Content structure, Shortcodes and settings sections; a gallery photo's
+  `title` is its alt text, not a visible caption; the hamburger shows at 820px and narrower (#35).
 
 ### Fixed
-- The README's shortcode table lost its `galleries` and `gallery` rows to leftover merge-conflict markers in 1.0.11;
-  both rows are back, with the 1.0.10 and 1.0.11 wording. No change to built pages.
-
-## [1.0.11] - Unreleased
-
-### Fixed
-- Documentation matches the code (#35): the README no longer says a gallery photo's `title` is shown as a caption (it
-  is the alt text only), lists `--hv` among the custom properties a site can rely on, and the nav, menu script and
-  stylesheet comments put the hamburger at 820px and narrower. American spelling in the README, comments and design
-  notes. No change to built pages.
-## [1.0.10] - Unreleased
-
-### Security
-- The `galleries` shortcode no longer publishes the raw content between its tags (#15). Text or HTML in the block, such
-  as `<script>` or `<img onerror=…>`, went into the post and the RSS feed as working markup even though the site has raw
-  HTML turned off. Each `gallery` photo is now handed to its `galleries` block, which outputs only those photos; anything
-  else in the block is dropped. Gallery pages are otherwise unchanged apart from the whitespace between photos.
-## [1.0.9] - Unreleased
+- The nav leaves out a `[[menus.main]]` entry whose `pageRef` points at a page that doesn't exist, such as a category
+  with no published posts; it used to render as a link to the current page (cyvaquero/hugo-site-guyheckman_me#8).
+- Legacy `params.addtional_menus` links no longer get a double slash (`/archive//`) or a slash after full URLs, and follow
+  a sub-path `baseURL` (#12).
+- Home links (nav brand, term pages, 404) use the home page's permalink, so they work with a sub-path `baseURL` or a
+  language prefix (#12).
+- `categories` given as a single string no longer breaks the build (#12).
+- Article tile excerpts decode HTML entities (an `&` in a summary showed as `&amp;`) (#12).
+- Walls and the archive show "No posts yet." instead of empty controls when there are no posts (#12).
+- Repeated spaces in the slogan no longer produce empty words in the home hero (#12).
+- Markdown links: links to other sites open in a new tab when written as `HTTPS://…` or `//host/…`, links to the
+  site's own absolute URLs and `httpfoo/`-style relative paths don't; relative links and images that name a page or page
+  resource (`../about.md`, `pic.png` in a page bundle) resolve to its URL, and `#fragment` links point at the post, so
+  they work in list pages and the RSS feed; no stray space after every link and image (#11).
 
 ### Security
 - Markdown links and images no longer publish `javascript:`, `vbscript:`, `data:` or other unsafe URLs (#11). The render
@@ -31,105 +63,9 @@ All notable changes to this theme are documented here. The format follows
   live link in the post and the RSS feed. Links now keep only `http`, `https`, `mailto`, `tel` and scheme-less URLs and
   images only `http`, `https` and scheme-less ones; anything else renders the link text with no `href` and the image with
   no `src`.
-
-### Fixed
-- Links to other sites open in a new tab when written as `HTTPS://…` or `//host/…`, and links to the site's own
-  absolute URLs no longer do; `httpfoo/`-style relative paths no longer count as external (#11).
-- Relative links and images that name a page or page resource (`../about.md`, `pic.png` in a page bundle) resolve to its
-  URL, and `#fragment` links point at the post, so they also work in list pages and the RSS feed (#11).
-- No stray space after every link and image: `[x](y).` rendered as "x ." because the hook files ended with a newline (#11).
-- A titled inline image no longer emits a `<figure>` inside a paragraph (invalid HTML). It renders as an image with the
-  title as tooltip; a standalone image gets the `<figure>` and caption when the site sets
-  `wrapStandAloneImageWithinParagraph = false`, and keeps its `class`, `id`, `width` and `height` attributes (#11).
-
-## [1.0.8] - Unreleased
-
-### Changed
-- Faster builds as the number of posts grows (#7). The partials that depend only on one post or one image URL
-  (`is-photo`, `photos`, `cover`, `series-info`, `smug-full`) and the CSS/JS asset lookups are cached per post or URL
-  with `partialCached` instead of re-run on every list page, and the previous/next post links use Hugo's `Pages.Next` and
-  `Pages.Prev` instead of scanning every post. Measured on guyheckman.me (Hugo 0.167.0, median of 30 builds): 87.3 ms to
-  83.9 ms with 8 posts; with the posts copied to 80, 431 ms to 133 ms. Built output is byte-identical apart from the
-  footer's theme version; `hugo server` still picks up content edits.
-
-## [1.0.7] - Unreleased
-
-### Fixed
-- The nav leaves out a `[[menus.main]]` entry whose `pageRef` points at a page that doesn't exist, such as a category
-  with no published posts. Hugo gives such an entry no URL, so it rendered as a link to the current page
-  (cyvaquero/hugo-site-guyheckman_me#8). No change for entries that resolve or that use `url`.
-
-## [1.0.6] - Unreleased
-
-### Added
-- `layouts/_partials/head-end.html`, an empty partial included last in `<head>`, so a site can add its own stylesheet
-  or meta tags without overriding `head.html` (cyvaquero/hugo-site-guyheckman_me#23). No other change to built output.
-- README section "Extending from a site": the `header` and `main` blocks, the new partial, and the CSS custom
-  properties a site's own styles should use, whose names are now kept stable.
-
-## [1.0.5] - Unreleased
-
-### Fixed
-- The footer reads the theme version with `hugo.Data` instead of the deprecated `site.Data`, so builds no longer print
-  a deprecation warning (#27).
-
-## [1.0.4] - Unreleased
-
-### Added
-- The footer shows the Hugo version and the theme version: "Built with Hugo 0.167.0 and The Blues 1.0.4" (#25). The
-  theme version comes from `data/theblues.toml`, which is bumped with every version. Verified on a build of the site:
-  all 47 pages differ only by that line and the stylesheet hash; contrast 10.5:1 (light) and 14.6:1 (dark).
-
-## [1.0.3] - Unreleased
-
-### Changed
-- References to the site repo use its new name, `hugo-site-guyheckman_me` (README, `docs/retheme/decisions.md`, a
-  template comment in `search.html`). No other change to built output.
-
-## [1.0.2] - Unreleased
-
-Template bugs and missing defaults from review (#12).
-
-### Changed
-- `embed` shortcode: requires an `https://` URL, width and height (the build fails otherwise), takes an optional fourth
-  argument for the iframe title (default "Embedded content", was "Photo gallery"), and adds `sandbox`, `referrerpolicy`
-  and an `embed` class (`smugmug-gallery` is kept).
-- The post archetype sets `showtoc: true`, matching the template default.
-- Cover and header images (`image`, `header_image`, `image_404`) are output as absolute URLs, so relative paths work in
-  heroes on nested pages and in `og:image`.
-- Taxonomy indexes count posts only, matching term pages, and leave out terms with no posts.
-- The search nav label can be set with `params.search_label` (default `SEARCH`).
-
-### Fixed
-- Legacy `params.addtional_menus` links no longer get a double slash (`/archive//`) or a slash after full URLs, and follow a
-  sub-path `baseURL`.
-- Home links (nav brand, term pages, 404) use the home page's permalink, so they work with a sub-path `baseURL` or a
-  language prefix.
-- `categories` given as a single string no longer breaks the build (`is-photo.html`, `post/page.html`).
-- Article tile excerpts decode HTML entities (an `&` in a summary showed as `&amp;`).
-- Walls and the archive show "No posts yet." instead of empty controls when there are no posts.
-- Repeated spaces in the slogan no longer produce empty words in the home hero.
-
-## [1.0.1] - 2026-10-04
-
-Documentation, licence and metadata only; the built site is byte-identical to 1.0.0.
-
-### Changed
-- Minimum Hugo version raised from 0.146.0 to 0.163.3 (`hugo.toml`, `theme.toml`): earlier versions have published Hugo
-  security advisories, and the theme uses `.Language.Locale`.
-- `LICENSE` is now the standard Apache-2.0 text with this theme's copyright; Clean White's appendix and third-party notes,
-  copied in 1.0.0, were removed. `NOTICE` keeps the credits and states that no upstream code remains; cavelab.dev is credited
-  as an inspiration for the series partials only.
-- `theme.toml` no longer says Google Analytics "respects Do Not Track" (the gtag loader is always requested).
-- The post archetype no longer writes an `author` field (nothing reads it).
-
-### Fixed
-- README: release status, new Installation, Content structure and Shortcodes sections, corrected settings list
-  (`services.*`, `locale`, `showtoc`) and known limits; removed the claim that posts show a byline.
-- This changelog: the 1.0.0 entry rewritten in Keep a Changelog form (it described pre-release history and a byline that was
-  removed before release).
-- Stale text and issue references in `docs/retheme/`, and stale header comments in `wall.js`, `series-info.html`,
-  `post/page.html` and `search.html`.
+- The `galleries` shortcode no longer publishes the raw content between its tags (#15). Text or HTML in the block, such
+  as `<script>` or `<img onerror=…>`, went into the post and the RSS feed as working markup even though the site has raw
+  HTML turned off. It now outputs only its `gallery` photos; anything else in the block is dropped.
 
 ## [1.0.0] - 2026-10-04
 
@@ -160,12 +96,5 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
-[1.0.8]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
-[1.0.7]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
-[1.0.6]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
-[1.0.5]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
-[1.0.4]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
-[1.0.3]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
-[1.0.2]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.1...develop
-[1.0.1]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.0...1.0.1
+[1.1.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/cyvaquero/hugo-theme-theblues/releases/tag/1.0.0
