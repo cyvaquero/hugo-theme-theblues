@@ -75,13 +75,8 @@ The templates assume this layout; other structures are not supported yet.
 
 | Shortcode | Usage | Notes |
 |---|---|---|
-<<<<<<< HEAD
-| `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. The content between the tags is output as raw HTML. |
-| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. |
-=======
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
-| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the alt text and caption. |
->>>>>>> origin/release/1.1.0
+| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. |
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing or the URL is not `https://`. |
 
 ## Extending from a site
