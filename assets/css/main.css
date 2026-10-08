@@ -6,7 +6,7 @@
    Contents
      1  Tokens (palette B, light and dark)      8  Masonry wall and tiles
      2  Base                                    9  Pagination and post navigation
-     3  Nav (hamburger below 820px)             10 Photo post and lightbox
+     3  Nav (hamburger at 820px and less)         10 Photo post and lightbox
      4  Heroes                                  11 Article, table of contents, prose
      5  Shared bits (tags, meta, series, ...)   12 Archive, tag index, About
      6  Footer                                  13 Touch targets (44px on coarse pointers)
@@ -129,7 +129,7 @@ nav.site .links a[aria-current] { text-decoration: underline; text-underline-off
 .pb { max-width: var(--measure); margin: 0 auto; padding: 0 1rem; }
 .pb h2 { font: 700 1.5rem / 1.3 var(--serif); margin: 2rem 0 .5rem; }
 .pb > :first-child { margin-top: 2rem; }
-.smugmug-gallery { width: 100%; border: 0; }
+.embed, .smugmug-gallery { width: 100%; border: 0; }
 
 /* 6 Footer ------------------------------------------------------------------------------------------------ */
 footer.site { background: var(--band); color: var(--bt); text-align: center; padding: 2rem 1rem; font-size: .9rem; margin-top: 3rem; }
@@ -138,6 +138,7 @@ footer.site a:hover { color: var(--hv); }
 footer.site svg { width: 1.15em; height: 1.15em; fill: currentColor; flex: none; }
 footer.site .soc { display: flex; flex-wrap: wrap; justify-content: center; }
 footer.site p { margin: .5rem 0 0; }
+footer.site .ver { font-size: .8rem; }
 
 /* 7 Browse controls: calm popover ------------------------------------------------------------------------- */
 .ctl { position: relative; max-width: var(--wide); margin: 0 auto; padding: .6rem 1rem .5rem; display: flex; flex-wrap: wrap; gap: .2rem .7rem; align-items: center; }

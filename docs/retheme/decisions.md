@@ -5,7 +5,7 @@ Started 2026-10-01 on branch `feature/retheme` in the site repo (since merged an
 [mockups/directions/direction-c-final.html](mockups/directions/direction-c-final.html) (see [mockups/README.md](mockups/README.md)).
 Last updated 2026-10-04.
 
-Issue references: "site issue #N" is in the site repo (`cyvaquero/hugo-cleanwhite-guyheckman_me`); a bare `#N` is in this theme
+Issue references: "site issue #N" is in the site repo (`cyvaquero/hugo-site-guyheckman_me`); a bare `#N` is in this theme
 repo (for example `#10`, the release tracker).
 
 **Status key:** `Decided` = confirmed by Guy. `Provisional` = implemented or implied by an accepted mockup but not
@@ -193,7 +193,7 @@ The wall paginates **by tile**, 24 per page, so chip counts, the caption and gro
 galleries make 20 tiles, one page); see-all tiles are excluded from the counts. Known limits: pagination uses a workaround because
 Hugo's `.Paginate` only accepts pages; CSS columns fill top to bottom, so reading order is column-wise;
 `.highlight` code blocks stay light in dark mode. Reduced motion is handled. Touch devices and screen readers are untested on real
-hardware; keyboard behaviour and contrast were measured in the October 2026 independent review, whose findings are open issues. Chips and "View options" are 32 px tall on fine pointers and 44 px on coarse pointers.
+hardware; keyboard behavior and contrast were measured in the October 2026 independent review, whose findings are open issues. Chips and "View options" are 32 px tall on fine pointers and 44 px on coarse pointers.
 
 ## D13. License
 

@@ -1,8 +1,10 @@
 {{- /*
   One photo in a galleries block. src is the SmugMug X2 thumbnail; the link (and the lightbox) uses the X3 size, derived
-  by partials/smug-full.html. Without JavaScript the link opens the large image.
+  by partials/smug-full.html. Without JavaScript the link opens the large image. Inside galleries, the photo is handed to
+  the parent's Store instead of printed, so galleries outputs only these figures and never its raw inner content (#15).
 */ -}}
 {{- $src := .Get "src" | default (.Get 0) -}}
 {{- if not $src }}{{ errorf "gallery: src is required (%s)" .Position }}{{ end -}}
 {{- $title := .Get "title" -}}
-<figure><a href="{{ partial "smug-full.html" $src }}"><img src="{{ $src }}" alt="{{ $title | default (printf "Photo %d" (add .Ordinal 1)) }}" loading="lazy" decoding="async"></a></figure>
+{{- $fig := partial "gallery-figure.html" (dict "src" $src "alt" ($title | default (printf "Photo %d" (add .Ordinal 1)))) -}}
+{{- if and .Parent (eq .Parent.Name "galleries") }}{{ .Parent.Store.Add "photos" (slice $fig) }}{{ else }}{{ $fig }}{{ end -}}

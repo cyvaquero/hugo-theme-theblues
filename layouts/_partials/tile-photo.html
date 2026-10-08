@@ -5,7 +5,7 @@
 */ -}}
 {{- $pg := .page -}}
 {{- $p := .photo -}}
-{{- $s := partial "series-info.html" $pg -}}
+{{- $s := partialCached "series-info.html" $pg $pg.Path -}}
 {{- $what := cond (eq .n 1) "photo" "photos" -}}
 <figure class="tile photo" data-type="photo" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $pg.Title }}" data-date="{{ $pg.Date.Format "2006-01-02" }}" data-order="{{ .order }}" data-series="{{ with $s }}{{ .name }}{{ end }}">
   <a class="cover" href="{{ $pg.RelPermalink }}" aria-label="{{ $pg.Title }}, {{ .n }} {{ $what }}, {{ $pg.Date.Format "Jan 2, 2006" }}. Photo {{ add .i 1 }} of {{ .n }}{{ with $p.title }}: {{ . }}{{ end }}">

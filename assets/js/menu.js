@@ -1,4 +1,4 @@
-// Hamburger nav below 820px. The links stay in the DOM and visible without JS from 821px up.
+// Hamburger nav at 820px and narrower. The links stay in the DOM and visible without JS from 821px up.
 (function () {
   var toggle = document.querySelector('nav.site .menu');
   var links = document.getElementById('site-menu');

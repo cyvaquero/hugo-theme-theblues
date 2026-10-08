@@ -10,14 +10,14 @@
 {{ $cover := site.Params.header_image | default "" }}
 {{ $found := false }}
 {{ range $posts.ByDate.Reverse }}
-  {{ if partial "is-photo.html" . }}
-    {{ $photos = add $photos (len (partial "photos.html" .)) }}
-    {{ if not $found }}{{ $cover = partial "cover.html" . }}{{ $found = true }}{{ end }}
+  {{ if partialCached "is-photo.html" . .Path }}
+    {{ $photos = add $photos (len (partialCached "photos.html" . .Path)) }}
+    {{ if not $found }}{{ $cover = partialCached "cover.html" . .Path }}{{ $found = true }}{{ end }}
   {{ end }}
 {{ end }}
 <header class="phero thero"{{ with $cover }} style="--hi:url('{{ . }}')"{{ end }}>
   <div class="in">
-    <a class="tl" href="{{ "/" | relURL }}">&larr; Back to all posts</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">All {{ .Title | lower }} &rarr;</a>{{ end }}
+    <a class="tl" href="{{ site.Home.RelPermalink }}">&larr; Back to all posts</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">All {{ .Title | lower }} &rarr;</a>{{ end }}
     <div class="ptype">{{ $kind }}</div>
     <h1>{{ $label }}: {{ .Title }}</h1>
     <div class="meta">{{ len $posts }} {{ cond (eq (len $posts) 1) "post" "posts" }}{{ if $photos }} &middot; {{ $photos }} {{ cond (eq $photos 1) "photo" "photos" }}{{ end }}</div>

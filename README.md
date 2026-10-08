@@ -35,14 +35,19 @@ git submodule add https://github.com/cyvaquero/hugo-theme-theblues.git themes/hu
 theme = "hugo-theme-theblues"
 ```
 
-Pin the submodule to a release tag (for example `1.0.1`). The theme is not packaged as a Hugo Module (there is no `go.mod`).
+Pin the submodule to a release tag (for example `1.1.0`). The theme is not packaged as a Hugo Module (there is no `go.mod`).
+
+The footer shows the Hugo version and the theme version. The theme version lives in `data/theblues.toml`; bump it
+with every CHANGELOG version. A site can override it with its own `data/theblues.toml`.
 
 ## Content structure
 
 The templates assume this layout; other structures are not supported yet.
 
 - **Posts live in the `post` section** (`content/post/`). The home wall, section and term walls, the archive and post
-  navigation only list pages in that section, and `layouts/post/page.html` is the post template.
+  navigation only list pages in that section, and `layouts/post/page.html` is the post template. Pages outside it get no
+  series box, comments, previous/next links or table of contents. Taxonomy indexes (`/tags/` and so on) count posts only and
+  leave out terms used only outside the section; a term page with no posts says "No posts yet."
 - **Taxonomies:** declare `series` next to the default ones:
 
   ```toml
@@ -60,14 +65,34 @@ The templates assume this layout; other structures are not supported yet.
 - **Syntax highlighting:** the CSS assumes Hugo's inline highlighting with a light style; the site uses
   `[markup.highlight] style = "monokailight"`.
 - **Favicon:** if the site has `static/img/favicon.ico`, it is linked; otherwise the page sets an empty icon.
+- **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
+  also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
+  no `src`. A path to a page or page resource resolves to its permalink, as with Hugo's built-in hooks. Links to other
+  hosts open in a new tab. A titled image is a `<figure>` with a caption only when it stands alone and the site sets
+  `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title is the tooltip.
 
 ## Shortcodes
 
 | Shortcode | Usage | Notes |
 |---|---|---|
-| `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. The content between the tags is output as raw HTML. |
-| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the alt text and caption. |
-| `embed` | `{{< embed "https://…" 800 600 >}}` | An iframe (URL, width, height), meant for SmugMug gallery embeds. |
+| `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
+| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. |
+| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing or the URL is not `https://`. |
+
+## Extending from a site
+
+A site can add its own page types without overriding theme files:
+
+- **Templates:** a site's `layouts/<section>/page.html` or `section.html` renders inside the theme's `baseof.html`. It
+  fills the `main` block, and can replace the default hero by defining the `header` block. The nav, footer, stylesheet
+  and menu script still come from the theme.
+- **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
+  `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
+- **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
+  CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
+  `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
+  `--serif`, `--sans`, `--wide` and `--measure`. Their names are kept stable; a rename or removal is called out in the
+  CHANGELOG.
 
 ## Layout
 
@@ -86,7 +111,7 @@ layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
 layouts/search/section.html  search page (placeholder until the engine is chosen)
 layouts/404.html
-layouts/_partials/         head, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, cover,
+layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, gallery-figure, cover,
                            series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-page
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
@@ -118,7 +143,7 @@ layouts/_markup/           render-link, render-image
 - Without JavaScript, at 820 px and narrower the nav links are hidden and the Menu button does nothing.
 - `.highlight` code blocks stay light in dark mode (Hugo's inline `monokailight` styling).
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
-  devices and screen readers. An independent review (October 2026) measured contrast and keyboard behaviour; its findings
+  devices and screen readers. An independent review (October 2026) measured contrast and keyboard behavior; its findings
   are open issues.
 - Build time grows quickly with the number of posts (the wall is rebuilt for each pager page); fine for a small site.
 
@@ -128,24 +153,30 @@ It keeps the parameter names the site already uses, so `config.toml` needs littl
 
 - `title`, `locale` (sets `<html lang>`)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
-  `image_404`, `title_404`, `search_enabled` (default off), `showtoc` (site-wide default for the TOC), and the optional
+  `image_404`, `title_404`, `search_enabled` (default off), `search_label` (default `SEARCH`), `showtoc` (site-wide default for
+  the TOC; on when unset, and shown only when a post has headings), and the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4)
-- `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined
+- `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
+  A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
+  or section appears only once it has content.
+  Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
 - `[services.googleAnalytics] id` and `[services.disqus] shortname`. Analytics uses Hugo's internal template; Do Not Track
   applies only if the site sets `[privacy.googleAnalytics] respectDoNotTrack = true`, and even then the gtag loader is
   requested.
 
-Use site-root image paths or absolute URLs for `header_image` and `image`; relative paths break on nested pages.
+`header_image`, `image` and `image_404` may be absolute URLs or paths under the site root (`img/x.jpg`); the theme turns paths
+into absolute URLs.
 
-Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `categories` (a list), `tags`, `series`.
+Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `categories` (a list, or a single string),
+`tags`, `series`.
 
 ## Design decisions
 
 Decision records, the Clean White inventory and the layout mockups are in [docs/retheme/](docs/retheme/decisions.md)
 (Hugo does not publish this folder; this is the canonical copy). The work is tracked on issue
-cyvaquero/hugo-cleanwhite-guyheckman_me#4. In short: palette B (navy, steel blue, sand, cream) with light and dark modes;
+cyvaquero/hugo-site-guyheckman_me#4. In short: palette B (navy, steel blue, sand, cream) with light and dark modes;
 responsive with a hamburger nav at 820 px and narrower; Disqus on posts only; GA4 through Hugo's internal template; search is
-a reserved slot until the engine is chosen (cyvaquero/hugo-cleanwhite-guyheckman_me#3). The featured-tags cloud (D14) is
+a reserved slot until the engine is chosen (cyvaquero/hugo-site-guyheckman_me#3). The featured-tags cloud (D14) is
 deferred.
 
 ## Credits
