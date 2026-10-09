@@ -125,7 +125,7 @@
     var inPop = (S.m !== DEF.m) + (S.s !== DEF.s) + (S.g ? 1 : 0), any = inPop + (S.f !== DEF.f);
     qa('[data-badge=opts]').forEach(function (e) {
       e.hidden = !inPop;
-      e.textContent = inPop;
+      e.textContent = ' ' + inPop;  // the leading space keeps the name "View options 1 active" where flex items aren't spaced
       var v = document.createElement('span'); v.className = 'vh'; v.textContent = ' active'; e.appendChild(v);
     });
     qa('[data-role=clear],[data-role=reset]').forEach(function (e) { e.hidden = !any; });
@@ -149,8 +149,11 @@
     if (!t.closest) return;
     if ((c = t.closest('[data-f]')) && ctl.contains(c)) { S.f = c.dataset.f; stage.dataset.pv = 'all'; paint(); return; }
     if ((c = t.closest('[data-m2]')) && ctl.contains(c)) { S.m = c.dataset.m2; paint(); return; }
-    if (t.closest('[data-role=clear],[data-role=reset]')) {
-      S.f = DEF.f; S.m = DEF.m; S.s = DEF.s; S.g = DEF.g; render(); return;
+    if ((c = t.closest('[data-role=clear],[data-role=reset]'))) {
+      // The button hides itself, so move focus: Clear to the "All" chip, Reset closes the popover and returns to its button.
+      S.f = DEF.f; S.m = DEF.m; S.s = DEF.s; S.g = DEF.g; render();
+      if (c.dataset.role === 'reset') closePop(true); else ctl.querySelector('[data-f=all]').focus();
+      return;
     }
     if (t.closest('#vb')) { togglePop(); return; }
     if (!t.closest('#pop')) closePop();
@@ -160,9 +163,10 @@
     if (t.dataset.role === 'sort') { S.s = t.value; render(); }
     else if (t.dataset.role === 'grp') { S.g = t.checked; render(); }
   });
+  // Capture phase and preventDefault, so the same Escape doesn't also close the nav menu (menu.js skips handled keys).
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); closePop(true); }
-  });
+  }, true);
 
   // Hovering or focusing a chip previews the highlight (stage[data-pv] drives the CSS).
   function pvOn(e) {
