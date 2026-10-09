@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.5] - Unreleased
+
+### Fixed
+- "Oldest first" is the exact reverse of "Newest first" for posts published on the same day, on the flat wall and for
+  same-day galleries in grouped mode. A gallery's photos keep their order, and its see-all tile stays last (#32).
+
 ## [1.1.4] - Unreleased
 
 ### Fixed
