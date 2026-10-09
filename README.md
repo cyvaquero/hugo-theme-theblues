@@ -67,9 +67,10 @@ The templates assume this layout; other structures are not supported yet.
 - **Search:** `content/search/_index.md` uses `layouts/search/section.html`. Search is not implemented yet: the page is
   published (and listed in the sitemap) with the text "Search is not available yet." The nav link appears only when
   `params.search_enabled` is set.
-- **Syntax highlighting:** the CSS assumes Hugo's inline highlighting (the default, `noClasses = true`) with a light
-  inline Chroma style, for example `[markup.highlight] style = "modus-operandi"`. The style's own inline colors show, so
-  code blocks stay light in dark mode too.
+- **Syntax highlighting:** set `[markup.highlight] noClasses = false`. Hugo then marks code with Chroma classes, and the
+  theme colors them from its `--sx-*` tokens: the modus-operandi colors in light mode and modus-vivendi in dark, on the
+  theme's code background, all 4.8:1 or more. The `style` setting is then unused. With Hugo's default inline highlighting
+  (`noClasses = true`) the chosen style's own colors show instead, so code blocks keep them in both modes.
 - **Icons:** the theme ships a serif "g" monogram on navy, served from the site root:
   - `static/favicon.svg`, with the letter in the system serif;
   - `static/favicon.ico` (16, 32 and 48px);
@@ -169,8 +170,8 @@ layouts/_markup/           render-link, render-image
   sections on the home feed (`site.MainSections`, `post` by default). The `search` section still gets its own empty
   feed; a site can turn it off with `outputs: [html]` in `content/search/_index.md`.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
-- `.highlight` code blocks stay light in dark mode, since they show the light inline Chroma style's own colors (for
-  example `modus-operandi`).
+- With Hugo's default inline highlighting, `.highlight` code blocks keep the style's own colors in dark mode; set
+  `noClasses = false` to have them follow it (see Syntax highlighting).
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
   devices and screen readers. An independent review (October 2026) measured contrast and keyboard behavior; its findings
   are open issues.
