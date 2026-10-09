@@ -1,8 +1,9 @@
 {{- /*
-  Home RSS feed: Hugo 0.167.0's embedded rss.xml (tpl/tplimpl/embedded/templates/rss.xml), changed in one place: only
-  pages in the site's main sections (site.MainSections, "post" by default) are listed, so About, Archive, Search and
-  other standalone pages stay out of the feed (#18). Compare with the embedded template when upgrading Hugo. Section and
-  taxonomy feeds use the embedded template unchanged.
+  RSS feeds (home, sections, terms): Hugo 0.167.0's embedded rss.xml (tpl/tplimpl/embedded/templates/rss.xml) with
+  three changes: the home feed lists only pages in the site's main sections (site.MainSections, "post" by default), so
+  About, Archive and Search stay out (#18); items use page-title.html, so an untitled post gets a title (#18); and an
+  item without a date has no pubDate instead of "01 Jan 0001" (#36). Compare with the embedded template when upgrading
+  Hugo. A site's own home.rss.xml still takes precedence for the home feed.
 */ -}}
 {{- $authorEmail := "" }}
 {{- with site.Params.author }}
@@ -64,7 +65,9 @@
 			<item>
 				<title>{{ partial "page-title.html" . }}</title>
 				<link>{{ .Permalink }}</link>
+				{{- if not .PublishDate.IsZero }}
 				<pubDate>{{ .PublishDate.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+				{{- end }}
 				{{- with $authorEmail }}<author>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</author>{{ end }}
 				<guid>{{ .Permalink }}</guid>
 				<description>{{ .Summary | transform.XMLEscape | safeHTML }}</description>
