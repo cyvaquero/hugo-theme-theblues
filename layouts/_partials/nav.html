@@ -12,7 +12,7 @@
 {{ $page := . }}
 <nav class="site" aria-label="Main">
   <a class="brand" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
-  <button class="menu" type="button" aria-expanded="false" aria-controls="site-menu">&#9776; Menu</button>
+  <button class="menu" type="button" aria-expanded="false" aria-controls="site-menu"><span aria-hidden="true">&#9776;</span> Menu</button>
   <ul class="links" id="site-menu">
     {{- if site.Menus.main }}
     {{- range site.Menus.main }}
@@ -27,7 +27,7 @@
       {{- $href = strings.TrimPrefix "/" $href | relLangURL }}
       {{- if not (or (strings.HasSuffix $href "/") (findRE `\.[a-zA-Z0-9]+$` $href 1)) }}{{ $href = printf "%s/" $href }}{{ end }}
     {{- end }}
-    <li><a href="{{ $href }}">{{ .title }}</a></li>
+    <li><a href="{{ $href }}"{{ if eq $href $page.RelPermalink }} aria-current="page"{{ end }}>{{ .title }}</a></li>
     {{- end }}
     {{- end }}
     {{- if site.Params.search_enabled }}

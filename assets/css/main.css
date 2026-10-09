@@ -11,6 +11,8 @@
      5  Shared bits (tags, meta, series, ...)   12 Archive, tag index, About
      6  Footer                                  13 Touch targets (44px on coarse pointers)
      7  Browse controls (chips, popover)        14 Reduced motion
+                                             15 Forced colors
+                                             16 Print
 
    Palette B: navy #1B3C53, steel #456882, sand #D2C1B6, cream #F9F3EF.
    Light mode follows the system setting (prefers-color-scheme); there is no manual toggle. */
@@ -74,6 +76,7 @@ nav.site, footer.site, .hero, .phero, dialog.lb { --focus: var(--hv); }
 [hidden] { display: none !important; }
 .skip { position: absolute; left: -999px; top: 0; background: var(--band); color: var(--bt); padding: .5rem 1rem; z-index: 100; }
 .skip:focus { left: 0; }
+#main:focus { outline: none; }  /* skip-link target (tabindex=-1): no ring around the whole page */
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 svg.ic { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.12em; }
 
@@ -95,19 +98,22 @@ nav.site .links a[aria-current] { text-decoration: underline; text-underline-off
 
 /* 4 Heroes ------------------------------------------------------------------------------------------------ */
 /* Home hero: header photo (--hi) under a navy scrim. */
-.hero { color: #F9F3EF; padding: 3.5rem 1rem 3rem; text-align: center; background: linear-gradient(rgb(15 35 50 / .55), rgb(15 35 50 / .82)), var(--hi, none) center / cover, var(--band); }
-.hero .k { font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: #D2C1B6; margin: 0; }
+/* Text over photos (#3): the scrim keeps text readable even over a white image. Cream small text needs a scrim of at
+   least .65, sand small text .78 (computed against white); the home hero uses .70 to .85 and cream text only. */
+.hero { color: #F9F3EF; padding: 3.5rem 1rem 3rem; text-align: center; background: linear-gradient(rgb(15 35 50 / .70), rgb(15 35 50 / .85)), var(--hi, none) center / cover, var(--band); }
+.hero .k { font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: #F9F3EF; margin: 0; }
 .hero h1 { margin: .3rem 0 0; font: 700 clamp(2.4rem, 9vw, 4.4rem) / 1.05 var(--serif); overflow-wrap: anywhere; }
 .hero p.sub { margin: .8rem auto 0; max-width: 40rem; font-size: 1.1rem; }
 /* Wavy sand underline under the last word of the slogan (decorative SVG). */
 .u { position: relative; display: inline-block; font-style: italic; }
 .u svg { position: absolute; left: 0; bottom: -.12em; width: 100%; height: .25em; color: #D2C1B6; }
 /* Page hero: posts, terms, About, Archive, Search. */
-.phero { color: #F9F3EF; min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(15 35 50 / .45) 0%, rgb(15 35 50 / .92)), var(--hi, none) center / cover, var(--band); }
+.phero { color: #F9F3EF; min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(15 35 50 / .45) 0%, rgb(15 35 50 / .85) 40%, rgb(15 35 50 / .92)), var(--hi, none) center / cover, var(--band); }
 .phero .in { width: 100%; max-width: var(--wide); margin: 0 auto; padding: 5rem 1rem 2rem; }
 .phero h1 { margin: .3rem 0; font: 700 clamp(2rem, 6.5vw, 3.4rem) / 1.1 var(--serif); overflow-wrap: anywhere; }
 .phero .sub { margin: .2rem 0 .4rem; font-size: 1.05rem; color: #F9F3EF; max-width: 46rem; }
 .phero .meta, .phero .ptype { color: #D2C1B6; }
+.phero .meta a:not(.tag) { color: inherit; text-underline-offset: .15em; }
 .phero .tag { color: #F9F3EF; border-color: #D2C1B6; }
 .phero .tag:hover { color: #D2C1B6; }
 .ptype { display: inline-flex; align-items: center; gap: .4rem; font-size: .75rem; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; color: var(--muted); }
@@ -187,7 +193,7 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.photo img { width: 100%; height: auto; aspect-ratio: auto 3 / 2; }
 .tile.photo a.cover { display: block; }
 .tile.photo .badge { position: absolute; top: .5rem; left: .5rem; display: inline-flex; gap: .35rem; align-items: center; background: rgb(15 35 50 / .88); color: #F9F3EF; border-radius: 99px; padding: .15rem .6rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
-.tile.photo figcaption { position: absolute; inset: auto 0 0 0; padding: 2.5rem .8rem .7rem; background: linear-gradient(transparent, rgb(15 35 50 / .92)); color: #F9F3EF; font-size: .92rem; opacity: 0; pointer-events: none; }
+.tile.photo figcaption { position: absolute; inset: auto 0 0 0; padding: 2.5rem .8rem .7rem; background: linear-gradient(transparent, rgb(15 35 50 / .85) 2.5rem, rgb(15 35 50 / .92)); color: #F9F3EF; font-size: .92rem; opacity: 0; pointer-events: none; }
 .tile.photo:hover figcaption, .tile.photo:focus-within figcaption { opacity: 1; }
 @media (hover: none) { .tile.photo figcaption { opacity: 1; } }
 .tile.photo figcaption .meta { color: #D2C1B6; }
@@ -219,10 +225,13 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
   .tile.photo > a:focus-visible, .tile.article h3 a:focus-visible { outline: 0; }
 }
 .tile .meta a:hover { color: var(--hv); }
-/* Highlight mode and chip preview: dim the others to 35%, outline the matches with a dashed ring, so a focused tile's
-   solid ring stays distinct. */
-.tile.dim, #stage[data-pv=article] .tile.photo, #stage[data-pv=photo] .tile.article { opacity: .35; }
-.tile.dim:hover, .tile.dim:focus-within { opacity: .85; }
+/* Highlight mode and chip preview: the others turn gray and their photos fade, while their text keeps full contrast
+   (they are still links; fading the whole tile to 35% left text at 1.66:1, #3). The matches get a dashed ring, so a
+   focused tile's solid ring stays distinct. */
+.tile.dim, #stage[data-pv=article] .tile.photo, #stage[data-pv=photo] .tile.article { filter: grayscale(1); }
+.tile.dim img, #stage[data-pv=article] .tile.photo img, #stage[data-pv=photo] .tile.article img { opacity: .35; }
+.tile.dim:hover, .tile.dim:focus-within { filter: none; }
+.tile.dim:hover img, .tile.dim:focus-within img { opacity: 1; }
 .tile.hl, #stage[data-pv=article] .tile.article, #stage[data-pv=photo] .tile.photo { outline: 3px dashed var(--muted); outline-offset: 3px; box-shadow: 0 0 0 1px var(--muted); }
 /* Group by gallery. */
 details.grp { margin: 0 0 1.5rem; }
@@ -245,10 +254,11 @@ details.grp > summary .meta { font: 400 .85rem var(--sans); }
 .gal figure { margin: 0 0 var(--gap); break-inside: avoid; border-radius: 8px; overflow: hidden; background: var(--code); }
 .gal a { display: block; }
 .gal img { width: 100%; height: auto; aspect-ratio: auto 3 / 2; }
-dialog.lb { border: 0; padding: 0; background: transparent; width: 100%; height: 100%; max-width: 100vw; max-height: 100vh; }
+dialog.lb { border: 0; padding: 0; background: transparent; width: 100%; height: 100%; max-width: 100vw; max-height: 100vh; max-height: 100dvh; }
+html:has(dialog.lb[open]) { overflow: hidden; }  /* no page scrolling behind the lightbox */
 dialog.lb::backdrop { background: rgb(0 0 0 / .9); }
 dialog.lb .in { height: 100%; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 1rem; color: #F9F3EF; }
-dialog.lb img { max-width: 100%; max-height: 80vh; object-fit: contain; }
+dialog.lb img { max-width: 100%; max-height: 80vh; max-height: 80dvh; object-fit: contain; touch-action: pan-y; }
 dialog.lb .bb { display: flex; gap: .8rem; align-items: center; padding-top: .5rem; flex-wrap: wrap; justify-content: center; }
 dialog.lb button { background: none; color: #F9F3EF; border: 1px solid #D2C1B6; border-radius: 6px; padding: .4rem .9rem; font: inherit; cursor: pointer; min-height: 44px; }
 dialog.lb button:hover { color: #D2C1B6; }
@@ -315,10 +325,38 @@ ul.atl .c { color: var(--muted); font-size: .85rem; flex: none; }
 /* 14 Reduced motion --------------------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
-  .tile { transition: opacity .2s; }
+  .tile, .tile img { transition: opacity .2s, filter .2s; }
   .tile.photo figcaption { transition: opacity .2s; }
   .tile.photo img { transition: transform .25s; }
   .tile.photo:hover img { transform: scale(1.03); }
   .swt input, .swt input::before { transition: all .15s; }
   .vbtn .chev { transition: transform .15s; }
+}
+
+/* 15 Forced colors (Windows high contrast) --------------------------------------------------------------------- */
+/* Backgrounds are replaced by system colors, so state shown only by a fill (switch, pressed chip, current page) gets
+   system colors that survive (#3). */
+@media (forced-colors: active) {
+  .swt input { forced-color-adjust: none; border-color: CanvasText; background: Canvas; }
+  .swt input::before { background: CanvasText; }
+  .swt input:checked { background: Highlight; border-color: Highlight; }
+  .swt input:checked::before { background: HighlightText; }
+  .seg button[aria-pressed=true], .pg a[aria-current=page] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+  .bdg { border: 1px solid CanvasText; }
+}
+
+/* 16 Print ------------------------------------------------------------------------------------------------------ */
+/* Black on white; no nav, controls, comments or lightbox. Heroes and article tiles drop their dark backgrounds, which
+   would otherwise print cream text on white paper (#3). */
+@media print {
+  body { background: #fff; color: #000; }
+  nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc { display: none !important; }
+  .hero, .phero { background: none !important; color: #000; min-height: 0; padding-top: 1rem; }
+  .hero .k, .phero .sub, .phero .meta, .phero .ptype, .phero .tag, .phero a { color: #000; }
+  .tile.article { background: none; border-color: #000; }
+  .tile.article, .tile.article h3 a, .tile.article p, .tile.article .meta, .tile.article .lbl { color: #000; }
+  .tile.photo figcaption { opacity: 1; position: static; background: none; color: #000; padding: .3rem 0; }
+  .tile.photo figcaption .meta { color: #000; }
+  footer.site { background: none; color: #000; }
+  footer.site a { color: #000; }
 }

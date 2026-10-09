@@ -6,5 +6,6 @@
 {{- $src := .Get "src" | default (.Get 0) -}}
 {{- if not $src }}{{ errorf "gallery: src is required (%s)" .Position }}{{ end -}}
 {{- $title := .Get "title" -}}
+{{- if not $title }}{{ warnf "gallery: photo %d has no title, so its alt text is \"Photo %d\" (%s)" (add .Ordinal 1) (add .Ordinal 1) .Position }}{{ end -}}
 {{- $fig := partial "gallery-figure.html" (dict "src" $src "alt" ($title | default (printf "Photo %d" (add .Ordinal 1)))) -}}
 {{- if and .Parent (eq .Parent.Name "galleries") }}{{ .Parent.Store.Add "photos" (slice $fig) }}{{ else }}{{ $fig }}{{ end -}}

@@ -3,6 +3,42 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.2] - Unreleased
+
+### Fixed
+- Accessibility gaps in the nav, the View options popover and the lightbox, and contrast over photos and in Highlight
+  mode (#3). Measured in headless Chrome on guyheckman.me:
+  - **Nav:**
+    - Without JavaScript, at 820px and narrower the nav shows its links instead of a Menu button that does
+      nothing. This uses `assets/css/nojs.css`, loaded in `<noscript>`, with no inline CSS.
+    - The ☰ glyph is hidden from screen readers.
+    - The open menu closes when keyboard focus leaves it.
+    - The legacy `addtional_menus` links get `aria-current`.
+    - The skip link focuses `main`.
+  - **View options popover:**
+    - Opening it moves focus to its first control.
+    - It closes when focus leaves it, so it can't cover the next focused tile.
+    - Keyboard focus on a type chip no longer dims the wall; only mouse hover previews.
+    - The live caption changes only when its text does.
+  - **Highlight mode:** non-matching tiles turn gray and their photos fade, instead of the whole tile fading to 35%.
+    Their text keeps full contrast: 6.63:1 light and 5.8:1 dark, up from about 1.7–2.6:1.
+  - **Text over photos:** the scrims meet AA even over a white image.
+    - Home hero: .70–.85; its small "kicker" label is now cream.
+    - Post hero: at least .85 behind its text.
+    - Photo tile captions: at least .85.
+  - **Lightbox:**
+    - The counter and alt text change only when the new photo has loaded, so they always describe the photo on
+      screen; the neighbors are preloaded.
+    - Home and End keys, and swipe.
+    - No Previous or Next buttons for a single photo.
+    - The page doesn't scroll behind it.
+    - It uses dynamic viewport units (`dvh`).
+  - **Gallery titles:** a gallery photo without a title still gets "Photo N" alt text, and the build now warns.
+  - **Post header:** categories are links.
+  - **Forced colors:** the Group switch was invisible (1:1). Its knob is now 21:1 when off and 14.37:1 when on.
+    Pressed chips and the current page use the system highlight.
+  - **Print:** a print stylesheet prints black on white, without the nav, controls or comments.
+
 ## [1.1.1] - Unreleased
 
 ### Fixed
