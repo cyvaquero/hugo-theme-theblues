@@ -105,7 +105,7 @@ A site can add its own page types without overriding theme files:
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
   `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
-  `--serif`, `--sans`, `--wide` and `--measure`. Their names are kept stable; a rename or removal is called out in the
+  `--scrim` (the navy scrim over photos, as RGB channels: `rgb(var(--scrim) / .8)`), `--serif`, `--sans`, `--wide` and `--measure`. Their names are kept stable; a rename or removal is called out in the
   CHANGELOG.
 
 ## Layout

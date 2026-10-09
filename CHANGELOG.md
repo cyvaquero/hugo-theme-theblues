@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.16] - Unreleased
+
+### Changed
+- The heroes, photo tile badges and captions, and the lightbox take their cream, sand and scrim colors from the color
+  tokens instead of repeating the hex values. Nothing looks different: the computed colors of every element on eight
+  page types, in both modes, at 1280 and 375 px wide, with the lightbox open and a photo tile focused, are unchanged.
+  A new `--scrim` token holds the navy scrim color for a site's own CSS (#5).
+
 ## [1.1.15] - Unreleased
 
 ### Fixed
