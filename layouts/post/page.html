@@ -16,7 +16,8 @@
     {{ with (.Params.subtitle | default .Description) }}<p class="sub">{{ . }}</p>{{ end }}
     <div class="meta">
       {{- with .GetTerms "categories" }}{{ range $i, $c := . }}{{ if $i }}, {{ end }}<a href="{{ $c.RelPermalink }}">{{ $c.LinkTitle | title }}</a>{{ end }} &middot; {{ end -}}
-      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>
+      {{- if .Date.IsZero }}{{ warnf "%s has no date; it is shown as Undated. Set date in its front matter (#36)." .File.Path }}Undated
+      {{- else }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>{{ end }}
       {{- if $photo }}{{ with partialCached "photos.html" . .Path }} &middot; {{ len . }} {{ cond (eq (len .) 1) "photo" "photos" }}{{ end }}
       {{- else }} &middot; {{ .ReadingTime }} min read{{ end -}}
       {{- range .GetTerms "tags" }} <a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}

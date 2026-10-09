@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.15] - Unreleased
+
+### Fixed
+- A post without a `date` no longer shows "Jan 1, 0001" (#36):
+  - The post header, its wall tiles, the archive (under an "Undated" heading) and the series box show "Undated".
+  - The build warns, naming the file.
+  - Feed items have no `pubDate`. The theme's feed template now covers section and term feeds too, not just the home
+    feed, and is otherwise Hugo's.
+  - Undated posts sort after dated ones on the wall.
+
 ## [1.1.14] - Unreleased
 
 ### Security

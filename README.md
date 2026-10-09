@@ -157,15 +157,17 @@ layouts/_markup/           render-link, render-image
 - Wall pages after the first (`/page/2/`, …) use page 1's canonical URL and title, and have no `rel=prev/next` in the head:
   the head is rendered before the wall builds its paginator, so it can't know the page number. The pager links carry
   `rel=prev` and `rel=next`.
+- A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall, has no
+  `pubDate` in feeds, and the build warns.
 - Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
   `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`). The theme sets no referrer policy; browsers default to
   `strict-origin-when-cross-origin`, which a site can also send as a header.
 - The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
   sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
-- The theme's home feed (`layouts/home.rss.xml`) lists only pages in the main sections (`site.MainSections`, `post` by
-  default). The `search` section still gets its own empty feed; a site can turn it off with `outputs: [html]` in
-  `content/search/_index.md`.
+- The theme's feed template (`layouts/rss.xml`, used for the home, section and term feeds) lists only pages in the main
+  sections on the home feed (`site.MainSections`, `post` by default). The `search` section still gets its own empty
+  feed; a site can turn it off with `outputs: [html]` in `content/search/_index.md`.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
 - `.highlight` code blocks stay light in dark mode, since they show the light inline Chroma style's own colors (for
   example `modus-operandi`).

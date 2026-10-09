@@ -9,7 +9,7 @@
   <strong class="t">Part {{ add $idx 1 }} of {{ len $pages }}: <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></strong>
   <ol>
     {{- range $i, $p := $pages }}
-    <li>{{ if eq $i $idx }}<strong aria-current="page">{{ add $i 1 }}. {{ $p.Title }}</strong>{{ else }}<a href="{{ $p.RelPermalink }}">{{ add $i 1 }}. {{ $p.Title }}</a>{{ end }}<span class="meta">{{ $p.Date.Format "Jan 2006" }}</span></li>
+    <li>{{ if eq $i $idx }}<strong aria-current="page">{{ add $i 1 }}. {{ $p.Title }}</strong>{{ else }}<a href="{{ $p.RelPermalink }}">{{ add $i 1 }}. {{ $p.Title }}</a>{{ end }}<span class="meta">{{ if $p.Date.IsZero }}Undated{{ else }}{{ $p.Date.Format "Jan 2006" }}{{ end }}</span></li>
     {{- end }}
   </ol>
   <div class="pager">

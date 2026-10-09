@@ -11,7 +11,7 @@
   if (!stage || !ctl) return;
 
   var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  function fd(d) { var p = d.split('-'); return MO[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
+  function fd(d) { if (!d) return 'Undated'; var p = d.split('-'); return MO[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
   function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
 
   // Collect the tiles the server rendered.
