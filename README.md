@@ -148,6 +148,12 @@ layouts/_markup/           render-link, render-image
   affect wall pages.
   `tilesPerPage` must be 1 or more; anything else fails the build. The pager shows the first and last pages and two on
   each side of the current one.
+- Wall pages after the first (`/page/2/`, …) use page 1's canonical URL and title, and have no `rel=prev/next` in the head:
+  the head is rendered before the wall builds its paginator, so it can't know the page number. The pager links carry
+  `rel=prev` and `rel=next`.
+- The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
+  sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
+  (use Hugo's `enableRobotsTXT`) and no JSON-LD.
 - The theme's home feed (`layouts/home.rss.xml`) lists only pages in the main sections (`site.MainSections`, `post` by
   default). The `search` section still gets its own empty feed; a site can turn it off with `outputs: [html]` in
   `content/search/_index.md`.
