@@ -35,10 +35,10 @@
 {{ $toc := and (ne (.Param "showtoc") false) (in .TableOfContents "<li>") }}
 <div class="apage{{ if $toc }} has-toc{{ end }}">
   {{ if $toc }}
-  <aside class="toc" aria-label="Table of contents">
+  <div class="toc">
     <strong>On this page</strong>
-    {{ .TableOfContents }}
-  </aside>
+    {{ replace .TableOfContents `<nav id="TableOfContents">` `<nav id="TableOfContents" aria-label="Table of contents">` | safeHTML }}
+  </div>
   {{ end }}
   <article>
     <div class="abody">{{ .Content }}</div>

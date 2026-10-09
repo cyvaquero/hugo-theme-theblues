@@ -3,6 +3,29 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.1] - Unreleased
+
+### Fixed
+- Keyboard focus on the wall (#19). Measured in headless Chrome on guyheckman.me:
+  - **Tile focus rings:** article tiles drew their ring in sand on the cream page, 1.59:1. Photo, see-all and article
+    tiles now share a solid `--focus` ring: 5.37:1 in light mode, 8.06:1 in dark.
+  - **Highlight mode:** matching tiles get a dashed outline instead of a solid sand one, so the focused tile stands out.
+  - **Tag links in article tiles:** their focus ring is sand on the navy tile (6.63:1, was 1.96:1). They are 24px
+    tall, up from 15px.
+  - **Older browsers:** the tile rings need `:has()`. They are now applied only where it is supported, and the link
+    keeps its own ring elsewhere.
+  - **Clear and Reset:** they no longer drop focus to the page. Clear moves it to the "All" chip; Reset closes the
+    popover and returns to "View options".
+  - **Escape:** one press with the menu and the popover open closes only the popover.
+  - **Accessible names:**
+    - "View options" with its badge reads "View options 1 active".
+    - The Group switch no longer includes its On/Off text.
+    - Selected chips and group headings no longer include their ✓ and ▸/▾ glyphs.
+  - **Heading outline:** a visually hidden "Posts" `h2` above the wall gives h1 > h2 > h3.
+  - **Table of contents:** it is a `nav` named "Table of contents" instead of an unnamed `nav` inside a named
+    `aside`. The sticky version scrolls when it is taller than the window: the Markdown cheatsheet's was 847px.
+  - **External links:** they say "(opens in a new tab)" to screen readers.
+
 ## [1.1.0] - 2026-10-08
 
 ### Added

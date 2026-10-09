@@ -68,7 +68,7 @@ The templates assume this layout; other structures are not supported yet.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A path to a page or page resource resolves to its permalink, as with Hugo's built-in hooks. Links to other
-  hosts open in a new tab. A titled image is a `<figure>` with a caption only when it stands alone and the site sets
+  hosts open in a new tab, with visually hidden "(opens in a new tab)" text for screen readers. A titled image is a `<figure>` with a caption only when it stands alone and the site sets
   `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title is the tooltip.
 
 ## Shortcodes

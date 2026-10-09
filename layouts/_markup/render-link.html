@@ -2,7 +2,7 @@
   Markdown links. Only http, https, mailto and tel URLs and scheme-less paths are linked; anything else (javascript:,
   data:, vbscript:, or a URL that doesn't parse) renders the text without an href, as Goldmark does by default. A path
   that names a page or a page resource resolves to its permalink, like Hugo's built-in hook. Links to other hosts open
-  in a new tab.
+  in a new tab, and say so to screen readers.
 */ -}}
 {{- $href := "" -}}
 {{- $external := false -}}
@@ -27,5 +27,5 @@
     {{- end -}}
   {{- end -}}
 {{- end -}}
-<a{{ with $href }} href="{{ . | safeURL }}"{{ end }}{{ with .Title }} title="{{ . }}"{{ end }}{{ if $external }} target="_blank" rel="noopener"{{ end }}>{{ .Text }}</a>
+<a{{ with $href }} href="{{ . | safeURL }}"{{ end }}{{ with .Title }} title="{{ . }}"{{ end }}{{ if $external }} target="_blank" rel="noopener"{{ end }}>{{ .Text }}{{ if $external }}<span class="vh"> (opens in a new tab)</span>{{ end }}</a>
 {{- /* No trailing newline: it would add a space after every link. */ -}}

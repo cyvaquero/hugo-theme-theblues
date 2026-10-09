@@ -14,6 +14,6 @@
     if (links.classList.contains('open') && !e.target.closest('nav.site')) set(false);
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && links.classList.contains('open')) set(false, true);
+    if (e.key === 'Escape' && !e.defaultPrevented && links.classList.contains('open')) set(false, true);
   });
 })();
