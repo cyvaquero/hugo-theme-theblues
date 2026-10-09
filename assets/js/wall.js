@@ -25,7 +25,7 @@
     items.push(it);
     if (it.t === 'p') {
       var g = galleries[it.key];
-      if (!g) { g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, n: 0 }; galleryList.push(g); }
+      if (!g) { g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, ord: it.ord, n: 0 }; galleryList.push(g); }
       g.n += it.more >= 0 ? it.more : 1;  // heading counts the whole gallery (shown plus hidden)
     }
   });
@@ -40,9 +40,14 @@
   function qa(sel) { return [].slice.call(ctl.querySelectorAll(sel)); }
   var vb = document.getElementById('vb'), pop = document.getElementById('pop'), cap = ctl.querySelector('.cap');
 
-  // Sorting: newest/oldest by date, ties keep the server order; "Galleries first" and "Articles first" group by type.
+  // Sorting: newest/oldest by date; "Galleries first" and "Articles first" group by type. data-date holds only the day, so
+  // ties fall back to the server order (newest first, by full timestamp): reversed for Oldest first, except within one
+  // gallery, whose photos keep their order and its see-all tile stays last (#32).
   function byDate(dir) {
-    return function (x, y) { return x.date === y.date ? x.ord - y.ord : (x.date < y.date ? 1 : -1) * dir; };
+    return function (x, y) {
+      if (x.date !== y.date) return (x.date < y.date ? 1 : -1) * dir;
+      return x.t === 'p' && y.t === 'p' && x.key === y.key ? x.ord - y.ord : (x.ord - y.ord) * dir;
+    };
   }
   function sorter() {
     var c = byDate(S.s === 'old' ? -1 : 1);
@@ -88,7 +93,7 @@
       stage.appendChild(m);
     } else {
       var dir = S.s === 'old' ? -1 : 1, secs = [];
-      galleryList.slice().sort(function (x, y) { return x.date === y.date ? 0 : (x.date < y.date ? 1 : -1) * dir; })
+      galleryList.slice().sort(function (x, y) { return x.date === y.date ? (x.ord - y.ord) * dir : (x.date < y.date ? 1 : -1) * dir; })
         .forEach(function (g) {
           secs.push({
             k: g.key, title: g.name, extra: fd(g.date) + ' · ' + plural(g.n, 'photo'),
