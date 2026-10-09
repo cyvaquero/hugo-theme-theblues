@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.17] - Unreleased
+
+### Changed
+- Text in a photo post, around its galleries, is styled like an article: serif body text, headings, quotes, tables,
+  code and code blocks, figures and captions, in a 44rem column. The galleries are unchanged, and so is every page
+  whose photo posts have only galleries, which is all of them on guyheckman.me today (computed styles compared on
+  eight page types, both modes, two widths) (#5).
+
 ## [1.1.16] - Unreleased
 
 ### Changed

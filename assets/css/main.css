@@ -254,7 +254,9 @@ details.grp > summary .meta { font: 400 .85rem var(--sans); }
 
 /* 10 Photo post and lightbox ------------------------------------------------------------------------------ */
 /* The galleries shortcode emits .mas.gal (wide masonry); other content in a photo post keeps the reading width. */
-.pbody > :not(.gal) { max-width: var(--measure); margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+/* Text keeps a 44rem column with 1rem gutters. Margins, not padding, so code, quote and table backgrounds line up with
+   the text, as in articles. */
+.pbody > :not(.gal) { margin-inline: max(1rem, (100% - var(--measure)) / 2 + 1rem); }
 .gal { max-width: var(--wide); margin: 1.5rem auto 0; padding: 0 1rem; }
 .gal figure { margin: 0 0 var(--gap); break-inside: avoid; border-radius: 8px; overflow: hidden; background: var(--code); }
 .gal a { display: block; }
@@ -282,36 +284,40 @@ dialog.lb button:hover { color: var(--hv); }
   .apage.has-toc { grid-template-columns: 14rem minmax(0, 1fr); gap: 3rem; }
   .toc { position: sticky; top: 1rem; align-self: start; max-height: calc(100vh - 2rem); overflow: auto; }
 }
-.abody { font-family: var(--serif); font-size: 1.1rem; line-height: 1.75; max-width: 42rem; overflow-wrap: break-word; }
-.abody h1, .abody h2, .abody h3 { font-family: var(--serif); line-height: 1.3; margin: 2rem 0 .5rem; }
-.abody h1 { font-size: 1.8rem; }
-.abody h2 { font-size: 1.5rem; }
-.abody h3 { font-size: 1.25rem; }
-.abody > :first-child { margin-top: 0; }
-.abody img { height: auto; border-radius: 6px; }
-.abody figure { margin: 1.8rem 0; }
-.abody figcaption { font: .85rem var(--sans); color: var(--muted); text-align: center; margin-top: .4rem; }
-.abody blockquote { margin-inline: 0; padding-left: 1rem; border-left: 4px solid var(--line); color: var(--muted); }
-.abody table { border-collapse: collapse; max-width: 100%; display: block; overflow-x: auto; }
-.abody th, .abody td { border: 1px solid var(--line); padding: .4rem .7rem; }
-.abody code { font-size: .9em; background: var(--code); border-radius: 4px; padding: .05em .3em; }
-.abody pre { background: var(--code); padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; line-height: 1.5; }
-.abody pre code { background: none; padding: 0; font-size: inherit; }
+/* Prose: article bodies (.abody) and the text of photo posts (.pbody, #5). Photo posts keep their galleries out of it:
+   the font goes on the .pbody children that aren't a gallery, and figure and image rules skip anything inside .gal.
+   The :where() parts add no specificity, so the photo-post column margins (section 10) still apply. */
+.abody { max-width: 42rem; }
+.abody, .pbody > :where(:not(.gal)) { font-family: var(--serif); font-size: 1.1rem; line-height: 1.75; overflow-wrap: break-word; }
+:is(.abody, .pbody) :is(h1, h2, h3) { font-family: var(--serif); line-height: 1.3; margin: 2rem 0 .5rem; }
+:is(.abody, .pbody) h1 { font-size: 1.8rem; }
+:is(.abody, .pbody) h2 { font-size: 1.5rem; }
+:is(.abody, .pbody) h3 { font-size: 1.25rem; }
+:is(.abody, .pbody) > :first-child:not(.gal) { margin-top: 0; }
+:is(.abody, .pbody) img:where(:not(.gal *)) { height: auto; border-radius: 6px; }
+:is(.abody, .pbody) figure:where(:not(.gal *)) { margin: 1.8rem 0; }
+:is(.abody, .pbody) figcaption:where(:not(.gal *)) { font: .85rem var(--sans); color: var(--muted); text-align: center; margin-top: .4rem; }
+:is(.abody, .pbody) blockquote { margin-inline: 0; padding-left: 1rem; border-left: 4px solid var(--line); color: var(--muted); }
+:is(.abody, .pbody) table { border-collapse: collapse; max-width: 100%; display: block; overflow-x: auto; }
+:is(.abody, .pbody) :is(th, td) { border: 1px solid var(--line); padding: .4rem .7rem; }
+:is(.abody, .pbody) code { font-size: .9em; background: var(--code); border-radius: 4px; padding: .05em .3em; }
+:is(.abody, .pbody) pre { background: var(--code); padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; line-height: 1.5; }
+:is(.abody, .pbody) pre code { background: none; padding: 0; font-size: inherit; }
 /* Hugo's highlighted blocks use a light inline Chroma style (for example modus-operandi), whose inline text and
    background colors on the block override these rules, so the block stays light in both modes. The wrapper sets no
    colors of its own; it rounds the corners and lets long lines scroll inside the block. Without inline colors the block
    falls back to the plain `pre` colors above. */
-.abody .highlight { border-radius: 6px; overflow: auto; margin: 1rem 0; }
-.abody .highlight pre { margin: 0; border-radius: 0; }
-.abody .highlight table { display: table; width: auto; border: 0; }
-.abody .highlight td, .abody .highlight th { border: 0; padding: 0; }
-.abody .highlight code { background: none; padding: 0; }
-.abody iframe { border: 0; }
+:is(.abody, .pbody) .highlight { border-radius: 6px; overflow: auto; margin-block: 1rem; }
+:is(.abody, .pbody) .highlight pre { margin: 0; border-radius: 0; }
+:is(.abody, .pbody) .highlight table { display: table; width: auto; border: 0; }
+:is(.abody, .pbody) .highlight :is(td, th) { border: 0; padding: 0; }
+:is(.abody, .pbody) .highlight code { background: none; padding: 0; }
+:is(.abody, .pbody) iframe { border: 0; }
 .abody .gal { max-width: none; padding: 0; }
 .abt2 { max-width: var(--measure); margin: 1.5rem auto 0; padding: 0 1rem; }
-/* Photo-post and page bodies (.pbody, .pb) don't get the article prose rules; keep wide content inside them (#13). */
-.pbody img, .pb img { height: auto; }
-.pbody pre, .pb pre, .pbody table, .pb table { max-width: 100%; overflow-x: auto; }
+/* Page bodies (.pb) don't get the prose rules; keep wide content inside them (#13). */
+.pb img { height: auto; }
+.pb pre, .pb table { max-width: 100%; overflow-x: auto; }
 
 /* 12 Archive, tag index, About ---------------------------------------------------------------------------- */
 .atw { max-width: var(--measure); margin: 0 auto; padding: 2rem 1rem 0; }
