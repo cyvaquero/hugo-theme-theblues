@@ -1,8 +1,8 @@
 # The Blues
 
 A responsive, accessible Hugo theme for [guyheckman.me](https://guyheckman.me). Replaces the Clean White theme.
-Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark modes
-(`prefers-color-scheme`).
+Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark modes. The mode
+follows the system setting (`prefers-color-scheme`) unless the reader picks Light or Dark with the switch in the nav.
 
 It has a hero with a wavy-underlined slogan, a full-width masonry wall (three columns from 900 px) that mixes photo tiles and
 article tiles, a calm "View options" popover (filter or highlight by type, sort, group by gallery), photo posts with a masonry
@@ -20,8 +20,9 @@ the site's real content to the same 30 URLs as Clean White with no Hugo warnings
   (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
   stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
   same rule.
-- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is five small files:
-  - `menu.js`, on every page;
+- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is six small files:
+  - `theme.js` (in `<head>`, not deferred, so a picked mode applies before the first paint) and `menu.js`, on every
+    page;
   - `wall.js` and `gallery.js`, only where needed;
   - `analytics.js`, only when the site sets a GA ID, and only in production builds;
   - `comments.js`, on posts when the site sets a Disqus shortname.
@@ -78,6 +79,11 @@ The templates assume this layout; other structures are not supported yet.
 
   To use your own, put files with the same names in the site's `static/`, which takes precedence over the theme's. The
   `<meta name="theme-color">` is navy `#1B3C53` in light mode and `#0F2332` in dark, the nav band's colors.
+- **Color theme switch:** the last item of the nav, inline from 821px and inside the hamburger menu below that. Three
+  buttons, System (the default), Light and Dark, with `aria-pressed` on the current one. `theme.js` sets
+  `data-theme="light"` or `"dark"` on `<html>`, keeps the choice in `localStorage` under `theme` (System removes it),
+  updates `<meta name="color-scheme">` and both `theme-color` metas, keeps other open tabs in step, and reloads loaded
+  Disqus comments so they match. Without JavaScript the switch is hidden and the mode follows the system.
 - **Share image (`og:image`):** a page's own `image`, or the first photo of a photo post. Otherwise `params.og_image`
   if set, and otherwise the cover, which is the site's `header_image`.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
@@ -106,13 +112,16 @@ A site can add its own page types without overriding theme files:
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
   `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
-  `--scrim` (the navy scrim over photos, as RGB channels: `rgb(var(--scrim) / .8)`), `--serif`, `--sans`, `--wide` and `--measure`. Their names are kept stable; a rename or removal is called out in the
-  CHANGELOG.
+  `--scrim` (the navy scrim over photos, as RGB channels: `rgb(var(--scrim) / .8)`), `--serif`, `--sans`, `--wide` and
+  `--measure`. Their names are kept stable; a rename or removal is called out in the CHANGELOG.
+  A site's own dark-mode colors should use the theme's two dark selectors, so they follow the switch as well as the
+  system: `@media (prefers-color-scheme: dark) { :root:not([data-theme=light]) … }` and `:root[data-theme=dark] …`.
 
 ## Layout
 
 ```
 assets/css/main.css        tokens (palette) and all styles
+assets/js/theme.js         color theme switch (System, Light, Dark): sets data-theme on <html> before the first paint
 assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; without JavaScript, assets/css/nojs.css shows the links)
 assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery

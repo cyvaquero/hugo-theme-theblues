@@ -3,6 +3,21 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.19] - Unreleased
+
+### Added
+- A color theme switch in the nav: System (the default, follows the device setting), Light and Dark (#22).
+  - Three icon buttons named System, Light and Dark, with the current one pressed (`aria-pressed`). They sit inline
+    from 821px and in the hamburger menu below that, with 44px targets on touch screens, the sand focus ring and a
+    Highlight state in forced-colors mode. Icon, pressed fill and outline contrast are 6.6:1 or more on the nav band.
+  - The choice is kept in `localStorage`, applies before the first paint (`theme.js` is a small blocking script in
+    `<head>`, so a CSP needs no hash), and keeps other open tabs in step. Where storage is blocked it still works for
+    the page.
+  - `color-scheme` and both `theme-color` metas follow the picked mode, and loaded Disqus comments reload to match.
+  - Every element's computed colors in a picked mode match the same mode chosen by the system, so the measured
+    contrast carries over. With no choice stored, pages are unchanged.
+  - Without JavaScript the switch is hidden and the mode follows the system, as before.
+
 ## [1.1.18] - Unreleased
 
 ### Added
