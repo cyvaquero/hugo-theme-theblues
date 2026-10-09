@@ -1,7 +1,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {{ $pt := partial "page-title.html" . }}
-{{ $title := cond .IsHome (site.Params.SEOTitle | default site.Title) (printf "%s | %s" $pt (site.Params.SEOTitle | default site.Title)) }}
+{{ $st := site.Params.SEOTitle | default site.Title }}
+{{- /* "Page | Site", or just the page title when the site title is empty (#18). */}}
+{{ $title := cond .IsHome ($st | default $pt) (cond (ne $st "") (printf "%s | %s" $pt $st) $pt) }}
 {{ $desc := .Description | default site.Params.description }}
 {{ $img := partialCached "cover.html" . .Path }}
 {{- /* Share image: the page's own image or first photo, else params.og_image, else the cover (the header image). */}}

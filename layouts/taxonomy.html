@@ -8,7 +8,8 @@
   <p class="meta">Every {{ .Data.Singular }} on the site, A to Z, with post counts.</p>
   {{ with .Content }}{{ . }}{{ end }}
   {{ $cur := "" }}
-  {{- range .Data.Terms.Alphabetical }}
+  {{- /* Sorted by the term page's title, which is what's listed and grouped by (a term's _index.md can retitle it, #18). */}}
+  {{- range sort .Data.Terms.Alphabetical "Page.Title" }}
     {{- $n := len (where .Pages "Section" "post") }}
     {{- if not $n }}{{ continue }}{{ end }}
     {{- $name := .Page.Title }}
