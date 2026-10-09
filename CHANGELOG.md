@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.14] - Unreleased
+
+### Security
+- The `embed` shortcode fails the build for a URL on the site's own host. The sandbox it sets, `allow-scripts` plus
+  `allow-same-origin`, lets a same-origin page lift its own sandbox, so it protects only cross-origin frames such as
+  SmugMug embeds, which still work (#37).
+
 ## [1.1.13] - Unreleased
 
 ### Fixed
