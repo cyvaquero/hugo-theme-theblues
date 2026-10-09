@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.13] - Unreleased
+
+### Fixed
+- Moving through the lightbox announces the position and the photo's description ("Photo 4 of 18: La Huasteca")
+  instead of only the counter "4 / 18". The visible counter is unchanged (#38).
+
 ## [1.1.12] - Unreleased
 
 ### Fixed

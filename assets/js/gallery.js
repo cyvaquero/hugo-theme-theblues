@@ -19,14 +19,17 @@
   var inner = el('div', { 'class': 'in' }), bar = el('div', { 'class': 'bb' });
   inner.appendChild(el('img', { alt: '' }));
   bar.appendChild(el('button', { type: 'button', 'data-a': 'p', 'aria-label': 'Previous photo' }, 'Previous'));
-  bar.appendChild(el('span', { 'class': 'count', 'aria-live': 'polite' }));
+  // The visible counter ("4 / 18") is hidden from screen readers; a visually hidden live region announces the position
+  // and the photo's alt text instead ("Photo 4 of 18: La Huasteca", #38).
+  bar.appendChild(el('span', { 'class': 'count', 'aria-hidden': 'true' }));
+  bar.appendChild(el('span', { 'class': 'vh', 'aria-live': 'polite' }));
   bar.appendChild(el('button', { type: 'button', 'data-a': 'n', 'aria-label': 'Next photo' }, 'Next'));
   bar.appendChild(el('button', { type: 'button', 'data-a': 'c', 'aria-label': 'Close photo viewer' }, 'Close'));
   inner.appendChild(bar);
   dlg.appendChild(inner);
   document.body.appendChild(dlg);
 
-  var img = dlg.querySelector('img'), count = dlg.querySelector('.count');
+  var img = dlg.querySelector('img'), count = dlg.querySelector('.count'), say = dlg.querySelector('[aria-live]');
   var prev = dlg.querySelector('[data-a="p"]'), next = dlg.querySelector('[data-a="n"]');
   var list = [], idx = 0, opener = null, seq = 0;
 
@@ -41,6 +44,7 @@
       img.src = pre.src || (thumb ? thumb.src : '');
       img.alt = thumb ? thumb.alt : '';
       count.textContent = (idx + 1) + ' / ' + list.length;
+      say.textContent = 'Photo ' + (idx + 1) + ' of ' + list.length + (img.alt ? ': ' + img.alt : '');
       dlg.removeAttribute('aria-busy');
       preload(idx + 1); preload(idx - 1);
     }
@@ -58,7 +62,7 @@
       list = [].slice.call(g.querySelectorAll('a'));
       opener = a;
       prev.hidden = next.hidden = list.length < 2;
-      img.removeAttribute('src'); img.alt = ''; count.textContent = '';
+      img.removeAttribute('src'); img.alt = ''; count.textContent = ''; say.textContent = '';
       show(list.indexOf(a));
       dlg.showModal();
       dlg.querySelector('[data-a="c"]').focus();
