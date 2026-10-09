@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.12] - Unreleased
+
+### Fixed
+- The see-all tile's accessible name starts with its visible text ("Boston Gallery, 14 more photos, see all 18"), so a
+  voice-control user can say what they see. It was "See all 18 photos in Boston Gallery" (WCAG 2.5.3, #34).
+
 ## [1.1.11] - Unreleased
 
 ### Fixed
