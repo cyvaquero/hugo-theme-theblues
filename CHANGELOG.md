@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.18] - Unreleased
+
+### Added
+- Highlighted code blocks follow light and dark mode when the site sets `[markup.highlight] noClasses = false`. The
+  theme colors Chroma's classes with the modus-operandi palette in light mode and modus-vivendi in dark, on the theme's
+  code background. Every token measures 4.8:1 or more in both modes, line numbers included (on a highlighted line they
+  take the text color). With Hugo's default inline styles nothing changes (computed styles compared on eight page types,
+  both modes, two widths) (#5).
+
 ## [1.1.17] - Unreleased
 
 ### Changed

@@ -39,6 +39,17 @@
   --art-fg: #F9F3EF;
   --art-sub: #D2C1B6;
   --art-line: #D2C1B6;
+  /* Code highlighting (Chroma classes, section 11): the modus-operandi colors, all 5.3:1 or more on --code and on the
+     highlighted-line background --sx-hl. */
+  --sx-kw: #5317ac;         /* keywords */
+  --sx-num: #0000c0;        /* numbers, literals, constants */
+  --sx-type: #005a5f;
+  --sx-bi: #8f0075;         /* builtins */
+  --sx-var: #00538b;        /* variables, operators */
+  --sx-fn: #721045;         /* function names */
+  --sx-str: #2544bb;
+  --sx-com: #505050;        /* comments */
+  --sx-hl: #DED0C5;
   --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --wide: 72rem;            /* page container */
@@ -61,6 +72,16 @@
     --on-fg: #142E40;
     --art-bg: #1E4560;
     --art-line: #456882;
+    /* modus-vivendi, 4.8:1 or more on --code and --sx-hl */
+    --sx-kw: #b6a0ff;
+    --sx-num: #00bcff;
+    --sx-type: #6ae4b9;
+    --sx-bi: #f78fe7;
+    --sx-var: #00d3d0;
+    --sx-fn: #feacd0;
+    --sx-str: #79a8ff;
+    --sx-com: #a8a8a8;
+    --sx-hl: #1B3C53;
   }
 }
 
@@ -303,15 +324,31 @@ dialog.lb button:hover { color: var(--hv); }
 :is(.abody, .pbody) code { font-size: .9em; background: var(--code); border-radius: 4px; padding: .05em .3em; }
 :is(.abody, .pbody) pre { background: var(--code); padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; line-height: 1.5; }
 :is(.abody, .pbody) pre code { background: none; padding: 0; font-size: inherit; }
-/* Hugo's highlighted blocks use a light inline Chroma style (for example modus-operandi), whose inline text and
-   background colors on the block override these rules, so the block stays light in both modes. The wrapper sets no
-   colors of its own; it rounds the corners and lets long lines scroll inside the block. Without inline colors the block
-   falls back to the plain `pre` colors above. */
+/* Hugo's highlighted blocks (<div class="highlight"><pre class="chroma">). With markup.highlight.noClasses = false the
+   tokens get Chroma classes, colored below from the --sx-* tokens, so code follows light and dark mode. With Hugo's
+   default inline styles the style's own colors win and the block keeps them in both modes. The wrapper rounds the
+   corners and lets long lines scroll inside the block. */
 :is(.abody, .pbody) .highlight { border-radius: 6px; overflow: auto; margin-block: 1rem; }
 :is(.abody, .pbody) .highlight pre { margin: 0; border-radius: 0; }
 :is(.abody, .pbody) .highlight table { display: table; width: auto; border: 0; }
 :is(.abody, .pbody) .highlight :is(td, th) { border: 0; padding: 0; }
 :is(.abody, .pbody) .highlight code { background: none; padding: 0; }
+.chroma { color: var(--text); background-color: var(--code); tab-size: 4; -webkit-text-size-adjust: none; }
+.chroma .lnlinks { outline: none; text-decoration: none; color: inherit; }
+.chroma .lntd { vertical-align: top; padding: 0; margin: 0; border: 0; }
+.chroma .lntable { border-spacing: 0; padding: 0; margin: 0; border: 0; }
+.chroma .line { display: flex; }
+.chroma :is(.lnt, .ln) { white-space: pre; -webkit-user-select: none; user-select: none; margin-right: .4em; padding: 0 .4em; color: var(--muted); }
+.chroma .hl { background-color: var(--sx-hl); }
+.chroma .hl :is(.lnt, .ln), .chroma .hl:is(.lnt, .ln) { color: var(--text); }  /* --muted is 3.9:1 on --sx-hl */
+.chroma :is(.k, .kd, .kn, .kp, .kr) { color: var(--sx-kw); }
+.chroma :is(.kc, .l, .ld, .m, .mb, .mf, .mh, .mi, .il, .mo) { color: var(--sx-num); }
+.chroma .kt { color: var(--sx-type); }
+.chroma :is(.nb, .bp) { color: var(--sx-bi); }
+.chroma :is(.nv, .vc, .vg, .vi, .vm, .o, .ow, .or) { color: var(--sx-var); }
+.chroma :is(.nf, .fm) { color: var(--sx-fn); }
+.chroma :is(.s, .sa, .sb, .sc, .dl, .sd, .s2, .se, .sh, .si, .sx, .sr, .s1, .ss) { color: var(--sx-str); }
+.chroma :is(.c, .ch, .cm, .c1, .cs, .cp, .cpf) { color: var(--sx-com); }
 :is(.abody, .pbody) iframe { border: 0; }
 .abody .gal { max-width: none; padding: 0; }
 .abt2 { max-width: var(--measure); margin: 1.5rem auto 0; padding: 0 1rem; }
