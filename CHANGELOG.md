@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.11] - Unreleased
+
+### Fixed
+- Highlighted code blocks show the Chroma style's own background instead of a hard-coded `monokailight` gray
+  (`#fafafa`) around them, and the README and CSS comments no longer name `monokailight`. They describe any light
+  inline Chroma style, for example `modus-operandi`, which the site uses. Code blocks stay light in dark mode (#44).
+
 ## [1.1.3] - Unreleased
 
 ### Added
