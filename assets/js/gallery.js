@@ -9,11 +9,21 @@
   var dlg = document.createElement('dialog');
   dlg.className = 'lb';
   dlg.setAttribute('aria-label', 'Photo viewer');
-  dlg.innerHTML = '<div class="in"><img alt="">' +
-    '<div class="bb"><button type="button" data-a="p" aria-label="Previous photo">Previous</button>' +
-    '<span class="count" aria-live="polite"></span>' +
-    '<button type="button" data-a="n" aria-label="Next photo">Next</button>' +
-    '<button type="button" data-a="c" aria-label="Close photo viewer">Close</button></div></div>';
+  // Built with DOM calls, not innerHTML, so it works under a Trusted Types CSP (#16).
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text) e.textContent = text;
+    return e;
+  }
+  var inner = el('div', { 'class': 'in' }), bar = el('div', { 'class': 'bb' });
+  inner.appendChild(el('img', { alt: '' }));
+  bar.appendChild(el('button', { type: 'button', 'data-a': 'p', 'aria-label': 'Previous photo' }, 'Previous'));
+  bar.appendChild(el('span', { 'class': 'count', 'aria-live': 'polite' }));
+  bar.appendChild(el('button', { type: 'button', 'data-a': 'n', 'aria-label': 'Next photo' }, 'Next'));
+  bar.appendChild(el('button', { type: 'button', 'data-a': 'c', 'aria-label': 'Close photo viewer' }, 'Close'));
+  inner.appendChild(bar);
+  dlg.appendChild(inner);
   document.body.appendChild(dlg);
 
   var img = dlg.querySelector('img'), count = dlg.querySelector('.count');

@@ -1,4 +1,18 @@
-{{/* Disqus on blog posts only (decision D8). Included from post/page.html. */}}
-{{ if site.Config.Services.Disqus.Shortname }}
-<div class="comments" id="disqus-comment">{{ template "_internal/disqus.html" . }}</div>
+{{- /*
+  Disqus on blog posts only (decision D8), click to load (#16): the page shows a "Show comments" button, and
+  assets/js/comments.js loads Disqus only when it is clicked. Development builds show a note instead. Optional front
+  matter disqus_url, disqus_identifier and disqus_title are passed to Disqus. Included from post/page.html.
+*/ -}}
+{{ with site.Config.Services.Disqus.Shortname }}
+{{- $.Store.Set "hasComments" true }}
+<div class="comments" id="disqus-comment">
+  {{- if hugo.IsProduction }}
+  <button type="button" class="showc" hidden data-shortname="{{ . }}"{{ with $.Params.disqus_url }} data-url="{{ . }}"{{ end }}{{ with $.Params.disqus_identifier }} data-identifier="{{ . }}"{{ end }}{{ with $.Params.disqus_title }} data-title="{{ . }}"{{ end }}>Show comments</button>
+  <noscript><p class="meta">Comments need JavaScript.</p></noscript>
+  {{- else }}
+  <p class="meta">Disqus comments are not loaded in development builds.</p>
+  {{- end }}
+  <div id="disqus_thread"></div>
+  <p class="meta">Comments are hosted by <a href="https://disqus.com/">Disqus</a>. Showing them sends your visit to Disqus and its partners.</p>
+</div>
 {{ end }}

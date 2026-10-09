@@ -3,6 +3,20 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.10] - Unreleased
+
+### Changed
+- Disqus comments are click to load. Posts show a "Show comments" button, and nothing from Disqus, or the ad trackers
+  it brings, is requested until a reader clicks it. Focus then moves to the comments. Development builds show a note
+  instead (#16).
+- The GA and Disqus loaders are small theme files (`assets/js/analytics.js`, `assets/js/comments.js`) instead of Hugo's
+  inline templates, so pages have no inline scripts. A site CSP no longer needs `script-src` hashes for them (#16).
+
+### Security
+- Visitors who send Do Not Track or Global Privacy Control no longer request gtag.js from Google. Hugo's template
+  loaded it for everyone and only skipped the tracking call. Analytics no longer loads in development builds (#16).
+- The lightbox is built with DOM calls instead of `innerHTML`, so it works under a Trusted Types CSP (#16).
+
 ## [1.1.9] - Unreleased
 
 ### Fixed
