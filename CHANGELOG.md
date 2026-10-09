@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.6] - Unreleased
+
+### Fixed
+- Leftover defects from the code review (#13):
+  - **Popover:** clicking a type chip or Clear while View options is open now closes it.
+  - **Caption:** the wall's live caption is no longer announced on page load.
+  - **Menu:** the hamburger menu drops its open state when the window grows past 820px.
+  - **Wide content:** images, code and tables in photo-post and page bodies stay within the page width.
+- Tiles no longer carry the unused `data-series` attribute, and the dead `.tile[hidden], details[hidden]` rule is gone
+  (#13).
+
 ## [1.1.5] - Unreleased
 
 ### Fixed

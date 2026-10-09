@@ -135,8 +135,7 @@ layouts/_markup/           render-link, render-image
   photo. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
   for series posts). A photo post with no parsable photos falls back to a single article tile.
 - Tiles carry `data-type`, `data-date`, `data-order` (and `data-gallery`, `data-gallery-title` on photos), which `wall.js`
-  reads; they also carry `data-series`, which nothing reads yet. See-all tiles also carry `data-more` and are left out of the
-  chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+  reads. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
 
 ### Known limits
