@@ -67,8 +67,9 @@ The templates assume this layout; other structures are not supported yet.
 - **Search:** `content/search/_index.md` uses `layouts/search/section.html`. Search is not implemented yet: the page is
   published (and listed in the sitemap) with the text "Search is not available yet." The nav link appears only when
   `params.search_enabled` is set.
-- **Syntax highlighting:** the CSS assumes Hugo's inline highlighting with a light style; the site uses
-  `[markup.highlight] style = "monokailight"`.
+- **Syntax highlighting:** the CSS assumes Hugo's inline highlighting (the default, `noClasses = true`) with a light
+  inline Chroma style, for example `[markup.highlight] style = "modus-operandi"`. The style's own inline colors show, so
+  code blocks stay light in dark mode too.
 - **Icons:** the theme ships a serif "g" monogram on navy, served from the site root:
   - `static/favicon.svg`, with the letter in the system serif;
   - `static/favicon.ico` (16, 32 and 48px);
@@ -166,7 +167,8 @@ layouts/_markup/           render-link, render-image
   default). The `search` section still gets its own empty feed; a site can turn it off with `outputs: [html]` in
   `content/search/_index.md`.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
-- `.highlight` code blocks stay light in dark mode (Hugo's inline `monokailight` styling).
+- `.highlight` code blocks stay light in dark mode, since they show the light inline Chroma style's own colors (for
+  example `modus-operandi`).
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
   devices and screen readers. An independent review (October 2026) measured contrast and keyboard behavior; its findings
   are open issues.
