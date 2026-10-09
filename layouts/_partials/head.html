@@ -4,19 +4,27 @@
 {{ $title := cond .IsHome (site.Params.SEOTitle | default site.Title) (printf "%s | %s" $pt (site.Params.SEOTitle | default site.Title)) }}
 {{ $desc := .Description | default site.Params.description }}
 {{ $img := partialCached "cover.html" . .Path }}
+{{- /* Share image: the page's own image or first photo, else params.og_image, else the cover (the header image). */}}
+{{ $og := $img }}
+{{ if and site.Params.og_image (not .Params.image) (not (partialCached "photos.html" . .Path)) }}{{ $og = site.Params.og_image | absURL }}{{ end }}
 <title>{{ $title }}</title>
 {{ with $desc }}<meta name="description" content="{{ . }}">{{ end }}
 {{ with site.Params.keyword }}<meta name="keywords" content="{{ . }}">{{ end }}
 <link rel="canonical" href="{{ .Permalink }}">
-{{ if fileExists "static/img/favicon.ico" }}<link rel="icon" href="{{ "img/favicon.ico" | relURL }}">{{ else }}<link rel="icon" href="data:,">{{ end }}
+{{- /* Icons ship in the theme's static/; a site replaces them by putting files with the same names in its own static/ (#1). */}}
+<link rel="icon" href="{{ "favicon.ico" | relURL }}" sizes="16x16 32x32 48x48">
+<link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
+<meta name="theme-color" content="#1B3C53" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F2332" media="(prefers-color-scheme: dark)">
 {{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">{{ end }}
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:type" content="{{ cond .IsPage "article" "website" }}">
 <meta property="og:title" content="{{ $pt | default site.Title }}">
 <meta property="og:url" content="{{ .Permalink }}">
 {{ with $desc }}<meta property="og:description" content="{{ . }}">{{ end }}
-{{ with $img }}<meta property="og:image" content="{{ . }}">{{ end }}
-<meta name="twitter:card" content="{{ cond (ne $img "") "summary_large_image" "summary" }}">
+{{ with $og }}<meta property="og:image" content="{{ . }}">{{ end }}
+<meta name="twitter:card" content="{{ cond (ne $og "") "summary_large_image" "summary" }}">
 <meta name="color-scheme" content="light dark">
 {{ with partialCached "asset.html" "css/main.css" "css/main.css" }}<link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}>{{ end }}
 {{ if site.Config.Services.GoogleAnalytics.ID }}{{ template "_internal/google_analytics.html" . }}{{ end }}

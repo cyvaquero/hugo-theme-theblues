@@ -3,6 +3,22 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.3] - Unreleased
+
+### Added
+- A favicon and touch icon: a cream serif "g" on navy (#1).
+  - **Files:** `favicon.svg` (the letter in the system serif), `favicon.ico` (16, 32 and 48px) and a 180px
+    `apple-touch-icon.png`, all in the theme's `static/`.
+  - **Overriding:** a site uses its own by adding files with the same names to its `static/`.
+- `<meta name="theme-color">`: navy `#1B3C53` in light mode and `#0F2332` in dark (#1).
+- `params.og_image`: the share image for pages that have no `image` of their own and no photos. The header image is
+  still the fallback when it is unset (#1).
+- `images/screenshot.png` and `images/tn.png` for `theme.toml` (#1).
+
+### Changed
+- The theme no longer looks for `static/img/favicon.ico` and no longer sets an empty `data:,` icon. A site that kept
+  its icon there should rename it to `static/favicon.ico` (#1).
+
 ## [1.1.2] - Unreleased
 
 ### Fixed

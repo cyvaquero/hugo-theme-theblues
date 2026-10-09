@@ -64,7 +64,15 @@ The templates assume this layout; other structures are not supported yet.
   `params.search_enabled` is set.
 - **Syntax highlighting:** the CSS assumes Hugo's inline highlighting with a light style; the site uses
   `[markup.highlight] style = "monokailight"`.
-- **Favicon:** if the site has `static/img/favicon.ico`, it is linked; otherwise the page sets an empty icon.
+- **Icons:** the theme ships a serif "g" monogram on navy, served from the site root:
+  - `static/favicon.svg`, with the letter in the system serif;
+  - `static/favicon.ico` (16, 32 and 48px);
+  - `static/apple-touch-icon.png` (180px, square, since iOS rounds the corners).
+
+  To use your own, put files with the same names in the site's `static/`, which takes precedence over the theme's. The
+  `<meta name="theme-color">` is navy `#1B3C53` in light mode and `#0F2332` in dark, the nav band's colors.
+- **Share image (`og:image`):** a page's own `image`, or the first photo of a photo post. Otherwise `params.og_image`
+  if set, and otherwise the cover, which is the site's `header_image`.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A path to a page or page resource resolves to its permalink, as with Hugo's built-in hooks. Links to other
@@ -152,7 +160,7 @@ It keeps the parameter names the site already uses, so `config.toml` needs littl
 
 - `title`, `locale` (sets `<html lang>`)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
-  `image_404`, `title_404`, `search_enabled` (default off), `search_label` (default `SEARCH`), `showtoc` (site-wide default for
+  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`), `showtoc` (site-wide default for
   the TOC; on when unset, and shown only when a post has headings), and the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4)
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
