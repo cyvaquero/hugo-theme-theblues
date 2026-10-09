@@ -132,6 +132,8 @@ nav.site .links a[aria-current] { text-decoration: underline; text-underline-off
 .series li .meta { flex: none; }
 .pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .comments { margin-top: 2rem; }
+.comments .showc { min-height: 44px; padding: .4rem 1rem; border: 1px solid var(--muted); border-radius: 8px; background: none; color: var(--link); font: inherit; cursor: pointer; }
+.comments .showc:hover { color: var(--text); border-color: var(--text); }
 .pb { max-width: var(--measure); margin: 0 auto; padding: 0 1rem; }
 .pb h2 { font: 700 1.5rem / 1.3 var(--serif); margin: 2rem 0 .5rem; }
 .pb > :first-child { margin-top: 2rem; }

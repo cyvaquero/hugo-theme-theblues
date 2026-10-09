@@ -20,8 +20,13 @@ the site's real content to the same 30 URLs as Clean White with no Hugo warnings
   (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
   stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
   same rule.
-- No external fonts, frameworks, or CDN scripts. JavaScript is three small files (`menu.js`, `wall.js`, `gallery.js`); the
-  wall and gallery scripts load only where needed.
+- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is five small files:
+  - `menu.js`, on every page;
+  - `wall.js` and `gallery.js`, only where needed;
+  - `analytics.js`, only when the site sets a GA ID, and only in production builds;
+  - `comments.js`, on posts when the site sets a Disqus shortname.
+
+  A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used.
 
 ## Installation
 
@@ -151,6 +156,9 @@ layouts/_markup/           render-link, render-image
 - Wall pages after the first (`/page/2/`, …) use page 1's canonical URL and title, and have no `rel=prev/next` in the head:
   the head is rendered before the wall builds its paginator, so it can't know the page number. The pager links carry
   `rel=prev` and `rel=next`.
+- Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
+  `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`). The theme sets no referrer policy; browsers default to
+  `strict-origin-when-cross-origin`, which a site can also send as a header.
 - The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
   sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
@@ -177,9 +185,12 @@ It keeps the parameter names the site already uses, so `config.toml` needs littl
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
   Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
-- `[services.googleAnalytics] id` and `[services.disqus] shortname`. Analytics uses Hugo's internal template; Do Not Track
-  applies only if the site sets `[privacy.googleAnalytics] respectDoNotTrack = true`, and even then the gtag loader is
-  requested.
+- `[services.googleAnalytics] id`:
+  - Analytics loads only in production builds, unless `[privacy.googleAnalytics] disable = true`.
+  - A visitor who sends Do Not Track or Global Privacy Control gets nothing: no gtag.js request and no hit.
+- `[services.disqus] shortname`: comments are click to load. Posts show a "Show comments" button, and nothing from Disqus
+  loads before it is clicked. A leading slash in the shortname is ignored. Optional front matter: `disqus_url`,
+  `disqus_identifier`, `disqus_title`.
 
 `header_image`, `image` and `image_404` may be absolute URLs or paths under the site root (`img/x.jpg`); the theme turns paths
 into absolute URLs.
@@ -192,7 +203,7 @@ Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `c
 Decision records, the Clean White inventory and the layout mockups are in [docs/retheme/](docs/retheme/decisions.md)
 (Hugo does not publish this folder; this is the canonical copy). The work is tracked on issue
 cyvaquero/hugo-site-guyheckman_me#4. In short: palette B (navy, steel blue, sand, cream) with light and dark modes;
-responsive with a hamburger nav at 820 px and narrower; Disqus on posts only; GA4 through Hugo's internal template; search is
+responsive with a hamburger nav at 820 px and narrower; Disqus on posts only (click to load since 1.1.10); GA4 (Do Not Track and Global Privacy Control respected since 1.1.10); search is
 a reserved slot until the engine is chosen (cyvaquero/hugo-site-guyheckman_me#3). The featured-tags cloud (D14) is
 deferred.
 
