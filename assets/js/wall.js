@@ -2,7 +2,7 @@
 // Progressive enhancement: the wall is complete and sorted newest first without this file; the controls markup is
 // hidden until this script runs. Behavior follows the final mockup (decision D12): type chips with counts, a
 // "View options" popover (Mode, Sort, Group by gallery, Reset), a Clear button and a live caption.
-// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-date and data-order (data-series is not read).
+// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-date and data-order.
 // Counts and groups are computed from the tiles on the current page (the wall is paginated by tile). The "see all" tile of a
 // gallery (data-more) is a link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and
 // groups like a photo tile and always stays last in its gallery.
@@ -160,6 +160,8 @@
   document.addEventListener('click', function (e) {
     var t = e.target, c;
     if (!t.closest) return;
+    // Any click outside the popover and its button closes it, including on a chip or Clear (#13).
+    if (!pop.hidden && !t.closest('#pop') && !t.closest('#vb')) closePop();
     if ((c = t.closest('[data-f]')) && ctl.contains(c)) { S.f = c.dataset.f; stage.dataset.pv = 'all'; paint(); return; }
     if ((c = t.closest('[data-m2]')) && ctl.contains(c)) { S.m = c.dataset.m2; paint(); return; }
     if ((c = t.closest('[data-role=clear],[data-role=reset]'))) {
@@ -169,7 +171,6 @@
       return;
     }
     if (t.closest('#vb')) { togglePop(); return; }
-    if (!t.closest('#pop')) closePop();
   });
   ctl.addEventListener('change', function (e) {
     var t = e.target;
@@ -192,6 +193,9 @@
   document.addEventListener('pointerover', pvOn);
   document.addEventListener('pointerout', pvOff);
 
-  ctl.hidden = false;
+  // The first render fills the live caption; keep it out of the live region so it isn't announced on page load (#13).
+  cap.removeAttribute('aria-live');
   render();
+  ctl.hidden = false;
+  setTimeout(function () { cap.setAttribute('aria-live', 'polite'); }, 0);
 })();

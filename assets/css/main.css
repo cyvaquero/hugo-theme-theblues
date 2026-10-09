@@ -187,7 +187,6 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 @media (min-width: 900px) { .mas { columns: 3; } }
 .wall { max-width: var(--wide); margin: 0 auto; padding: .4rem 1rem 0; }
 .tile { margin: 0 0 var(--gap); break-inside: avoid; position: relative; border-radius: 8px; display: block; }
-.tile[hidden], details[hidden] { display: none; }
 /* Photo tile: image only, camera badge, caption on hover or focus (always visible on touch). */
 .tile.photo { overflow: hidden; background: var(--code); }
 .tile.photo img { width: 100%; height: auto; aspect-ratio: auto 3 / 2; }
@@ -302,6 +301,9 @@ dialog.lb button:hover { color: #D2C1B6; }
 .abody iframe { border: 0; }
 .abody .gal { max-width: none; padding: 0; }
 .abt2 { max-width: var(--measure); margin: 1.5rem auto 0; padding: 0 1rem; }
+/* Photo-post and page bodies (.pbody, .pb) don't get the article prose rules; keep wide content inside them (#13). */
+.pbody img, .pb img { height: auto; }
+.pbody pre, .pb pre, .pbody table, .pb table { max-width: 100%; overflow-x: auto; }
 
 /* 12 Archive, tag index, About ---------------------------------------------------------------------------- */
 .atw { max-width: var(--measure); margin: 0 auto; padding: 2rem 1rem 0; }

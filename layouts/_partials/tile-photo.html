@@ -5,9 +5,8 @@
 */ -}}
 {{- $pg := .page -}}
 {{- $p := .photo -}}
-{{- $s := partialCached "series-info.html" $pg $pg.Path -}}
 {{- $what := cond (eq .n 1) "photo" "photos" -}}
-<figure class="tile photo" data-type="photo" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $pg.Title }}" data-date="{{ $pg.Date.Format "2006-01-02" }}" data-order="{{ .order }}" data-series="{{ with $s }}{{ .name }}{{ end }}">
+<figure class="tile photo" data-type="photo" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $pg.Title }}" data-date="{{ $pg.Date.Format "2006-01-02" }}" data-order="{{ .order }}">
   <a class="cover" href="{{ $pg.RelPermalink }}" aria-label="{{ $pg.Title }}, {{ .n }} {{ $what }}, {{ $pg.Date.Format "Jan 2, 2006" }}. Photo {{ add .i 1 }} of {{ .n }}{{ with $p.title }}: {{ . }}{{ end }}">
     <img src="{{ $p.src }}" alt="" loading="lazy" decoding="async"><span class="badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo</span>
   </a>
