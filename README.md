@@ -76,7 +76,7 @@ The templates assume this layout; other structures are not supported yet.
 | Shortcode | Usage | Notes |
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
-| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. |
+| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns. |
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing or the URL is not `https://`. |
 
 ## Extending from a site
@@ -98,9 +98,9 @@ A site can add its own page types without overriding theme files:
 
 ```
 assets/css/main.css        tokens (palette) and all styles
-assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower)
+assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; without JavaScript, assets/css/nojs.css shows the links)
 assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
-assets/js/gallery.js       <dialog> lightbox, only loaded on pages with a gallery
+assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
 layouts/baseof.html        page shell
 layouts/home.html          landing page: hero, controls, masonry wall, pagination
 layouts/section.html       /post/ list (same wall)
@@ -140,7 +140,6 @@ layouts/_markup/           render-link, render-image
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
-- Without JavaScript, at 820 px and narrower the nav links are hidden and the Menu button does nothing.
 - `.highlight` code blocks stay light in dark mode (Hugo's inline `monokailight` styling).
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
   devices and screen readers. An independent review (October 2026) measured contrast and keyboard behavior; its findings

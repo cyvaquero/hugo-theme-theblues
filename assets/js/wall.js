@@ -72,7 +72,7 @@
     else s = 'Highlighting ' + (S.f === 'article' ? plural(NA, 'article') + '; ' + plural(NP, 'photo') + ' dimmed'
                                                   : plural(NP, 'photo') + '; ' + plural(NA, 'article') + ' dimmed');
     if (S.g && vis.p) s += ', grouped into ' + galleryList.length + (galleryList.length === 1 ? ' gallery' : ' galleries');
-    cap.textContent = s;
+    if (cap.textContent !== s) cap.textContent = s;  // the caption is a live region: announce changes only
     sync();
   }
 
@@ -141,8 +141,16 @@
     if (!pop.hidden) { pop.hidden = true; vb.setAttribute('aria-expanded', 'false'); if (ret) vb.focus(); }
   }
   function togglePop() {
-    if (pop.hidden) { pop.hidden = false; vb.setAttribute('aria-expanded', 'true'); } else closePop();
+    if (pop.hidden) {
+      pop.hidden = false; vb.setAttribute('aria-expanded', 'true');
+      (pop.querySelector('[aria-pressed=true]') || pop.querySelector('button, select, input')).focus();
+    } else closePop();
   }
+  // Close when keyboard focus leaves the popover and its button, so it can't cover the next focused element.
+  ctl.addEventListener('focusout', function (e) {
+    var to = e.relatedTarget;
+    if (!pop.hidden && to && !pop.contains(to) && to !== vb) closePop();
+  });
 
   document.addEventListener('click', function (e) {
     var t = e.target, c;
@@ -168,14 +176,16 @@
     if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); closePop(true); }
   }, true);
 
-  // Hovering or focusing a chip previews the highlight (stage[data-pv] drives the CSS).
+  // Hovering a chip with a mouse previews the highlight (stage[data-pv] drives the CSS). Not on keyboard focus or touch,
+  // where it would dim the wall while the reader is still moving through the controls.
   function pvOn(e) {
+    if (e.pointerType !== 'mouse') return;
     var b = e.target.closest && e.target.closest('[data-f]');
     if (b && ctl.contains(b) && b.dataset.f !== 'all' && b.dataset.f !== S.f) stage.dataset.pv = b.dataset.f;
   }
   function pvOff(e) { if (e.target.closest && e.target.closest('[data-f]')) stage.dataset.pv = 'all'; }
-  ['mouseover', 'focusin'].forEach(function (n) { document.addEventListener(n, pvOn); });
-  ['mouseout', 'focusout'].forEach(function (n) { document.addEventListener(n, pvOff); });
+  document.addEventListener('pointerover', pvOn);
+  document.addEventListener('pointerout', pvOff);
 
   ctl.hidden = false;
   render();

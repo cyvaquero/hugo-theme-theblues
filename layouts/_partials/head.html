@@ -20,4 +20,5 @@
 <meta name="color-scheme" content="light dark">
 {{ with partialCached "asset.html" "css/main.css" "css/main.css" }}<link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}>{{ end }}
 {{ if site.Config.Services.GoogleAnalytics.ID }}{{ template "_internal/google_analytics.html" . }}{{ end }}
+{{ with partialCached "asset.html" "css/nojs.css" "css/nojs.css" }}<noscript><link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}></noscript>{{ end }}
 {{ partial "head-end.html" . -}}
