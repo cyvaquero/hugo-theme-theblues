@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.4] - Unreleased
+
+### Fixed
+- The hero's wavy-underline style (`.u`) applies only inside the home hero. It used to italicize any `class="u"`
+  element on the site, such as the unit labels in SnugCut on guyheckman.me (#33).
+
 ## [1.1.3] - Unreleased
 
 ### Added
