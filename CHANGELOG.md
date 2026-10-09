@@ -10,6 +10,86 @@ All notable changes to this theme are documented here. The format follows
   (`#fafafa`) around them, and the README and CSS comments no longer name `monokailight`. They describe any light
   inline Chroma style, for example `modus-operandi`, which the site uses. Code blocks stay light in dark mode (#44).
 
+## [1.1.10] - Unreleased
+
+### Changed
+- Disqus comments are click to load. Posts show a "Show comments" button, and nothing from Disqus, or the ad trackers
+  it brings, is requested until a reader clicks it. Focus then moves to the comments. Development builds show a note
+  instead (#16).
+- The GA and Disqus loaders are small theme files (`assets/js/analytics.js`, `assets/js/comments.js`) instead of Hugo's
+  inline templates, so pages have no inline scripts. A site CSP no longer needs `script-src` hashes for them (#16).
+
+### Security
+- Visitors who send Do Not Track or Global Privacy Control no longer request gtag.js from Google. Hugo's template
+  loaded it for everyone and only skipped the tracking call. Analytics no longer loads in development builds (#16).
+- The lightbox is built with DOM calls instead of `innerHTML`, so it works under a Trusted Types CSP (#16).
+
+## [1.1.9] - Unreleased
+
+### Fixed
+- Photo counts, wall tiles and covers now match the photos a post actually shows (#17):
+  - A positional `src` (`{{< gallery "…" >}}`) is counted.
+  - Titles with an escaped quote, a `}` or a `>` are read whole.
+  - Backtick-quoted arguments are read.
+  - The `{{% %}}` form, which renders nothing, is no longer counted.
+
+  A probe post with four photos was counted as 2, with one title cut to `A \`; it is now counted as 4, all titles
+  intact.
+
+### Security
+- A gallery photo inside an HTML comment (`<!-- {{< gallery … >}} -->`) is no longer published on the home and term
+  walls or used as the post's cover and `og:image`. The post itself never showed it (#17).
+
+## [1.1.8] - Unreleased
+
+### Added
+- `og:locale`, `article:published_time` (posts), `twitter:title` and `twitter:description` meta tags (#2).
+- `<meta name="robots" content="noindex">` on the 404 page and the search section (#2).
+
+### Fixed
+- Every page links the site's RSS feed, in the head and in the footer. Posts, About and Archive had no feed link, and
+  the footer pointed at a term's own feed on term pages; term and section pages also link their own feed (#2).
+- `og:image` is emitted only for an `http` or `https` URL; a `javascript:` image in front matter was output as is (#2).
+
+## [1.1.7] - Unreleased
+
+### Fixed
+- Template edge cases (#18):
+  - **`params.wall.tilesPerPage`:** a value below 1 fails the build with a clear message. `0` used to mean 24 and `-1`
+    aborted with a template error.
+  - **Long pagers:** they show the first and last pages and two on each side of the current page, with an ellipsis,
+    instead of every page.
+  - **Posts without a title:** they get one from the file name ("20250601-untitled-post.md" becomes "Untitled Post")
+    in the `h1`, the wall tile, the archive and the feed, instead of empty headings and links.
+  - **Empty site title:** page titles drop the trailing " | ".
+  - **A to Z indexes:** sorted by the term page's title, so a retitled term no longer repeats a letter heading.
+  - **`showtoc`:** `showtoc: "false"` (a string) turns the table of contents off, like `showtoc: false`.
+  - **Home feed:** a theme `home.rss.xml` lists only main-section pages, so About and Archive are no longer feed items
+    dated 0001. A site's own `home.rss.xml` still takes precedence.
+
+## [1.1.6] - Unreleased
+
+### Fixed
+- Leftover defects from the code review (#13):
+  - **Popover:** clicking a type chip or Clear while View options is open now closes it.
+  - **Caption:** the wall's live caption is no longer announced on page load.
+  - **Menu:** the hamburger menu drops its open state when the window grows past 820px.
+  - **Wide content:** images, code and tables in photo-post and page bodies stay within the page width.
+- Tiles no longer carry the unused `data-series` attribute, and the dead `.tile[hidden], details[hidden]` rule is gone
+  (#13).
+
+## [1.1.5] - Unreleased
+
+### Fixed
+- "Oldest first" is the exact reverse of "Newest first" for posts published on the same day, on the flat wall and for
+  same-day galleries in grouped mode. A gallery's photos keep their order, and its see-all tile stays last (#32).
+
+## [1.1.4] - Unreleased
+
+### Fixed
+- The hero's wavy-underline style (`.u`) applies only inside the home hero. It used to italicize any `class="u"`
+  element on the site, such as the unit labels in SnugCut on guyheckman.me (#33).
+
 ## [1.1.3] - Unreleased
 
 ### Added

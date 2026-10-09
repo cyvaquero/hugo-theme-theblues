@@ -20,8 +20,13 @@ the site's real content to the same 30 URLs as Clean White with no Hugo warnings
   (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
   stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
   same rule.
-- No external fonts, frameworks, or CDN scripts. JavaScript is three small files (`menu.js`, `wall.js`, `gallery.js`); the
-  wall and gallery scripts load only where needed.
+- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is five small files:
+  - `menu.js`, on every page;
+  - `wall.js` and `gallery.js`, only where needed;
+  - `analytics.js`, only when the site sets a GA ID, and only in production builds;
+  - `comments.js`, on posts when the site sets a Disqus shortname.
+
+  A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used.
 
 ## Installation
 
@@ -85,7 +90,7 @@ The templates assume this layout; other structures are not supported yet.
 | Shortcode | Usage | Notes |
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
-| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. Use a named, double-quoted `src`: a positional `src` renders on the post but is not counted for the wall, covers or photo counts. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns. |
+| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns. |
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing or the URL is not `https://`. |
 
 ## Extending from a site
@@ -136,8 +141,7 @@ layouts/_markup/           render-link, render-image
   photo. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
   for series posts). A photo post with no parsable photos falls back to a single article tile.
 - Tiles carry `data-type`, `data-date`, `data-order` (and `data-gallery`, `data-gallery-title` on photos), which `wall.js`
-  reads; they also carry `data-series`, which nothing reads yet. See-all tiles also carry `data-more` and are left out of the
-  chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+  reads. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
 
 ### Known limits
@@ -148,6 +152,20 @@ layouts/_markup/           render-link, render-image
   `layouts/_partials/wall-page.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
+  `tilesPerPage` must be 1 or more; anything else fails the build. The pager shows the first and last pages and two on
+  each side of the current one.
+- Wall pages after the first (`/page/2/`, …) use page 1's canonical URL and title, and have no `rel=prev/next` in the head:
+  the head is rendered before the wall builds its paginator, so it can't know the page number. The pager links carry
+  `rel=prev` and `rel=next`.
+- Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
+  `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`). The theme sets no referrer policy; browsers default to
+  `strict-origin-when-cross-origin`, which a site can also send as a header.
+- The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
+  sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
+  (use Hugo's `enableRobotsTXT`) and no JSON-LD.
+- The theme's home feed (`layouts/home.rss.xml`) lists only pages in the main sections (`site.MainSections`, `post` by
+  default). The `search` section still gets its own empty feed; a site can turn it off with `outputs: [html]` in
+  `content/search/_index.md`.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
 - `.highlight` code blocks stay light in dark mode, since they show the light inline Chroma style's own colors (for
   example `modus-operandi`).
@@ -169,9 +187,12 @@ It keeps the parameter names the site already uses, so `config.toml` needs littl
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
   Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
-- `[services.googleAnalytics] id` and `[services.disqus] shortname`. Analytics uses Hugo's internal template; Do Not Track
-  applies only if the site sets `[privacy.googleAnalytics] respectDoNotTrack = true`, and even then the gtag loader is
-  requested.
+- `[services.googleAnalytics] id`:
+  - Analytics loads only in production builds, unless `[privacy.googleAnalytics] disable = true`.
+  - A visitor who sends Do Not Track or Global Privacy Control gets nothing: no gtag.js request and no hit.
+- `[services.disqus] shortname`: comments are click to load. Posts show a "Show comments" button, and nothing from Disqus
+  loads before it is clicked. A leading slash in the shortname is ignored. Optional front matter: `disqus_url`,
+  `disqus_identifier`, `disqus_title`.
 
 `header_image`, `image` and `image_404` may be absolute URLs or paths under the site root (`img/x.jpg`); the theme turns paths
 into absolute URLs.
@@ -184,7 +205,7 @@ Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `c
 Decision records, the Clean White inventory and the layout mockups are in [docs/retheme/](docs/retheme/decisions.md)
 (Hugo does not publish this folder; this is the canonical copy). The work is tracked on issue
 cyvaquero/hugo-site-guyheckman_me#4. In short: palette B (navy, steel blue, sand, cream) with light and dark modes;
-responsive with a hamburger nav at 820 px and narrower; Disqus on posts only; GA4 through Hugo's internal template; search is
+responsive with a hamburger nav at 820 px and narrower; Disqus on posts only (click to load since 1.1.10); GA4 (Do Not Track and Global Privacy Control respected since 1.1.10); search is
 a reserved slot until the engine is chosen (cyvaquero/hugo-site-guyheckman_me#3). The featured-tags cloud (D14) is
 deferred.
 

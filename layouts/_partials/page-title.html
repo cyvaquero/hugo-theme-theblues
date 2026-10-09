@@ -1,4 +1,5 @@
-{{- /* Page title with a fallback to the title-cased file name (the About page has no title in its front matter). */ -}}
+{{- /* Page title with a fallback to the file name, without a leading YYYYMMDD- date, hyphens as spaces, title-cased: the
+  About page has no title in its front matter, and a post without one would otherwise get an empty <h1> (#18). */ -}}
 {{- $t := .Title -}}
-{{- if and (not $t) .File -}}{{- $t = .File.ContentBaseName | title -}}{{- end -}}
+{{- if and (not $t) .File -}}{{- $t = replace (.File.ContentBaseName | replaceRE `^\d{8}-` "") "-" " " | title -}}{{- end -}}
 {{- return $t -}}
