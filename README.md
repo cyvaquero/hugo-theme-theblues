@@ -146,6 +146,11 @@ layouts/_markup/           render-link, render-image
   `layouts/_partials/wall-page.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
+  `tilesPerPage` must be 1 or more; anything else fails the build. The pager shows the first and last pages and two on
+  each side of the current one.
+- The theme's home feed (`layouts/home.rss.xml`) lists only pages in the main sections (`site.MainSections`, `post` by
+  default). The `search` section still gets its own empty feed; a site can turn it off with `outputs: [html]` in
+  `content/search/_index.md`.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
 - `.highlight` code blocks stay light in dark mode (Hugo's inline `monokailight` styling).
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch

@@ -12,7 +12,7 @@
       {{- if $photo }}<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo gallery
       {{- else }}<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Article{{ end -}}
     </div>
-    <h1>{{ .Title }}</h1>
+    <h1>{{ partial "page-title.html" . }}</h1>
     {{ with (.Params.subtitle | default .Description) }}<p class="sub">{{ . }}</p>{{ end }}
     <div class="meta">
       {{- with .GetTerms "categories" }}{{ range $i, $c := . }}{{ if $i }}, {{ end }}<a href="{{ $c.RelPermalink }}">{{ $c.LinkTitle | title }}</a>{{ end }} &middot; {{ end -}}
@@ -32,7 +32,8 @@
   {{ partial "comments.html" . }}
 </div>
 {{ else }}
-{{ $toc := and (ne (.Param "showtoc") false) (in .TableOfContents "<li>") }}
+{{- /* showtoc: false (boolean or the string "false") turns the TOC off (#18). */}}
+{{ $toc := and (ne (lower (printf "%v" (.Param "showtoc"))) "false") (in .TableOfContents "<li>") }}
 <div class="apage{{ if $toc }} has-toc{{ end }}">
   {{ if $toc }}
   <div class="toc">

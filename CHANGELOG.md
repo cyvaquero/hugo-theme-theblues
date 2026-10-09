@@ -3,6 +3,22 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.7] - Unreleased
+
+### Fixed
+- Template edge cases (#18):
+  - **`params.wall.tilesPerPage`:** a value below 1 fails the build with a clear message. `0` used to mean 24 and `-1`
+    aborted with a template error.
+  - **Long pagers:** they show the first and last pages and two on each side of the current page, with an ellipsis,
+    instead of every page.
+  - **Posts without a title:** they get one from the file name ("20250601-untitled-post.md" becomes "Untitled Post")
+    in the `h1`, the wall tile, the archive and the feed, instead of empty headings and links.
+  - **Empty site title:** page titles drop the trailing " | ".
+  - **A to Z indexes:** sorted by the term page's title, so a retitled term no longer repeats a letter heading.
+  - **`showtoc`:** `showtoc: "false"` (a string) turns the table of contents off, like `showtoc: false`.
+  - **Home feed:** a theme `home.rss.xml` lists only main-section pages, so About and Archive are no longer feed items
+    dated 0001. A site's own `home.rss.xml` still takes precedence.
+
 ## [1.1.6] - Unreleased
 
 ### Fixed
