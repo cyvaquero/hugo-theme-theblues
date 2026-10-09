@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.8] - Unreleased
+
+### Added
+- `og:locale`, `article:published_time` (posts), `twitter:title` and `twitter:description` meta tags (#2).
+- `<meta name="robots" content="noindex">` on the 404 page and the search section (#2).
+
+### Fixed
+- Every page links the site's RSS feed, in the head and in the footer. Posts, About and Archive had no feed link, and
+  the footer pointed at a term's own feed on term pages; term and section pages also link their own feed (#2).
+- `og:image` is emitted only for an `http` or `https` URL; a `javascript:` image in front matter was output as is (#2).
+
 ## [1.1.7] - Unreleased
 
 ### Fixed

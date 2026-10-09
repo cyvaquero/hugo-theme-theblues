@@ -19,14 +19,24 @@
 <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
 <meta name="theme-color" content="#1B3C53" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F2332" media="(prefers-color-scheme: dark)">
-{{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">{{ end }}
+{{- /* The site feed on every page, plus a list page's own feed (term, section) (#2). */}}
+{{ with site.Home.OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">{{ end }}
+{{ if not (or .IsHome (eq .Section "search")) }}{{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ $pt }} on {{ site.Title }}" href="{{ .Permalink }}">{{ end }}{{ end }}
+{{ if or (eq .Kind "404") (eq .Section "search") }}<meta name="robots" content="noindex">{{ end }}
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:type" content="{{ cond .IsPage "article" "website" }}">
 <meta property="og:title" content="{{ $pt | default site.Title }}">
 <meta property="og:url" content="{{ .Permalink }}">
 {{ with $desc }}<meta property="og:description" content="{{ . }}">{{ end }}
+{{- with split site.Language.Locale "-" }}{{ if eq (len .) 2 }}
+<meta property="og:locale" content="{{ index . 0 }}_{{ upper (index . 1) }}">{{ end }}{{ end }}
+{{ if and .IsPage (not .Date.IsZero) }}<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" }}">{{ end }}
+{{- /* Only an http(s) URL is a usable share image (#2). */}}
+{{ if not (in (slice "http" "https") (urls.Parse $og).Scheme) }}{{ $og = "" }}{{ end }}
 {{ with $og }}<meta property="og:image" content="{{ . }}">{{ end }}
 <meta name="twitter:card" content="{{ cond (ne $og "") "summary_large_image" "summary" }}">
+<meta name="twitter:title" content="{{ $pt | default site.Title }}">
+{{ with $desc }}<meta name="twitter:description" content="{{ . }}">{{ end }}
 <meta name="color-scheme" content="light dark">
 {{ with partialCached "asset.html" "css/main.css" "css/main.css" }}<link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}>{{ end }}
 {{ if site.Config.Services.GoogleAnalytics.ID }}{{ template "_internal/google_analytics.html" . }}{{ end }}
