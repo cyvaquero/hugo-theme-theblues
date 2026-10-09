@@ -3,6 +3,22 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.9] - Unreleased
+
+### Fixed
+- Photo counts, wall tiles and covers now match the photos a post actually shows (#17):
+  - A positional `src` (`{{< gallery "…" >}}`) is counted.
+  - Titles with an escaped quote, a `}` or a `>` are read whole.
+  - Backtick-quoted arguments are read.
+  - The `{{% %}}` form, which renders nothing, is no longer counted.
+
+  A probe post with four photos was counted as 2, with one title cut to `A \`; it is now counted as 4, all titles
+  intact.
+
+### Security
+- A gallery photo inside an HTML comment (`<!-- {{< gallery … >}} -->`) is no longer published on the home and term
+  walls or used as the post's cover and `og:image`. The post itself never showed it (#17).
+
 ## [1.1.8] - Unreleased
 
 ### Added
