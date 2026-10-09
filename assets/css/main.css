@@ -15,7 +15,9 @@
                                              16 Print
 
    Palette B: navy #1B3C53, steel #456882, sand #D2C1B6, cream #F9F3EF.
-   Light mode follows the system setting (prefers-color-scheme); there is no manual toggle.
+   Light or dark follows the system setting (prefers-color-scheme) unless the reader picks one with the switch in the nav
+   (assets/js/theme.js sets data-theme="light" or "dark" on <html>, #22). The dark tokens are therefore listed twice,
+   once for each way of asking for dark mode; keep the two copies the same.
    Colors are set only in the token block below (and in Print, which forces black on white); --bt, --hv and --scrim are
    the same in both modes, since they sit on the navy band or on photos under a navy scrim. */
 
@@ -57,8 +59,9 @@
   --gap: 12px;              /* masonry gutter */
   color-scheme: light dark;
 }
+/* Dark: the system asks for it and the reader hasn't picked light, ... */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme=light]) {
     --bg: #142E40;
     --text: #F9F3EF;        /* 12.8:1 */
     --muted: #D2C1B6;       /* 8.1:1 */
@@ -84,6 +87,35 @@
     --sx-hl: #1B3C53;
   }
 }
+/* ... or the reader picked dark. Same values as above. */
+:root[data-theme=dark] {
+  --bg: #142E40;
+  --text: #F9F3EF;        /* 12.8:1 */
+  --muted: #D2C1B6;       /* 8.1:1 */
+  --link: #D2C1B6;
+  --focus: #D2C1B6;
+  --band: #0F2332;
+  --line: #456882;
+  --surface: #1B3C53;
+  --code: #0F2332;
+  --on-bg: #D2C1B6;
+  --on-fg: #142E40;
+  --art-bg: #1E4560;
+  --art-line: #456882;
+  /* modus-vivendi, 4.8:1 or more on --code and --sx-hl */
+  --sx-kw: #b6a0ff;
+  --sx-num: #00bcff;
+  --sx-type: #6ae4b9;
+  --sx-bi: #f78fe7;
+  --sx-var: #00d3d0;
+  --sx-fn: #feacd0;
+  --sx-str: #79a8ff;
+  --sx-com: #a8a8a8;
+  --sx-hl: #1B3C53;
+}
+/* A picked mode also sets the scheme for form controls and scrollbars. */
+:root[data-theme=light] { color-scheme: light; }
+:root[data-theme=dark] { color-scheme: dark; }
 
 /* 2 Base -------------------------------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -114,7 +146,15 @@ nav.site .links { display: none; position: absolute; left: 0; right: 0; top: 100
 nav.site .links.open { display: flex; }
 nav.site .links a { display: block; padding: .8rem 0; border-bottom: 1px solid var(--muted); font-size: .9rem; letter-spacing: .06em; }
 nav.site .links a[aria-current] { text-decoration: underline; text-underline-offset: .3em; }
+/* Color theme switch (#22): three icon buttons, the picked one filled sand. In the hamburger menu it is its own row. */
+nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
+.thm { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--hv); border-radius: 99px; }
+.thm button { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; padding: 0; border: 0; border-radius: 99px; background: none; color: var(--bt); font: inherit; cursor: pointer; }
+.thm button:hover { color: var(--hv); }
+.thm button[aria-pressed=true] { background: var(--hv); color: var(--band); }
+.thm .ic { width: 1.15rem; height: 1.15rem; }
 @media (min-width: 821px) {
+  nav.site li.theme { padding: 0; }
   nav.site .menu { display: none; }
   nav.site .links { display: flex; position: static; flex-direction: row; gap: 1.25rem; background: none; border: 0; box-shadow: none; padding: 0; }
   nav.site .links a { border: 0; padding: .35rem 0; }
@@ -371,6 +411,7 @@ ul.atl .c { color: var(--muted); font-size: .85rem; flex: none; }
   .seg button, .vbtn, .clr { min-height: 44px; }
   .seg button { padding: .1rem 1rem; }
   .seg.mode button { min-height: 44px; }
+  .thm button { min-width: 44px; min-height: 44px; }
   .tag { min-height: 44px; display: inline-flex; align-items: center; padding: 0 .9rem; }
   .tile .meta a { display: inline-block; padding: .6rem .2rem; }
 }
@@ -394,7 +435,7 @@ ul.atl .c { color: var(--muted); font-size: .85rem; flex: none; }
   .swt input::before { background: CanvasText; }
   .swt input:checked { background: Highlight; border-color: Highlight; }
   .swt input:checked::before { background: HighlightText; }
-  .seg button[aria-pressed=true], .pg a[aria-current=page] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+  .seg button[aria-pressed=true], .pg a[aria-current=page], .thm button[aria-pressed=true] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
   .bdg { border: 1px solid CanvasText; }
 }
 
