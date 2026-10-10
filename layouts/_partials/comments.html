@@ -1,7 +1,8 @@
 {{- /*
   Disqus on blog posts only (decision D8), click to load (#16): the page shows a "Show comments" button, and
-  assets/js/comments.js loads Disqus only when it is clicked. Development builds show a note instead. Optional front
-  matter disqus_url, disqus_identifier and disqus_title are passed to Disqus. Included from post/page.html.
+  assets/js/comments.js loads Disqus only when it is clicked. Builds for any environment other than production
+  (hugo server, --environment staging) show a note instead (#84). Optional front matter disqus_url, disqus_identifier
+  and disqus_title are passed to Disqus. Included from post/page.html.
   Hugo's [privacy.disqus] disable = true turns comments off (#72).
 */ -}}
 {{ with site.Config.Services.Disqus.Shortname }}{{ if not site.Config.Privacy.Disqus.Disable }}
@@ -11,7 +12,7 @@
   <button type="button" class="showc" hidden data-shortname="{{ . }}"{{ with $.Params.disqus_url }} data-url="{{ . }}"{{ end }}{{ with $.Params.disqus_identifier }} data-identifier="{{ . }}"{{ end }}{{ with $.Params.disqus_title }} data-title="{{ . }}"{{ end }}>Show comments</button>
   <noscript><p class="meta">Comments need JavaScript.</p></noscript>
   {{- else }}
-  <p class="meta">Disqus comments are not loaded in development builds.</p>
+  <p class="meta">Disqus comments are not loaded outside production builds.</p>
   {{- end }}
   <div id="disqus_thread"></div>
   <p class="meta">Comments are hosted by <a href="https://disqus.com/">Disqus</a>. Showing them sends your visit to Disqus and its partners.</p>
