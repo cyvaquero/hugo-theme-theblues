@@ -292,8 +292,7 @@ are 44px on touch screens. A print stylesheet prints black on white.
 - Give `embed` a title (the fourth argument); it names the frame.
 
 **Known gaps.** Not yet checked with screen readers or on real touch devices. Open issues:
-[#74](https://github.com/cyvaquero/hugo-theme-theblues/issues/74) (the post hero's small label can drop below 4.5:1 over a bright photo when a very long title pushes it up
-on a phone) and [#117](https://github.com/cyvaquero/hugo-theme-theblues/issues/117) (a post whose headings are all deeper than the TOC levels shows an empty "On this page"
+[#117](https://github.com/cyvaquero/hugo-theme-theblues/issues/117) (a post whose headings are all deeper than the TOC levels shows an empty "On this page"
 box). Inline-highlighted line numbers fail contrast ([#76](https://github.com/cyvaquero/hugo-theme-theblues/issues/76), documented above). Other accessibility issues are
 listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-theblues/issues?q=is%3Aopen+label%3Aaccessibility).
 
