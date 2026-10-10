@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.41] - Unreleased
+
+### Fixed
+- The wall no longer jumps down when its controls appear: the controls bar keeps its space, invisible, until the wall
+  script shows it, and without JavaScript it still takes no space. On guyheckman.me with the cache off and a slow
+  network, the home page's layout shift (CLS) goes from 0.075 to 0 at 375px and from 0.069 to 0.002 at 1280px, and a
+  tag page's from 0.043 to 0 and 0.002; the 0.002 left is the nav's color theme switch appearing (#7).
+
 ## [1.2.40] - Unreleased
 
 ### Changed
