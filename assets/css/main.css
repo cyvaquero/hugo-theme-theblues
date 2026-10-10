@@ -30,7 +30,7 @@
   --link: #456882;
   --hv: #D2C1B6;            /* sand: hover and secondary text on dark bands and photo scrims, outlines, bars */
   --focus: #456882;         /* focus ring on the page background */
-  --band: #1B3C53;          /* nav and footer */
+  --band: #1B3C53;          /* nav and footer; also the light theme-color meta in head.html, keep the same (#91) */
   --bt: #F9F3EF;            /* text on the band and on photo scrims */
   --scrim: 15 35 50;        /* #0F2332 as RGB channels, for rgb(var(--scrim) / alpha) over photos */
   --line: #D2C1B6;          /* borders, decorative only */
@@ -68,7 +68,7 @@
     --muted: #D2C1B6;       /* 8.1:1 */
     --link: #D2C1B6;
     --focus: #D2C1B6;
-    --band: #0F2332;
+    --band: #0F2332;        /* also the dark theme-color meta in head.html (#91) */
     --line: #456882;
     --surface: #1B3C53;
     --code: #0F2332;
@@ -95,7 +95,7 @@
   --muted: #D2C1B6;       /* 8.1:1 */
   --link: #D2C1B6;
   --focus: #D2C1B6;
-  --band: #0F2332;
+  --band: #0F2332;        /* also the dark theme-color meta in head.html (#91) */
   --line: #456882;
   --surface: #1B3C53;
   --code: #0F2332;
