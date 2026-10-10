@@ -9,15 +9,22 @@
   URLs, and the tile slice is cut with the same offsets. Hugo builds a page's paginator once and then renders it once per
   pager page, so on /page/2/ the same call returns page 2.
   The tiles and the stand-in are cached per list page (its .Path): every pager page of a list has the same posts, so they
-  are built once per list instead of once per pager page.
+  are built once per list instead of once per pager page. A production build also keeps them in the list page's Store,
+  as photos.html does, so a big site's partial cache can't evict them between pager pages (#7).
 */ -}}
 {{- $wall := dict "posts" .posts -}}
 {{- if .posts }}
 {{- $size := 24 -}}
 {{- with site.Params.wall }}{{ $v := .tilesPerPage }}{{ if ne $v nil }}{{ $size = int $v }}{{ end }}{{ end -}}
 {{- if lt $size 1 }}{{ errorf "params.wall.tilesPerPage must be 1 or more (got %d)" $size }}{{ end -}}
-{{- $tiles := partialCached "wall-tiles.html" .posts .page.Path -}}
-{{- $stand := partialCached "wall-stand.html" $tiles .page.Path -}}
+{{- $built := cond hugo.IsServer nil (.page.Store.Get "theblues-wall-tiles") -}}
+{{- if eq $built nil -}}
+  {{- $t := partialCached "wall-tiles.html" .posts .page.Path -}}
+  {{- $built = dict "tiles" $t "stand" (partialCached "wall-stand.html" $t .page.Path) -}}
+  {{- if not hugo.IsServer }}{{ .page.Store.Set "theblues-wall-tiles" $built }}{{ end -}}
+{{- end -}}
+{{- $tiles := $built.tiles -}}
+{{- $stand := $built.stand -}}
 {{- $pag := .page.Paginate $stand $size -}}
 {{- $start := mul (sub $pag.PageNumber 1) $size -}}
 {{- $wall = merge $wall (dict "pag" $pag "tiles" (first $size (after $start $tiles))) -}}

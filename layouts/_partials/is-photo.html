@@ -1,11 +1,17 @@
 {{- /*
   Photo or article? A post is a PHOTO post when its categories include "photos" (case-insensitive) or its raw content
   contains the galleries shortcode ({{< >}} form, outside HTML comments, #17). Everything else is an article. Returns a bool. `categories` may be a list or a single
-  string.
+  string. Kept in the page's Store in production builds, as in photos.html (#7).
 */ -}}
+{{- $key := "theblues-is-photo" -}}
+{{- $out := cond hugo.IsServer nil (.Store.Get $key) -}}
+{{- if eq $out nil -}}
 {{- $raw := .Params.categories -}}
 {{- if and $raw (not (reflect.IsSlice $raw)) }}{{ $raw = slice $raw }}{{ end -}}
 {{- $cats := slice -}}
 {{- range $raw -}}{{- $cats = $cats | append (lower .) -}}{{- end -}}
 {{- $hasShortcode := gt (len (findRE `\{\{<\s*galleries\b` (replaceRE `(?s)<!--.*?-->` "" .RawContent) 1)) 0 -}}
-{{- return (or (in $cats "photos") $hasShortcode) -}}
+{{- $out = or (in $cats "photos") $hasShortcode -}}
+{{- if not hugo.IsServer }}{{ .Store.Set $key $out }}{{ end -}}
+{{- end -}}
+{{- return $out -}}
