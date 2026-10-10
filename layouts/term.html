@@ -7,7 +7,8 @@
 {{ $kind := index $kinds $plural | default (.Data.Singular | title) }}
 {{ $posts := where .RegularPages "Section" "post" }}
 {{ $photos := 0 }}
-{{ $cover := site.Params.header_image | default "" }}
+{{- /* Same fallback as cover.html: the header image as an absolute URL, so a relative path works on /tags/x/ (#67). */}}
+{{ $cover := "" }}{{ with site.Params.header_image }}{{ $cover = . | absURL }}{{ end }}
 {{ $found := false }}
 {{ range $posts.ByDate.Reverse }}
   {{ if partialCached "is-photo.html" . .Path }}
