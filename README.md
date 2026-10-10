@@ -250,7 +250,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   - `params.author` as a table with `email` and an optional `name` (`[params.author] name = "…" email = "…"`) fills
     the channel's `managingEditor` and `webMaster` and each item's `author`, which RSS requires to be an email
     address. A plain string, or a name without an email, adds nothing.
-  - `copyright` becomes the channel's `copyright`. The footer doesn't use it: it shows "© <title> <current year>".
+  - `copyright` becomes the channel's `copyright`, and the footer shows it as written (plain text, for example
+    `copyright = "© 2023–2026 Jane Doe"`). Without it the footer shows "© <title> <current year>".
   - `[services.rss] limit` caps the number of items (no cap by default).
 - `[markup]`: the theme works with Hugo's defaults, and these settings change what it shows:
   - `[markup.highlight] noClasses = false` lets code follow the light and dark palette (see Syntax highlighting);
