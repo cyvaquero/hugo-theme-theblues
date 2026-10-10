@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.37] - Unreleased
+
+### Changed
+- A series follows its posts' `weight` when they set one, as Hugo orders pages: weighted posts first, lowest first,
+  then the rest; oldest first within each. The series box's list and numbering and the "Part N of M" tile chip use
+  that order. Series whose posts set no weight are ordered by date as before (#6).
+
 ## [1.2.36] - Unreleased
 
 ### Changed
