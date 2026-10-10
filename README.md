@@ -136,6 +136,13 @@ A site can add its own page types without overriding theme files:
   `--measure`. Their names are kept stable; a rename or removal is called out in the CHANGELOG.
   A site's own dark-mode colors should use the theme's two dark selectors, so they follow the switch as well as the
   system: `@media (prefers-color-scheme: dark) { :root:not([data-theme=light]) … }` and `:root[data-theme=dark] …`.
+- **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings (#6):
+  - 560px: masonry walls and `galleries` blocks go from one column to two;
+  - 700px: the View options popover becomes a 20rem panel at the right instead of spanning the controls, and the wall
+    caption moves from the left to the right;
+  - 821px: the full nav replaces the Menu button (`nojs.css` and `menu.js` use 820px and narrower), and articles get the
+    table of contents beside the text;
+  - 900px: masonry walls and `galleries` blocks get a third column.
 
 ## Layout
 
