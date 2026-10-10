@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.15] - Unreleased
+
+### Changed
+- README corrections: the stylesheet notes mention `nojs.css` (loaded in `<noscript>`) next to `main.css`; the
+  Layout list adds `nojs.css`, `analytics.js`, `comments.js`, `data/theblues.toml`, `rss.xml`, `wall-stand` and
+  `static/`; undated posts sort last on the wall except with Oldest first; the positional `gallery` form takes only
+  `src` and gets "Photo N" alt text; and the build-time note describes the per-list tile cache instead of a rebuild
+  per pager page (#80).
+
 ## [1.2.14] - Unreleased
 
 ### Fixed
@@ -328,6 +337,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.15]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.14]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.13]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.12]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop

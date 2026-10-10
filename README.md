@@ -15,8 +15,10 @@ the site's real content to the same 30 URLs as Clean White with no Hugo warnings
 - Hugo **0.163.3** or later (standard or extended). Earlier versions have published Hugo security advisories, and the theme
   uses `.Language.Locale`. Developed and tested on 0.167.0.
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
-- **CSS is hand-written and has one source file**, `assets/css/main.css`: commented and readable, with no framework, no
-  `@import`, and no third-party or legacy stylesheets. Hugo minifies and fingerprints it at build time
+- **CSS is hand-written**: `assets/css/main.css` holds every style, commented and readable, with no framework, no
+  `@import`, and no third-party or legacy stylesheets. The only other stylesheet, `assets/css/nojs.css`, is a few lines
+  loaded inside `<noscript>` that show the nav links when the hamburger menu can't work. Hugo minifies and fingerprints
+  both at build time
   (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
   stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
   same rule.
@@ -103,7 +105,7 @@ The templates assume this layout; other structures are not supported yet.
 | Shortcode | Usage | Notes |
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing, and its photos are not shown on walls or used as covers. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
-| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns. |
+| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. The positional form takes only `src`: Hugo doesn't allow adding `title=` to it, and a second positional argument is ignored, so such a photo gets the "Photo N" alt text. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns. |
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection), or the site's `baseURL` has no host to compare with. |
 
 ## Extending from a site
@@ -127,10 +129,14 @@ A site can add its own page types without overriding theme files:
 
 ```
 assets/css/main.css        tokens (palette) and all styles
+assets/css/nojs.css        loaded in <noscript>: shows the nav links at 820 px and narrower, where the menu needs JavaScript
 assets/js/theme.js         color theme switch (System, Light, Dark): sets data-theme on <html> before the first paint
 assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; without JavaScript, assets/css/nojs.css shows the links)
 assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
+assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
+assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
+data/theblues.toml         the theme version shown in the footer
 layouts/baseof.html        page shell
 layouts/home.html          landing page: hero, controls, masonry wall, pagination
 layouts/section.html       /post/ list (same wall)
@@ -141,10 +147,13 @@ layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
 layouts/search/section.html  search page (placeholder until the engine is chosen)
 layouts/404.html
+layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, gallery-figure, cover,
-                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-pager, wall-page
+                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-stand,
+                           wall-pager, wall-page
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
+static/                    favicon.svg, favicon.ico, apple-touch-icon.png
 ```
 
 ### How the wall works
@@ -174,7 +183,7 @@ layouts/_markup/           render-link, render-image
 - Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
   guyheckman.me"), but use page 1's canonical URL and have no `rel=prev/next` in the head. The pager links carry
   `rel=prev` and `rel=next`.
-- A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall, has no
+- A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall (first with Oldest first), has no
   `pubDate` in feeds, and the build warns.
 - Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
   `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`). The theme sets no referrer policy; browsers default to
@@ -191,7 +200,8 @@ layouts/_markup/           render-link, render-image
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
   devices and screen readers. An independent review (October 2026) measured contrast and keyboard behavior; its findings
   are open issues.
-- Build time grows quickly with the number of posts (the wall is rebuilt for each pager page); fine for a small site.
+- Build time grows with the number of posts and list pages: each list page (home, section, every term) builds its own
+  tile list, once for all its pager pages. 550 posts built in about 0.34 s when this was measured for 1.2.0 (#7).
 
 ## Site settings it reads
 
