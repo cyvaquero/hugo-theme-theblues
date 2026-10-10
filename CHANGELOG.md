@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.12] - Unreleased
+
+### Changed
+- The README's syntax-highlighting notes say that line numbers meet contrast only with `noClasses = false`: with
+  Hugo's default inline highlighting, Chroma's styles draw them in a low-contrast gray (`#7f7f7f` in most: 4.0:1 on
+  white, 3.18:1 on a highlighted line, 3.71:1 in the default `monokai`), and inline styles give the theme nothing to
+  override (#76).
+
 ## [1.2.11] - Unreleased
 
 ### Fixed
@@ -305,6 +313,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.12]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.11]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.10]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.9]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
