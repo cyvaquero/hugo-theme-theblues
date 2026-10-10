@@ -7,16 +7,9 @@
 {{ $label := index $labels $plural | default (.Data.Singular | title) }}
 {{ $kind := index $kinds $plural | default (.Data.Singular | title) }}
 {{ $posts := where .RegularPages "Section" "in" site.MainSections }}
-{{ $photos := 0 }}
-{{- /* Same fallback as cover.html: the header image as an absolute URL, so a relative path works on /tags/x/ (#67). */}}
-{{ $cover := "" }}{{ with site.Params.header_image }}{{ $cover = . | absURL }}{{ end }}
-{{ $found := false }}
-{{ range $posts.ByDate.Reverse }}
-  {{ if partialCached "is-photo.html" . .Path }}
-    {{ $photos = add $photos (len (partialCached "photos.html" . .Path)) }}
-    {{ if not $found }}{{ $cover = partialCached "cover.html" . .Path }}{{ $found = true }}{{ end }}
-  {{ end }}
-{{ end }}
+{{ $stats := partialCached "term-stats.html" . .Path }}
+{{ $photos := $stats.photos }}
+{{ $cover := $stats.cover }}
 <header class="phero thero"{{ with $cover }} style="--hi:url('{{ . }}')"{{ end }}>
   <div class="in">
     <a class="tl" href="{{ site.Home.RelPermalink }}">&larr; Back to all posts</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">All {{ .Title | lower }} &rarr;</a>{{ end }}

@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.39] - Unreleased
+
+### Changed
+- A tag, category or series page works out its hero's photo count and cover once per term instead of once per pager
+  page, which went through every post in the term each time. Median build with 2,000 generated posts 8.9 → 2.8 s and
+  with 600 posts 835 → 812 ms; guyheckman.me (96 → 95 ms) and the fixture site (84 → 84 ms) are unchanged. The built
+  pages are the same apart from the blank lines the old loop left before a term page's hero, one run per post in the
+  term, which are gone (#7).
+
 ## [1.2.38] - Unreleased
 
 ### Changed
