@@ -7,7 +7,8 @@ All notable changes to this theme are documented here. The format follows
 
 ### Fixed
 - A missing theme stylesheet or script fails the build with `theblues: asset "css/main.css" not found in assets/`,
-  instead of publishing every page without it and exiting successfully (#83).
+  instead of publishing every page without it and exiting successfully. `asset.html` itself still returns nothing for
+  a missing file, so a site's own partials can keep using it for optional files (#83).
 
 ## [1.2.16] - Unreleased
 
