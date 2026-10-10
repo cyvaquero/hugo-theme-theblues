@@ -1,4 +1,5 @@
+{{ define "init" }}{{ partial "wall-pager.html" (dict "page" . "posts" ((where .RegularPagesRecursive "Section" "post").ByDate.Reverse)) }}{{ end }}
 {{ define "main" }}
 {{ with .Content }}<div class="pb">{{ . }}</div>{{ end }}
-{{ partial "wall-page.html" (dict "page" . "posts" ((where .RegularPagesRecursive "Section" "post").ByDate.Reverse)) }}
+{{ partial "wall-page.html" . }}
 {{ end }}

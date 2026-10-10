@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.14] - Unreleased
+
+### Fixed
+- Wall pages after the first have their own title: `/page/2/` is "guyheckman.me – Page 2" and `/tags/x/page/2/`
+  "X – Page 2 | guyheckman.me", so tabs, history and screen readers can tell them from page 1. Page 1 and every other
+  page are unchanged. The wall layouts now build their paginator in an `init` block that `baseof.html` runs before
+  `<head>`; `wall-page.html` takes the list page as its context and reads what the new `wall-pager.html` stored (#78).
+
 ## [1.2.13] - Unreleased
 
 ### Fixed
@@ -320,6 +328,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.14]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.13]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.12]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.11]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
