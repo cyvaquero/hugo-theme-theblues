@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.8] - Unreleased
+
+### Fixed
+- A post that wraps its `gallery` calls in the `{{% galleries %}}` form, which renders no photos, no longer takes its
+  hero and `og:image` from those hidden photos, and they no longer appear as wall tiles: such a post gets the site
+  cover and, with no other photos, an article tile. The README's share-image and `galleries` notes say so (#71).
+
 ## [1.2.7] - Unreleased
 
 ### Security
@@ -273,6 +280,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.8]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.7]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.6]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.5]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
