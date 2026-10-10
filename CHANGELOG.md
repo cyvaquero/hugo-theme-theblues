@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.22] - Unreleased
+
+### Fixed
+- Highlighted code blocks show the keyboard focus ring. Hugo makes each block's `<pre>` focusable so it can scroll, but
+  the block clipped the ring drawn outside it, leaving nothing or only a side bar. The 3px ring now goes around the whole
+  block, 5.37:1 on the light page and 8.06:1 on the dark one, in both highlighting modes and with the theme switch
+  either way (#66).
+
 ## [1.1.21] - Unreleased
 
 ### Fixed
