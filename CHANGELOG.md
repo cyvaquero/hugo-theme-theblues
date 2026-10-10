@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.10] - Unreleased
+
+### Fixed
+- The build warning for a `gallery` photo without a `title` identifies the photo: it now gives the photo's `src`, and
+  for a photo inside a `galleries` block the block's line instead of `:1:1`, for example
+  `photo 2 (https://…/i-2-X2.jpg) has no title … ("content/post/g.md:7:1")` (#73).
+
 ## [1.2.9] - Unreleased
 
 ### Fixed
@@ -291,6 +298,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.10]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.9]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.8]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.7]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
