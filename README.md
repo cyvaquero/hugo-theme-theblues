@@ -142,7 +142,7 @@ layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery)
 layouts/search/section.html  search page (placeholder until the engine is chosen)
 layouts/404.html
 layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, gallery-figure, cover,
-                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-page
+                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-pager, wall-page
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 ```
@@ -165,14 +165,14 @@ layouts/_markup/           render-link, render-image
 - The wall is paginated **by tile**, 24 per page (`params.wall.tilesPerPage`), so chip counts, the caption and group-by are
   per page, and a gallery can be split across two pages. With the current content (5 articles and 3 galleries) everything
   fits on one page of 20 tiles. Hugo's `.Paginate` only accepts a collection of pages, so
-  `layouts/_partials/wall-page.html` paginates a stand-in collection with one entry per tile and slices the real tile list
+  `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
   `tilesPerPage` and `photosPerGallery` must be 1 or more; anything else fails the build with a message naming the
   setting. The pager shows the first and last pages and two on
   each side of the current one.
-- Wall pages after the first (`/page/2/`, …) use page 1's canonical URL and title, and have no `rel=prev/next` in the head:
-  the head is rendered before the wall builds its paginator, so it can't know the page number. The pager links carry
+- Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
+  guyheckman.me"), but use page 1's canonical URL and have no `rel=prev/next` in the head. The pager links carry
   `rel=prev` and `rel=next`.
 - A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall, has no
   `pubDate` in feeds, and the build warns.

@@ -7,7 +7,7 @@
   photos falls back to an article tile.
 */ -}}
 {{- $per := 4 -}}
-{{- /* Read like tilesPerPage in wall-page.html: 0 is a value, not "unset" (#69). */ -}}
+{{- /* Read like tilesPerPage in wall-pager.html: 0 is a value, not "unset" (#69). */ -}}
 {{- with site.Params.wall }}{{ $v := .photosPerGallery }}{{ if ne $v nil }}{{ $per = int $v }}{{ end }}{{ end -}}
 {{- if lt $per 1 }}{{ errorf "params.wall.photosPerGallery must be 1 or more (got %d)" $per }}{{ end -}}
 {{- $out := slice -}}

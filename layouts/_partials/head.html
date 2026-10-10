@@ -4,6 +4,11 @@
 {{ $st := site.Params.SEOTitle | default site.Title }}
 {{- /* "Page | Site", or just the page title when the site title is empty (#18). */}}
 {{ $title := cond .IsHome ($st | default $pt) (cond (ne $st "") (printf "%s | %s" $pt $st) $pt) }}
+{{- /* Wall pages after the first add their number: "Site – Page 2", "Hugo – Page 2 | Site" (#78). The wall layouts
+  build the paginator before <head> (wall-pager.html); other pages have no "wall" in their Store. */}}
+{{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}
+{{ $title = cond (or $.IsHome (eq $st "")) (printf "%s – Page %d" $title .PageNumber) (printf "%s – Page %d | %s" $pt .PageNumber $st) }}
+{{ end }}{{ end }}{{ end }}
 {{ $desc := .Description | default site.Params.description }}
 {{ $img := partialCached "cover.html" . .Path }}
 {{- /* Share image: the page's own image or first photo, else params.og_image, else the cover (the header image). */}}

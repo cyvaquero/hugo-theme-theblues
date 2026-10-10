@@ -1,3 +1,6 @@
+{{- /* A layout's "init" block runs first and prints nothing: the wall layouts build their paginator there, so the
+  <head> can number the page (#78). */ -}}
+{{- block "init" . }}{{ end -}}
 <!DOCTYPE html>
 <html lang="{{ site.Language.Locale }}">
 <head>
