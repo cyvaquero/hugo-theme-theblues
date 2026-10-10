@@ -3,31 +3,7 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.1.22] - Unreleased
-
-### Fixed
-- Highlighted code blocks show the keyboard focus ring. Hugo makes each block's `<pre>` focusable so it can scroll, but
-  the block clipped the ring drawn outside it, leaving nothing or only a side bar. The 3px ring now goes around the whole
-  block, 5.37:1 on the light page and 8.06:1 on the dark one, in both highlighting modes and with the theme switch
-  either way (#66).
-
-## [1.1.21] - Unreleased
-
-### Fixed
-- A post without a `title` gets its file-name title ("No Title Here") everywhere it is linked or named, not only in
-  its heading and wall article tile: post navigation, the series box list and pager, photo tiles (name, caption and
-  accessible name), see-all tiles and "Group by gallery" headings. Before, these showed empty link text or a name
-  starting with a comma (#65).
-
-## [1.1.20] - Unreleased
-
-### Changed
-- Faster builds for sites with many posts: the wall's tile list and pager are built once per list page instead of once
-  per pager page. Median build times (Hugo 0.167.0) went from 125.1 to 114.5 ms with 80 posts and from 711.6 to
-  335.8 ms with 550; guyheckman.me's 8 posts are unchanged (77.2 to 76.9 ms). The built site is byte-for-byte the same
-  (#7).
-
-## [1.1.19] - Unreleased
+## [1.2.0] - 2026-10-09
 
 ### Added
 - A color theme switch in the nav: System (the default, follows the device setting), Light and Dark (#22).
@@ -39,224 +15,122 @@ All notable changes to this theme are documented here. The format follows
     the page.
   - `color-scheme` and both `theme-color` metas follow the picked mode, and loaded Disqus comments reload to match.
   - Every element's computed colors in a picked mode match the same mode chosen by the system, so the measured
-    contrast carries over. With no choice stored, pages are unchanged.
-  - Without JavaScript the switch is hidden and the mode follows the system, as before.
-
-## [1.1.18] - Unreleased
-
-### Added
-- Highlighted code blocks follow light and dark mode when the site sets `[markup.highlight] noClasses = false`. The
+    contrast carries over. Without JavaScript the switch is hidden and the mode follows the system.
+- Highlighted code blocks follow light and dark mode when the site sets `[markup.highlight] noClasses = false`: the
   theme colors Chroma's classes with the modus-operandi palette in light mode and modus-vivendi in dark, on the theme's
-  code background. Every token measures 4.8:1 or more in both modes, line numbers included (on a highlighted line they
-  take the text color). With Hugo's default inline styles nothing changes (computed styles compared on eight page types,
-  both modes, two widths) (#5).
-
-## [1.1.17] - Unreleased
+  code background, every token 4.8:1 or more, line numbers included. With Hugo's default inline styles, blocks show
+  the chosen style's own colors and background (no hard-coded `monokailight` gray), and the README and CSS describe any
+  light inline style, for example `modus-operandi` (#5, #44).
+- A favicon and touch icon: a cream serif "g" on navy, as `favicon.svg`, `favicon.ico` (16, 32 and 48px) and a 180px
+  `apple-touch-icon.png` in the theme's `static/`. A site uses its own by adding files with the same names to its
+  `static/` (#1).
+- `<meta name="theme-color">`: navy `#1B3C53` in light mode and `#0F2332` in dark (#1, #22).
+- `params.og_image`: the share image for pages that have no `image` of their own and no photos. The header image is
+  still the fallback when it is unset (#1).
+- `images/screenshot.png` and `images/tn.png` for `theme.toml` (#1).
+- `og:locale`, `article:published_time` (posts), `twitter:title` and `twitter:description` meta tags, and
+  `<meta name="robots" content="noindex">` on the 404 page and the search section (#2).
+- A print stylesheet: black on white, without the nav, controls or comments (#3).
 
 ### Changed
 - Text in a photo post, around its galleries, is styled like an article: serif body text, headings, quotes, tables,
-  code and code blocks, figures and captions, in a 44rem column. The galleries are unchanged, and so is every page
-  whose photo posts have only galleries, which is all of them on guyheckman.me today (computed styles compared on
-  eight page types, both modes, two widths) (#5).
-
-## [1.1.16] - Unreleased
-
-### Changed
-- The heroes, photo tile badges and captions, and the lightbox take their cream, sand and scrim colors from the color
-  tokens instead of repeating the hex values. Nothing looks different: the computed colors of every element on eight
-  page types, in both modes, at 1280 and 375 px wide, with the lightbox open and a photo tile focused, are unchanged.
-  A new `--scrim` token holds the navy scrim color for a site's own CSS (#5).
-
-## [1.1.15] - Unreleased
-
-### Fixed
-- A post without a `date` no longer shows "Jan 1, 0001" (#36):
-  - The post header, its wall tiles, the archive (under an "Undated" heading) and the series box show "Undated".
-  - The build warns, naming the file.
-  - Feed items have no `pubDate`. The theme's feed template now covers section and term feeds too, not just the home
-    feed, and is otherwise Hugo's.
-  - Undated posts sort after dated ones on the wall.
-
-## [1.1.14] - Unreleased
-
-### Security
-- The `embed` shortcode fails the build for a URL on the site's own host. The sandbox it sets, `allow-scripts` plus
-  `allow-same-origin`, lets a same-origin page lift its own sandbox, so it protects only cross-origin frames such as
-  SmugMug embeds, which still work (#37).
-
-## [1.1.13] - Unreleased
-
-### Fixed
-- Moving through the lightbox announces the position and the photo's description ("Photo 4 of 18: La Huasteca")
-  instead of only the counter "4 / 18". The visible counter is unchanged (#38).
-
-## [1.1.12] - Unreleased
-
-### Fixed
-- The see-all tile's accessible name starts with its visible text ("Boston Gallery, 14 more photos, see all 18"), so a
-  voice-control user can say what they see. It was "See all 18 photos in Boston Gallery" (WCAG 2.5.3, #34).
-
-## [1.1.11] - Unreleased
-
-### Fixed
-- Highlighted code blocks show the Chroma style's own background instead of a hard-coded `monokailight` gray
-  (`#fafafa`) around them, and the README and CSS comments no longer name `monokailight`. They describe any light
-  inline Chroma style, for example `modus-operandi`, which the site uses. Code blocks stay light in dark mode (#44).
-
-## [1.1.10] - Unreleased
-
-### Changed
+  code and code blocks, figures and captions, in a 44rem column. The galleries are unchanged (#5).
+- The heroes, photo tile badges and captions, and the lightbox take their colors from the color tokens; nothing looks
+  different (computed colors of every element on eight page types, both modes, 1280 and 375 px, unchanged). A new
+  `--scrim` token holds the navy scrim color for a site's own CSS (#5).
+- Faster builds for sites with many posts: the wall's tile list and pager are built once per list page instead of once
+  per pager page. Median build times (Hugo 0.167.0) went from 125.1 to 114.5 ms with 80 posts and from 711.6 to
+  335.8 ms with 550; guyheckman.me's 8 posts are unchanged (77.2 to 76.9 ms). The built site is byte-for-byte the same
+  (#7).
 - Disqus comments are click to load. Posts show a "Show comments" button, and nothing from Disqus, or the ad trackers
   it brings, is requested until a reader clicks it. Focus then moves to the comments. Development builds show a note
   instead (#16).
 - The GA and Disqus loaders are small theme files (`assets/js/analytics.js`, `assets/js/comments.js`) instead of Hugo's
   inline templates, so pages have no inline scripts. A site CSP no longer needs `script-src` hashes for them (#16).
+- Highlight mode turns non-matching tiles gray and fades their photos, instead of fading the whole tile to 35%. Their
+  text keeps full contrast: 6.63:1 light and 5.8:1 dark, up from about 1.7–2.6:1. Matching tiles get a dashed outline,
+  so a focused tile's solid ring stands out (#3, #19).
+- The theme's feed template (`layouts/rss.xml`) covers the home, section and term feeds. The home feed lists only
+  main-section pages, so About and Archive are no longer items dated 0001; items without a date have no `pubDate`. A
+  site's own feed template still takes precedence (#18, #36).
+- The theme no longer looks for `static/img/favicon.ico` and no longer sets an empty `data:,` icon. A site that kept
+  its icon there should rename it to `static/favicon.ico` (#1).
 
-### Security
-- Visitors who send Do Not Track or Global Privacy Control no longer request gtag.js from Google. Hugo's template
-  loaded it for everyone and only skipped the tracking call. Analytics no longer loads in development builds (#16).
-- The lightbox is built with DOM calls instead of `innerHTML`, so it works under a Trusted Types CSP (#16).
-
-## [1.1.9] - Unreleased
+### Removed
+- The unused `data-series` attribute on tiles and the dead `.tile[hidden], details[hidden]` rule (#13).
 
 ### Fixed
-- Photo counts, wall tiles and covers now match the photos a post actually shows (#17):
+- A post without a `title` gets one from its file name ("20250601-untitled-post.md" becomes "Untitled Post")
+  everywhere it is shown or linked: the `h1`, `<title>`, wall tiles (name, caption and accessible name), see-all tiles,
+  "Group by gallery" headings, the archive, the feed, post navigation and the series box (#18, #65).
+- A post without a `date` shows "Undated" instead of "Jan 1, 0001" in its header, wall tiles, the archive (under an
+  "Undated" heading) and the series box; the build warns, naming the file; and it sorts after dated posts on the
+  newest-first wall (#36).
+- Keyboard focus is visible everywhere it lands (#19, #66):
+  - Photo, see-all and article tiles share a solid `--focus` ring: 5.37:1 in light mode, 8.06:1 in dark (article
+    tiles drew sand on cream, 1.59:1). The tile rings need `:has()` and are applied only where it is supported.
+  - Tag links in article tiles have a sand ring on the navy tile (6.63:1, was 1.96:1) and are 24px tall, up from 15px.
+  - Highlighted code blocks show the 3px ring around the whole block instead of a clipped one: 5.37:1 light,
+    8.06:1 dark, in both highlighting modes.
+- Focus is managed in the wall controls, nav and popover (#3, #13, #19):
+  - Clear moves focus to the "All" chip; Reset closes the popover and returns to "View options".
+  - One Escape with the menu and popover open closes only the popover.
+  - Opening the popover moves focus to its first control, and it closes when focus leaves it, or when a chip or Clear
+    is clicked.
+  - The open menu closes when focus leaves it, and drops its open state when the window grows past 820px.
+  - The skip link focuses `main`. Keyboard focus on a type chip no longer dims the wall; only mouse hover previews.
+- Accessible names and announcements (#3, #13, #19, #34, #38):
+  - "View options" with its badge reads "View options 1 active"; the Group switch, selected chips and group headings
+    no longer include their On/Off text or ✓ and ▸/▾ glyphs; the ☰ glyph is hidden.
+  - The see-all tile's name starts with its visible text ("Boston Gallery, 14 more photos, see all 18", WCAG 2.5.3).
+  - Moving through the lightbox announces "Photo 4 of 18: La Huasteca" instead of only the counter "4 / 18".
+  - The wall's live caption changes only when its text does, and isn't announced on page load.
+  - External links say "(opens in a new tab)" to screen readers.
+  - A visually hidden "Posts" `h2` above the wall gives h1 > h2 > h3. The table of contents is a `nav` named "Table of
+    contents", and the sticky version scrolls when it is taller than the window (the Markdown cheatsheet's was 847px).
+- Without JavaScript, the nav shows its links at 820px and narrower instead of a Menu button that does nothing
+  (`assets/css/nojs.css`, loaded in `<noscript>`, no inline CSS) (#3).
+- Text over photos meets AA even over a white image: home hero scrim .70–.85 with a cream kicker, post hero at least
+  .85 behind its text, photo tile captions at least .85 (#3).
+- The lightbox: its counter and alt text change only when the new photo has loaded, so they describe the photo on
+  screen, and the neighbors are preloaded; Home and End keys, and swipe; no Previous or Next for a single photo; the
+  page doesn't scroll behind it; dynamic viewport units (`dvh`) (#3).
+- A gallery photo without a title still gets "Photo N" alt text, and the build warns (#3).
+- Forced colors: the Group switch knob is 21:1 off and 14.37:1 on (was 1:1); pressed chips and the current page use
+  the system highlight (#3).
+- Post headers link their categories (#3), and the legacy `addtional_menus` links get `aria-current` (#3).
+- Photo counts, wall tiles and covers match the photos a post shows (#17):
   - A positional `src` (`{{< gallery "…" >}}`) is counted.
-  - Titles with an escaped quote, a `}` or a `>` are read whole.
-  - Backtick-quoted arguments are read.
+  - Titles with an escaped quote, a `}` or a `>` are read whole, and backtick-quoted arguments are read.
   - The `{{% %}}` form, which renders nothing, is no longer counted.
 
   A probe post with four photos was counted as 2, with one title cut to `A \`; it is now counted as 4, all titles
   intact.
-
-### Security
-- A gallery photo inside an HTML comment (`<!-- {{< gallery … >}} -->`) is no longer published on the home and term
-  walls or used as the post's cover and `og:image`. The post itself never showed it (#17).
-
-## [1.1.8] - Unreleased
-
-### Added
-- `og:locale`, `article:published_time` (posts), `twitter:title` and `twitter:description` meta tags (#2).
-- `<meta name="robots" content="noindex">` on the 404 page and the search section (#2).
-
-### Fixed
-- Every page links the site's RSS feed, in the head and in the footer. Posts, About and Archive had no feed link, and
-  the footer pointed at a term's own feed on term pages; term and section pages also link their own feed (#2).
-- `og:image` is emitted only for an `http` or `https` URL; a `javascript:` image in front matter was output as is (#2).
-
-## [1.1.7] - Unreleased
-
-### Fixed
+- Every page links the site's RSS feed, in the head and in the footer; term and section pages also link their own
+  feed (posts, About and Archive had none, and the footer pointed at a term's own feed on term pages) (#2).
 - Template edge cases (#18):
-  - **`params.wall.tilesPerPage`:** a value below 1 fails the build with a clear message. `0` used to mean 24 and `-1`
-    aborted with a template error.
-  - **Long pagers:** they show the first and last pages and two on each side of the current page, with an ellipsis,
-    instead of every page.
-  - **Posts without a title:** they get one from the file name ("20250601-untitled-post.md" becomes "Untitled Post")
-    in the `h1`, the wall tile, the archive and the feed, instead of empty headings and links.
+  - **`params.wall.tilesPerPage`:** a value below 1 fails the build with a clear message (`0` meant 24 and `-1`
+    aborted with a template error).
+  - **Long pagers:** the first and last pages and two on each side of the current page, with an ellipsis.
   - **Empty site title:** page titles drop the trailing " | ".
   - **A to Z indexes:** sorted by the term page's title, so a retitled term no longer repeats a letter heading.
   - **`showtoc`:** `showtoc: "false"` (a string) turns the table of contents off, like `showtoc: false`.
-  - **Home feed:** a theme `home.rss.xml` lists only main-section pages, so About and Archive are no longer feed items
-    dated 0001. A site's own `home.rss.xml` still takes precedence.
-
-## [1.1.6] - Unreleased
-
-### Fixed
-- Leftover defects from the code review (#13):
-  - **Popover:** clicking a type chip or Clear while View options is open now closes it.
-  - **Caption:** the wall's live caption is no longer announced on page load.
-  - **Menu:** the hamburger menu drops its open state when the window grows past 820px.
-  - **Wide content:** images, code and tables in photo-post and page bodies stay within the page width.
-- Tiles no longer carry the unused `data-series` attribute, and the dead `.tile[hidden], details[hidden]` rule is gone
-  (#13).
-
-## [1.1.5] - Unreleased
-
-### Fixed
 - "Oldest first" is the exact reverse of "Newest first" for posts published on the same day, on the flat wall and for
   same-day galleries in grouped mode. A gallery's photos keep their order, and its see-all tile stays last (#32).
-
-## [1.1.4] - Unreleased
-
-### Fixed
+- Images, code and tables in photo-post and page bodies stay within the page width (#13).
 - The hero's wavy-underline style (`.u`) applies only inside the home hero. It used to italicize any `class="u"`
   element on the site, such as the unit labels in SnugCut on guyheckman.me (#33).
 
-## [1.1.3] - Unreleased
-
-### Added
-- A favicon and touch icon: a cream serif "g" on navy (#1).
-  - **Files:** `favicon.svg` (the letter in the system serif), `favicon.ico` (16, 32 and 48px) and a 180px
-    `apple-touch-icon.png`, all in the theme's `static/`.
-  - **Overriding:** a site uses its own by adding files with the same names to its `static/`.
-- `<meta name="theme-color">`: navy `#1B3C53` in light mode and `#0F2332` in dark (#1).
-- `params.og_image`: the share image for pages that have no `image` of their own and no photos. The header image is
-  still the fallback when it is unset (#1).
-- `images/screenshot.png` and `images/tn.png` for `theme.toml` (#1).
-
-### Changed
-- The theme no longer looks for `static/img/favicon.ico` and no longer sets an empty `data:,` icon. A site that kept
-  its icon there should rename it to `static/favicon.ico` (#1).
-
-## [1.1.2] - Unreleased
-
-### Fixed
-- Accessibility gaps in the nav, the View options popover and the lightbox, and contrast over photos and in Highlight
-  mode (#3). Measured in headless Chrome on guyheckman.me:
-  - **Nav:**
-    - Without JavaScript, at 820px and narrower the nav shows its links instead of a Menu button that does
-      nothing. This uses `assets/css/nojs.css`, loaded in `<noscript>`, with no inline CSS.
-    - The ☰ glyph is hidden from screen readers.
-    - The open menu closes when keyboard focus leaves it.
-    - The legacy `addtional_menus` links get `aria-current`.
-    - The skip link focuses `main`.
-  - **View options popover:**
-    - Opening it moves focus to its first control.
-    - It closes when focus leaves it, so it can't cover the next focused tile.
-    - Keyboard focus on a type chip no longer dims the wall; only mouse hover previews.
-    - The live caption changes only when its text does.
-  - **Highlight mode:** non-matching tiles turn gray and their photos fade, instead of the whole tile fading to 35%.
-    Their text keeps full contrast: 6.63:1 light and 5.8:1 dark, up from about 1.7–2.6:1.
-  - **Text over photos:** the scrims meet AA even over a white image.
-    - Home hero: .70–.85; its small "kicker" label is now cream.
-    - Post hero: at least .85 behind its text.
-    - Photo tile captions: at least .85.
-  - **Lightbox:**
-    - The counter and alt text change only when the new photo has loaded, so they always describe the photo on
-      screen; the neighbors are preloaded.
-    - Home and End keys, and swipe.
-    - No Previous or Next buttons for a single photo.
-    - The page doesn't scroll behind it.
-    - It uses dynamic viewport units (`dvh`).
-  - **Gallery titles:** a gallery photo without a title still gets "Photo N" alt text, and the build now warns.
-  - **Post header:** categories are links.
-  - **Forced colors:** the Group switch was invisible (1:1). Its knob is now 21:1 when off and 14.37:1 when on.
-    Pressed chips and the current page use the system highlight.
-  - **Print:** a print stylesheet prints black on white, without the nav, controls or comments.
-
-## [1.1.1] - Unreleased
-
-### Fixed
-- Keyboard focus on the wall (#19). Measured in headless Chrome on guyheckman.me:
-  - **Tile focus rings:** article tiles drew their ring in sand on the cream page, 1.59:1. Photo, see-all and article
-    tiles now share a solid `--focus` ring: 5.37:1 in light mode, 8.06:1 in dark.
-  - **Highlight mode:** matching tiles get a dashed outline instead of a solid sand one, so the focused tile stands out.
-  - **Tag links in article tiles:** their focus ring is sand on the navy tile (6.63:1, was 1.96:1). They are 24px
-    tall, up from 15px.
-  - **Older browsers:** the tile rings need `:has()`. They are now applied only where it is supported, and the link
-    keeps its own ring elsewhere.
-  - **Clear and Reset:** they no longer drop focus to the page. Clear moves it to the "All" chip; Reset closes the
-    popover and returns to "View options".
-  - **Escape:** one press with the menu and the popover open closes only the popover.
-  - **Accessible names:**
-    - "View options" with its badge reads "View options 1 active".
-    - The Group switch no longer includes its On/Off text.
-    - Selected chips and group headings no longer include their ✓ and ▸/▾ glyphs.
-  - **Heading outline:** a visually hidden "Posts" `h2` above the wall gives h1 > h2 > h3.
-  - **Table of contents:** it is a `nav` named "Table of contents" instead of an unnamed `nav` inside a named
-    `aside`. The sticky version scrolls when it is taller than the window: the Markdown cheatsheet's was 847px.
-  - **External links:** they say "(opens in a new tab)" to screen readers.
+### Security
+- The `embed` shortcode fails the build for a URL on the site's own host. The sandbox it sets, `allow-scripts` plus
+  `allow-same-origin`, lets a same-origin page lift its own sandbox, so it protects only cross-origin frames such as
+  SmugMug embeds, which still work (#37).
+- Visitors who send Do Not Track or Global Privacy Control no longer request gtag.js from Google. Hugo's template
+  loaded it for everyone and only skipped the tracking call. Analytics no longer loads in development builds (#16).
+- The lightbox is built with DOM calls instead of `innerHTML`, so it works under a Trusted Types CSP (#16).
+- A gallery photo inside an HTML comment (`<!-- {{< gallery … >}} -->`) is no longer published on the home and term
+  walls or used as the post's cover and `og:image`. The post itself never showed it (#17).
+- `og:image` is emitted only for an `http` or `https` URL; a `javascript:` image in front matter was output as is (#2).
 
 ## [1.1.0] - 2026-10-08
 
@@ -351,5 +225,6 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/cyvaquero/hugo-theme-theblues/releases/tag/1.0.0
