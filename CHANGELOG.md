@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.33] - Unreleased
+
+### Added
+- The README's "Site settings it reads" covers the feed settings (`params.author`, which adds an author to the feeds
+  only as a table with an `email`; `copyright`, used by the feeds but not the footer; `[services.rss] limit`) and the
+  `[markup]` settings that change what the theme shows (highlighting classes, table of contents levels, stand-alone
+  image figures), and says what the front matter `image` does. The built site is unchanged (#6).
+
 ## [1.2.32] - Unreleased
 
 ### Changed

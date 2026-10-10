@@ -244,6 +244,20 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   loads before it is clicked. Builds for other environments (`hugo server`, `--environment staging`) show a note
   instead; analytics, likewise, loads only in production. A leading slash in the shortname is ignored. Optional front
   matter: `disqus_url`, `disqus_identifier`, `disqus_title`.
+- Feeds (`layouts/rss.xml`, as in Hugo's built-in template):
+  - `params.author` as a table with `email` and an optional `name` (`[params.author] name = "…" email = "…"`) fills
+    the channel's `managingEditor` and `webMaster` and each item's `author`, which RSS requires to be an email
+    address. A plain string, or a name without an email, adds nothing.
+  - `copyright` becomes the channel's `copyright`. The footer doesn't use it: it shows "© <title> <current year>".
+  - `[services.rss] limit` caps the number of items (no cap by default).
+- `[markup]`: the theme works with Hugo's defaults, and these settings change what it shows:
+  - `[markup.highlight] noClasses = false` lets code follow the light and dark palette (see Syntax highlighting);
+  - `[markup.tableOfContents] startLevel` and `endLevel` set which headings the "On this page" box lists, and a post
+    with no headings in that range has no box;
+  - `[markup.goldmark.parser] wrapStandAloneImageWithinParagraph = false` turns a titled image on its own line into a
+    figure with a caption (see Markdown links and images).
+
+  The `series` taxonomy also has to be declared by the site (see Taxonomies).
 - Hugo's `[privacy]` settings: the theme loads Google Analytics and Disqus with its own scripts, not Hugo's internal
   templates, so only these apply:
   - `[privacy.googleAnalytics] disable = true` leaves analytics out;
@@ -254,8 +268,9 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 `header_image`, `image` and `image_404` may be absolute URLs or paths under the site root (`img/x.jpg`); the theme turns paths
 into absolute URLs.
 
-Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `categories` (a list, or a single string),
-`tags`, `series`.
+Front matter: `title`, `subtitle`, `description`, `date`, `image` (the page's hero image and share image; without it the
+hero uses the first gallery photo, then the site's `header_image`, see Share image), `showtoc`, `categories` (a list,
+or a single string), `tags`, `series`.
 
 ## Accessibility
 
