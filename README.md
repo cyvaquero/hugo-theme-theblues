@@ -87,7 +87,8 @@ The templates assume this layout; other structures are not supported yet.
   - `static/apple-touch-icon.png` (180px, square, since iOS rounds the corners).
 
   To use your own, put files with the same names in the site's `static/`, which takes precedence over the theme's. The
-  `<meta name="theme-color">` is navy `#1B3C53` in light mode and `#0F2332` in dark, the nav band's colors.
+  `<meta name="theme-color">` is navy `#1B3C53` in light mode and `#0F2332` in dark, the nav band's colors (`--band`;
+  a palette change updates both `main.css` and `head.html`, which point at each other).
 - **Color theme switch:** the last item of the nav, inline from 821px and inside the hamburger menu below that. Three
   buttons, System (the default), Light and Dark, with `aria-pressed` on the current one. `theme.js` sets
   `data-theme="light"` or `"dark"` on `<html>`, keeps the choice in `localStorage` under `theme` (System removes it),

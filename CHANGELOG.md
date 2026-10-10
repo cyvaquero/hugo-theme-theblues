@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.24] - Unreleased
+
+### Changed
+- The `theme-color` values in `head.html` and the `--band` token in `main.css` now point at each other in comments,
+  and the README says a palette change updates both, so the browser-UI color can't drift from the nav band unnoticed.
+  The built site is unchanged (#91).
+
 ## [1.2.23] - Unreleased
 
 ### Fixed
@@ -392,6 +399,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.24]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.23]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.22]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.21]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop

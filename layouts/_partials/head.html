@@ -22,6 +22,8 @@
 <link rel="icon" href="{{ "favicon.ico" | relURL }}" sizes="16x16 32x32 48x48">
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
+{{- /* The browser-UI color is the nav band's: --band in assets/css/main.css (the light value, and the dark value in both
+  dark blocks). Keep these two values the same as those (#91); theme.js reads them back from these metas. */}}
 <meta name="theme-color" content="#1B3C53" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F2332" media="(prefers-color-scheme: dark)">
 {{- /* The site feed on every page, plus a list page's own feed (term, section) (#2). */}}
