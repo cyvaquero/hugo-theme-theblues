@@ -72,6 +72,11 @@ The templates assume this layout; other structures are not supported yet.
   theme colors them from its `--sx-*` tokens: the modus-operandi colors in light mode and modus-vivendi in dark, on the
   theme's code background, all 4.8:1 or more. The `style` setting is then unused. With Hugo's default inline highlighting
   (`noClasses = true`) the chosen style's own colors show instead, so code blocks keep them in both modes.
+  **Line numbers** (`lineNos = true` or `linenos=true` on a block) meet contrast only with `noClasses = false`.
+  Inline styles carry no classes the theme can target, and Chroma's styles draw line numbers in a low-contrast gray,
+  `#7f7f7f` in most (for example `github`, `modus-operandi`, `monokai`): 4.0:1 on white and 3.18:1 on a highlighted
+  line in light styles, 3.71:1 and 2.74:1 in the default `monokai`, and about 2.5:1 in `nord` and `gruvbox-light`,
+  all below the 4.5:1 that WCAG 1.4.3 asks for.
 - **Icons:** the theme ships a serif "g" monogram on navy, served from the site root:
   - `static/favicon.svg`, with the letter in the system serif;
   - `static/favicon.ico` (16, 32 and 48px);
