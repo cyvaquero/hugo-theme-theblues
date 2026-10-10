@@ -222,8 +222,9 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   - Analytics loads only in production builds, unless `[privacy.googleAnalytics] disable = true`.
   - A visitor who sends Do Not Track or Global Privacy Control gets nothing: no gtag.js request and no hit.
 - `[services.disqus] shortname`: comments are click to load. Posts show a "Show comments" button, and nothing from Disqus
-  loads before it is clicked. A leading slash in the shortname is ignored. Optional front matter: `disqus_url`,
-  `disqus_identifier`, `disqus_title`.
+  loads before it is clicked. Builds for other environments (`hugo server`, `--environment staging`) show a note
+  instead; analytics, likewise, loads only in production. A leading slash in the shortname is ignored. Optional front
+  matter: `disqus_url`, `disqus_identifier`, `disqus_title`.
 - Hugo's `[privacy]` settings: the theme loads Google Analytics and Disqus with its own scripts, not Hugo's internal
   templates, so only these apply:
   - `[privacy.googleAnalytics] disable = true` leaves analytics out;
