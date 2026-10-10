@@ -209,6 +209,12 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 - `[services.disqus] shortname`: comments are click to load. Posts show a "Show comments" button, and nothing from Disqus
   loads before it is clicked. A leading slash in the shortname is ignored. Optional front matter: `disqus_url`,
   `disqus_identifier`, `disqus_title`.
+- Hugo's `[privacy]` settings: the theme loads Google Analytics and Disqus with its own scripts, not Hugo's internal
+  templates, so only these apply:
+  - `[privacy.googleAnalytics] disable = true` leaves analytics out;
+  - `[privacy.disqus] disable = true` leaves the comments out (no button, no script);
+  - `[privacy.googleAnalytics] respectDoNotTrack` has no effect: Do Not Track and Global Privacy Control are always
+    honored. The other `privacy.googleAnalytics` settings are for Hugo's internal template and are ignored too.
 
 `header_image`, `image` and `image_404` may be absolute URLs or paths under the site root (`img/x.jpg`); the theme turns paths
 into absolute URLs.
