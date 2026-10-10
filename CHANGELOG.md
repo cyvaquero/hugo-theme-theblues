@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.21] - Unreleased
+
+### Changed
+- Theme script and stylesheet tags come from two partials, `script.html` and `stylesheet.html`, instead of eight
+  copies of the same markup in `head.html` and `baseof.html`. The built pages are byte-for-byte the same (#88).
+
 ## [1.2.20] - Unreleased
 
 ### Deprecated
@@ -373,6 +379,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.21]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.20]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.19]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.18]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop

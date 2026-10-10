@@ -1,0 +1,13 @@
+{{- /*
+  A <script> tag for a theme script in assets/, with its Subresource Integrity hash in production builds (see asset.html).
+  Context: a map with "path" (for example "js/menu.js"), and optionally "defer" (true) and "data" (a map of data-*
+  attributes, for example dict "id" "G-XXXX" for data-id). A missing file fails the build (#83). One place for the
+  markup of every theme script (#88).
+*/ -}}
+{{- $path := .path -}}
+{{- with partialCached "asset.html" $path $path -}}
+<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}
+{{- range $k, $v := $.data }} data-{{ $k }}="{{ $v }}"{{ end }}{{ if $.defer }} defer{{ end }}></script>
+{{- else -}}
+{{- errorf "theblues: asset %q not found in assets/" $path -}}
+{{- end -}}
