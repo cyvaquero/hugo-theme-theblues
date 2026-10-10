@@ -300,7 +300,7 @@ listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-t
 `exampleSite/` is a small fixture site whose content exercises the cases the guyheckman.me content doesn't: an untitled
 post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
 `{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
-a series, a code block with line numbers, a page without a title, the legacy `params.addtional_menus` nav, a footer
+a series, a code block with line numbers, a post whose headings are all below the TOC levels, a page without a title, the legacy `params.addtional_menus` nav, a footer
 menu, and wall pagination past page 1 (`tilesPerPage = 4`). Hugo doesn't use it when the theme is installed in a
 site. Build it from that folder:
 

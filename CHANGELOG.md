@@ -11,7 +11,7 @@ All notable changes to this theme are documented here. The format follows
   link, not just a list item. If a Hugo update changes the `<nav id="TableOfContents">` wrapper the theme checks and
   labels, the build warns (`theblues-toc-markup`, which stops `--panicOnWarning` builds) instead of silently dropping
   the label. The theme keeps Hugo's TOC, since templates can't read the TOC levels. On the fixture site and
-  guyheckman.me every other page is byte-for-byte the same (#87, #117).
+  guyheckman.me every other page is byte-for-byte the same; the fixture site has a post for the case (#87, #117).
 
 ## [1.2.28] - Unreleased
 
