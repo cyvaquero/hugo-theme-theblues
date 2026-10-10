@@ -238,6 +238,13 @@ footer.site .ver { font-size: .8rem; }
 .clr:hover { color: var(--text); }
 .cap { margin: 0; font-size: .8rem; line-height: 1.4; color: var(--muted); flex: 1 1 12rem; text-align: right; }
 @media (max-width: 699px) { .cap { text-align: left; } }
+/* The controls are hidden until wall.js shows them. Until then they keep their space (invisible, so out of the
+   accessibility tree and the tab order), so the wall doesn't move down when they appear; the empty caption gets its
+   line. Without JavaScript nojs.css collapses them again (#7). */
+@media screen {
+  .ctl[hidden] { display: flex !important; visibility: hidden; }
+  .ctl[hidden] .cap { min-height: 1.4em; }
+}
 .pop { position: absolute; z-index: 15; top: calc(100% - .2rem); left: 1rem; right: 1rem; background: var(--surface); color: var(--text); border: 1px solid var(--muted); border-radius: 12px; padding: 1rem 1rem .6rem; box-shadow: 0 10px 30px rgb(0 0 0 / .25); }
 @media (min-width: 700px) { .pop { left: auto; width: 20rem; } }
 .ps { display: block; margin: 0 0 .9rem; }
