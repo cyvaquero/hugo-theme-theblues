@@ -158,6 +158,7 @@ layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
+exampleSite/               fixture site for testing the theme (see Testing the theme); not used by sites
 ```
 
 ### How the wall works
@@ -246,6 +247,30 @@ into absolute URLs.
 
 Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `categories` (a list, or a single string),
 `tags`, `series`.
+
+## Testing the theme
+
+`exampleSite/` is a small fixture site whose content exercises the cases the guyheckman.me content doesn't: an untitled
+post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
+`{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
+a series, a code block with line numbers, a page without a title, the legacy `params.addtional_menus` nav, a footer
+menu, and wall pagination past page 1 (`tilesPerPage = 4`). Hugo doesn't use it when the theme is installed in a
+site. Build it from that folder:
+
+```bash
+cd exampleSite
+hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d /tmp/theblues-after
+```
+
+`--themesDir` must contain the theme as a folder (or link) named `hugo-theme-theblues`, which `../..` is in the site's
+submodule checkout. The build should finish with no warnings and no unused templates: the warnings the fixtures cause
+on purpose are listed in `ignoreLogs` in `exampleSite/hugo.toml`, and any other warning fails it.
+
+To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
+a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then
+compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
+footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does; anything else that differs
+is a change in output.
 
 ## Design decisions
 
