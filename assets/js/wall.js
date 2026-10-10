@@ -2,7 +2,8 @@
 // Progressive enhancement: the wall is complete and sorted newest first without this file; the controls markup is
 // hidden until this script runs. Behavior follows the final mockup (decision D12): type chips with counts, a
 // "View options" popover (Mode, Sort, Group by gallery, Reset), a Clear button and a live caption.
-// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-date and data-order.
+// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-n (photos in the gallery), data-date and
+// data-order.
 // Counts and groups are computed from the tiles on the current page (the wall is paginated by tile). The "see all" tile of a
 // gallery (data-more) is a link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and
 // groups like a photo tile and always stays last in its gallery.
@@ -29,10 +30,10 @@
       var g = galleries[it.key];
       if (!g) {
         var cap = el.querySelector('figcaption .meta');
-        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : fd(it.date), ord: it.ord, n: 0 };
+        // The heading counts the whole gallery from data-n, also when part of it is on another pager page (#7).
+        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : fd(it.date), ord: it.ord, n: +d.n || 0 };
         galleryList.push(g);
       }
-      g.n += it.more >= 0 ? it.more : 1;  // heading counts the whole gallery (shown plus hidden)
     }
   });
   var NA = items.filter(function (i) { return i.t === 'a'; }).length;

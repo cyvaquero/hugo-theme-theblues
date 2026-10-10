@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.42] - Unreleased
+
+### Fixed
+- With "Group by gallery" on, a gallery split across two wall pages is headed with all its photos on both pages, not
+  only the ones on that page: with 5 tiles per page, guyheckman.me's Boston Gallery read "4 photos" on one page and
+  "14 photos" on the next, and now reads "18 photos" on both. Photo and see-all tiles carry the gallery's photo count
+  as `data-n` for the wall script. Chip counts and the caption still count the tiles on the page (#7).
+
 ## [1.2.41] - Unreleased
 
 ### Fixed
