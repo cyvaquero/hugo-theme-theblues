@@ -11,9 +11,15 @@
      5  Shared bits (tags, meta, series, ...)   12 Archive, tag index, About
      6  Footer                                  13 Touch targets (44px on coarse pointers)
      7  Browse controls (chips, popover)        14 Reduced motion
+                                             15 Forced colors
+                                             16 Print
 
    Palette B: navy #1B3C53, steel #456882, sand #D2C1B6, cream #F9F3EF.
-   Light mode follows the system setting (prefers-color-scheme); there is no manual toggle. */
+   Light or dark follows the system setting (prefers-color-scheme) unless the reader picks one with the switch in the nav
+   (assets/js/theme.js sets data-theme="light" or "dark" on <html>, #22). The dark tokens are therefore listed twice,
+   once for each way of asking for dark mode; keep the two copies the same.
+   Colors are set only in the token block below (and in Print, which forces black on white); --bt, --hv and --scrim are
+   the same in both modes, since they sit on the navy band or on photos under a navy scrim. */
 
 /* 1 Tokens ------------------------------------------------------------------------------------------------ */
 :root {
@@ -21,10 +27,11 @@
   --text: #1B3C53;          /* body text, 10.5:1 on --bg */
   --muted: #456882;         /* secondary text and links, 5.4:1 on --bg */
   --link: #456882;
-  --hv: #D2C1B6;            /* sand: hover on dark bands, outlines, bars */
+  --hv: #D2C1B6;            /* sand: hover and secondary text on dark bands and photo scrims, outlines, bars */
   --focus: #456882;         /* focus ring on the page background */
   --band: #1B3C53;          /* nav and footer */
-  --bt: #F9F3EF;            /* text on the band */
+  --bt: #F9F3EF;            /* text on the band and on photo scrims */
+  --scrim: 15 35 50;        /* #0F2332 as RGB channels, for rgb(var(--scrim) / alpha) over photos */
   --line: #D2C1B6;          /* borders, decorative only */
   --surface: #FFFFFF;
   --code: #EFE6DF;
@@ -34,6 +41,17 @@
   --art-fg: #F9F3EF;
   --art-sub: #D2C1B6;
   --art-line: #D2C1B6;
+  /* Code highlighting (Chroma classes, section 11): the modus-operandi colors, all 5.3:1 or more on --code and on the
+     highlighted-line background --sx-hl. */
+  --sx-kw: #5317ac;         /* keywords */
+  --sx-num: #0000c0;        /* numbers, literals, constants */
+  --sx-type: #005a5f;
+  --sx-bi: #8f0075;         /* builtins */
+  --sx-var: #00538b;        /* variables, operators */
+  --sx-fn: #721045;         /* function names */
+  --sx-str: #2544bb;
+  --sx-com: #505050;        /* comments */
+  --sx-hl: #DED0C5;
   --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --wide: 72rem;            /* page container */
@@ -41,8 +59,9 @@
   --gap: 12px;              /* masonry gutter */
   color-scheme: light dark;
 }
+/* Dark: the system asks for it and the reader hasn't picked light, ... */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme=light]) {
     --bg: #142E40;
     --text: #F9F3EF;        /* 12.8:1 */
     --muted: #D2C1B6;       /* 8.1:1 */
@@ -56,8 +75,47 @@
     --on-fg: #142E40;
     --art-bg: #1E4560;
     --art-line: #456882;
+    /* modus-vivendi, 4.8:1 or more on --code and --sx-hl */
+    --sx-kw: #b6a0ff;
+    --sx-num: #00bcff;
+    --sx-type: #6ae4b9;
+    --sx-bi: #f78fe7;
+    --sx-var: #00d3d0;
+    --sx-fn: #feacd0;
+    --sx-str: #79a8ff;
+    --sx-com: #a8a8a8;
+    --sx-hl: #1B3C53;
   }
 }
+/* ... or the reader picked dark. Same values as above. */
+:root[data-theme=dark] {
+  --bg: #142E40;
+  --text: #F9F3EF;        /* 12.8:1 */
+  --muted: #D2C1B6;       /* 8.1:1 */
+  --link: #D2C1B6;
+  --focus: #D2C1B6;
+  --band: #0F2332;
+  --line: #456882;
+  --surface: #1B3C53;
+  --code: #0F2332;
+  --on-bg: #D2C1B6;
+  --on-fg: #142E40;
+  --art-bg: #1E4560;
+  --art-line: #456882;
+  /* modus-vivendi, 4.8:1 or more on --code and --sx-hl */
+  --sx-kw: #b6a0ff;
+  --sx-num: #00bcff;
+  --sx-type: #6ae4b9;
+  --sx-bi: #f78fe7;
+  --sx-var: #00d3d0;
+  --sx-fn: #feacd0;
+  --sx-str: #79a8ff;
+  --sx-com: #a8a8a8;
+  --sx-hl: #1B3C53;
+}
+/* A picked mode also sets the scheme for form controls and scrollbars. */
+:root[data-theme=light] { color-scheme: light; }
+:root[data-theme=dark] { color-scheme: dark; }
 
 /* 2 Base -------------------------------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -74,6 +132,7 @@ nav.site, footer.site, .hero, .phero, dialog.lb { --focus: var(--hv); }
 [hidden] { display: none !important; }
 .skip { position: absolute; left: -999px; top: 0; background: var(--band); color: var(--bt); padding: .5rem 1rem; z-index: 100; }
 .skip:focus { left: 0; }
+#main:focus { outline: none; }  /* skip-link target (tabindex=-1): no ring around the whole page */
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 svg.ic { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.12em; }
 
@@ -87,7 +146,15 @@ nav.site .links { display: none; position: absolute; left: 0; right: 0; top: 100
 nav.site .links.open { display: flex; }
 nav.site .links a { display: block; padding: .8rem 0; border-bottom: 1px solid var(--muted); font-size: .9rem; letter-spacing: .06em; }
 nav.site .links a[aria-current] { text-decoration: underline; text-underline-offset: .3em; }
+/* Color theme switch (#22): three icon buttons, the picked one filled sand. In the hamburger menu it is its own row. */
+nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
+.thm { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--hv); border-radius: 99px; }
+.thm button { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; padding: 0; border: 0; border-radius: 99px; background: none; color: var(--bt); font: inherit; cursor: pointer; }
+.thm button:hover { color: var(--hv); }
+.thm button[aria-pressed=true] { background: var(--hv); color: var(--band); }
+.thm .ic { width: 1.15rem; height: 1.15rem; }
 @media (min-width: 821px) {
+  nav.site li.theme { padding: 0; }
   nav.site .menu { display: none; }
   nav.site .links { display: flex; position: static; flex-direction: row; gap: 1.25rem; background: none; border: 0; box-shadow: none; padding: 0; }
   nav.site .links a { border: 0; padding: .35rem 0; }
@@ -95,25 +162,28 @@ nav.site .links a[aria-current] { text-decoration: underline; text-underline-off
 
 /* 4 Heroes ------------------------------------------------------------------------------------------------ */
 /* Home hero: header photo (--hi) under a navy scrim. */
-.hero { color: #F9F3EF; padding: 3.5rem 1rem 3rem; text-align: center; background: linear-gradient(rgb(15 35 50 / .55), rgb(15 35 50 / .82)), var(--hi, none) center / cover, var(--band); }
-.hero .k { font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: #D2C1B6; margin: 0; }
+/* Text over photos (#3): the scrim keeps text readable even over a white image. Cream small text needs a scrim of at
+   least .65, sand small text .78 (computed against white); the home hero uses .70 to .85 and cream text only. */
+.hero { color: var(--bt); padding: 3.5rem 1rem 3rem; text-align: center; background: linear-gradient(rgb(var(--scrim) / .70), rgb(var(--scrim) / .85)), var(--hi, none) center / cover, var(--band); }
+.hero .k { font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: var(--bt); margin: 0; }
 .hero h1 { margin: .3rem 0 0; font: 700 clamp(2.4rem, 9vw, 4.4rem) / 1.05 var(--serif); overflow-wrap: anywhere; }
 .hero p.sub { margin: .8rem auto 0; max-width: 40rem; font-size: 1.1rem; }
 /* Wavy sand underline under the last word of the slogan (decorative SVG). */
-.u { position: relative; display: inline-block; font-style: italic; }
-.u svg { position: absolute; left: 0; bottom: -.12em; width: 100%; height: .25em; color: #D2C1B6; }
+.hero .u { position: relative; display: inline-block; font-style: italic; }  /* scoped: sites use .u too (#33) */
+.hero .u svg { position: absolute; left: 0; bottom: -.12em; width: 100%; height: .25em; color: var(--hv); }
 /* Page hero: posts, terms, About, Archive, Search. */
-.phero { color: #F9F3EF; min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(15 35 50 / .45) 0%, rgb(15 35 50 / .92)), var(--hi, none) center / cover, var(--band); }
+.phero { color: var(--bt); min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(var(--scrim) / .45) 0%, rgb(var(--scrim) / .85) 40%, rgb(var(--scrim) / .92)), var(--hi, none) center / cover, var(--band); }
 .phero .in { width: 100%; max-width: var(--wide); margin: 0 auto; padding: 5rem 1rem 2rem; }
 .phero h1 { margin: .3rem 0; font: 700 clamp(2rem, 6.5vw, 3.4rem) / 1.1 var(--serif); overflow-wrap: anywhere; }
-.phero .sub { margin: .2rem 0 .4rem; font-size: 1.05rem; color: #F9F3EF; max-width: 46rem; }
-.phero .meta, .phero .ptype { color: #D2C1B6; }
-.phero .tag { color: #F9F3EF; border-color: #D2C1B6; }
-.phero .tag:hover { color: #D2C1B6; }
+.phero .sub { margin: .2rem 0 .4rem; font-size: 1.05rem; color: var(--bt); max-width: 46rem; }
+.phero .meta, .phero .ptype { color: var(--hv); }
+.phero .meta a:not(.tag) { color: inherit; text-underline-offset: .15em; }
+.phero .tag { color: var(--bt); border-color: var(--hv); }
+.phero .tag:hover { color: var(--hv); }
 .ptype { display: inline-flex; align-items: center; gap: .4rem; font-size: .75rem; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; color: var(--muted); }
 /* Term hero links. */
-.thero .tl { display: inline-block; margin: 0 1.2rem .6rem 0; color: #F9F3EF; min-height: 44px; line-height: 44px; }
-.thero .tl:hover { color: #D2C1B6; }
+.thero .tl { display: inline-block; margin: 0 1.2rem .6rem 0; color: var(--bt); min-height: 44px; line-height: 44px; }
+.thero .tl:hover { color: var(--hv); }
 .thero .ptype { display: flex; }
 
 /* 5 Shared bits ------------------------------------------------------------------------------------------- */
@@ -126,6 +196,8 @@ nav.site .links a[aria-current] { text-decoration: underline; text-underline-off
 .series li .meta { flex: none; }
 .pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .comments { margin-top: 2rem; }
+.comments .showc { min-height: 44px; padding: .4rem 1rem; border: 1px solid var(--muted); border-radius: 8px; background: none; color: var(--link); font: inherit; cursor: pointer; }
+.comments .showc:hover { color: var(--text); border-color: var(--text); }
 .pb { max-width: var(--measure); margin: 0 auto; padding: 0 1rem; }
 .pb h2 { font: 700 1.5rem / 1.3 var(--serif); margin: 2rem 0 .5rem; }
 .pb > :first-child { margin-top: 2rem; }
@@ -148,7 +220,7 @@ footer.site .ver { font-size: .8rem; }
 .seg button .n { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .78rem; }
 .seg button[aria-pressed=true] { background: var(--on-bg); color: var(--on-fg); border-color: var(--on-bg); font-weight: 600; }
 .seg button[aria-pressed=true] .n { color: var(--on-fg); }
-.seg button[aria-pressed=true]::before { content: "\2713\00a0"; }
+.seg button[aria-pressed=true]::before { content: "\2713\00a0"; content: "\2713\00a0" / ""; }
 .vbtn { display: inline-flex; align-items: center; gap: .35rem; background: none; border: 0; border-radius: 6px; color: var(--link); font: inherit; font-size: .85rem; cursor: pointer; min-height: 32px; padding: 0 .35rem; }
 .vbtn:hover { color: var(--text); text-decoration: underline; }
 .vbtn .chev { width: .8em; height: .8em; }
@@ -181,18 +253,15 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 @media (min-width: 900px) { .mas { columns: 3; } }
 .wall { max-width: var(--wide); margin: 0 auto; padding: .4rem 1rem 0; }
 .tile { margin: 0 0 var(--gap); break-inside: avoid; position: relative; border-radius: 8px; display: block; }
-.tile[hidden], details[hidden] { display: none; }
 /* Photo tile: image only, camera badge, caption on hover or focus (always visible on touch). */
 .tile.photo { overflow: hidden; background: var(--code); }
 .tile.photo img { width: 100%; height: auto; aspect-ratio: auto 3 / 2; }
 .tile.photo a.cover { display: block; }
-.tile.photo .badge { position: absolute; top: .5rem; left: .5rem; display: inline-flex; gap: .35rem; align-items: center; background: rgb(15 35 50 / .88); color: #F9F3EF; border-radius: 99px; padding: .15rem .6rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
-.tile.photo figcaption { position: absolute; inset: auto 0 0 0; padding: 2.5rem .8rem .7rem; background: linear-gradient(transparent, rgb(15 35 50 / .92)); color: #F9F3EF; font-size: .92rem; opacity: 0; pointer-events: none; }
+.tile.photo .badge { position: absolute; top: .5rem; left: .5rem; display: inline-flex; gap: .35rem; align-items: center; background: rgb(var(--scrim) / .88); color: var(--bt); border-radius: 99px; padding: .15rem .6rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+.tile.photo figcaption { position: absolute; inset: auto 0 0 0; padding: 2.5rem .8rem .7rem; background: linear-gradient(transparent, rgb(var(--scrim) / .85) 2.5rem, rgb(var(--scrim) / .92)); color: var(--bt); font-size: .92rem; opacity: 0; pointer-events: none; }
 .tile.photo:hover figcaption, .tile.photo:focus-within figcaption { opacity: 1; }
 @media (hover: none) { .tile.photo figcaption { opacity: 1; } }
-.tile.photo figcaption .meta { color: #D2C1B6; }
-.tile.photo:has(a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
-.tile.photo a:focus-visible { outline: 0; }
+.tile.photo figcaption .meta { color: var(--hv); }
 /* "See all" tile: last tile of a gallery on the wall. Dashed frame, large camera icon and an arrow label, so it differs from
    photo and article tiles by shape and icon, not color. */
 .tile.photo.more { background: var(--surface); border: 2px dashed var(--muted); border-radius: 8px; overflow: visible; }
@@ -209,44 +278,58 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.article h3 a { color: var(--art-fg); text-decoration: none; }
 .tile.article h3 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }  /* whole tile is the link */
 .tile.article h3 a:hover { color: var(--hv); text-decoration: underline; }
-.tile.article:has(h3 a:focus-visible) { outline: 3px solid var(--hv); outline-offset: 2px; }
-.tile.article h3 a:focus-visible { outline: 0; }
 .tile.article p { margin: 0 0 .6rem; font-size: .95rem; line-height: 1.5; color: var(--art-fg); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .tile.article .meta { color: var(--art-sub); font-size: .8rem; }
-.tile .meta a { position: relative; z-index: 1; color: inherit; text-decoration: underline; text-underline-offset: .15em; margin-left: .35rem; }
+.tile .meta a { position: relative; z-index: 1; display: inline-block; min-height: 24px; line-height: 24px; color: inherit; text-decoration: underline; text-underline-offset: .15em; margin-left: .35rem; }
+/* Tag links sit on the navy tile, so their focus ring is sand (6.6:1), not steel (1.96:1). */
+.tile.article .meta { --focus: var(--hv); }
+/* The whole tile shows the focus ring of its cover link, in --focus on the page (5.4:1 light, 8.1:1 dark). Only where
+   :has() works: elsewhere the link keeps the default ring. */
+@supports selector(:has(*)) {
+  .tile.photo:has(> a:focus-visible), .tile.article:has(h3 a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .tile.photo > a:focus-visible, .tile.article h3 a:focus-visible { outline: 0; }
+}
 .tile .meta a:hover { color: var(--hv); }
-/* Highlight mode and chip preview: dim the others to 35%, outline the matches. */
-.tile.dim, #stage[data-pv=article] .tile.photo, #stage[data-pv=photo] .tile.article { opacity: .35; }
-.tile.dim:hover, .tile.dim:focus-within { opacity: .85; }
-.tile.hl, #stage[data-pv=article] .tile.article, #stage[data-pv=photo] .tile.photo { outline: 3px solid var(--hv); outline-offset: 3px; box-shadow: 0 0 0 1px var(--muted); }
+/* Highlight mode and chip preview: the others turn gray and their photos fade, while their text keeps full contrast
+   (they are still links; fading the whole tile to 35% left text at 1.66:1, #3). The matches get a dashed ring, so a
+   focused tile's solid ring stays distinct. */
+.tile.dim, #stage[data-pv=article] .tile.photo, #stage[data-pv=photo] .tile.article { filter: grayscale(1); }
+.tile.dim img, #stage[data-pv=article] .tile.photo img, #stage[data-pv=photo] .tile.article img { opacity: .35; }
+.tile.dim:hover, .tile.dim:focus-within { filter: none; }
+.tile.dim:hover img, .tile.dim:focus-within img { opacity: 1; }
+.tile.hl, #stage[data-pv=article] .tile.article, #stage[data-pv=photo] .tile.photo { outline: 3px dashed var(--muted); outline-offset: 3px; box-shadow: 0 0 0 1px var(--muted); }
 /* Group by gallery. */
 details.grp { margin: 0 0 1.5rem; }
 details.grp > summary { cursor: pointer; font: 700 1.3rem / 1.3 var(--serif); padding: .6rem .2rem; min-height: 44px; border-bottom: 2px solid var(--line); margin-bottom: var(--gap); display: flex; align-items: center; flex-wrap: wrap; gap: .2rem .5rem; list-style: none; }
 details.grp > summary::-webkit-details-marker { display: none; }
-details.grp > summary::before { content: "\25B8"; display: inline-block; }
-details.grp[open] > summary::before { content: "\25BE"; }
+details.grp > summary::before { content: "\25B8"; content: "\25B8" / ""; display: inline-block; }
+details.grp[open] > summary::before { content: "\25BE"; content: "\25BE" / ""; }
 details.grp > summary .meta { font: 400 .85rem var(--sans); }
 
 /* 9 Pagination and post navigation ----------------------------------------------------------------------- */
 .pg { max-width: var(--wide); margin: 1rem auto 0; padding: 1rem; display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; justify-content: center; border-top: 1px solid var(--line); }
 .pg a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; padding: 0 .8rem; }
+.pg .gap { min-width: 1.5rem; text-align: center; color: var(--muted); }
 .pg a[aria-current=page] { background: var(--on-bg); color: var(--on-fg); border-color: var(--on-bg); font-weight: 700; }
 .nav2 { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; max-width: var(--wide); margin: 2rem auto 0; padding: 1rem; border-top: 1px solid var(--line); }
 
 /* 10 Photo post and lightbox ------------------------------------------------------------------------------ */
 /* The galleries shortcode emits .mas.gal (wide masonry); other content in a photo post keeps the reading width. */
-.pbody > :not(.gal) { max-width: var(--measure); margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+/* Text keeps a 44rem column with 1rem gutters. Margins, not padding, so code, quote and table backgrounds line up with
+   the text, as in articles. */
+.pbody > :not(.gal) { margin-inline: max(1rem, (100% - var(--measure)) / 2 + 1rem); }
 .gal { max-width: var(--wide); margin: 1.5rem auto 0; padding: 0 1rem; }
 .gal figure { margin: 0 0 var(--gap); break-inside: avoid; border-radius: 8px; overflow: hidden; background: var(--code); }
 .gal a { display: block; }
 .gal img { width: 100%; height: auto; aspect-ratio: auto 3 / 2; }
-dialog.lb { border: 0; padding: 0; background: transparent; width: 100%; height: 100%; max-width: 100vw; max-height: 100vh; }
+dialog.lb { border: 0; padding: 0; background: transparent; width: 100%; height: 100%; max-width: 100vw; max-height: 100vh; max-height: 100dvh; }
+html:has(dialog.lb[open]) { overflow: hidden; }  /* no page scrolling behind the lightbox */
 dialog.lb::backdrop { background: rgb(0 0 0 / .9); }
-dialog.lb .in { height: 100%; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 1rem; color: #F9F3EF; }
-dialog.lb img { max-width: 100%; max-height: 80vh; object-fit: contain; }
+dialog.lb .in { height: 100%; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 1rem; color: var(--bt); }
+dialog.lb img { max-width: 100%; max-height: 80vh; max-height: 80dvh; object-fit: contain; touch-action: pan-y; }
 dialog.lb .bb { display: flex; gap: .8rem; align-items: center; padding-top: .5rem; flex-wrap: wrap; justify-content: center; }
-dialog.lb button { background: none; color: #F9F3EF; border: 1px solid #D2C1B6; border-radius: 6px; padding: .4rem .9rem; font: inherit; cursor: pointer; min-height: 44px; }
-dialog.lb button:hover { color: #D2C1B6; }
+dialog.lb button { background: none; color: var(--bt); border: 1px solid var(--hv); border-radius: 6px; padding: .4rem .9rem; font: inherit; cursor: pointer; min-height: 44px; }
+dialog.lb button:hover { color: var(--hv); }
 
 /* 11 Article, table of contents, prose ------------------------------------------------------------------- */
 /* Stacked TOC on small screens; from 821px the TOC is a sticky left column beside the article (CSS only). */
@@ -260,33 +343,66 @@ dialog.lb button:hover { color: #D2C1B6; }
 .toc a { display: block; text-decoration: none; padding: .25rem 0; }
 @media (min-width: 821px) {
   .apage.has-toc { grid-template-columns: 14rem minmax(0, 1fr); gap: 3rem; }
-  .toc { position: sticky; top: 1rem; align-self: start; }
+  .toc { position: sticky; top: 1rem; align-self: start; max-height: calc(100vh - 2rem); overflow: auto; }
 }
-.abody { font-family: var(--serif); font-size: 1.1rem; line-height: 1.75; max-width: 42rem; overflow-wrap: break-word; }
-.abody h1, .abody h2, .abody h3 { font-family: var(--serif); line-height: 1.3; margin: 2rem 0 .5rem; }
-.abody h1 { font-size: 1.8rem; }
-.abody h2 { font-size: 1.5rem; }
-.abody h3 { font-size: 1.25rem; }
-.abody > :first-child { margin-top: 0; }
-.abody img { height: auto; border-radius: 6px; }
-.abody figure { margin: 1.8rem 0; }
-.abody figcaption { font: .85rem var(--sans); color: var(--muted); text-align: center; margin-top: .4rem; }
-.abody blockquote { margin-inline: 0; padding-left: 1rem; border-left: 4px solid var(--line); color: var(--muted); }
-.abody table { border-collapse: collapse; max-width: 100%; display: block; overflow-x: auto; }
-.abody th, .abody td { border: 1px solid var(--line); padding: .4rem .7rem; }
-.abody code { font-size: .9em; background: var(--code); border-radius: 4px; padding: .05em .3em; }
-.abody pre { background: var(--code); padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; line-height: 1.5; }
-.abody pre code { background: none; padding: 0; font-size: inherit; }
-/* Hugo's highlighted blocks (monokailight) carry inline colors made for a light background, so keep them light in both modes
-   and let long lines scroll inside the block. */
-.abody .highlight { background: #fafafa; color: #272822; border-radius: 6px; overflow: auto; margin: 1rem 0; }
-.abody .highlight pre { margin: 0; color: #272822; background: none; border-radius: 0; }
-.abody .highlight table { display: table; width: auto; border: 0; }
-.abody .highlight td, .abody .highlight th { border: 0; padding: 0; }
-.abody .highlight code { background: none; padding: 0; }
-.abody iframe { border: 0; }
+/* Prose: article bodies (.abody) and the text of photo posts (.pbody, #5). Photo posts keep their galleries out of it:
+   the font goes on the .pbody children that aren't a gallery, and figure and image rules skip anything inside .gal.
+   The :where() parts add no specificity, so the photo-post column margins (section 10) still apply. */
+.abody { max-width: 42rem; }
+.abody, .pbody > :where(:not(.gal)) { font-family: var(--serif); font-size: 1.1rem; line-height: 1.75; overflow-wrap: break-word; }
+:is(.abody, .pbody) :is(h1, h2, h3) { font-family: var(--serif); line-height: 1.3; margin: 2rem 0 .5rem; }
+:is(.abody, .pbody) h1 { font-size: 1.8rem; }
+:is(.abody, .pbody) h2 { font-size: 1.5rem; }
+:is(.abody, .pbody) h3 { font-size: 1.25rem; }
+:is(.abody, .pbody) > :first-child:not(.gal) { margin-top: 0; }
+:is(.abody, .pbody) img:where(:not(.gal *)) { height: auto; border-radius: 6px; }
+:is(.abody, .pbody) figure:where(:not(.gal *)) { margin: 1.8rem 0; }
+:is(.abody, .pbody) figcaption:where(:not(.gal *)) { font: .85rem var(--sans); color: var(--muted); text-align: center; margin-top: .4rem; }
+:is(.abody, .pbody) blockquote { margin-inline: 0; padding-left: 1rem; border-left: 4px solid var(--line); color: var(--muted); }
+:is(.abody, .pbody) table { border-collapse: collapse; max-width: 100%; display: block; overflow-x: auto; }
+:is(.abody, .pbody) :is(th, td) { border: 1px solid var(--line); padding: .4rem .7rem; }
+:is(.abody, .pbody) code { font-size: .9em; background: var(--code); border-radius: 4px; padding: .05em .3em; }
+:is(.abody, .pbody) pre { background: var(--code); padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; line-height: 1.5; }
+:is(.abody, .pbody) pre code { background: none; padding: 0; font-size: inherit; }
+/* Hugo's highlighted blocks (<div class="highlight"><pre class="chroma">). With markup.highlight.noClasses = false the
+   tokens get Chroma classes, colored below from the --sx-* tokens, so code follows light and dark mode. With Hugo's
+   default inline styles the style's own colors win and the block keeps them in both modes. The wrapper rounds the
+   corners and lets long lines scroll inside the block. */
+:is(.abody, .pbody) .highlight { border-radius: 6px; overflow: auto; margin-block: 1rem; }
+:is(.abody, .pbody) .highlight pre { margin: 0; border-radius: 0; }
+:is(.abody, .pbody) .highlight table { display: table; width: auto; border: 0; }
+:is(.abody, .pbody) .highlight :is(td, th) { border: 0; padding: 0; }
+:is(.abody, .pbody) .highlight code { background: none; padding: 0; }
+/* Hugo gives each <pre> in a highlighted block tabindex="0" so it can be scrolled from the keyboard. The block scrolls
+   (overflow: auto above), which clips a focus ring drawn outside the <pre>. So the ring goes around the whole block where
+   :has() works, on the page background like every other ring, and inside the <pre> elsewhere (#66). */
+.highlight pre:focus-visible { outline-offset: -3px; }
+@supports selector(:has(*)) {
+  .highlight:has(pre:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .highlight pre:focus-visible { outline: 0; }
+}
+.chroma { color: var(--text); background-color: var(--code); tab-size: 4; -webkit-text-size-adjust: none; }
+.chroma .lnlinks { outline: none; text-decoration: none; color: inherit; }
+.chroma .lntd { vertical-align: top; padding: 0; margin: 0; border: 0; }
+.chroma .lntable { border-spacing: 0; padding: 0; margin: 0; border: 0; }
+.chroma .line { display: flex; }
+.chroma :is(.lnt, .ln) { white-space: pre; -webkit-user-select: none; user-select: none; margin-right: .4em; padding: 0 .4em; color: var(--muted); }
+.chroma .hl { background-color: var(--sx-hl); }
+.chroma .hl :is(.lnt, .ln), .chroma .hl:is(.lnt, .ln) { color: var(--text); }  /* --muted is 3.9:1 on --sx-hl */
+.chroma :is(.k, .kd, .kn, .kp, .kr) { color: var(--sx-kw); }
+.chroma :is(.kc, .l, .ld, .m, .mb, .mf, .mh, .mi, .il, .mo) { color: var(--sx-num); }
+.chroma .kt { color: var(--sx-type); }
+.chroma :is(.nb, .bp) { color: var(--sx-bi); }
+.chroma :is(.nv, .vc, .vg, .vi, .vm, .o, .ow, .or) { color: var(--sx-var); }
+.chroma :is(.nf, .fm) { color: var(--sx-fn); }
+.chroma :is(.s, .sa, .sb, .sc, .dl, .sd, .s2, .se, .sh, .si, .sx, .sr, .s1, .ss) { color: var(--sx-str); }
+.chroma :is(.c, .ch, .cm, .c1, .cs, .cp, .cpf) { color: var(--sx-com); }
+:is(.abody, .pbody) iframe { border: 0; }
 .abody .gal { max-width: none; padding: 0; }
 .abt2 { max-width: var(--measure); margin: 1.5rem auto 0; padding: 0 1rem; }
+/* Page bodies (.pb) don't get the prose rules; keep wide content inside them (#13). */
+.pb img { height: auto; }
+.pb pre, .pb table { max-width: 100%; overflow-x: auto; }
 
 /* 12 Archive, tag index, About ---------------------------------------------------------------------------- */
 .atw { max-width: var(--measure); margin: 0 auto; padding: 2rem 1rem 0; }
@@ -303,6 +419,7 @@ ul.atl .c { color: var(--muted); font-size: .85rem; flex: none; }
   .seg button, .vbtn, .clr { min-height: 44px; }
   .seg button { padding: .1rem 1rem; }
   .seg.mode button { min-height: 44px; }
+  .thm button { min-width: 44px; min-height: 44px; }
   .tag { min-height: 44px; display: inline-flex; align-items: center; padding: 0 .9rem; }
   .tile .meta a { display: inline-block; padding: .6rem .2rem; }
 }
@@ -310,10 +427,38 @@ ul.atl .c { color: var(--muted); font-size: .85rem; flex: none; }
 /* 14 Reduced motion --------------------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
-  .tile { transition: opacity .2s; }
+  .tile, .tile img { transition: opacity .2s, filter .2s; }
   .tile.photo figcaption { transition: opacity .2s; }
   .tile.photo img { transition: transform .25s; }
   .tile.photo:hover img { transform: scale(1.03); }
   .swt input, .swt input::before { transition: all .15s; }
   .vbtn .chev { transition: transform .15s; }
+}
+
+/* 15 Forced colors (Windows high contrast) --------------------------------------------------------------------- */
+/* Backgrounds are replaced by system colors, so state shown only by a fill (switch, pressed chip, current page) gets
+   system colors that survive (#3). */
+@media (forced-colors: active) {
+  .swt input { forced-color-adjust: none; border-color: CanvasText; background: Canvas; }
+  .swt input::before { background: CanvasText; }
+  .swt input:checked { background: Highlight; border-color: Highlight; }
+  .swt input:checked::before { background: HighlightText; }
+  .seg button[aria-pressed=true], .pg a[aria-current=page], .thm button[aria-pressed=true] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+  .bdg { border: 1px solid CanvasText; }
+}
+
+/* 16 Print ------------------------------------------------------------------------------------------------------ */
+/* Black on white; no nav, controls, comments or lightbox. Heroes and article tiles drop their dark backgrounds, which
+   would otherwise print cream text on white paper (#3). */
+@media print {
+  body { background: #fff; color: #000; }
+  nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc { display: none !important; }
+  .hero, .phero { background: none !important; color: #000; min-height: 0; padding-top: 1rem; }
+  .hero .k, .phero .sub, .phero .meta, .phero .ptype, .phero .tag, .phero a { color: #000; }
+  .tile.article { background: none; border-color: #000; }
+  .tile.article, .tile.article h3 a, .tile.article p, .tile.article .meta, .tile.article .lbl { color: #000; }
+  .tile.photo figcaption { opacity: 1; position: static; background: none; color: #000; padding: .3rem 0; }
+  .tile.photo figcaption .meta { color: #000; }
+  footer.site { background: none; color: #000; }
+  footer.site a { color: #000; }
 }

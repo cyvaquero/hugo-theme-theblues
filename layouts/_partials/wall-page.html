@@ -5,15 +5,17 @@
   Hugo's .Paginate only accepts a collection of pages, not a slice of arbitrary values. So the pager is driven by a stand-in
   collection with exactly one entry per tile (the home page repeated); the pager supplies the page count, page number and
   URLs, and the tile slice is cut with the same offsets. With no posts it shows a short empty state instead of the controls.
+  The tiles and the stand-in are cached per list page (its .Path): every pager page of a list has the same posts, so they
+  are built once per list instead of once per pager page.
 */ -}}
 {{- if not .posts }}
 <div class="pb"><p class="meta">No posts yet.</p></div>
 {{- else }}
 {{- $size := 24 -}}
-{{- with site.Params.wall }}{{ with .tilesPerPage }}{{ $size = int . }}{{ end }}{{ end -}}
-{{- $tiles := partial "wall-tiles.html" .posts -}}
-{{- $stand := slice -}}
-{{- range $tiles }}{{ $stand = $stand | append site.Home }}{{ end -}}
+{{- with site.Params.wall }}{{ $v := .tilesPerPage }}{{ if ne $v nil }}{{ $size = int $v }}{{ end }}{{ end -}}
+{{- if lt $size 1 }}{{ errorf "params.wall.tilesPerPage must be 1 or more (got %d)" $size }}{{ end -}}
+{{- $tiles := partialCached "wall-tiles.html" .posts .page.Path -}}
+{{- $stand := partialCached "wall-stand.html" $tiles .page.Path -}}
 {{- $pag := .page.Paginate $stand $size -}}
 {{- $start := mul (sub $pag.PageNumber 1) $size -}}
 {{ partial "controls.html" .page }}

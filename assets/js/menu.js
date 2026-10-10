@@ -9,11 +9,19 @@
     if (!open && returnFocus) toggle.focus();
   }
   toggle.addEventListener('click', function () { set(!links.classList.contains('open')); });
+  // Growing past 820px shows the links inline, so drop the open state (#13).
+  var wide = window.matchMedia('(min-width: 821px)');
+  function onWide() { if (wide.matches && links.classList.contains('open')) set(false); }
+  if (wide.addEventListener) wide.addEventListener('change', onWide); else if (wide.addListener) wide.addListener(onWide);
   links.addEventListener('click', function (e) { if (e.target.closest('a')) set(false); });
+  // Close when keyboard focus leaves the nav (an open menu would otherwise cover what gets focus next).
+  links.addEventListener('focusout', function (e) {
+    if (links.classList.contains('open') && e.relatedTarget && !e.relatedTarget.closest('nav.site')) set(false);
+  });
   document.addEventListener('click', function (e) {
     if (links.classList.contains('open') && !e.target.closest('nav.site')) set(false);
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && links.classList.contains('open')) set(false, true);
+    if (e.key === 'Escape' && !e.defaultPrevented && links.classList.contains('open')) set(false, true);
   });
 })();

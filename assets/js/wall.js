@@ -2,7 +2,7 @@
 // Progressive enhancement: the wall is complete and sorted newest first without this file; the controls markup is
 // hidden until this script runs. Behavior follows the final mockup (decision D12): type chips with counts, a
 // "View options" popover (Mode, Sort, Group by gallery, Reset), a Clear button and a live caption.
-// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-date and data-order (data-series is not read).
+// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-date and data-order.
 // Counts and groups are computed from the tiles on the current page (the wall is paginated by tile). The "see all" tile of a
 // gallery (data-more) is a link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and
 // groups like a photo tile and always stays last in its gallery.
@@ -11,7 +11,7 @@
   if (!stage || !ctl) return;
 
   var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  function fd(d) { var p = d.split('-'); return MO[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
+  function fd(d) { if (!d) return 'Undated'; var p = d.split('-'); return MO[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
   function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
 
   // Collect the tiles the server rendered.
@@ -25,7 +25,7 @@
     items.push(it);
     if (it.t === 'p') {
       var g = galleries[it.key];
-      if (!g) { g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, n: 0 }; galleryList.push(g); }
+      if (!g) { g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, ord: it.ord, n: 0 }; galleryList.push(g); }
       g.n += it.more >= 0 ? it.more : 1;  // heading counts the whole gallery (shown plus hidden)
     }
   });
@@ -40,9 +40,14 @@
   function qa(sel) { return [].slice.call(ctl.querySelectorAll(sel)); }
   var vb = document.getElementById('vb'), pop = document.getElementById('pop'), cap = ctl.querySelector('.cap');
 
-  // Sorting: newest/oldest by date, ties keep the server order; "Galleries first" and "Articles first" group by type.
+  // Sorting: newest/oldest by date; "Galleries first" and "Articles first" group by type. data-date holds only the day, so
+  // ties fall back to the server order (newest first, by full timestamp): reversed for Oldest first, except within one
+  // gallery, whose photos keep their order and its see-all tile stays last (#32).
   function byDate(dir) {
-    return function (x, y) { return x.date === y.date ? x.ord - y.ord : (x.date < y.date ? 1 : -1) * dir; };
+    return function (x, y) {
+      if (x.date !== y.date) return (x.date < y.date ? 1 : -1) * dir;
+      return x.t === 'p' && y.t === 'p' && x.key === y.key ? x.ord - y.ord : (x.ord - y.ord) * dir;
+    };
   }
   function sorter() {
     var c = byDate(S.s === 'old' ? -1 : 1);
@@ -72,7 +77,7 @@
     else s = 'Highlighting ' + (S.f === 'article' ? plural(NA, 'article') + '; ' + plural(NP, 'photo') + ' dimmed'
                                                   : plural(NP, 'photo') + '; ' + plural(NA, 'article') + ' dimmed');
     if (S.g && vis.p) s += ', grouped into ' + galleryList.length + (galleryList.length === 1 ? ' gallery' : ' galleries');
-    cap.textContent = s;
+    if (cap.textContent !== s) cap.textContent = s;  // the caption is a live region: announce changes only
     sync();
   }
 
@@ -88,7 +93,7 @@
       stage.appendChild(m);
     } else {
       var dir = S.s === 'old' ? -1 : 1, secs = [];
-      galleryList.slice().sort(function (x, y) { return x.date === y.date ? 0 : (x.date < y.date ? 1 : -1) * dir; })
+      galleryList.slice().sort(function (x, y) { return x.date === y.date ? (x.ord - y.ord) * dir : (x.date < y.date ? 1 : -1) * dir; })
         .forEach(function (g) {
           secs.push({
             k: g.key, title: g.name, extra: fd(g.date) + ' · ' + plural(g.n, 'photo'),
@@ -125,7 +130,7 @@
     var inPop = (S.m !== DEF.m) + (S.s !== DEF.s) + (S.g ? 1 : 0), any = inPop + (S.f !== DEF.f);
     qa('[data-badge=opts]').forEach(function (e) {
       e.hidden = !inPop;
-      e.textContent = inPop;
+      e.textContent = ' ' + inPop;  // the leading space keeps the name "View options 1 active" where flex items aren't spaced
       var v = document.createElement('span'); v.className = 'vh'; v.textContent = ' active'; e.appendChild(v);
     });
     qa('[data-role=clear],[data-role=reset]').forEach(function (e) { e.hidden = !any; });
@@ -141,38 +146,56 @@
     if (!pop.hidden) { pop.hidden = true; vb.setAttribute('aria-expanded', 'false'); if (ret) vb.focus(); }
   }
   function togglePop() {
-    if (pop.hidden) { pop.hidden = false; vb.setAttribute('aria-expanded', 'true'); } else closePop();
+    if (pop.hidden) {
+      pop.hidden = false; vb.setAttribute('aria-expanded', 'true');
+      (pop.querySelector('[aria-pressed=true]') || pop.querySelector('button, select, input')).focus();
+    } else closePop();
   }
+  // Close when keyboard focus leaves the popover and its button, so it can't cover the next focused element.
+  ctl.addEventListener('focusout', function (e) {
+    var to = e.relatedTarget;
+    if (!pop.hidden && to && !pop.contains(to) && to !== vb) closePop();
+  });
 
   document.addEventListener('click', function (e) {
     var t = e.target, c;
     if (!t.closest) return;
+    // Any click outside the popover and its button closes it, including on a chip or Clear (#13).
+    if (!pop.hidden && !t.closest('#pop') && !t.closest('#vb')) closePop();
     if ((c = t.closest('[data-f]')) && ctl.contains(c)) { S.f = c.dataset.f; stage.dataset.pv = 'all'; paint(); return; }
     if ((c = t.closest('[data-m2]')) && ctl.contains(c)) { S.m = c.dataset.m2; paint(); return; }
-    if (t.closest('[data-role=clear],[data-role=reset]')) {
-      S.f = DEF.f; S.m = DEF.m; S.s = DEF.s; S.g = DEF.g; render(); return;
+    if ((c = t.closest('[data-role=clear],[data-role=reset]'))) {
+      // The button hides itself, so move focus: Clear to the "All" chip, Reset closes the popover and returns to its button.
+      S.f = DEF.f; S.m = DEF.m; S.s = DEF.s; S.g = DEF.g; render();
+      if (c.dataset.role === 'reset') closePop(true); else ctl.querySelector('[data-f=all]').focus();
+      return;
     }
     if (t.closest('#vb')) { togglePop(); return; }
-    if (!t.closest('#pop')) closePop();
   });
   ctl.addEventListener('change', function (e) {
     var t = e.target;
     if (t.dataset.role === 'sort') { S.s = t.value; render(); }
     else if (t.dataset.role === 'grp') { S.g = t.checked; render(); }
   });
+  // Capture phase and preventDefault, so the same Escape doesn't also close the nav menu (menu.js skips handled keys).
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); closePop(true); }
-  });
+  }, true);
 
-  // Hovering or focusing a chip previews the highlight (stage[data-pv] drives the CSS).
+  // Hovering a chip with a mouse previews the highlight (stage[data-pv] drives the CSS). Not on keyboard focus or touch,
+  // where it would dim the wall while the reader is still moving through the controls.
   function pvOn(e) {
+    if (e.pointerType !== 'mouse') return;
     var b = e.target.closest && e.target.closest('[data-f]');
     if (b && ctl.contains(b) && b.dataset.f !== 'all' && b.dataset.f !== S.f) stage.dataset.pv = b.dataset.f;
   }
   function pvOff(e) { if (e.target.closest && e.target.closest('[data-f]')) stage.dataset.pv = 'all'; }
-  ['mouseover', 'focusin'].forEach(function (n) { document.addEventListener(n, pvOn); });
-  ['mouseout', 'focusout'].forEach(function (n) { document.addEventListener(n, pvOff); });
+  document.addEventListener('pointerover', pvOn);
+  document.addEventListener('pointerout', pvOff);
 
-  ctl.hidden = false;
+  // The first render fills the live caption; keep it out of the live region so it isn't announced on page load (#13).
+  cap.removeAttribute('aria-live');
   render();
+  ctl.hidden = false;
+  setTimeout(function () { cap.setAttribute('aria-live', 'polite'); }, 0);
 })();

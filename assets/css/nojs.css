@@ -1,0 +1,8 @@
+/* Loaded only without JavaScript (<noscript> in head.html): menu.js can't open the hamburger menu, so at 820px and less
+   the nav shows its links as a wrapped row and hides the Menu button (#3). */
+@media (max-width: 820px) {
+  nav.site { flex-wrap: wrap; }
+  nav.site .menu { display: none; }
+  nav.site .links { display: flex; position: static; flex-direction: row; flex-wrap: wrap; gap: 0 1.25rem; background: none; border: 0; box-shadow: none; padding: 0; width: 100%; }
+  nav.site .links a { border: 0; padding: .6rem 0; min-height: 44px; }
+}
