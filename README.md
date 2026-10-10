@@ -212,9 +212,12 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   the TOC; on when unset, and shown only when a post has headings), and the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
-  (a `gallery` photo without a `title`) and `theblues-undated` (a post without a `date`), for example
+  (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`) and `theblues-addtional-menus`
+  (the deprecated legacy menu, below), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
+  The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major
+  version.
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
   Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
