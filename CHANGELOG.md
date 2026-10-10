@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.35] - Unreleased
+
+### Changed
+- The footer shows the site's `copyright` setting as written, when the site sets one, so a site can choose its own
+  wording or a year range; the feed already used it. Without it the footer still reads "© <title> <current year>" (#6).
+
 ## [1.2.34] - Unreleased
 
 ### Added
