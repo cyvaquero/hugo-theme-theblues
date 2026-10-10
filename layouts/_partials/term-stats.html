@@ -1,0 +1,23 @@
+{{- /*
+  The term hero's photo count and cover (term.html): the photos in the term's photo posts, and the cover of its newest
+  photo post, else the header image as an absolute URL, the same fallback as cover.html, so a relative path works on
+  /tags/x/ (#67). Context: the term page. Returns a map with photos and cover. term.html calls it through partialCached,
+  and a production build also keeps it in the term page's Store, as photos.html does, so it is worked out once per term
+  instead of once per pager page (#7).
+*/ -}}
+{{- $key := "theblues-term-stats" -}}
+{{- $out := cond hugo.IsServer nil (.Store.Get $key) -}}
+{{- if eq $out nil -}}
+{{- $photos := 0 -}}
+{{- $cover := "" }}{{ with site.Params.header_image }}{{ $cover = . | absURL }}{{ end -}}
+{{- $found := false -}}
+{{- range (where .RegularPages "Section" "in" site.MainSections).ByDate.Reverse -}}
+  {{- if partialCached "is-photo.html" . .Path -}}
+    {{- $photos = add $photos (len (partialCached "photos.html" . .Path)) -}}
+    {{- if not $found }}{{ $cover = partialCached "cover.html" . .Path }}{{ $found = true }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- $out = dict "photos" $photos "cover" $cover -}}
+{{- if not hugo.IsServer }}{{ .Store.Set $key $out }}{{ end -}}
+{{- end -}}
+{{- return $out -}}
