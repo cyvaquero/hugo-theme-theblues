@@ -13,7 +13,9 @@ the site's real content to the same 30 URLs as Clean White with no Hugo warnings
 ## Requirements
 
 - Hugo **0.163.3** or later (standard or extended). Earlier versions have published Hugo security advisories, and the theme
-  uses `.Language.Locale`. Developed and tested on 0.167.0.
+  uses `.Language.Locale`. Developed and tested on 0.167.0. The minimum is set in the theme's `hugo.toml`
+  (`[module.hugoVersion] min`), which Hugo checks and warns about; `theme.toml`'s `min_version` only mirrors it for the
+  themes gallery.
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
 - **CSS is hand-written**: `assets/css/main.css` holds every style, commented and readable, with no framework, no
   `@import`, and no third-party or legacy stylesheets. The only other stylesheet, `assets/css/nojs.css`, is a few lines
