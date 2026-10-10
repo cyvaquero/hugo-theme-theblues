@@ -208,7 +208,7 @@ footer.site { background: var(--band); color: var(--bt); text-align: center; pad
 footer.site a { color: var(--bt); margin: 0 .6rem; text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; }
 footer.site a:hover { color: var(--hv); }
 footer.site svg { width: 1.15em; height: 1.15em; fill: currentColor; flex: none; }
-footer.site .soc { display: flex; flex-wrap: wrap; justify-content: center; }
+footer.site .soc, footer.site .fnav { display: flex; flex-wrap: wrap; justify-content: center; }
 footer.site p { margin: .5rem 0 0; }
 footer.site .ver { font-size: .8rem; }
 
