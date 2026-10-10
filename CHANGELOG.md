@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.40] - Unreleased
+
+### Changed
+- The previous and next post links sort the posts once per build instead of once for every post. Median build with
+  2,000 generated posts 2.79 → 2.70 s and with 600 posts 812 → 808 ms; guyheckman.me and the fixture site are
+  unchanged (within a millisecond or two). All four build byte-for-byte the same (#7).
+
 ## [1.2.39] - Unreleased
 
 ### Changed
