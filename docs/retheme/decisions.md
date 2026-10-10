@@ -3,7 +3,7 @@
 Started 2026-10-01 on branch `feature/retheme` in the site repo (since merged and deleted). Evidence is in
 [clean-white-inventory.md](clean-white-inventory.md); the current consolidated mockup is
 [mockups/directions/direction-c-final.html](mockups/directions/direction-c-final.html) (see [mockups/README.md](mockups/README.md)).
-Last updated 2026-10-04.
+Last updated 2026-10-10.
 
 Issue references: "site issue #N" is in the site repo (`cyvaquero/hugo-site-guyheckman_me`); a bare `#N` is in this theme
 repo (for example `#10`, the release tracker).
@@ -17,17 +17,18 @@ the current decision; the options and reasoning are kept below it as background.
 | D1 | Starting point | Decided | New theme from scratch, using Clean White as the baseline |
 | D2 | Name and location | Decided | "The Blues", its own repo `cyvaquero/hugo-theme-theblues`, cloned at `themes/hugo-theme-theblues/` |
 | D3 | CSS approach and tooling | Decided | Hand-written CSS, one commented source, no old stylesheets or imports; Hugo Pipes minifies it for production, no Node |
-| D4 | Palette and design basics | Decided | Palette B, light and dark, responsive with a hamburger nav |
+| D4 | Palette and design basics | Decided | Palette B, light and dark (system setting, or the switch in D15), responsive with a hamburger nav |
 | D5 | Sidebar and bio | Decided | Drop the sidebar and the bio from the landing page; the bio lives on the About page only |
 | D6 | Table of contents | Decided | Keep, rendered by Hugo, no JavaScript |
 | D7 | Gallery component | Decided | Masonry for photo posts plus a native `<dialog>` lightbox, no library (as in the chosen mockup) |
-| D8 | Comments | Decided | Disqus on blog posts only; drop on pages |
+| D8 | Comments | Decided | Disqus on blog posts only, click to load since 1.2.0; drop on pages |
 | D9 | Social links and icons | Decided | Three inline SVGs with text labels: RSS, LinkedIn, GitHub; no icon font |
 | D10 | Search UI | Decided | Engine chosen in site issue #3; layout reserves a slot |
-| D11 | Analytics | Decided | Keep GA4 through Hugo's internal template, with the site's Do Not Track setting |
+| D11 | Analytics | Decided | GA4 through the theme's own loader, which always honors Do Not Track and Global Privacy Control (since 1.2.0; was Hugo's internal template) |
 | D12 | Home and post layout | Decided | Direction C v3: masonry, calm popover controls, A+ hero, serif headlines |
 | D13 | License | Decided | Apache-2.0, with a NOTICE crediting Clean White and its upstreams |
 | D14 | Featured tags | Deferred | The tag cloud is dropped from the home page for now; revisit later. Tags stay reachable through tag links and tag pages |
+| D15 | Color theme switch | Decided | System, Light and Dark buttons in the nav; the choice is kept in `localStorage` (since 1.2.0) |
 
 ---
 
@@ -78,6 +79,9 @@ source of truth; the site uses a minified copy.
 **Decision (2026-10-02): palette B.** Navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark
 modes (`prefers-color-scheme`). Colors are custom properties in one place, so a palette change is a token change.
 Palettes A, C (dropped) and D were compared in mockups and not chosen.
+
+**Superseded in part (1.2.0, #22):** the mode follows `prefers-color-scheme` only until the reader picks Light or Dark
+with the switch in the nav; see D15. The dark tokens are listed twice in `main.css`, once for each way of asking for dark.
 
 | Role | Light mode | Dark mode |
 |---|---|---|
@@ -131,6 +135,10 @@ Background: 38 `gallery` calls in 6 `galleries` blocks across 3 posts and 2 `emb
 **Decision (2026-10-01): keep Disqus on blog posts, drop it on pages** (About, Archive, Search, taxonomy pages). Clean White
 includes comments on pages and term lists too, so this is a change; in The Blues only the post template includes them.
 
+**Update (1.2.0, #16):** comments are click to load. Posts show a "Show comments" button, and nothing from Disqus is
+requested until it is clicked; `assets/js/comments.js` replaces Hugo's internal template. Hugo's
+`[privacy.disqus] disable = true` turns comments off (#72).
+
 Site-side follow-up (not a theme change, tracked in site issue #7): the site's `[services.disqus] shortname` is
 `/guyheckman-me` with a leading slash, which looks wrong. Check the real shortname in the Disqus admin, and confirm whether any
 real comments exist on the live site (export them first if so).
@@ -153,6 +161,11 @@ Hugo-index options (Lunr, MiniSearch, Fuse.js) do not.
 
 **Decision (2026-10-01): keep GA4** (`G-XVJ8880GDE`) through Hugo's internal template with `respectDoNotTrack = true`.
 
+**Superseded (1.2.0, #16):** Hugo's internal template is no longer used. `assets/js/analytics.js` loads GA4 in
+production builds only, and loads nothing (no gtag.js request and no hit) for a visitor who sends Do Not Track or Global
+Privacy Control, whatever the site's `respectDoNotTrack` says. `[privacy.googleAnalytics] disable = true` still leaves it
+out.
+
 Note (2026-10-04 review): with Hugo's template, Do Not Track only skips the `gtag('config')` call; the gtag loader script is still
 requested from Google. A stricter privacy setup is tracked in this repo's issue #16.
 
@@ -169,8 +182,10 @@ requested from Google. A stricter privacy setup is tracked in this repo's issue 
   an ARTICLE label with a document icon, a serif title, an excerpt, date and tags, and a "Part N of 3" chip for series posts.
 - **Controls (calm Popover layout):** type chips with counts (All / Articles / Photos), one quiet "View options" button with a
   badge for non-default settings, a Clear button only when something changed, and a muted live caption. The popover holds
-  Mode (Filter hides, Highlight dims the other type to 35% and outlines matches), Sort (Newest, Oldest, Galleries first,
+  Mode (Filter hides, Highlight dims the other type and outlines matches), Sort (Newest, Oldest, Galleries first,
   Articles first), Group by gallery, and Reset. It closes on Esc and outside click.
+  (Updated for #3: Highlight turns the other type gray and fades only its photos to 35%, so their text keeps full
+  contrast; fading whole tiles to 35% left text at 1.66:1.)
 - **Typography:** system serif stack (Georgia, "Iowan Old Style", "Times New Roman", serif) for the hero, post and article
   titles, article tile titles, group headings, series titles and the nav brand; system sans for everything else.
 - **Photo post:** hero with the gallery cover photo, masonry gallery, lightbox, series box, previous/next post links.
@@ -185,14 +200,15 @@ revisiting are listed in [mockups/README.md](mockups/README.md)); **B** (editori
 (case-insensitive) or the raw content uses the `galleries` shortcode. Each photo post emits one tile per photo, parsed from its
 `gallery` shortcodes (first 4 photos per gallery plus one "see all" tile linking to the gallery post when photos remain); each
 article emits one text tile. Tiles carry data attributes (`data-type`, `data-date`, `data-order`,
-`data-series`, plus `data-gallery` and `data-gallery-title` on photos) that `wall.js` uses for the chips, filter or highlight, sort and
+plus `data-gallery` and `data-gallery-title` on photos, and `data-more` on see-all tiles; `data-series` was dropped) that `wall.js` uses for the chips, filter or highlight, sort and
 group by gallery. Verified in headless Chrome: three columns at 1280 px, two at 700 px, one at 375 px, no horizontal overflow at
 375 px, the controls and lightbox work, and the build keeps the 30 sitemap URLs (with no warnings since the site dropped the
 search-index output format).
 The wall paginates **by tile**, 24 per page, so chip counts, the caption and group-by are per page (today's 5 articles and 3
 galleries make 20 tiles, one page); see-all tiles are excluded from the counts. Known limits: pagination uses a workaround because
 Hugo's `.Paginate` only accepts pages; CSS columns fill top to bottom, so reading order is column-wise;
-`.highlight` code blocks stay light in dark mode. Reduced motion is handled. Touch devices and screen readers are untested on real
+`.highlight` code blocks keep the highlighting style's colors in both modes unless the site sets
+`[markup.highlight] noClasses = false`, which makes them follow light and dark (since 1.2.0, #5). Reduced motion is handled. Touch devices and screen readers are untested on real
 hardware; keyboard behavior and contrast were measured in the October 2026 independent review, whose findings are open issues. Chips and "View options" are 32 px tall on fine pointers and 44 px on coarse pointers.
 
 ## D13. License
@@ -225,6 +241,16 @@ order; small photographer sites use a few hand-named genres. The research flagge
 and a single-line scrolling row as hiding items. Open questions for later: where tags live on a wall-first page, how many to feature,
 and how to size them while keeping every tag's contrast at 4.5:1.
 
+## D15. Color theme switch
+
+**Decision (released in 1.2.0, #22): a System / Light / Dark switch in the nav.** Three icon buttons with
+`aria-pressed`, inline from 821 px and inside the hamburger menu below that. System, the default, follows
+`prefers-color-scheme`; Light or Dark sets `data-theme` on `<html>` and is kept in `localStorage` under `theme` (System
+removes it). `assets/js/theme.js` is a small blocking script in `<head>`, so a picked mode applies before the first paint
+without an inline script; it also updates the `color-scheme` and `theme-color` metas, keeps other open tabs in step and
+reloads loaded Disqus comments. Without JavaScript the switch is hidden and the mode follows the system. Every computed
+color in a picked mode matches the same mode chosen by the system, so the measured contrast carries over.
+
 ## Out of scope for the theme
 
 - Content, front matter and slugs stay unchanged (the content repo is not touched).
@@ -242,6 +268,9 @@ and how to size them while keeping every tag's contrast at 4.5:1.
 
 ## Changelog of this file
 
+- 2026-10-10: superseding notes for D4 (the switch), D8 (click to load, `privacy.disqus.disable`), D11 (the theme's own
+  GA loader, DNT and GPC always honored) and D12 (Highlight, `data-series`, code blocks in dark mode); added D15, the
+  color theme switch (#81).
 - 2026-10-04: release prep: D13 updated for the new LICENSE and NOTICE; stale "until D12 is built" text, the D7 grid note and
   the open-items list replaced; D11 notes the gtag loader; issue references clarified.
 - 2026-10-03: the wall paginates by tile (24 per page) and shows the first 4 photos per gallery plus a see-all tile.
