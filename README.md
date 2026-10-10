@@ -149,7 +149,8 @@ layouts/search/section.html  search page (placeholder until the engine is chosen
 layouts/404.html
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, gallery-figure, cover,
-                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, tile-more, wall-tiles, wall-stand,
+                           series-info, series-box, post-nav, page-title, pagination, comments, social, footer, search, asset, script,
+                           stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image

@@ -14,9 +14,9 @@
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
-  {{ with partialCached "asset.html" "js/menu.js" "js/menu.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ else }}{{ errorf "theblues: asset %q not found in assets/" "js/menu.js" }}{{ end }}
-  {{ if .Store.Get "hasWall" }}{{ with partialCached "asset.html" "js/wall.js" "js/wall.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ else }}{{ errorf "theblues: asset %q not found in assets/" "js/wall.js" }}{{ end }}{{ end }}
-  {{ if .Store.Get "hasComments" }}{{ with partialCached "asset.html" "js/comments.js" "js/comments.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ else }}{{ errorf "theblues: asset %q not found in assets/" "js/comments.js" }}{{ end }}{{ end }}
-  {{ if .Store.Get "hasGallery" }}{{ with partialCached "asset.html" "js/gallery.js" "js/gallery.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} defer></script>{{ else }}{{ errorf "theblues: asset %q not found in assets/" "js/gallery.js" }}{{ end }}{{ end }}
+  {{ partial "script.html" (dict "path" "js/menu.js" "defer" true) }}
+  {{ if .Store.Get "hasWall" }}{{ partial "script.html" (dict "path" "js/wall.js" "defer" true) }}{{ end }}
+  {{ if .Store.Get "hasComments" }}{{ partial "script.html" (dict "path" "js/comments.js" "defer" true) }}{{ end }}
+  {{ if .Store.Get "hasGallery" }}{{ partial "script.html" (dict "path" "js/gallery.js" "defer" true) }}{{ end }}
 </body>
 </html>
