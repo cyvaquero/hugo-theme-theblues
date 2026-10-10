@@ -188,7 +188,7 @@ layouts/_markup/           render-link, render-image
 
 ## Site settings it reads
 
-It keeps the parameter names the site already uses, so `config.toml` needs little change:
+It keeps the parameter names the site already uses, so the site's `hugo.toml` (or `config.toml`) needs little change:
 
 - `title`, `locale` (sets `<html lang>`)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,

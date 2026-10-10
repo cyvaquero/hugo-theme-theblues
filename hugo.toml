@@ -1,4 +1,4 @@
-# Theme configuration (module settings). Site settings live in the site's config.toml.
+# Theme configuration (module settings). Site settings live in the site's hugo.toml.
 [module]
   [module.hugoVersion]
     extended = false
