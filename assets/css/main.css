@@ -198,7 +198,8 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .comments { margin-top: 2rem; }
 .comments .showc { min-height: 44px; padding: .4rem 1rem; border: 1px solid var(--muted); border-radius: 8px; background: none; color: var(--link); font: inherit; cursor: pointer; }
 .comments .showc:hover { color: var(--text); border-color: var(--text); }
-.pb { max-width: var(--measure); margin: 0 auto; padding: 0 1rem; }
+/* Long words and URLs wrap instead of being clipped by body's overflow-x at 320px (#75), as in .abody. */
+.pb { max-width: var(--measure); margin: 0 auto; padding: 0 1rem; overflow-wrap: break-word; }
 .pb h2 { font: 700 1.5rem / 1.3 var(--serif); margin: 2rem 0 .5rem; }
 .pb > :first-child { margin-top: 2rem; }
 .embed, .smugmug-gallery { width: 100%; border: 0; }
@@ -405,13 +406,14 @@ dialog.lb button:hover { color: var(--hv); }
 .pb pre, .pb table { max-width: 100%; overflow-x: auto; }
 
 /* 12 Archive, tag index, About ---------------------------------------------------------------------------- */
-.atw { max-width: var(--measure); margin: 0 auto; padding: 2rem 1rem 0; }
+.atw { max-width: var(--measure); margin: 0 auto; padding: 2rem 1rem 0; overflow-wrap: break-word; }
 .atw h2 { font: 700 1.3rem / 1.3 var(--serif); border-bottom: 2px solid var(--line); margin: 1.6rem 0 .3rem; padding-bottom: .2rem; }
 ul.atl { list-style: none; margin: 0; padding: 0; }
 ul.atl li { border-bottom: 1px solid var(--line); }
 ul.atl a { display: flex; justify-content: space-between; gap: 1rem; align-items: center; min-height: 44px; text-decoration: none; color: var(--text); }
 ul.atl a:hover .nm { text-decoration: underline; }
 ul.atl .c { color: var(--muted); font-size: .85rem; flex: none; }
+ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in the flex row (break-word can't, #75) */
 
 /* 13 Touch targets: 44px on coarse pointers --------------------------------------------------------------- */
 @media (pointer: coarse) {
