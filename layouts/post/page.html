@@ -33,13 +33,18 @@
   {{ partial "comments.html" . }}
 </div>
 {{ else }}
-{{- /* showtoc: false (boolean or the string "false") turns the TOC off (#18). */}}
-{{ $toc := and (ne (lower (printf "%v" (.Param "showtoc"))) "false") (in .TableOfContents "<li>") }}
+{{- /* showtoc: false (boolean or the string "false") turns the TOC off (#18). The TOC shows when Hugo's has a link,
+  so a post whose headings are all outside the TOC levels gets none (#117). Templates can't read the TOC levels, so the
+  theme keeps Hugo's TOC rather than building one from .Fragments, and warns if its wrapper changes, since the check
+  and the aria-label below depend on that markup (#87). */}}
+{{- $tocNav := `<nav id="TableOfContents">` }}
+{{- if not (in .TableOfContents $tocNav) }}{{ warnidf "theblues-toc-markup" "%s: Hugo's table of contents has no %s, so the theme can't check it or label it; update layouts/post/page.html (#87)." .File.Path $tocNav }}{{ end }}
+{{ $toc := and (ne (lower (printf "%v" (.Param "showtoc"))) "false") (in .TableOfContents "<a ") }}
 <div class="apage{{ if $toc }} has-toc{{ end }}">
   {{ if $toc }}
   <div class="toc">
     <strong>On this page</strong>
-    {{ replace .TableOfContents `<nav id="TableOfContents">` `<nav id="TableOfContents" aria-label="Table of contents">` | safeHTML }}
+    {{ replace .TableOfContents $tocNav `<nav id="TableOfContents" aria-label="Table of contents">` | safeHTML }}
   </div>
   {{ end }}
   <article>

@@ -213,11 +213,12 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 - `title`, `locale` (sets `<html lang>`)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
   `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`), `showtoc` (site-wide default for
-  the TOC; on when unset, and shown only when a post has headings), and the optional
+  the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), and the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
-  (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`) and `theblues-addtional-menus`
-  (the deprecated legacy menu, below), for example
+  (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`), `theblues-addtional-menus`
+  (the deprecated legacy menu, below) and `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
+  can't check or label it; better fixed than silenced), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
   The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major
@@ -291,9 +292,7 @@ are 44px on touch screens. A print stylesheet prints black on white.
 - Use `[markup.highlight] noClasses = false` if posts show line numbers (see Syntax highlighting).
 - Give `embed` a title (the fourth argument); it names the frame.
 
-**Known gaps.** Not yet checked with screen readers or on real touch devices. Open issues:
-[#117](https://github.com/cyvaquero/hugo-theme-theblues/issues/117) (a post whose headings are all deeper than the TOC levels shows an empty "On this page"
-box). Inline-highlighted line numbers fail contrast ([#76](https://github.com/cyvaquero/hugo-theme-theblues/issues/76), documented above). Other accessibility issues are
+**Known gaps.** Not yet checked with screen readers or on real touch devices. Inline-highlighted line numbers fail contrast ([#76](https://github.com/cyvaquero/hugo-theme-theblues/issues/76), documented above). Other accessibility issues are
 listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-theblues/issues?q=is%3Aopen+label%3Aaccessibility).
 
 ## Testing the theme
@@ -301,7 +300,7 @@ listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-t
 `exampleSite/` is a small fixture site whose content exercises the cases the guyheckman.me content doesn't: an untitled
 post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
 `{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
-a series, a code block with line numbers, a page without a title, the legacy `params.addtional_menus` nav, a footer
+a series, a code block with line numbers, a post whose headings are all below the TOC levels, a page without a title, the legacy `params.addtional_menus` nav, a footer
 menu, and wall pagination past page 1 (`tilesPerPage = 4`). Hugo doesn't use it when the theme is installed in a
 site. Build it from that folder:
 
