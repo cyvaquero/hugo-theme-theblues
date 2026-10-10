@@ -373,6 +373,14 @@ dialog.lb button:hover { color: var(--hv); }
 :is(.abody, .pbody) .highlight table { display: table; width: auto; border: 0; }
 :is(.abody, .pbody) .highlight :is(td, th) { border: 0; padding: 0; }
 :is(.abody, .pbody) .highlight code { background: none; padding: 0; }
+/* Hugo gives each <pre> in a highlighted block tabindex="0" so it can be scrolled from the keyboard. The block scrolls
+   (overflow: auto above), which clips a focus ring drawn outside the <pre>. So the ring goes around the whole block where
+   :has() works, on the page background like every other ring, and inside the <pre> elsewhere (#66). */
+.highlight pre:focus-visible { outline-offset: -3px; }
+@supports selector(:has(*)) {
+  .highlight:has(pre:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .highlight pre:focus-visible { outline: 0; }
+}
 .chroma { color: var(--text); background-color: var(--code); tab-size: 4; -webkit-text-size-adjust: none; }
 .chroma .lnlinks { outline: none; text-decoration: none; color: inherit; }
 .chroma .lntd { vertical-align: top; padding: 0; margin: 0; border: 0; }
