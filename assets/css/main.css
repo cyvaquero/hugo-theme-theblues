@@ -134,7 +134,9 @@ nav.site, footer.site, .hero, .phero, dialog.lb { --focus: var(--hv); }
 .skip { position: absolute; left: -999px; top: 0; background: var(--band); color: var(--bt); padding: .5rem 1rem; z-index: 100; }
 .skip:focus { left: 0; }
 #main:focus { outline: none; }  /* skip-link target (tabindex=-1): no ring around the whole page */
-.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* Visually hidden, still read by screen readers. clip-path is the current property; clip (deprecated) stays as the
+   fallback for older browsers (#92). */
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 svg.ic { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -.12em; }
 
 /* 3 Nav --------------------------------------------------------------------------------------------------- */
