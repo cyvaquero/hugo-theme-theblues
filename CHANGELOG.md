@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.34] - Unreleased
+
+### Added
+- `params.dateFormat` sets how dates read on posts, wall tiles and the wall's gallery headings, as a Go layout (for
+  example `2 January 2006`); without it they stay `Jan 2, 2006`. The archive's `Jan 2` and the series box's
+  `Jan 2006` are unchanged. The wall script takes a gallery heading's date from the gallery's first tile instead of
+  formatting it itself, so the two can't disagree. Strings stay English (#6).
+
 ## [1.2.33] - Unreleased
 
 ### Added

@@ -10,6 +10,8 @@
   var stage = document.getElementById('stage'), ctl = document.getElementById('ctl');
   if (!stage || !ctl) return;
 
+  // Group headings show a gallery's date as its tiles' captions do (date.html, which follows params.dateFormat); fd is
+  // the fallback for a gallery whose first tile here has no caption date.
   var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   function fd(d) { if (!d) return 'Undated'; var p = d.split('-'); return MO[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
   function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
@@ -25,7 +27,11 @@
     items.push(it);
     if (it.t === 'p') {
       var g = galleries[it.key];
-      if (!g) { g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, ord: it.ord, n: 0 }; galleryList.push(g); }
+      if (!g) {
+        var cap = el.querySelector('figcaption .meta');
+        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : fd(it.date), ord: it.ord, n: 0 };
+        galleryList.push(g);
+      }
       g.n += it.more >= 0 ? it.more : 1;  // heading counts the whole gallery (shown plus hidden)
     }
   });
@@ -96,7 +102,7 @@
       galleryList.slice().sort(function (x, y) { return x.date === y.date ? (x.ord - y.ord) * dir : (x.date < y.date ? 1 : -1) * dir; })
         .forEach(function (g) {
           secs.push({
-            k: g.key, title: g.name, extra: fd(g.date) + ' · ' + plural(g.n, 'photo'),
+            k: g.key, title: g.name, extra: g.shown + ' · ' + plural(g.n, 'photo'),
             its: items.filter(function (i) { return i.t === 'p' && i.key === g.key; }).sort(cmp)
           });
         });
