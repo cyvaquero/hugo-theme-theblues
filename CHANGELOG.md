@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.31] - Unreleased
+
+### Changed
+- The series box and the "Part N of M" chip on wall tiles get a post's position in its series from one partial
+  (`series-info.html`, which now returns every series the post is in) instead of two copies of the same loop, so they
+  can't disagree. The built site is byte-for-byte the same, including a post in two series (#6).
+
 ## [1.2.30] - Unreleased
 
 ### Changed
