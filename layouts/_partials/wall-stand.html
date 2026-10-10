@@ -1,0 +1,8 @@
+{{- /*
+  The stand-in collection that drives the wall's pager (see wall-page.html): the home page once per tile, because
+  .Paginate only accepts pages. Context: the tile slice. Called through partialCached with the list page's path, so it is
+  built once per list page instead of once per pager page.
+*/ -}}
+{{- $stand := slice -}}
+{{- range . }}{{ $stand = $stand | append site.Home }}{{ end -}}
+{{- return $stand -}}

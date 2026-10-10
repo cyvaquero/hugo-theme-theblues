@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.20] - Unreleased
+
+### Changed
+- Faster builds for sites with many posts: the wall's tile list and pager are built once per list page instead of once
+  per pager page. Median build times (Hugo 0.167.0) went from 125.1 to 114.5 ms with 80 posts and from 711.6 to
+  335.8 ms with 550; guyheckman.me's 8 posts are unchanged (77.2 to 76.9 ms). The built site is byte-for-byte the same
+  (#7).
+
 ## [1.1.19] - Unreleased
 
 ### Added
