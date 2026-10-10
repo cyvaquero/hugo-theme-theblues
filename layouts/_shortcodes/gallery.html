@@ -7,8 +7,8 @@
 {{- if not $src }}{{ errorf "gallery: src is required (%s)" .Position }}{{ end -}}
 {{- $title := .Get "title" -}}
 {{- /* Inside galleries, Hugo reports the photo's .Position as the start of the page, so the warning names the photo by
-  its src and the galleries block by its position (#73). */ -}}
+  its src and the galleries block by its position (#73). A site can silence it with ignoreLogs (#85). */ -}}
 {{- $inGal := and .Parent (eq .Parent.Name "galleries") -}}
-{{- if not $title }}{{ $pos := .Position }}{{ if $inGal }}{{ $pos = .Parent.Position }}{{ end }}{{ warnf "gallery: photo %d (%s) has no title, so its alt text is \"Photo %d\" (%s)" (add .Ordinal 1) $src (add .Ordinal 1) $pos }}{{ end -}}
+{{- if not $title }}{{ $pos := .Position }}{{ if $inGal }}{{ $pos = .Parent.Position }}{{ end }}{{ warnidf "theblues-gallery-no-title" "gallery: photo %d (%s) has no title, so its alt text is \"Photo %d\" (%s)" (add .Ordinal 1) $src (add .Ordinal 1) $pos }}{{ end -}}
 {{- $fig := partial "gallery-figure.html" (dict "src" $src "alt" ($title | default (printf "Photo %d" (add .Ordinal 1)))) -}}
 {{- if $inGal }}{{ .Parent.Store.Add "photos" (slice $fig) }}{{ else }}{{ $fig }}{{ end -}}
