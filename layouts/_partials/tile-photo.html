@@ -7,9 +7,9 @@
 {{- $t := partial "page-title.html" $pg -}}{{- /* falls back to the file name for an untitled post (#65) */ -}}
 {{- $p := .photo -}}
 {{- $what := cond (eq .n 1) "photo" "photos" -}}
-<figure class="tile photo" data-type="photo" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $t }}" data-date="{{ if not $pg.Date.IsZero }}{{ $pg.Date.Format "2006-01-02" }}{{ end }}" data-order="{{ .order }}">
-  <a class="cover" href="{{ $pg.RelPermalink }}" aria-label="{{ $t }}, {{ .n }} {{ $what }}, {{ if $pg.Date.IsZero }}undated{{ else }}{{ $pg.Date.Format "Jan 2, 2006" }}{{ end }}. Photo {{ add .i 1 }} of {{ .n }}{{ with $p.title }}: {{ . }}{{ end }}">
+<figure class="tile photo" data-type="photo" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $t }}" data-date="{{ partial "date.html" (dict "date" $pg.Date "format" "2006-01-02" "undated" "") }}" data-order="{{ .order }}">
+  <a class="cover" href="{{ $pg.RelPermalink }}" aria-label="{{ $t }}, {{ .n }} {{ $what }}, {{ partial "date.html" (dict "date" $pg.Date "undated" "undated") }}. Photo {{ add .i 1 }} of {{ .n }}{{ with $p.title }}: {{ . }}{{ end }}">
     <img src="{{ $p.src }}" alt="" loading="lazy" decoding="async"><span class="badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo</span>
   </a>
-  <figcaption>{{ $t }} &middot; {{ .n }} {{ $what }}<div class="meta">{{ if $pg.Date.IsZero }}Undated{{ else }}{{ $pg.Date.Format "Jan 2, 2006" }}{{ end }}</div></figcaption>
+  <figcaption>{{ $t }} &middot; {{ .n }} {{ $what }}<div class="meta">{{ partial "date.html" (dict "date" $pg.Date) }}</div></figcaption>
 </figure>

@@ -8,7 +8,7 @@
   <strong class="t">Part {{ .part }} of {{ .total }}: <a href="{{ .url }}">{{ .name }}</a></strong>
   <ol>
     {{- range $i, $p := $pages }}
-    <li>{{ if eq $i $idx }}<strong aria-current="page">{{ add $i 1 }}. {{ partial "page-title.html" $p }}</strong>{{ else }}<a href="{{ $p.RelPermalink }}">{{ add $i 1 }}. {{ partial "page-title.html" $p }}</a>{{ end }}<span class="meta">{{ if $p.Date.IsZero }}Undated{{ else }}{{ $p.Date.Format "Jan 2006" }}{{ end }}</span></li>
+    <li>{{ if eq $i $idx }}<strong aria-current="page">{{ add $i 1 }}. {{ partial "page-title.html" $p }}</strong>{{ else }}<a href="{{ $p.RelPermalink }}">{{ add $i 1 }}. {{ partial "page-title.html" $p }}</a>{{ end }}<span class="meta">{{ partial "date.html" (dict "date" $p.Date "format" "Jan 2006") }}</span></li>
     {{- end }}
   </ol>
   <div class="pager">
