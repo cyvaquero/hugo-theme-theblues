@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.32] - Unreleased
+
+### Changed
+- Post dates and the "Undated" fallback come from one partial, `date.html`, instead of being written out in nine
+  places (post header, article and photo tiles, the see-all tile, the series box and the archive), so a change to the
+  date format is made once. `wall.js` still formats its group headings itself, and the partial says to keep the two
+  the same. The built site is byte-for-byte the same, and an undated post still warns (#6).
+
 ## [1.2.31] - Unreleased
 
 ### Changed
