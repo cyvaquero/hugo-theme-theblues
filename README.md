@@ -84,8 +84,9 @@ The templates assume this layout; other structures are not supported yet.
   `data-theme="light"` or `"dark"` on `<html>`, keeps the choice in `localStorage` under `theme` (System removes it),
   updates `<meta name="color-scheme">` and both `theme-color` metas, keeps other open tabs in step, and reloads loaded
   Disqus comments so they match. Without JavaScript the switch is hidden and the mode follows the system.
-- **Share image (`og:image`):** a page's own `image`, or the first photo of a photo post. Otherwise `params.og_image`
-  if set, and otherwise the cover, which is the site's `header_image`.
+- **Share image (`og:image`):** a page's own `image`, or the first photo the page shows from a `gallery` shortcode
+  (photos Hugo doesn't render, inside an HTML comment or a `{{% galleries %}}` block, don't count). Otherwise
+  `params.og_image` if set, and otherwise the cover, which is the site's `header_image`.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A path to a page or page resource resolves to its permalink, as with Hugo's built-in hooks. Links to other
@@ -96,7 +97,7 @@ The templates assume this layout; other structures are not supported yet.
 
 | Shortcode | Usage | Notes |
 |---|---|---|
-| `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
+| `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing, and its photos are not shown on walls or used as covers. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns. |
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection), or the site's `baseURL` has no host to compare with. |
 
