@@ -7,12 +7,18 @@
     inside it are dropped too, so they are not shown on walls or used as a cover or share image (#71).
   - Arguments are parsed like Hugo's: named (src=, title=) or positional (the first is src), quoted with "…" (\" and \\
     escapes) or `…`, so a } or > inside a quoted title and an escaped quote are read correctly.
+  A production build also keeps the result in the page's Store, since partialCached alone recomputes it on a big site:
+  Hugo's partial cache holds about a thousand entries (measured with Hugo 0.167), so per-page entries evict each
+  other (#7). Not under hugo server, where a page's Store survives a template edit and would go stale.
   Usage: {{ $photos := partialCached "photos.html" $page $page.Path }}
 */ -}}
+{{- $key := "theblues-photos" -}}
+{{- $out := cond hugo.IsServer nil (.Store.Get $key) -}}
+{{- if eq $out nil -}}
 {{- $raw := replaceRE `(?s)<!--.*?-->` "" .RawContent -}}
 {{- $raw = replaceRE `(?s)\{\{%\s*galleries\b.*?\{\{%\s*/galleries\s*%\}\}` "" $raw -}}
 {{- $q := "\"(?:[^\"\\\\]|\\\\.)*\"|`[^`]*`" -}}
-{{- $out := slice -}}
+{{- $out = slice -}}
 {{- range findRESubmatch (printf "\\{\\{<\\s*gallery\\s((?:%s|[^\"`>])*)>\\}\\}" $q) $raw -}}
   {{- $named := dict -}}
   {{- $pos := slice -}}
@@ -27,5 +33,7 @@
   {{- if $src -}}
     {{- $out = $out | append (dict "src" $src "full" (partialCached "smug-full.html" $src $src) "title" $title) -}}
   {{- end -}}
+{{- end -}}
+{{- if not hugo.IsServer }}{{ .Store.Set $key $out }}{{ end -}}
 {{- end -}}
 {{- return $out -}}

@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.38] - Unreleased
+
+### Changed
+- Big sites build much faster: a post's photos, its photo-or-article check and its cover, and each list's wall tiles,
+  are now worked out once per build and kept with the page, instead of only in Hugo's partial cache, which holds about
+  a thousand entries and on a site with a few hundred posts kept evicting them, so they were recomputed for every page
+  that used them. Median build with 2,000 generated posts 68.5 → 8.9 s; with 600 posts (822 → 835 ms), guyheckman.me
+  (97 → 96 ms) and the fixture site (84 → 84 ms) it is unchanged. All four build byte-for-byte the same. Under
+  `hugo server` the theme still uses the partial cache, so an edited template shows up at once (#7).
+
 ## [1.2.37] - Unreleased
 
 ### Changed
