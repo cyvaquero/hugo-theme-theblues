@@ -221,7 +221,9 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 
 - `title`, `locale` (sets `<html lang>`), `mainSections` (the sections that hold posts, see Content structure)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
-  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`), `showtoc` (site-wide default for
+  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`), `dateFormat` (a Go layout for
+  dates on posts, tiles and wall headings, default `Jan 2, 2006`; the archive's `Jan 2` and the series box's `Jan 2006`
+  stay fixed), `showtoc` (site-wide default for
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), and the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
