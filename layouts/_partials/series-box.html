@@ -1,4 +1,5 @@
-{{- /* Series box: "Part N of M: Name", the numbered list of posts and previous/next within the series. */ -}}
+{{- /* Series box: "Part N of M: Name", the numbered list of posts and previous/next within the series. Post titles go
+  through page-title.html, so an untitled post still gets link text (#65). */ -}}
 {{- $page := . -}}
 {{- range .GetTerms "series" -}}
   {{- $pages := .RegularPages.ByDate -}}
@@ -9,12 +10,12 @@
   <strong class="t">Part {{ add $idx 1 }} of {{ len $pages }}: <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></strong>
   <ol>
     {{- range $i, $p := $pages }}
-    <li>{{ if eq $i $idx }}<strong aria-current="page">{{ add $i 1 }}. {{ $p.Title }}</strong>{{ else }}<a href="{{ $p.RelPermalink }}">{{ add $i 1 }}. {{ $p.Title }}</a>{{ end }}<span class="meta">{{ if $p.Date.IsZero }}Undated{{ else }}{{ $p.Date.Format "Jan 2006" }}{{ end }}</span></li>
+    <li>{{ if eq $i $idx }}<strong aria-current="page">{{ add $i 1 }}. {{ partial "page-title.html" $p }}</strong>{{ else }}<a href="{{ $p.RelPermalink }}">{{ add $i 1 }}. {{ partial "page-title.html" $p }}</a>{{ end }}<span class="meta">{{ if $p.Date.IsZero }}Undated{{ else }}{{ $p.Date.Format "Jan 2006" }}{{ end }}</span></li>
     {{- end }}
   </ol>
   <div class="pager">
-    {{- if gt $idx 0 }}{{ with index $pages (sub $idx 1) }}<a href="{{ .RelPermalink }}" rel="prev">&larr; {{ .Title }}</a>{{ end }}{{ else }}<span></span>{{ end }}
-    {{- if lt (add $idx 1) (len $pages) }}{{ with index $pages (add $idx 1) }}<a href="{{ .RelPermalink }}" rel="next">{{ .Title }} &rarr;</a>{{ end }}{{ end }}
+    {{- if gt $idx 0 }}{{ with index $pages (sub $idx 1) }}<a href="{{ .RelPermalink }}" rel="prev">&larr; {{ partial "page-title.html" . }}</a>{{ end }}{{ else }}<span></span>{{ end }}
+    {{- if lt (add $idx 1) (len $pages) }}{{ with index $pages (add $idx 1) }}<a href="{{ .RelPermalink }}" rel="next">{{ partial "page-title.html" . }} &rarr;</a>{{ end }}{{ end }}
   </div>
 </div>
   {{- end -}}

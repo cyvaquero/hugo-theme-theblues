@@ -1,10 +1,11 @@
-{{- /* Previous (older) and next (newer) post by date, across all posts. */ -}}
+{{- /* Previous (older) and next (newer) post by date, across all posts. Titles go through page-title.html, so an untitled
+  post still gets link text (#65). */ -}}
 {{- $all := (where site.RegularPages "Section" "post").ByDate -}}
 {{- $older := $all.Next . -}}
 {{- $newer := $all.Prev . -}}
 {{- if or $older $newer }}
 <nav class="nav2" aria-label="Post navigation">
-  {{ with $older }}<a href="{{ .RelPermalink }}" rel="prev">&larr; {{ .Title }}</a>{{ else }}<span></span>{{ end }}
-  {{ with $newer }}<a href="{{ .RelPermalink }}" rel="next">{{ .Title }} &rarr;</a>{{ end }}
+  {{ with $older }}<a href="{{ .RelPermalink }}" rel="prev">&larr; {{ partial "page-title.html" . }}</a>{{ else }}<span></span>{{ end }}
+  {{ with $newer }}<a href="{{ .RelPermalink }}" rel="next">{{ partial "page-title.html" . }} &rarr;</a>{{ end }}
 </nav>
 {{- end -}}
