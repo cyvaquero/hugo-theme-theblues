@@ -199,6 +199,8 @@ It keeps the parameter names the site already uses, so `config.toml` needs littl
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
   Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
+- `[[menus.footer]]` (optional): links shown in the footer under the social links, in a navigation landmark named
+  "Footer", for example a privacy note (`url = "/about/#privacy"`) or a page (`pageRef`).
 - `[services.googleAnalytics] id`:
   - Analytics loads only in production builds, unless `[privacy.googleAnalytics] disable = true`.
   - A visitor who sends Do Not Track or Global Privacy Control gets nothing: no gtag.js request and no hit.
