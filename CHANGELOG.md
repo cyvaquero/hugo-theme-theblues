@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.28] - Unreleased
+
+### Fixed
+- The page hero's small sand text (the "Article" / "Photo gallery" label and the date line) stays at 4.5:1 or more over
+  a bright photo however long the title is. The darker part of the scrim now starts just above the text instead of at
+  a fixed share of the hero's height, and the rest of the photo keeps a light .45 scrim. Measured over a white photo
+  on the fixture site with an 84-character title, at 320, 375, 768 and 1280px in both modes: the label is 5.86:1 at
+  every width, up from as low as 3.55:1 (768px) and 3.84:1 (320px); a short title with a subtitle went from 4.48:1 to
+  5.86:1 on phones. With a short title the photo above the text is lighter than before (.45 to about .55 where it was
+  .65 to .85). Layout and HTML are unchanged (#74).
+
 ## [1.2.27] - Unreleased
 
 ### Added

@@ -175,8 +175,12 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .hero .u { position: relative; display: inline-block; font-style: italic; }  /* scoped: sites use .u too (#33) */
 .hero .u svg { position: absolute; left: 0; bottom: -.12em; width: 100%; height: .25em; color: var(--hv); }
 /* Page hero: posts, terms, About, Archive, Search. */
-.phero { color: var(--bt); min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(var(--scrim) / .45) 0%, rgb(var(--scrim) / .85) 40%, rgb(var(--scrim) / .92)), var(--hi, none) center / cover, var(--band); }
-.phero .in { width: 100%; max-width: var(--wide); margin: 0 auto; padding: 5rem 1rem 2rem; }
+/* The hero keeps a light .45 scrim over the whole photo; the darker part sits on .in, so it starts above the text however
+   many lines the title takes: from clear at the top of .in to .73 at 4.5rem, just above the first line (.85 with the
+   hero's .45, enough for the sand kicker and meta), and .86 at the bottom (.92 in all) (#74). .in spans the hero and
+   pads its content into the --wide column. */
+.phero { color: var(--bt); min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(var(--scrim) / .45), rgb(var(--scrim) / .45)), var(--hi, none) center / cover, var(--band); }
+.phero .in { width: 100%; padding: 5rem max(1rem, calc((100% - var(--wide)) / 2 + 1rem)) 2rem; background: linear-gradient(rgb(var(--scrim) / 0), rgb(var(--scrim) / .73) 4.5rem, rgb(var(--scrim) / .86)); }
 .phero h1 { margin: .3rem 0; font: 700 clamp(2rem, 6.5vw, 3.4rem) / 1.1 var(--serif); overflow-wrap: anywhere; }
 .phero .sub { margin: .2rem 0 .4rem; font-size: 1.05rem; color: var(--bt); max-width: 46rem; }
 .phero .meta, .phero .ptype { color: var(--hv); }
@@ -458,6 +462,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   body { background: #fff; color: #000; }
   nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc { display: none !important; }
   .hero, .phero { background: none !important; color: #000; min-height: 0; padding-top: 1rem; }
+  .phero .in { background: none !important; }
   .hero .k, .phero .sub, .phero .meta, .phero .ptype, .phero .tag, .phero a { color: #000; }
   .tile.article { background: none; border-color: #000; }
   .tile.article, .tile.article h3 a, .tile.article p, .tile.article .meta, .tile.article .lbl { color: #000; }
