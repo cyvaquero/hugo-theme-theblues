@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.6] - Unreleased
+
+### Fixed
+- `params.wall.photosPerGallery` is validated like `tilesPerPage`: 0 or a negative value fails the build with
+  "params.wall.photosPerGallery must be 1 or more (got N)". Before, 0 silently meant the default of 4, and a negative
+  value failed with Hugo's internal "sequence length must be non-negative". The README states the range (#69).
+
 ## [1.2.5] - Unreleased
 
 ### Fixed
@@ -258,6 +265,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.6]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.5]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.4]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.3]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop

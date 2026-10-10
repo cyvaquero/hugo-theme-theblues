@@ -162,7 +162,8 @@ layouts/_markup/           render-link, render-image
   `layouts/_partials/wall-page.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
-  `tilesPerPage` must be 1 or more; anything else fails the build. The pager shows the first and last pages and two on
+  `tilesPerPage` and `photosPerGallery` must be 1 or more; anything else fails the build with a message naming the
+  setting. The pager shows the first and last pages and two on
   each side of the current one.
 - Wall pages after the first (`/page/2/`, …) use page 1's canonical URL and title, and have no `rel=prev/next` in the head:
   the head is rendered before the wall builds its paginator, so it can't know the page number. The pager links carry
@@ -194,7 +195,7 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
   `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`), `showtoc` (site-wide default for
   the TOC; on when unset, and shown only when a post has headings), and the optional
-  `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4)
+  `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
