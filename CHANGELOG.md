@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.29] - Unreleased
+
+### Fixed
+- A post whose headings are all outside the `markup.tableOfContents` levels (only `####` headings with the default
+  levels, for example) no longer shows an empty "On this page" box: the TOC shows when Hugo's table of contents has a
+  link, not just a list item. If a Hugo update changes the `<nav id="TableOfContents">` wrapper the theme checks and
+  labels, the build warns (`theblues-toc-markup`, which stops `--panicOnWarning` builds) instead of silently dropping
+  the label. The theme keeps Hugo's TOC, since templates can't read the TOC levels. On the fixture site and
+  guyheckman.me every other page is byte-for-byte the same (#87, #117).
+
 ## [1.2.28] - Unreleased
 
 ### Fixed
