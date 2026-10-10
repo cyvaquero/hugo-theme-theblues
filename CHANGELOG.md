@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.1.21] - Unreleased
+
+### Fixed
+- A post without a `title` gets its file-name title ("No Title Here") everywhere it is linked or named, not only in
+  its heading and wall article tile: post navigation, the series box list and pager, photo tiles (name, caption and
+  accessible name), see-all tiles and "Group by gallery" headings. Before, these showed empty link text or a name
+  starting with a comma (#65).
+
 ## [1.1.20] - Unreleased
 
 ### Changed
