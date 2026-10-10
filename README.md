@@ -202,8 +202,7 @@ exampleSite/               fixture site for testing the theme (see Testing the t
 - With Hugo's default inline highlighting, `.highlight` code blocks keep the style's own colors in dark mode; set
   `noClasses = false` to have them follow it (see Syntax highlighting).
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
-  devices and screen readers. An independent review (October 2026) measured contrast and keyboard behavior; its findings
-  are open issues.
+  devices and screen readers. See Accessibility below.
 - Build time grows with the number of posts and list pages: each list page (home, section, every term) builds its own
   tile list, once for all its pager pages. 550 posts built in about 0.34 s when this was measured for 1.2.0 (#7).
 
@@ -247,6 +246,56 @@ into absolute URLs.
 
 Front matter: `title`, `subtitle`, `description`, `date`, `image`, `showtoc`, `categories` (a list, or a single string),
 `tags`, `series`.
+
+## Accessibility
+
+The theme targets **WCAG 2.1 level AA**. That also covers the Revised Section 508 standards for web content, which
+incorporate WCAG 2.0 AA (E205.4); [#94](https://github.com/cyvaquero/hugo-theme-theblues/issues/94) maps the review findings to both standards.
+
+**Keyboard.** Everything works from the keyboard, with a 3px focus ring (steel on the page, sand on the navy band and
+on photos):
+
+- **Skip link:** "Skip to content" is the first stop and moves focus to the main content.
+- **Nav:** at 820px and narrower, the Menu button (`aria-expanded`) opens the links; Escape closes the menu and returns
+  focus to the button, and the menu also closes when focus leaves it. Without JavaScript the links show as a row.
+- **Color theme switch:** three buttons, System, Light and Dark, in a group named "Color theme", with `aria-pressed`
+  on the current one.
+- **Wall controls:** the type chips are toggle buttons (`aria-pressed`). View options (`aria-expanded`) opens a popover
+  and moves focus into it; Tab and Shift+Tab move between the button and the popover, and Escape, a click outside or
+  moving focus away closes it (Escape returns focus to the button). Clear moves focus to the All chip; Reset closes the
+  popover and returns to View options.
+- **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
+  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe); Escape or Close returns
+  focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
+- **Comments:** "Show comments" loads Disqus and moves focus to the comments.
+
+**Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
+but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.
+Photo tiles have names that start with their visible text ("Monterrey, Mexico Gallery, 9 photos, Feb 13, 2025. Photo 1
+of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a visually hidden "Posts" h2, and wall
+pages after the first have their own title.
+
+**Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
+system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). In forced-colors mode (Windows high
+contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
+off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling, and targets
+are 44px on touch screens. A print stylesheet prints black on white.
+
+**Writing accessible content.**
+
+- Give every `gallery` photo a `title`: it becomes the photo's alt text and is read on wall tiles. Without one the alt
+  text is "Photo N" and the build warns (`theblues-gallery-no-title`).
+- Write Markdown image alt text (`![alt](src)`); a title makes a captioned figure only for stand-alone images (see
+  Markdown links and images).
+- Keep heading levels in order in posts; the table of contents is built from them.
+- Use `[markup.highlight] noClasses = false` if posts show line numbers (see Syntax highlighting).
+- Give `embed` a title (the fourth argument); it names the frame.
+
+**Known gaps.** Not yet checked with screen readers or on real touch devices. Open issues:
+[#74](https://github.com/cyvaquero/hugo-theme-theblues/issues/74) (the post hero's small label can drop below 4.5:1 over a bright photo when a very long title pushes it up
+on a phone) and [#117](https://github.com/cyvaquero/hugo-theme-theblues/issues/117) (a post whose headings are all deeper than the TOC levels shows an empty "On this page"
+box). Inline-highlighted line numbers fail contrast ([#76](https://github.com/cyvaquero/hugo-theme-theblues/issues/76), documented above). Other accessibility issues are
+listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-theblues/issues?q=is%3Aopen+label%3Aaccessibility).
 
 ## Testing the theme
 
