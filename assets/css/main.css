@@ -1,5 +1,6 @@
 /* The Blues: stylesheet source (readable, commented).
-   The only stylesheet. Hand-written: no framework, no @import, no external fonts or libraries.
+   Every style is here; assets/css/nojs.css only adds the no-JavaScript nav. Hand-written: no framework, no @import,
+   no external fonts or libraries.
    Hugo minifies and fingerprints it for production builds (layouts/_partials/asset.html); `hugo server` and
    development builds serve this commented source as is.
 
