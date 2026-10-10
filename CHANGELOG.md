@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.5] - Unreleased
+
+### Fixed
+- Feeds no longer print an empty `<lastBuildDate>` or one in year 0001 when the listed posts are missing or all
+  undated (for example a home feed whose main sections have no dated posts while the About page has a date). The date
+  now comes from the newest listed item, and the element is left out when there is none (#68).
+
 ## [1.2.4] - Unreleased
 
 ### Fixed
@@ -251,6 +258,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.5]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.4]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.3]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.2]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
