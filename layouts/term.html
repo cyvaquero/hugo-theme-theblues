@@ -1,4 +1,4 @@
-{{ define "init" }}{{ partial "wall-pager.html" (dict "page" . "posts" ((where .RegularPages "Section" "post").ByDate.Reverse)) }}{{ end }}
+{{ define "init" }}{{ partial "wall-pager.html" (dict "page" . "posts" ((where .RegularPages "Section" "in" site.MainSections).ByDate.Reverse)) }}{{ end }}
 {{ define "header" }}
 {{- /* Term hero: "Tagged: x" (or Category / Series for those taxonomies) with post and photo counts. */ -}}
 {{ $labels := dict "tags" "Tagged" "categories" "Category" "series" "Series" }}
@@ -6,7 +6,7 @@
 {{ $plural := .Data.Plural }}
 {{ $label := index $labels $plural | default (.Data.Singular | title) }}
 {{ $kind := index $kinds $plural | default (.Data.Singular | title) }}
-{{ $posts := where .RegularPages "Section" "post" }}
+{{ $posts := where .RegularPages "Section" "in" site.MainSections }}
 {{ $photos := 0 }}
 {{- /* Same fallback as cover.html: the header image as an absolute URL, so a relative path works on /tags/x/ (#67). */}}
 {{ $cover := "" }}{{ with site.Params.header_image }}{{ $cover = . | absURL }}{{ end }}

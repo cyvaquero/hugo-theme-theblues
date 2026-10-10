@@ -5,6 +5,8 @@ baseURL = "https://example.org/"
 title = "The Blues fixtures"
 locale = "en-US"
 theme = "hugo-theme-theblues"
+# The section that holds the posts (README, "Content structure").
+mainSections = ["post"]
 # The fixtures trigger these warnings on purpose (an untitled photo, an undated post, the legacy menu, and the raw HTML
 # Hugo drops for a {{% galleries %}} block); they are silenced here so --panicOnWarning still catches anything else.
 ignoreLogs = ["theblues-gallery-no-title", "theblues-undated", "theblues-addtional-menus", "warning-goldmark-raw-html"]

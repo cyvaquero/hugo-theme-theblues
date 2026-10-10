@@ -1,10 +1,10 @@
 {{- /*
   RSS feeds (home, sections, terms): Hugo 0.167.0's embedded rss.xml (tpl/tplimpl/embedded/templates/rss.xml) with
-  four changes: the home feed lists only pages in the site's main sections (site.MainSections, "post" by default), so
-  About, Archive and Search stay out (#18); items use page-title.html, so an untitled post gets a title (#18); an
-  item without a date has no pubDate instead of "01 Jan 0001" (#36); and lastBuildDate comes from the listed items
-  only, and is left out when there are none or none is dated (#68). Compare with the embedded template when upgrading
-  Hugo. A site's own home.rss.xml still takes precedence for the home feed.
+  four changes: the home feed lists only pages in the site's main sections (site.MainSections, the same pages as the
+  walls), so About, Archive and Search stay out (#18); items use page-title.html, so an untitled post gets a title
+  (#18); an item without a date has no pubDate instead of "01 Jan 0001" (#36); and lastBuildDate comes from the listed
+  items only, and is left out when there are none or none is dated (#68). Compare with the embedded template when
+  upgrading Hugo. A site's own home.rss.xml still takes precedence for the home feed.
 */ -}}
 {{- $authorEmail := "" }}
 {{- with site.Params.author }}

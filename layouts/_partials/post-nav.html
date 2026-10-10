@@ -1,6 +1,6 @@
 {{- /* Previous (older) and next (newer) post by date, across all posts. Titles go through page-title.html, so an untitled
   post still gets link text (#65). */ -}}
-{{- $all := (where site.RegularPages "Section" "post").ByDate -}}
+{{- $all := (where site.RegularPages "Section" "in" site.MainSections).ByDate -}}
 {{- $older := $all.Next . -}}
 {{- $newer := $all.Prev . -}}
 {{- if or $older $newer }}
