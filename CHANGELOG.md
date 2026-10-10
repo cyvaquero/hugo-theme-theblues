@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.27] - Unreleased
+
+### Added
+- An "Accessibility" section in the README: the target (WCAG 2.1 AA, which also covers Section 508's WCAG 2.0 AA
+  for web content), keyboard support for the skip link, nav menu, theme switch, wall controls, lightbox and comments,
+  the live announcements, color, forced-colors, motion and reflow behavior, how to write accessible content (gallery
+  titles, alt text, headings, line numbers, embed titles), and the known gaps with links to their issues. #94's
+  mapping of WCAG 2.1 and Section 508 is linked from it (#79, #94).
+
 ## [1.2.26] - Unreleased
 
 ### Added
@@ -414,6 +423,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.2.27]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.26]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.25]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
 [1.2.24]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
