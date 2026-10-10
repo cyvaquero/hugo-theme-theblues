@@ -54,10 +54,19 @@ with every CHANGELOG version. A site can override it with its own `data/theblues
 
 The templates assume this layout; other structures are not supported yet.
 
-- **Posts live in the `post` section** (`content/post/`). The home wall, section and term walls, the archive and post
-  navigation only list pages in that section, and `layouts/post/page.html` is the post template. Pages outside it get no
-  series box, comments, previous/next links or table of contents. Taxonomy indexes (`/tags/` and so on) count posts only and
-  leave out terms used only outside the section; a term page with no posts says "No posts yet."
+- **Posts live in the site's main sections**, `content/post/` by convention. The home wall, section and term walls, the
+  archive, post navigation and the home feed list only pages in Hugo's `mainSections`. Set it in the site config:
+
+  ```toml
+  mainSections = ["post"]
+  ```
+
+  Without it, Hugo uses the one section with the most pages, which may not be the posts. `layouts/post/page.html` is
+  the post template; it applies to the `post` section, and a site with posts in another main section gives them the
+  `post` type, for example `[[cascade]] type = "post"` with `[cascade.target] path = "/notes/**"`. Pages that don't use
+  the post template get no series box, comments, previous/next links or table of contents. Taxonomy indexes (`/tags/`
+  and so on) count posts only and leave out terms used only outside the main sections; a term page with no posts says
+  "No posts yet."
 - **Taxonomies:** declare `series` next to the default ones:
 
   ```toml
@@ -142,7 +151,7 @@ assets/js/comments.js      click-to-load Disqus, on posts when the site sets a s
 data/theblues.toml         the theme version shown in the footer
 layouts/baseof.html        page shell
 layouts/home.html          landing page: hero, controls, masonry wall, pagination
-layouts/section.html       /post/ list (same wall)
+layouts/section.html       section lists such as /post/ (same wall, main-section pages only)
 layouts/term.html          tag, category, and series pages (hero plus the same wall)
 layouts/taxonomy.html      /tags/, /categories/, /series/ (A-Z list with counts)
 layouts/page.html          generic pages (About)
@@ -196,7 +205,7 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
 - The theme's feed template (`layouts/rss.xml`, used for the home, section and term feeds) lists only pages in the main
-  sections on the home feed (`site.MainSections`, `post` by default). The `search` section still gets its own empty
+  sections on the home feed (`mainSections`, see Content structure). The `search` section still gets its own empty
   feed; a site can turn it off with `outputs: [html]` in `content/search/_index.md`.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
 - With Hugo's default inline highlighting, `.highlight` code blocks keep the style's own colors in dark mode; set
@@ -210,7 +219,7 @@ exampleSite/               fixture site for testing the theme (see Testing the t
 
 It keeps the parameter names the site already uses, so the site's `hugo.toml` (or `config.toml`) needs little change:
 
-- `title`, `locale` (sets `<html lang>`)
+- `title`, `locale` (sets `<html lang>`), `mainSections` (the sections that hold posts, see Content structure)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
   `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`), `showtoc` (site-wide default for
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), and the optional

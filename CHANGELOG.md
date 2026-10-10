@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.30] - Unreleased
+
+### Changed
+- The home wall, section and term walls, the archive, post navigation and the taxonomy indexes list the pages in the
+  site's `mainSections`, as the home feed already did, instead of only the `post` section. A site that keeps posts in
+  another section (or several) sets `mainSections` and gives those pages the `post` type to get the post template;
+  the README's "Content structure" shows both. Without `mainSections`, Hugo uses the section with the most pages, so
+  the README now says to set `mainSections = ["post"]`, and the fixture site does. guyheckman.me and the fixture site
+  build byte-for-byte the same (#6).
+
 ## [1.2.29] - Unreleased
 
 ### Fixed
