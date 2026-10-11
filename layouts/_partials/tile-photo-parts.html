@@ -1,0 +1,11 @@
+{{- /* For tile-photo.html: the photo tile rendered with a marker in place of data-order, split around it. Returns
+  the two HTML strings, or an empty slice if the marker also shows up elsewhere in the tile (a photo title containing it),
+  and then tile-photo.html renders the tile directly. */ -}}
+{{- $m := "theblues-order-slot" -}}
+{{- $h := string (partial "tile-photo-body.html" (merge . (dict "order" $m))) -}}
+{{- $a := split $h (printf `data-order="%s"` $m) -}}
+{{- $out := slice -}}
+{{- if and (eq (len $a) 2) (eq (len (split $h $m)) 2) -}}
+  {{- $out = slice (printf `%sdata-order="` (index $a 0) | safeHTML) (printf `"%s` (index $a 1) | safeHTML) -}}
+{{- end -}}
+{{- return $out -}}

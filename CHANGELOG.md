@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.53] - Unreleased
+
+### Changed
+- Faster builds for sites with long series or many photo tiles. The series box renders each series' list once instead of
+  once per post in it (a long series made every post's build cost grow with its length), and a photo tile is rendered
+  once and reused on the home, tag, category and series walls, filling in only its position. Median build times with
+  Hugo 0.167.0: guyheckman.me (8 posts) 91.2 → 92.7 ms, within noise; 80 posts 189.8 → 153.4 ms; 550 posts 1058.3 →
+  454.1 ms. The built output is byte-for-byte the same on all three, and with `hugo server` an edited post title or
+  photo title shows up in other posts' series boxes and on the walls on the next rebuild. The README's layout list adds
+  the four new partials (series-items, series-item, tile-photo-body, tile-photo-parts).
+
 ## [1.2.52] - Unreleased
 
 ### Changed

@@ -1,0 +1,5 @@
+{{- /* One entry of a series list, for series-items.html: .p the post, .i its 0-based position, .cur whether it's the
+  post being viewed. Post titles go through page-title.html, so an untitled post still gets link text (#65). */ -}}
+{{- $p := .p -}}
+<li>{{ if .cur }}<strong aria-current="page">{{ add .i 1 }}. {{ partial "page-title.html" $p }}</strong>{{ else }}<a href="{{ $p.RelPermalink }}">{{ add .i 1 }}. {{ partial "page-title.html" $p }}</a>{{ end }}<span class="meta">{{ partial "date.html" (dict "date" $p.Date "format" "Jan 2006") }}</span></li>
+{{- /**/ -}}
