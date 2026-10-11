@@ -171,7 +171,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 /* Home hero: header photo (--hi) under a navy scrim. */
 /* Text over photos (#3): the scrim keeps text readable even over a white image. Cream small text needs a scrim of at
    least .65, sand small text .78 (computed against white); the home hero uses .70 to .85 and cream text only. */
-.hero { color: var(--bt); padding: 3.5rem 1rem 3rem; text-align: center; background: linear-gradient(rgb(var(--scrim) / .70), rgb(var(--scrim) / .85)), var(--hi, none) center / cover, var(--band); }
+.hero { color: var(--bt); padding: 3.5rem 1rem 3rem; text-align: center; background: linear-gradient(rgb(var(--scrim) / .70), rgb(var(--scrim) / .85)), var(--hs, var(--hi, none)) center / cover, var(--band); }
 .hero .k { font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: var(--bt); margin: 0; }
 .hero h1 { margin: .3rem 0 0; font: 700 clamp(2.4rem, 9vw, 4.4rem) / 1.05 var(--serif); overflow-wrap: anywhere; }
 .hero p.sub { margin: .8rem auto 0; max-width: 40rem; font-size: 1.1rem; }
@@ -183,7 +183,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
    many lines the title takes: from clear at the top of .in to .73 at 4.5rem, just above the first line (.85 with the
    hero's .45, enough for the sand kicker and meta), and .86 at the bottom (.92 in all) (#74). .in spans the hero and
    pads its content into the --wide column. */
-.phero { color: var(--bt); min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(var(--scrim) / .45), rgb(var(--scrim) / .45)), var(--hi, none) center / cover, var(--band); }
+.phero { color: var(--bt); min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(var(--scrim) / .45), rgb(var(--scrim) / .45)), var(--hs, var(--hi, none)) center / cover, var(--band); }
 .phero .in { width: 100%; padding: 5rem max(1rem, calc((100% - var(--wide)) / 2 + 1rem)) 2rem; background: linear-gradient(rgb(var(--scrim) / 0), rgb(var(--scrim) / .73) 4.5rem, rgb(var(--scrim) / .86)); }
 .phero h1 { margin: .3rem 0; font: 700 clamp(2rem, 6.5vw, 3.4rem) / 1.1 var(--serif); overflow-wrap: anywhere; }
 .phero .sub { margin: .2rem 0 .4rem; font-size: 1.05rem; color: var(--bt); max-width: 46rem; }
@@ -196,6 +196,14 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .thero .tl { display: inline-block; margin: 0 1.2rem .6rem 0; color: var(--bt); min-height: 44px; line-height: 44px; }
 .thero .tl:hover { color: var(--hv); }
 .thero .ptype { display: flex; }
+/* Hero sizes (#149): on a SmugMug photo the hero also gets --hi1 to --hi5, a smaller size for each of these viewport
+   tiers (layouts/_partials/hero-sizes.html, which works them out, and whose preload links use the same media queries).
+   A tier the page doesn't set leaves --hs invalid, so the hero falls back to --hi. */
+@media (resolution <= 1dppx) and (width <= 480px) { .hero, .phero { --hs: var(--hi1); } }
+@media (resolution <= 1dppx) and (480px < width <= 800px) { .hero, .phero { --hs: var(--hi2); } }
+@media (resolution <= 1dppx) and (800px < width <= 1280px) { .hero, .phero { --hs: var(--hi3); } }
+@media (1dppx < resolution <= 2dppx) and (width <= 640px) { .hero, .phero { --hs: var(--hi4); } }
+@media (resolution <= 1dppx) and (1280px < width <= 1600px) { .hero, .phero { --hs: var(--hi5); } }
 
 /* 5 Shared bits ------------------------------------------------------------------------------------------- */
 .tag { display: inline-block; border: 1px solid var(--line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem .25rem .15rem 0; text-decoration: none; }

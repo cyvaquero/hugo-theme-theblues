@@ -128,7 +128,8 @@ A site can add its own page types without overriding theme files:
 - **Templates:** a site's `layouts/<section>/page.html` or `section.html` renders inside the theme's `baseof.html`. It
   fills the `main` block, and can replace the default hero by defining the `header` block. The nav, footer, stylesheet
   and menu script still come from the theme. The heroes of the home, About-style, 404 and article pages preload their
-  photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`); tag pages and photo posts don't, since
+  photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`, one per hero size with its `media`
+  query when the hero has smaller SmugMug sizes); tag pages and photo posts don't, since
   something else paints first there. A `header` block of the site's own gets no preload unless
   it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`.
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
@@ -180,7 +181,7 @@ layouts/rss.xml            home, section and term feeds (main sections only on t
 layouts/_partials/         head, head-end, analytics-on, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, gallery-figure, cover,
                            series-info, series-box, post-nav, page-title, pagination, date, comments, social, footer, search, asset, script,
                            stylesheet, tile-more, wall-tiles, wall-stand,
-                           wall-pager, wall-page, term-stats
+                           wall-pager, wall-page, term-stats, hero-sizes
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
@@ -212,6 +213,14 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   screens load a smaller file (`layouts/_partials/smug-srcset.html`). SmugMug names each size in the URL's path segment
   and file suffix (`/X2/i-ABC-X2.jpg`, `/L/i-ABC-L.jpg`) and scales it to fit a box: M 600×450, L 800×600, XL 1024×768,
   X2 1280×960.
+- A hero photo on `photos.smugmug.com` whose URL names a size (M, L, XL, X2, X3, X4 or X5, such as a photo post's X3
+  cover or an `image` set to an X5 URL) also gets smaller sizes for phones and one-x screens
+  (`layouts/_partials/hero-sizes.html`): for each of five viewport tiers in `main.css` (one-x up to 480, 800, 1280 and
+  1600px wide, and up to two-x up to 640px), the smallest of M, L, XL, X2 and X3 that is smaller than the URL's own size
+  and still covers the hero box at that tier's widest viewport and highest pixel ratio. Denser and wider screens keep
+  the URL's size, and so do other hosts and photos whose size can't be read (offline build). The preload, where a page
+  has one, gives each size with the same media query, so the browser fetches the hero once. Share images (`og:image`)
+  are unchanged.
 
 ### Known limits
 
