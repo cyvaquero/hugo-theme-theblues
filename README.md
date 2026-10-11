@@ -377,7 +377,10 @@ listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-t
 post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
 `{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
 a series, a code block with line numbers, a post whose headings are all below the TOC levels, a page without a title, the legacy `params.addtional_menus` nav, a footer
-menu, and wall pagination past page 1 (`tilesPerPage = 4`). Hugo doesn't use it when the theme is installed in a
+menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
+hero photos on `photos.smugmug.com`, which make the build read each photo's size and write `width`/`height`, `srcset`,
+the hero's smaller sizes and its preload (they need a network the first time; Hugo then keeps them in its cache, and
+an offline build leaves those attributes out without a warning). Hugo doesn't use it when the theme is installed in a
 site. Build it from that folder:
 
 ```bash
