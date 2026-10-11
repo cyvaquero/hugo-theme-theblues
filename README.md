@@ -39,8 +39,9 @@ How the images were made is in "Testing the theme" below.
   themes gallery.
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
 - **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, on desktop and mobile
-  (#208). The oldest versions with everything working are Chrome and Edge 105, Firefox 121 and Safari 16.4, going by
-  the CSS features the theme uses (`:has()`, range media queries); they are not tested in those versions. Below them
+  (#208). The oldest versions with everything working are Chrome and Edge 108, Firefox 121 and Safari 16.4, going by
+  the CSS features the theme uses (`:has()`, range media queries, `dvh` units); they are not tested in those
+  versions. Below them
   the pages still work, with less polish:
   - before Firefox 121 (no `:has()`), a focused wall tile and a focused code block get the browser's ring on the
     link or the `<pre>` instead of one around the whole tile or block, and a focused gallery thumbnail gets a ring
@@ -193,8 +194,9 @@ A site can add its own page types without overriding theme files:
   the same declarations (`layouts/_partials/dark-tokens-check.html`, once per build): if they differ, or only one is
   found, it warns with the ID `theblues-dark-tokens` naming the tokens, and `--panicOnWarning` fails the build. It reads
   the `assets/css/main.css` the build uses, so a site that overrides the file with an edited copy is checked too; a
-  stylesheet with neither block gets no warning. CSS `light-dark()`, which every supported browser has (see
-  Requirements), could replace the two copies (#196).
+  stylesheet with neither block gets no warning. CSS `light-dark()` could replace the two copies (#196). The
+  current and previous major versions of every supported browser have it, but the oldest versions listed under
+  Requirements don't (it needs Chrome and Edge 123, Firefox 120 and Safari 17.5).
 - **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings (#6):
   - 560px: masonry walls and `galleries` blocks go from one column to two;
   - 700px: the View options popover becomes a 20rem panel at the right instead of spanning the controls, and the wall

@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.39] - Unreleased
+
+### Fixed
+- The README's browser section no longer contradicts itself (#250). The oldest versions with everything working are
+  now Chrome and Edge 108, not 105, since the lightbox needs `dvh` units, which Chrome and Edge got in 108, as the same
+  section's list already said. The Styles bullet no longer says every supported browser has `light-dark()`: the
+  current and previous majors have it, but the oldest versions listed don't (it needs Chrome and Edge 123, Firefox
+  120, Safari 17.5). Documentation only.
+
 ## [1.3.38] - Unreleased
 
 ### Fixed
