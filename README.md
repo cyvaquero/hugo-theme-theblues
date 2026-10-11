@@ -178,7 +178,7 @@ layouts/search/section.html  search page (placeholder until the engine is chosen
 layouts/404.html
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-sizes, controls, wall, tile-photo, tile-photo-body,
-                           tile-photo-parts, tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
+                           tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page, term-stats, memo, build-token
@@ -198,8 +198,10 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   photo. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
   for series posts). A photo post with no parsable photos falls back to a single article tile on the wall and to the
   article layout (reading time, table of contents) on its own page.
-- Tiles carry `data-type`, `data-date`, `data-order` (and `data-gallery`, `data-gallery-title` and `data-n`, the
-  gallery's photo count, on photos), which `wall.js` reads; `#stage` carries the whole list's article and photo tile
+- Tiles carry `data-type` and `data-date` (and `data-gallery`, `data-gallery-title` and `data-n`, the
+  gallery's photo count, on photos), which `wall.js` reads. A tile's server order, which `wall.js` uses to break ties
+  when sorting, is its position in the DOM: tiles have carried no `data-order` since 1.3.9, so a site's CSS or script
+  that reads it must count the tiles itself; `#stage` carries the whole list's article and photo tile
   counts (`data-articles`, `data-photos`) for the type chips and its number of pager pages (`data-pages`), which makes the
   caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.

@@ -2,8 +2,8 @@
 // Progressive enhancement: the wall is complete and sorted newest first without this file; the controls markup is
 // hidden until this script runs. Behavior follows the final mockup (decision D12): type chips with counts, a
 // "View options" popover (Mode, Sort, Group by gallery, Reset), a Clear button and a live caption.
-// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-n (photos in the gallery), data-date and
-// data-order.
+// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-n (photos in the gallery) and data-date.
+// A tile's server order is its position in the DOM when this script starts: the tie-breaker for sorting.
 // The type chips count the whole list, from #stage's data-articles and data-photos (article and photo tiles on every pager
 // page, #7); the caption, groups and sorting work on the tiles on the current page (the wall is paginated by tile), and the
 // caption starts "This page:" instead of "Showing" when the list has tiles on other pages. The "see all" tile of a gallery (data-more) is a
@@ -19,11 +19,11 @@
   function fd(d) { if (!d) return 'Undated'; var p = d.split('-'); return MO[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
   function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
 
-  // Collect the tiles the server rendered.
+  // Collect the tiles the server rendered; ord is a tile's position in the server's order (newest first).
   var items = [], galleries = {}, galleryList = [];
-  [].slice.call(stage.querySelectorAll('.tile')).forEach(function (el) {
+  [].slice.call(stage.querySelectorAll('.tile')).forEach(function (el, idx) {
     var d = el.dataset, it = {
-      t: d.type === 'article' ? 'a' : 'p', date: d.date || '', ord: +d.order || 0,
+      t: d.type === 'article' ? 'a' : 'p', date: d.date || '', ord: idx,
       key: d.gallery || '', name: d.galleryTitle || '', el: el,
       more: d.more !== undefined ? (+d.more || 0) : -1  // see-all link tile: not a photo, never counted
     };

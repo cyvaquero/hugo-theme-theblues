@@ -3,6 +3,32 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.9] - Unreleased
+
+### Changed
+- Wall tiles no longer carry a `data-order` attribute. This is a markup change: a site whose own CSS or script reads
+  `data-order` from `.tile` elements must take the tile's position from the DOM instead. `data-type`, `data-date`,
+  `data-gallery`, `data-gallery-title`, `data-n` and `data-more` are unchanged. `assets/js/wall.js` now takes each
+  tile's server order, which it uses only as the tie-breaker when sorting, from the tile's position in the DOM when the
+  script starts (#188). The photo tile cache no longer renders the tile with a marker, splits the HTML around it and
+  puts the order back in per wall (and falls back to uncached rendering if a photo title contained the marker): the
+  tile is the same on every wall, so `tile-photo.html` caches `tile-photo-body.html` directly, keyed by page path,
+  photo index and photo count. `tile-photo-parts.html` is removed, and `tile-article.html`, `tile-more.html`,
+  `tile-photo-body.html` and `wall.html` no longer take an `order`; the README's layout list and tile attribute text
+  are updated. Checked with Hugo 0.167.0 on a build of the old theme first: on every wall page of guyheckman.me
+  (16 pages, 118 tiles), the 80-post site (60 pages, 1,180 tiles), the 550-post site (257 pages, 5,900 tiles) and the
+  exampleSite (19 pages, 56 tiles), in development and production builds, `data-order` equalled the tile's index in the
+  DOM, so the tie-breaker is unchanged. Against 1.3.8, the output of all four differs only by the removed `data-order`
+  attributes, the `wall.js` fingerprint and `integrity` hash, and the footer version (the old output with `data-order`
+  stripped is identical otherwise). In headless Chrome with a strict CSP (`script-src 'self'`, no `unsafe-inline`),
+  14 wall pages (home, section, tag, category and later pager pages, including days with several posts and galleries
+  with a see-all tile) went through every combination of Newest first, Oldest first, Galleries first and Articles
+  first, filter and highlight, All, Article and Photo, and Group by gallery on and off, then a closed group, Clear and
+  Reset: all 728 states have the same ordered tile list and the same wall and controls markup as 1.3.8, with no CSP
+  violations or script errors; forcing the order to 0 in `wall.js` makes the same run report differences, so the
+  comparison does see tie order. The 550-post site builds in 0.494 s against 0.513 s before (median of 6, production,
+  minified).
+
 ## [1.3.8] - Unreleased
 
 ### Fixed
