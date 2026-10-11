@@ -3,6 +3,20 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.1] - Unreleased
+
+### Fixed
+- Feeds list their posts newest first again. The home, section and term feeds took the posts in Hugo's default order,
+  weight first, so a post with a series `weight` (the README's way to order a series) came ahead of newer ones, and with
+  `[services.rss] limit` set the newest posts could fall off the feed (#163). Items are now sorted by publish date,
+  newest first, before the limit applies; the feed of a taxonomy's terms keeps Hugo's order. Checked with Hugo 0.167.0 on
+  a site with posts weighted -1 and 2 older than an unweighted post and `limit = 2`: `index.xml` was Series one, Series
+  two (the two newest posts missing) and is now Gallery of five, Photos category no gallery; the series feed, which
+  has no limit, now lists Series two before Series one. Built output of the 80-post and 550-post sites, guyheckman.me and
+  the exampleSite, in a development and a production build, differs from 1.3.0 only in the order of items in 16 feeds
+  of each synthetic site (every item and every channel field is the same, and every feed is in date order); guyheckman.me
+  and the exampleSite are byte-identical apart from the footer version and the stylesheet and script file names.
+
 ## [1.3.0] - 2026-10-11
 
 ### Added
