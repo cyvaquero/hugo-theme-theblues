@@ -19,11 +19,12 @@
 {{ with site.Params.keyword }}<meta name="keywords" content="{{ . }}">{{ end }}
 <link rel="canonical" href="{{ .Permalink }}">
 {{- /* Hero image preload (#7): the hero's photo is a CSS background, which the browser finds only after main.css has
-  loaded and the hero is laid out. The heroes that are a page's largest paint (home, 404, hero.html and article posts)
-  record their photo in the page's Store as "theblues-hero", but they run after this <head>, so the link is written with templates.Defer
+  loaded and the hero is laid out. Every theme hero (home, 404, hero.html, posts and term pages) records its photo in
+  the page's Store as "theblues-hero", but they run after this <head>, so the link is written with templates.Defer
   once the page is done. A page whose layout replaces the header block with no photo (a site's own layout) records
-  nothing and gets no preload, so the browser never warns about an unused preload. Term pages and photo posts don't
-  record theirs: their first tiles or title paint first, and a preloaded heavy hero delayed them (#149). A hero with
+  nothing and gets no preload, so the browser never warns about an unused preload. Term pages and photo posts got no
+  preload in 1.2.47, when their heavy X3 or X5 heroes delayed their first paint; with the smaller sizes below their
+  hero is the largest paint and the preload brings it sooner (#149). A hero with
   smaller SmugMug sizes (hero-sizes.html, stored as "theblues-hero-sizes") gets one link per size, each with the media
   query its size is used under in main.css, so exactly one matches and the browser fetches what the CSS shows (#149).
   Cleared first, since a page's Store survives a rebuild under hugo server. */ -}}

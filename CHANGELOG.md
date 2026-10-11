@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.51] - Unreleased
+
+### Changed
+- Tag, category and series pages and photo posts preload their hero photo again, now at the smaller sizes from 1.2.50:
+  their hero is now the page's largest paint, and the preload brings it sooner instead of slowing what paints first.
+  On guyheckman.me with the cache off and a slow network (150 ms, 1.5 Mbit/s), median of 5 runs, light and dark, the
+  largest paint compared with 1.2.50 comes 330–1,180 ms sooner at 375px (photography tag 4.0 s to 3.1 s, Monterrey
+  gallery 4.3 s to 3.1 s, Boston gallery 4.2 s to 3.8 s, Boston tag 3.8 s to 3.5 s, Hugo tag 1.8 s to 1.5 s) and
+  110–340 ms sooner at 1280px; no measured page got slower (#149).
+
 ## [1.2.50] - Unreleased
 
 ### Changed
