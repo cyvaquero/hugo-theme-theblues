@@ -480,7 +480,8 @@ incorporate WCAG 2.0 AA (E205.4); [#94](https://github.com/cyvaquero/hugo-theme-
 **Keyboard.** Everything works from the keyboard, with a 3px focus ring (steel on the page, sand on the navy band and
 on photos):
 
-- **Skip link:** "Skip to content" is the first stop and moves focus to the main content.
+- **Skip link:** "Skip to content" is the first stop and moves focus to the main content, and appears inset from the window corner
+  with a sand ring, so the ring isn't cut off.
 - **Nav:** at 820px and narrower, the Menu button (`aria-expanded`) opens the links; Escape closes the menu and returns
   focus to the button, and the menu also closes when focus leaves it. Without JavaScript the links show as a row.
 - **Color theme switch:** three buttons, System, Light and Dark, in a group named "Color theme", with `aria-pressed`

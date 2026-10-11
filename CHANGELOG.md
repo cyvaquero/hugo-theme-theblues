@@ -13,6 +13,21 @@ All notable changes to this theme are documented here. The format follows
   hero image without range media queries, and a lightbox sized to `vh` without `dvh` units. Documentation only; the
   built site is unchanged apart from the footer version.
 
+## [1.3.20] - Unreleased
+
+### Fixed
+- The skip link's focus ring is now sand and no longer cut off (#174). The ring was steel blue, 1.96:1 against the navy
+  band the link draws on in light mode (WCAG 1.4.11 needs 3:1), because the rule that switches the ring to sand on dark
+  surfaces left `.skip` out; and the link appeared at the very corner of the window, so the top and left of the ring
+  were outside it. Now `.skip` uses the sand ring, and a focused link sits `.5rem` in from the top and left. Dark mode
+  was already sand. WCAG 1.4.11 Non-text Contrast (AA, 2.1 only) and 2.4.7 Focus Visible (AA); Section 508 E205.4 for
+  2.4.7 only. The README's skip link entry says so. Checked with Hugo 0.167.0 and headless Chrome on the exampleSite,
+  pressing Tab once, with the system set to light and to dark and the switch set to Light and to Dark: 1.3.19 drew
+  rgb(69, 104, 130) on #1B3C53, 1.96:1, in both light cases, and sand on #0F2332, 9.22:1, in both dark cases, and the
+  ring's outer edge was 5px outside the window (clipped) in all four; now the ring is rgb(210, 193, 182), 6.63:1 on the
+  light band and 9.22:1 on the dark band, and its outer edge is 3px inside the window in all four. Built output of
+  guyheckman.me and the exampleSite differs from 1.3.19 only in the fingerprints and the footer version.
+
 ## [1.3.19] - Unreleased
 
 ### Fixed

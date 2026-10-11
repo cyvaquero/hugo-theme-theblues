@@ -131,11 +131,12 @@ iframe { max-width: 100%; }
 a { color: var(--link); }
 a:hover { color: var(--text); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-/* On dark surfaces the focus ring is always sand. */
-nav.site, footer.site, .hero, .phero, dialog.lb { --focus: var(--hv); }
+/* On dark surfaces the focus ring is always sand (the skip link is one: it draws on --band, #174). */
+nav.site, footer.site, .hero, .phero, dialog.lb, .skip { --focus: var(--hv); }
 [hidden] { display: none !important; }
 .skip { position: absolute; left: -999px; top: 0; background: var(--band); color: var(--bt); padding: .5rem 1rem; z-index: 100; }
-.skip:focus { left: 0; }
+/* Inset from the corner, so the 3px ring and its 2px offset aren't cut off by the window edge. */
+.skip:focus { left: .5rem; top: .5rem; }
 #main:focus { outline: none; }  /* skip-link target (tabindex=-1): no ring around the whole page */
 /* Visually hidden, still read by screen readers. clip-path is the current property; clip (deprecated) stays as the
    fallback for older browsers (#92). */
