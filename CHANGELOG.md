@@ -3,6 +3,21 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.17] - Unreleased
+
+### Fixed
+- The desktop nav no longer pushes the theme switch off the screen when the menu is long (#171). From 821px the nav
+  links were one row that could not wrap, and `body { overflow-x: hidden }` hid whatever ran past the edge, so with
+  eight menu items (or a long site title, or text zoomed to 150% to 160% on a 1280px screen) the Light and Dark
+  buttons sat past the right edge of the window with no way to scroll to them. The row now wraps onto a second line
+  (right-aligned, with a smaller row gap), so every link and the switch stay in view. A menu that fits looks exactly as
+  before. The README's menu section says so. WCAG 1.4.4 Resize Text (AA), Section 508 E205.4. Checked with Hugo 0.167.0
+  and headless Chrome on an exampleSite copy with eight menu items (nine links with the Search entry) at 821px: 1.3.15
+  had System, Light and Dark at x 815 to 927 in an 821px window (page scrollWidth 930, so the last two were off
+  screen); now all links and the three buttons end at x 790 or less, on two rows. At 1280px every link and button is at
+  the same position as in 1.3.15. Built output of guyheckman.me and the exampleSite, in development and production
+  builds, differs from 1.3.15 only in the fingerprinted stylesheet name and the footer version.
+
 ## [1.3.15] - Unreleased
 
 ### Added
