@@ -1,9 +1,9 @@
 <footer class="site">
   <div class="soc">{{ partial "social.html" . }}</div>
   {{- with site.Menus.footer }}
-  <nav class="fnav" aria-label="Footer">{{ range . }}<a href="{{ .URL }}">{{ .Name }}</a>{{ end }}</nav>
+  <nav class="fnav" aria-label="{{ (or (T "footerNavigation") (partial "t.html" "footerNavigation")) }}">{{ range . }}<a href="{{ .URL }}">{{ .Name }}</a>{{ end }}</nav>
   {{- end }}
   {{- /* The site's copyright line as written, or "© <title> <year>" without one (#6). */}}
   <p>{{ with site.Copyright }}{{ . }}{{ else }}&copy; {{ site.Title }} {{ now.Year }}{{ end }}</p>
-  <p class="ver">Built with Hugo {{ hugo.Version }}{{ with hugo.Data.theblues.version }} and The Blues {{ . }}{{ end }}</p>
+  <p class="ver">{{ with hugo.Data.theblues.version }}{{ (or (T "builtWithTheme" (dict "hugo" hugo.Version "theme" .)) (partial "t.html" (slice "builtWithTheme" (dict "hugo" hugo.Version "theme" .)))) }}{{ else }}{{ (or (T "builtWith" (dict "hugo" hugo.Version)) (partial "t.html" (slice "builtWith" (dict "hugo" hugo.Version)))) }}{{ end }}</p>
 </footer>

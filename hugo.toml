@@ -5,3 +5,27 @@
     # The minimum Hugo version: Hugo checks this one and warns on older versions. theme.toml's min_version mirrors it
     # for the themes gallery; keep the two the same.
     min = "0.163.3"
+
+  # Hugo's default mounts, which listing any mount turns off, plus the theme's English text as data:
+  # layouts/_partials/t.html falls back to it when the site's language has no text for the theme (#192).
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "i18n/en.toml"
+    target = "data/theblues_i18n_en.toml"

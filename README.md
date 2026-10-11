@@ -32,7 +32,10 @@ the site's real content to the same 30 URLs as Clean White with no Hugo warnings
     `[services.googleAnalytics] id` under "Site settings it reads");
   - `comments.js`, on posts when the site sets a Disqus shortname.
 
-  A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used.
+  A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used. `wall.js`,
+  `comments.js` and `gallery.js` hold the text they write (captions, comment messages, lightbox labels) as a Go template
+  action, which Hugo fills in from the site's language when it builds them (see "Translating the theme"); a site's own
+  copy of a script is run as a template only if it contains `{{`.
 
 ## Installation
 
@@ -162,6 +165,43 @@ A site can add its own page types without overriding theme files:
     table of contents beside the text;
   - 900px: masonry walls and `galleries` blocks get a third column.
 
+## Translating the theme
+
+The text the theme writes is in `i18n/en.toml`, and templates read it with Hugo's `T`: labels, headings, the wall's
+caption and counts, the comment and lightbox messages, the page-number text, and the three date layouts. English is the
+default: text a site's language has no entry for is shown in English. Month and day names in dates follow the site's
+language (the theme formats dates with `time.Format`), except that every English site gets US English names. To
+translate the theme, or reword its English, for a site:
+
+1. Copy the theme's `i18n/en.toml` to `i18n/<language>.toml` in the site, where `<language>` is the site's language code
+   (`de`, `fr`, `pt-br`; the key under `[languages]`, or `defaultContentLanguage`). A site's entries replace the theme's
+   one by one, so to reword the English a site's own `i18n/en.toml` needs only the entries it changes.
+2. Translate the `other = "…"` values and keep the entry names and the placeholders in them (`{{ .n }}`, `{{ .part }}`,
+   `{articles}` and so on). An entry with `one` and `other` is a count: `{{ .Count }}` is the number, and the language's
+   plural rules pick the form. Write plain text, which the theme escapes; only `commentsHosted` is HTML.
+3. An entry missing from a language's file is shown in the default language's text and, when that has none either, in
+   the theme's English (`layouts/_partials/t.html`), so a partial translation still has every label.
+   `hugo --printI18nWarnings` lists the missing entries. A language with no file at all uses the default language's
+   file; when the default language is not English and has no file, the labels are all English and the build warns
+   (`theblues-i18n`).
+4. Set the site's `locale` (for example `de-DE`), which also sets `<html lang>`. The three date entries are Go layouts
+   (`dateFormat` for dates on posts, tiles and wall headings unless `params.dateFormat` is set, `dateFormatDay` for the
+   archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
+   Hugo's locale data, except on an English site (language `en` or `en-*`), which gets US English names whatever its
+   `locale`: `en-GB` writes September as "Sep", not "Sept".
+
+The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js` and
+`gallery.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
+than one language gets a script per language (`js/wall.de.js`). The wall's group headings take their dates from the tile
+captions the server wrote, so they are localized too. A count in a script uses the `one` and `other` forms and the
+browser's plural rules (`Intl.PluralRules`), so a language that needs more forms gets `other` for those.
+
+What the theme leaves as it is: text that comes from the site (menu names, `slogan`, `tagline`, `title_404`,
+`search_label`, content, and the titles of the tag, category and series index pages, which Hugo takes from the taxonomy
+name unless `content/tags/_index.md` and the like set a `title`); the link names RSS, LinkedIn and GitHub; the "©" and the
+year of the footer line when the site sets no `copyright`; and the messages of build warnings and errors, which are for
+the person building the site.
+
 ## Layout
 
 ```
@@ -174,6 +214,7 @@ assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swip
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
 data/theblues.toml         the theme version shown in the footer
+i18n/en.toml               the text the theme writes, in English; a site translates it with its own i18n/<language>.toml (see Translating the theme)
 archetypes/post.md         front matter for `hugo new content post/<name>.md`: title from the file name without a leading YYYYMMDD-, commented showtoc and series lines
 layouts/baseof.html        page shell
 layouts/home.html          landing page: hero, controls, masonry wall, pagination
@@ -190,7 +231,7 @@ layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-sizes, 
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
-                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check
+                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
@@ -273,11 +314,11 @@ exampleSite/               fixture site for testing the theme (see Testing the t
 
 It keeps the parameter names the site already uses, so the site's `hugo.toml` (or `config.toml`) needs little change:
 
-- `title`, `locale` (sets `<html lang>`), `mainSections` (the sections that hold posts, see Content structure)
+- `title`, `locale` (sets `<html lang>` and the language of month names; see Translating the theme), `mainSections` (the sections that hold posts, see Content structure)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
-  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`), `dateFormat` (a Go layout for
-  dates on posts, tiles and wall headings, default `Jan 2, 2006`; the archive's `Jan 2` and the series box's `Jan 2006`
-  stay fixed), `showtoc` (site-wide default for
+  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`, from the `searchLabel` entry of `i18n/en.toml`), `dateFormat` (a Go layout for
+  dates on posts, tiles and wall headings, default `Jan 2, 2006`, from the `dateFormat` entry; the archive's `Jan 2` and
+  the series box's `Jan 2006` are the `dateFormatDay` and `dateFormatMonth` entries), `showtoc` (site-wide default for
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), and the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
@@ -285,7 +326,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   (the deprecated legacy menu, below), `theblues-image-size` (a wall or gallery photo URL that answers 404 or isn't an
   image), `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
   can't check or label it; better fixed than silenced) and `theblues-dark-tokens` (the two copies of the dark color
-  tokens in `assets/css/main.css` differ; see Styles under Extending from a site), for example
+  tokens in `assets/css/main.css` differ; see Styles under Extending from a site) and `theblues-i18n` (the site's
+  language has no theme text, so the labels are in English; see Translating the theme), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
   The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major

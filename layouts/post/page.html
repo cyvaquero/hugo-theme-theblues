@@ -11,16 +11,16 @@
 <header class="phero"{{ with $cover }} style="--hi:url('{{ . }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <div class="in">
     <div class="ptype">
-      {{- if $photo }}<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo gallery
-      {{- else }}<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>Article{{ end -}}
+      {{- if $photo }}<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>{{ (or (T "photoGallery") (partial "t.html" "photoGallery")) }}
+      {{- else }}<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg>{{ (or (T "article") (partial "t.html" "article")) }}{{ end -}}
     </div>
     <h1>{{ partial "page-title.html" . }}</h1>
     {{ with (.Params.subtitle | default .Description) }}<p class="sub">{{ . }}</p>{{ end }}
     <div class="meta">
       {{- with .GetTerms "categories" }}{{ range $i, $c := . }}{{ if $i }}, {{ end }}<a href="{{ $c.RelPermalink }}">{{ $c.LinkTitle | title }}</a>{{ end }} &middot; {{ end -}}
       {{- if .Date.IsZero }}{{ warnidf "theblues-undated" "%s has no date; it is shown as Undated. Set date in its front matter (#36)." .File.Path }}{{ end }}{{ partial "date.html" (dict "date" .Date "time" true) }}
-      {{- if $photo }}{{ with partialCached "photos.html" . .Path }} &middot; {{ len . }} {{ cond (eq (len .) 1) "photo" "photos" }}{{ end }}
-      {{- else }} &middot; {{ .ReadingTime }} min read{{ end -}}
+      {{- if $photo }}{{ with partialCached "photos.html" . .Path }} &middot; {{ (or (T "photoCount" (len .)) (partial "t.html" (slice "photoCount" (len .)))) }}{{ end }}
+      {{- else }} &middot; {{ (or (T "minRead" .ReadingTime) (partial "t.html" (slice "minRead" .ReadingTime))) }}{{ end -}}
       {{- range .GetTerms "tags" }} <a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}
     </div>
   </div>
@@ -44,8 +44,8 @@
 <div class="apage{{ if $toc }} has-toc{{ end }}">
   {{ if $toc }}
   <div class="toc">
-    <strong>On this page</strong>
-    {{ replace .TableOfContents $tocNav `<nav id="TableOfContents" aria-label="Table of contents">` | safeHTML }}
+    <strong>{{ (or (T "onThisPage") (partial "t.html" "onThisPage")) }}</strong>
+    {{ replace .TableOfContents $tocNav (printf `<nav id="TableOfContents" aria-label="%s">` ((or (T "tableOfContents") (partial "t.html" "tableOfContents")) | htmlEscape)) | safeHTML }}
   </div>
   {{ end }}
   <article>

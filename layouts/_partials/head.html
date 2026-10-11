@@ -7,7 +7,7 @@
 {{- /* Wall pages after the first add their number: "Site – Page 2", "Hugo – Page 2 | Site" (#78). The wall layouts
   build the paginator before <head> (wall-pager.html); other pages have no "wall" in their Store. */}}
 {{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}
-{{ $title = cond (or $.IsHome (eq $st "")) (printf "%s – Page %d" $title .PageNumber) (printf "%s – Page %d | %s" $pt .PageNumber $st) }}
+{{ $title = cond (or $.IsHome (eq $st "")) (printf "%s – %s" $title ((or (T "pageNumber" (dict "n" .PageNumber)) (partial "t.html" (slice "pageNumber" (dict "n" .PageNumber)))))) (printf "%s – %s | %s" $pt ((or (T "pageNumber" (dict "n" .PageNumber)) (partial "t.html" (slice "pageNumber" (dict "n" .PageNumber))))) $st) }}
 {{ end }}{{ end }}{{ end }}
 {{ $desc := .Description | default site.Params.description }}
 {{ $img := partialCached "cover.html" . .Path }}
@@ -42,7 +42,7 @@
 <meta name="theme-color" content="#0F2332" media="(prefers-color-scheme: dark)">
 {{- /* The site feed on every page, plus a list page's own feed (term, section) (#2). */}}
 {{ with site.Home.OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">{{ end }}
-{{ if not (or .IsHome (eq .Section "search")) }}{{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ $pt }} on {{ site.Title }}" href="{{ .Permalink }}">{{ end }}{{ end }}
+{{ if not (or .IsHome (eq .Section "search")) }}{{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ (or (T "feedTitle" (dict "title" $pt "site" site.Title)) (partial "t.html" (slice "feedTitle" (dict "title" $pt "site" site.Title)))) }}" href="{{ .Permalink }}">{{ end }}{{ end }}
 {{ if or (eq .Kind "404") (eq .Section "search") }}<meta name="robots" content="noindex">{{ end }}
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:type" content="{{ cond .IsPage "article" "website" }}">
@@ -62,9 +62,10 @@
 {{- /* Color theme switch (#22): blocking on purpose, so a picked light or dark mode applies before the first paint. It
   runs after the color-scheme and theme-color metas, which it updates. External, so a CSP needs no hash for it. */}}
 {{ partial "script.html" (dict "path" "js/theme.js") }}
-{{- /* The two copies of the dark color tokens in main.css must match; this warns (theblues-dark-tokens) if they don't. It
-  prints nothing, so it sits on the stylesheet's line (#196). */}}
-{{ partialCached "dark-tokens-check.html" . }}{{ partial "stylesheet.html" "css/main.css" }}
+{{- /* The two copies of the dark color tokens in main.css must match; this warns (theblues-dark-tokens) if they don't, and
+  i18n-check.html warns (theblues-i18n) if the site's language has no theme text (#192). They print nothing, so they sit on the
+  stylesheet's line (#196). */}}
+{{ partialCached "dark-tokens-check.html" . }}{{ partialCached "i18n-check.html" . }}{{ partial "stylesheet.html" "css/main.css" }}
 {{- /* Google Analytics: production builds with a GA ID only, unless privacy.googleAnalytics.disable is set, as decided
   by analytics-on.html, which sites call too (#146). assets/js/analytics.js loads nothing for Do Not Track or Global
   Privacy Control visitors (#16). */}}

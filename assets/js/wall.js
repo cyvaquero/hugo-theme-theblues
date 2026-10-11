@@ -9,15 +9,18 @@
 // caption starts "This page:" instead of "Showing" when the list has tiles on other pages. The "see all" tile of a gallery (data-more) is a
 // link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and groups like a photo
 // tile and always stays last in its gallery.
+// The text this script writes (captions, counts, the Articles group, On/Off) is the site's language: Hugo fills it in
+// when it builds this file (asset.html runs it as a template, js-text.html), from i18n/en.toml or the site's own file.
 (function () {
   var stage = document.getElementById('stage'), ctl = document.getElementById('ctl');
   if (!stage || !ctl) return;
 
-  // Group headings show a gallery's date as its tiles' captions do (date.html, which follows params.dateFormat); fd is
-  // the fallback for a gallery whose first tile here has no caption date.
-  var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  function fd(d) { if (!d) return 'Undated'; var p = d.split('-'); return MO[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
-  function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+  var TX = {{ partial "js-text.html" "wall" | jsonify }};
+  // A count's text: TX holds its one and other forms with %d for the number, and the language's plural rule picks one.
+  var PR; try { PR = new Intl.PluralRules(document.documentElement.lang || undefined); } catch (e) {}
+  function plural(n, f) { return ((PR ? PR.select(n) : n === 1 ? 'one' : 'other') === 'one' ? f.one : f.other).replace('%d', n); }
+  // A sentence with {articles} and {photos} marks for the two counts.
+  function fill(s, a, p) { return s.replace('{articles}', a).replace('{photos}', p); }
 
   // Collect the tiles the server rendered; ord is a tile's position in the server's order (newest first).
   var items = [], galleries = {}, galleryList = [];
@@ -33,7 +36,9 @@
       if (!g) {
         var cap = el.querySelector('figcaption .meta');
         // The heading counts the whole gallery from data-n, also when part of it is on another pager page (#7).
-        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : fd(it.date), ord: it.ord, n: +d.n || 0 };
+        // Group headings show a gallery's date as its tiles' captions do (date.html, which follows params.dateFormat and the
+        // site's language); a custom wall without captions has no date text to show.
+        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : '', ord: it.ord, n: +d.n || 0 };
         galleryList.push(g);
       }
     }
@@ -47,7 +52,7 @@
   // (data-pages); counting tiles can't tell, because a see-all tile on page 2 is in no count (#167). A wall without it
   // (an older or custom wall.html) falls back to comparing the counts.
   var PG = stage.dataset.pages;
-  var paged = PG !== undefined && PG !== '' && !isNaN(+PG) ? +PG > 1 : TA + TP !== NA + NP, shows = paged ? 'This page: ' : 'Showing ';
+  var paged = PG !== undefined && PG !== '' && !isNaN(+PG) ? +PG > 1 : TA + TP !== NA + NP;
 
   var DEF = { f: 'all', m: 'filter', s: 'new', g: false };
   var S = { f: DEF.f, m: DEF.m, s: DEF.s, g: DEF.g };
@@ -88,11 +93,11 @@
       d.hidden = !d.querySelector('.tile:not([hidden])');
     });
     var s;
-    if (S.m === 'filter') s = shows + plural(vis.a, 'article') + ', ' + plural(vis.p, 'photo');
-    else if (S.f === 'all') s = shows + plural(NA, 'article') + ', ' + plural(NP, 'photo') + ' (highlight: pick a type)';
-    else s = 'Highlighting ' + (S.f === 'article' ? plural(NA, 'article') + '; ' + plural(NP, 'photo') + ' dimmed'
-                                                  : plural(NP, 'photo') + '; ' + plural(NA, 'article') + ' dimmed') + (paged ? ' on this page' : '');
-    if (S.g && vis.p) s += ', grouped into ' + galleryList.length + (galleryList.length === 1 ? ' gallery' : ' galleries');
+    if (S.m === 'filter') s = fill(paged ? TX.showingPage : TX.showing, plural(vis.a, TX.articleCount), plural(vis.p, TX.photoCount));
+    else if (S.f === 'all') s = fill(paged ? TX.pickPage : TX.pick, plural(NA, TX.articleCount), plural(NP, TX.photoCount));
+    else s = fill(S.f === 'article' ? (paged ? TX.highlightArticlesPage : TX.highlightArticles) : (paged ? TX.highlightPhotosPage : TX.highlightPhotos),
+                  plural(NA, TX.articleCount), plural(NP, TX.photoCount));
+    if (S.g && vis.p) s += ', ' + plural(galleryList.length, TX.grouped);
     if (cap.textContent !== s) cap.textContent = s;  // the caption is a live region: announce changes only
     sync();
   }
@@ -112,12 +117,12 @@
       galleryList.slice().sort(function (x, y) { return x.date === y.date ? (x.ord - y.ord) * dir : (x.date < y.date ? 1 : -1) * dir; })
         .forEach(function (g) {
           secs.push({
-            k: g.key, title: g.name, extra: g.shown + ' · ' + plural(g.n, 'photo'),
+            k: g.key, title: g.name, extra: (g.shown ? g.shown + ' · ' : '') + plural(g.n, TX.photoCount),
             its: items.filter(function (i) { return i.t === 'p' && i.key === g.key; }).sort(cmp)
           });
         });
       if (NA) {
-        var as = { k: '#articles', title: 'Articles', extra: plural(NA, 'article'),
+        var as = { k: '#articles', title: TX.articles, extra: plural(NA, TX.articleCount),
                    its: items.filter(function (i) { return i.t === 'a'; }).sort(cmp) };
         if (S.s === 'art') secs.unshift(as); else secs.push(as);
       }
@@ -142,12 +147,12 @@
     qa('[data-f]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.f === S.f); });
     qa('[data-m2]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.m2 === S.m); });
     qa('[data-role=sort]').forEach(function (x) { x.value = S.s; });
-    qa('[data-role=grp]').forEach(function (c) { c.checked = S.g; c.parentNode.querySelector('.st').textContent = S.g ? 'On' : 'Off'; });
+    qa('[data-role=grp]').forEach(function (c) { c.checked = S.g; c.parentNode.querySelector('.st').textContent = S.g ? TX.on : TX.off; });
     var inPop = (S.m !== DEF.m) + (S.s !== DEF.s) + (S.g ? 1 : 0), any = inPop + (S.f !== DEF.f);
     qa('[data-badge=opts]').forEach(function (e) {
       e.hidden = !inPop;
       e.textContent = ' ' + inPop;  // the leading space keeps the name "View options 1 active" where flex items aren't spaced
-      var v = document.createElement('span'); v.className = 'vh'; v.textContent = ' active'; e.appendChild(v);
+      var v = document.createElement('span'); v.className = 'vh'; v.textContent = ' ' + TX.active; e.appendChild(v);
     });
     qa('[data-role=clear],[data-role=reset]').forEach(function (e) { e.hidden = !any; });
   }

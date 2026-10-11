@@ -1,5 +1,7 @@
 {{- /* Page title with a fallback to the file name, without a leading YYYYMMDD- date, hyphens as spaces, title-cased: the
-  About page has no title in its front matter, and a post without one would otherwise get an empty <h1> (#18). */ -}}
+  About page has no title in its front matter, and a post without one would otherwise get an empty <h1> (#18). Hugo's own
+  English title for the 404 page ("404 Page not found") is replaced by the site's language (#192). */ -}}
 {{- $t := .Title -}}
+{{- if and (eq .Kind "404") (eq $t "404 Page not found") -}}{{- $t = printf "404 %s" ((or (T "pageNotFound") (partial "t.html" "pageNotFound"))) -}}{{- end -}}
 {{- if and (not $t) .File -}}{{- $t = replace (.File.ContentBaseName | replaceRE `^\d{8}-` "") "-" " " | title -}}{{- end -}}
 {{- return $t -}}

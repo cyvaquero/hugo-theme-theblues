@@ -3,7 +3,7 @@
   (article and photo tiles in the whole list, on every pager page; see-all tiles not counted), which wall.js shows in the type chips (#7), and "pages" (the number of pager pages, for the caption, #167). Without JavaScript this is the whole feature: one CSS-columns flow, newest first. assets/js/wall.js re-sorts,
   filters and groups the tiles.
 */ -}}
-<h2 class="vh">Posts</h2>{{/* keeps the outline h1 > h2 > h3 (tile titles) */}}
+<h2 class="vh">{{ (or (T "postsHeading") (partial "t.html" "postsHeading")) }}</h2>{{/* keeps the outline h1 > h2 > h3 (tile titles) */}}
 <div id="stage" class="wall" data-pv="all" data-articles="{{ .na }}" data-photos="{{ .np }}" data-pages="{{ .pages }}">
   <div class="mas">
     {{- range $t := .tiles }}

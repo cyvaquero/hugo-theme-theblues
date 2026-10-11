@@ -1,0 +1,29 @@
+{{- /*
+  The theme's English text for a key, for when the site's language has none. Templates read the theme's text as
+  (or (T "key" ARG) (partial "t.html" (slice "key" ARG))), or (or (T "key") (partial "t.html" "key")) without an
+  argument: T gives the site's own i18n/<language>.toml, then the default language's text, and only when neither has
+  the key (a site in another language without that file, or with an incomplete one) does or run this partial, which
+  takes the entry from the theme's i18n/en.toml, mounted as data by hugo.toml (hugo.Data.theblues_i18n_en). Calling T
+  first keeps the partial off the path every English page takes, which halves the build time of a large site (#192).
+  Context: the key, or a slice of the key and T's argument (a count, or a map whose Count or count is the count). Picks
+  one or other by the count and fills in the entry's {{ .Count }} and {{ .name }} marks. Returns a string, as T does.
+*/ -}}
+{{- $key := . -}}
+{{- $args := false -}}
+{{- if reflect.IsSlice . }}{{ $key = index . 0 }}{{ $args = index . 1 }}{{ end -}}
+{{- $out := "" -}}
+{{- with index (hugo.Data.theblues_i18n_en | default dict) $key -}}
+  {{- $vars := dict -}}
+  {{- $count := false -}}
+  {{- if reflect.IsMap $args -}}
+    {{- $vars = $args -}}
+    {{- $count = index $args "count" | default (index $args "Count") -}}
+  {{- else if ne $args false -}}
+    {{- $vars = dict "Count" $args -}}
+    {{- $count = $args -}}
+  {{- end -}}
+  {{- $out = .other -}}
+  {{- if and .one (eq (printf "%v" $count) "1") }}{{ $out = .one }}{{ end -}}
+  {{- range $k, $v := $vars }}{{ $out = replace $out (printf "{{ .%s }}" $k) (printf "%v" $v) }}{{ end -}}
+{{- end -}}
+{{- return (string $out) -}}

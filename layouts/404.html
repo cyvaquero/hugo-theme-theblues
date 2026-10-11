@@ -2,9 +2,9 @@
 {{ $hs := dict }}{{ with site.Params.image_404 }}{{ $hs = partialCached "hero-sizes.html" (dict "src" (. | absURL) "h" 240) (. | absURL) 240 }}{{ $.Store.Set "theblues-hero" (. | absURL) }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end -}}
 <header class="hero"{{ with site.Params.image_404 }} style="--hi:url('{{ . | absURL }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <h1>404</h1>
-  <p class="sub">{{ site.Params.title_404 | default "Page not found" }}</p>
+  <p class="sub">{{ site.Params.title_404 | default ((or (T "pageNotFound") (partial "t.html" "pageNotFound"))) }}</p>
 </header>
 {{ end }}
 {{ define "main" }}
-<div class="pb"><p><a href="{{ site.Home.RelPermalink }}">Back to the home page</a></p></div>
+<div class="pb"><p><a href="{{ site.Home.RelPermalink }}">{{ (or (T "backToHome") (partial "t.html" "backToHome")) }}</a></p></div>
 {{ end }}

@@ -5,8 +5,8 @@
   (#18); an item without a date has no pubDate instead of "01 Jan 0001" (#36); lastBuildDate comes from the listed
   items only, and is left out when there are none or none is dated (#68); and items are sorted by publish date, newest
   first, before the limit is applied, so a post's weight (the series order, README) can't put older posts first or push
-  newer ones out of a limited feed (#163; a taxonomy's feed of terms keeps Hugo's order). Compare with the embedded template when upgrading Hugo. A site's own
-  home.rss.xml still takes precedence for the home feed.
+  newer ones out of a limited feed (#163; a taxonomy's feed of terms keeps Hugo's order). Compare with the embedded template when upgrading Hugo. The channel's title
+  and description are the site's language (i18n, #192). A site's own home.rss.xml still takes precedence for the home feed.
 */ -}}
 {{- $authorEmail := "" }}
 {{- with site.Params.author }}
@@ -46,9 +46,9 @@
 {{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>{{ if eq .Title .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{ . }} on {{ end }}{{ .Site.Title }}{{ end }}</title>
+		<title>{{ if eq .Title .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{ (or (T "feedTitle" (dict "title" . "site" $.Site.Title)) (partial "t.html" (slice "feedTitle" (dict "title" . "site" $.Site.Title)))) }}{{ else }}{{ .Site.Title }}{{ end }}{{ end }}</title>
 		<link>{{ .Permalink }}</link>
-		<description>Recent content {{ if ne .Title .Site.Title }}{{ with .Title }}in {{ . }} {{ end }}{{ end }}on {{ .Site.Title }}</description>
+		<description>{{ if and .Title (ne .Title .Site.Title) }}{{ (or (T "feedDescriptionIn" (dict "title" .Title "site" .Site.Title)) (partial "t.html" (slice "feedDescriptionIn" (dict "title" .Title "site" .Site.Title)))) }}{{ else }}{{ (or (T "feedDescription" (dict "site" .Site.Title)) (partial "t.html" (slice "feedDescription" (dict "site" .Site.Title)))) }}{{ end }}</description>
 		<generator>Hugo</generator>
 		<language>{{ site.Language.Locale }}</language>
 		{{ with $authorEmail }}

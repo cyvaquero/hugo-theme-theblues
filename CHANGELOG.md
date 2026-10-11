@@ -3,6 +3,49 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.13] - Unreleased
+
+### Fixed
+- A site can now translate the theme's text and get localized dates without overriding templates (#192). All the text
+  the theme writes (labels, headings, the wall's caption and counts, the comment and lightbox messages, the page-number
+  text, the feed's channel text, the alt text "Photo N" and the three date layouts: 100 entries) is in the new
+  `i18n/en.toml`, which the templates read with `T`, with `one` and `other` forms where the text picked "post" or
+  "posts", "photo" or "photos" and so on. Dates use `time.Format`, so month and day names follow the site's language.
+  `assets/js/wall.js`, `comments.js` and `gallery.js` get their text through the new `layouts/_partials/js-text.html`:
+  `asset.html` runs a script that contains a Go template action as a template, so the HTML is the same for every
+  language (no data attributes), and a site with more than one language gets a script per language (`js/wall.de.js`).
+  The wall's English month list is gone: group headings take their date from the tile captions the server wrote, and a
+  custom wall without captions shows no date text there instead of an English one. Hugo's English title for the 404 page
+  ("404 Page not found") is replaced by the site's text. A site translates the theme with its own `i18n/<language>.toml`
+  (README, "Translating the theme", which also lists what stays as it is: text that comes from the site, the link names
+  RSS, LinkedIn and GitHub, the "©" and year of the footer's fallback line and build warning and error messages).
+  English is the default. Text a site's language has no entry for, in the site's file or the default language's, is shown
+  in English from the theme's `i18n/en.toml` (the new `layouts/_partials/t.html`, which reads it as data through a
+  mount in the theme's `hugo.toml`; templates call it only when `T` comes back empty, so English pages never run it). A
+  site whose language has no theme text at all gets English labels and a build warning with the ID `theblues-i18n`
+  (the README lists it); the fix is to copy `i18n/en.toml` to `i18n/<language>.toml` and translate it. The same warning ID
+  fires if a site's own module settings drop the theme's mount, which would leave missing text empty. Month and day
+  names come from Hugo's locale data for other languages, but an English site (`en` or `en-*`) keeps US English names
+  whatever its `locale`, so `en-GB` still writes "Sep", not "Sept". Checked with Hugo 0.167.0: for an English site (`en-US`) the built output of
+  guyheckman.me, the 80-post and 550-post sites and the exampleSite, in development and production builds, is
+  byte-identical to 1.3.11 apart from the footer version and the file names and SRI hashes of the three scripts (2,155
+  files compared), and so is a crafted exampleSite copy with every month, posts that cross midnight in other time zones,
+  one-photo, three-photo and four-photo galleries ("1 more photo", "2 more photos"), a one-post series and tag, an
+  empty section, an embed without a title, an external link, and titles and terms with `&`, `+`, quotes and `<`. In
+  headless Chrome the wall's caption, chips, badge, On/Off and group headings in 11 states on seven wall pages, the
+  lightbox's labels and counter, and the comments' failure message and "Try again" button are identical to 1.3.11. A
+  scratch exampleSite copy in German (`defaultContentLanguage = "de"`, `locale = "de-DE"`, a site `i18n/de.toml` that is
+  not part of the theme) shows the translated labels, "Erstellt mit Hugo 0.167.0 und The Blues 1.3.13", "10. Jan. 2026"
+  and "15. Dez." in the archive, "1 Beitrag" and "2 Beiträge", and a German 404 title; the wall's captions are German
+  ("Hervorgehoben: 3 Artikel; 1 Foto abgeblendet auf dieser Seite, in 1 Galerie gruppiert") and its group headings read
+  "A photo gallery · 7. Jan. 2026 · 4 Fotos". An English and German site builds `wall.en.js` and `wall.de.js` and each
+  page loads its own. The same German copy without its `i18n/de.toml` shows every label, count and script message in
+  English ("Skip to content", "4 photos", "Photo viewer") with German dates, where it had empty labels; with a
+  `de.toml` of two entries those two are German and the rest English. An `en-GB` copy of the exampleSite is
+  byte-identical to 1.3.11, and a September post there reads "Sep 15, 2026". The 550-post production build takes 0.51 s
+  against 0.49 s before (minified, three runs each); calling the English fallback as a partial on every lookup took
+  about twice as long, which is why templates try `T` first. The README's exampleSite check (`--panicOnWarning`, `--printUnusedTemplates`) passes.
+
 ## [1.3.12] - Unreleased
 
 ### Fixed
