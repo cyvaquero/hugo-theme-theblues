@@ -190,6 +190,13 @@ exampleSite/               fixture site for testing the theme (see Testing the t
 - Tiles carry `data-type`, `data-date`, `data-order` (and `data-gallery`, `data-gallery-title` and `data-n`, the
   gallery's photo count, on photos), which `wall.js` reads. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
+- Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
+  `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
+  doesn't reflow. Hugo keeps the downloads in its `getresource` file cache (by default `:cacheDir/:project`, kept until
+  cleared), so a build fetches only photos new to the cache; a build without a cache (for example on a fresh CI machine)
+  fetches them all. When a photo can't be fetched (offline, a timeout, a server error) the attributes are left out
+  without a warning and the tile holds a 3:2 placeholder; when the server answers that the photo doesn't exist (HTTP 404)
+  or isn't an image, the build warns (warning ID `theblues-image-size`).
 
 ### Known limits
 
@@ -236,7 +243,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
   (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`), `theblues-addtional-menus`
-  (the deprecated legacy menu, below) and `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
+  (the deprecated legacy menu, below), `theblues-image-size` (a wall or gallery photo URL that answers 404 or isn't an
+  image) and `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
   can't check or label it; better fixed than silenced), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
