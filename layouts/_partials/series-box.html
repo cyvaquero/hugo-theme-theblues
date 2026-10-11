@@ -5,7 +5,7 @@
   {{- $pages := .pages -}}
   {{- $idx := sub .part 1 }}
 <div class="series">
-  <strong class="t">Part {{ .part }} of {{ .total }}: <a href="{{ .url }}">{{ .name }}</a></strong>
+  <h2 class="t">{{ (or (T "partOf" (dict "part" .part "total" .total)) (partial "t.html" (slice "partOf" (dict "part" .part "total" .total)))) }}: <a href="{{ .url }}">{{ .name }}</a></h2>
   <ol>
     {{- range $i, $it := partialCached "series-items.html" $pages .url }}
     {{ if eq $i $idx }}{{ $it.cur }}{{ else }}{{ $it.link }}{{ end }}

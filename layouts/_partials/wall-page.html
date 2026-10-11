@@ -5,9 +5,9 @@
 */ -}}
 {{- $wall := .Store.Get "wall" -}}
 {{- if not $wall.posts }}
-<div class="pb"><p class="meta">No posts yet.</p></div>
+<div class="pb"><p class="meta">{{ (or (T "noPostsYet") (partial "t.html" "noPostsYet")) }}</p></div>
 {{- else }}
 {{ partial "controls.html" . }}
-{{ partial "wall.html" (dict "tiles" $wall.tiles "na" $wall.na "np" $wall.np) }}
+{{ partial "wall.html" (dict "tiles" $wall.tiles "na" $wall.na "np" $wall.np "pages" $wall.pag.TotalPages) }}
 {{ partial "pagination.html" $wall.pag }}
 {{- end }}

@@ -18,7 +18,9 @@
    Palette B: navy #1B3C53, steel #456882, sand #D2C1B6, cream #F9F3EF.
    Light or dark follows the system setting (prefers-color-scheme) unless the reader picks one with the switch in the nav
    (assets/js/theme.js sets data-theme="light" or "dark" on <html>, #22). The dark tokens are therefore listed twice,
-   once for each way of asking for dark mode; keep the two copies the same.
+   once for each way of asking for dark mode; keep the two copies the same. The build checks it: a difference warns
+   (ID theblues-dark-tokens, layouts/_partials/dark-tokens-check.html). When the theme sets a browser floor, CSS
+   light-dark() can hold one copy (#208).
    Colors are set only in the token block below (and in Print, which forces black on white); --bt, --hv and --scrim are
    the same in both modes, since they sit on the navy band or on photos under a navy scrim. */
 
@@ -60,7 +62,8 @@
   --gap: 12px;              /* masonry gutter */
   color-scheme: light dark;
 }
-/* Dark: the system asks for it and the reader hasn't picked light, ... */
+/* Dark: the system asks for it and the reader hasn't picked light, ... (This block and the next must match; the build
+   warns if they don't, theblues-dark-tokens. light-dark() may replace both later, #208.) */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme=light]) {
     --bg: #142E40;
@@ -88,7 +91,7 @@
     --sx-hl: #1B3C53;
   }
 }
-/* ... or the reader picked dark. Same values as above. */
+/* ... or the reader picked dark. Same values as above (checked at build time, theblues-dark-tokens; see #208). */
 :root[data-theme=dark] {
   --bg: #142E40;
   --text: #F9F3EF;        /* 12.8:1 */
@@ -128,11 +131,12 @@ iframe { max-width: 100%; }
 a { color: var(--link); }
 a:hover { color: var(--text); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-/* On dark surfaces the focus ring is always sand. */
-nav.site, footer.site, .hero, .phero, dialog.lb { --focus: var(--hv); }
+/* On dark surfaces the focus ring is always sand (the skip link is one: it draws on --band, #174). */
+nav.site, footer.site, .hero, .phero, dialog.lb, .skip { --focus: var(--hv); }
 [hidden] { display: none !important; }
 .skip { position: absolute; left: -999px; top: 0; background: var(--band); color: var(--bt); padding: .5rem 1rem; z-index: 100; }
-.skip:focus { left: 0; }
+/* Inset from the corner, so the 3px ring and its 2px offset aren't cut off by the window edge. */
+.skip:focus { left: .5rem; top: .5rem; }
 #main:focus { outline: none; }  /* skip-link target (tabindex=-1): no ring around the whole page */
 /* Visually hidden, still read by screen readers. clip-path is the current property; clip (deprecated) stays as the
    fallback for older browsers (#92). */
@@ -163,7 +167,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
      nojs.css collapses it again (#138). */
   nav.site li.theme[hidden] { display: flex !important; visibility: hidden; }
   nav.site .menu { display: none; }
-  nav.site .links { display: flex; position: static; flex-direction: row; gap: 1.25rem; background: none; border: 0; box-shadow: none; padding: 0; }
+  /* The row wraps, with a smaller row gap, so a long menu or a large text size (zoom) never pushes the theme switch past
+     the edge, where body's overflow-x: hidden would hide it (#171). */
+  nav.site .links { display: flex; position: static; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; gap: .25rem 1.25rem; background: none; border: 0; box-shadow: none; padding: 0; }
   nav.site .links a { border: 0; padding: .35rem 0; }
 }
 
@@ -209,7 +215,8 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .tag { display: inline-block; border: 1px solid var(--line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem .25rem .15rem 0; text-decoration: none; }
 .meta { font-size: .85rem; color: var(--muted); }
 .series { border: 1px solid var(--line); border-left: .9rem solid var(--link); border-radius: 4px; padding: 1rem; background: var(--surface); margin: 2.5rem 0; }
-.series .t { display: block; font: 700 1.15rem / 1.3 var(--serif); }
+/* The title is an h2 (#172): the box is a section of the post, and its title belongs in the heading list. */
+.series .t { display: block; font: 700 1.15rem / 1.3 var(--serif); margin: 0; }
 .series ol { list-style: none; margin: .5rem 0 1rem; padding: 0; }
 .series li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); padding: .35rem 0; font-size: .95rem; }
 .series li .meta { flex: none; }
@@ -296,6 +303,9 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.photo figcaption { position: absolute; inset: auto 0 0 0; padding: 2.5rem .8rem .7rem; background: linear-gradient(transparent, rgb(var(--scrim) / .85) 2.5rem, rgb(var(--scrim) / .92)); color: var(--bt); font-size: .92rem; opacity: 0; pointer-events: none; }
 .tile.photo:hover figcaption, .tile.photo:focus-within figcaption { opacity: 1; }
 @media (hover: none) { .tile.photo figcaption { opacity: 1; } }
+/* Escape hides a shown caption (wall.js sets .cx until the pointer and focus leave the tile, #173). Screen only: a printed
+   caption always shows. */
+@media screen { .tile.photo.cx figcaption { opacity: 0; } }
 .tile.photo figcaption .meta { color: var(--hv); }
 /* "See all" tile: last tile of a gallery on the wall. Dashed frame, large camera icon and an arrow label, so it differs from
    photo and article tiles by shape and icon, not color. */
@@ -309,10 +319,10 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.article { background: var(--art-bg); color: var(--art-fg); border: 1px solid var(--art-line); border-left: 8px solid var(--hv); border-radius: 4px 10px 10px 4px; padding: 1rem 1.1rem 1rem 1rem; }
 .tile.article .lbl { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; font-size: .72rem; letter-spacing: .14em; font-weight: 700; color: var(--art-sub); text-transform: uppercase; }
 .tile.article .chip { margin-left: auto; border: 1px solid var(--art-sub); border-radius: 99px; padding: 0 .6rem; letter-spacing: .04em; text-transform: none; font-weight: 600; font-size: .76rem; }
-.tile.article h3 { font: 700 1.3rem / 1.25 var(--serif); margin: .55rem 0 .4rem; overflow-wrap: anywhere; }
-.tile.article h3 a { color: var(--art-fg); text-decoration: none; }
-.tile.article h3 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }  /* whole tile is the link */
-.tile.article h3 a:hover { color: var(--hv); text-decoration: underline; }
+.tile.article :is(h3, h4) { font: 700 1.3rem / 1.25 var(--serif); margin: .55rem 0 .4rem; overflow-wrap: anywhere; }
+.tile.article :is(h3, h4) a { color: var(--art-fg); text-decoration: none; }
+.tile.article :is(h3, h4) a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }  /* whole tile is the link */
+.tile.article :is(h3, h4) a:hover { color: var(--hv); text-decoration: underline; }
 .tile.article p { margin: 0 0 .6rem; font-size: .95rem; line-height: 1.5; color: var(--art-fg); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .tile.article .meta { color: var(--art-sub); font-size: .8rem; }
 .tile .meta a { position: relative; z-index: 1; display: inline-block; min-height: 24px; line-height: 24px; color: inherit; text-decoration: underline; text-underline-offset: .15em; margin-left: .35rem; }
@@ -321,8 +331,8 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 /* The whole tile shows the focus ring of its cover link, in --focus on the page (5.4:1 light, 8.1:1 dark). Only where
    :has() works: elsewhere the link keeps the default ring. */
 @supports selector(:has(*)) {
-  .tile.photo:has(> a:focus-visible), .tile.article:has(h3 a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
-  .tile.photo > a:focus-visible, .tile.article h3 a:focus-visible { outline: 0; }
+  .tile.photo:has(> a:focus-visible), .tile.article:has(:is(h3, h4) a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .tile.photo > a:focus-visible, .tile.article :is(h3, h4) a:focus-visible { outline: 0; }
 }
 .tile .meta a:hover { color: var(--hv); }
 /* Highlight mode and chip preview: the others turn gray and their photos fade, while their text keeps full contrast
@@ -333,12 +343,15 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.dim:hover, .tile.dim:focus-within { filter: none; }
 .tile.dim:hover img, .tile.dim:focus-within img { opacity: 1; }
 .tile.hl, #stage[data-pv=article] .tile.article, #stage[data-pv=photo] .tile.photo { outline: 3px dashed var(--muted); outline-offset: 3px; box-shadow: 0 0 0 1px var(--muted); }
-/* Group by gallery. */
+/* Group by gallery. Each title is an h3 inside its summary (#172), so it is in the heading list; wall.js turns the article
+   tiles' h3 into h4 while the wall is grouped, so the outline stays h2 (Posts) > h3 (group) > h4 (tile). The h3 is a flex
+   row of its own that lays out the title and the count the way the summary did, so the groups look as before. */
 details.grp { margin: 0 0 1.5rem; }
 details.grp > summary { cursor: pointer; font: 700 1.3rem / 1.3 var(--serif); padding: .6rem .2rem; min-height: 44px; border-bottom: 2px solid var(--line); margin-bottom: var(--gap); display: flex; align-items: center; flex-wrap: wrap; gap: .2rem .5rem; list-style: none; }
 details.grp > summary::-webkit-details-marker { display: none; }
 details.grp > summary::before { content: "\25B8"; content: "\25B8" / ""; display: inline-block; }
 details.grp[open] > summary::before { content: "\25BE"; content: "\25BE" / ""; }
+details.grp > summary > h3 { display: flex; align-items: center; flex-wrap: wrap; gap: .2rem .5rem; flex: 1 1 0; min-width: 0; margin: 0; font: inherit; }
 details.grp > summary .meta { font: 400 .85rem var(--sans); }
 
 /* 9 Pagination and post navigation ----------------------------------------------------------------------- */
@@ -356,6 +369,19 @@ details.grp > summary .meta { font: 400 .85rem var(--sans); }
 .gal { max-width: var(--wide); margin: 1.5rem auto 0; padding: 0 1rem; }
 .gal figure { margin: 0 0 var(--gap); break-inside: avoid; border-radius: 8px; overflow: hidden; background: var(--code); }
 .gal a { display: block; }
+/* The figure clips (overflow: hidden), and with it any ring drawn outside the link, so a gallery thumbnail shows its
+   focus ring on the figure itself, which its own overflow doesn't clip (#248). Without :has(), an inset ring on the
+   link: a 3px outline in --focus with a 2px sand line just inside it (a pseudo-element, since the photo covers the
+   link's own box-shadow), so it shows on a light or a dark photo. Forced-colors mode drops the box-shadow; the outline
+   stays, in the system's focus color. */
+@supports selector(:has(*)) {
+  .gal figure:has(> a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .gal a:focus-visible { outline: 0; }
+}
+@supports not selector(:has(*)) {
+  .gal a:focus-visible { position: relative; outline: 3px solid var(--focus); outline-offset: -3px; }
+  .gal a:focus-visible::after { content: ""; position: absolute; inset: 3px; box-shadow: inset 0 0 0 2px var(--hv); pointer-events: none; }
+}
 .gal img { width: 100%; height: auto; }
 .gal img:not([width]) { aspect-ratio: auto 3 / 2; }
 dialog.lb { border: 0; padding: 0; background: transparent; width: 100%; height: 100%; max-width: 100vw; max-height: 100vh; max-height: 100dvh; }
@@ -373,7 +399,8 @@ dialog.lb button:hover { color: var(--hv); }
 .apage > * { min-width: 0; }
 .apage:not(.has-toc) { max-width: var(--measure); }
 .toc { font-size: .88rem; border-left: 2px solid var(--line); padding-left: 1rem; margin-bottom: 1.5rem; }
-.toc strong { display: block; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+/* The label is an h2 (#226): the post's h1 is in the hero and the body starts at h2, so it sits first in the outline. */
+.toc h2 { display: block; margin: 0; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .toc ul { list-style: none; margin: 0; padding-left: .9rem; }
 .toc > nav > ul { padding-left: 0; }
 .toc a { display: block; text-decoration: none; padding: .25rem 0; }
@@ -457,7 +484,17 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .seg.mode button { min-height: 44px; }
   .thm button { min-width: 44px; min-height: 44px; }
   .tag { min-height: 44px; display: inline-flex; align-items: center; padding: 0 .9rem; }
-  .tile .meta a { display: inline-block; padding: .6rem .2rem; }
+  .tile .meta a { display: inline-block; padding: .6rem .2rem; min-height: 44px; }
+  /* Links in text and lists (#175): at least 44px tall. Only the height is set; a short word stays narrower. Blocks and
+     rows get the height from min-height and center their text; the hero's inline category links keep their line by
+     taking the extra height back as negative margin, so the hero doesn't grow. */
+  nav.site .brand { display: inline-flex; align-items: center; min-height: 44px; padding: 0; }
+  .phero .meta a:not(.tag) { display: inline-block; min-height: 44px; line-height: 44px; margin-block: -11px; vertical-align: middle; }
+  .toc a { display: flex; align-items: center; min-height: 44px; padding: 0; }
+  .series li { align-items: center; min-height: 44px; padding: 0; }
+  .series li a, .series .pager a { display: inline-flex; align-items: center; min-height: 44px; }
+  .nav2 a { display: inline-flex; align-items: center; min-height: 44px; }
+  @media (min-width: 821px) { nav.site .links a { display: inline-flex; align-items: center; min-height: 44px; } }  /* the desktop row; the menu's links are 44px already */
 }
 
 /* 14 Reduced motion --------------------------------------------------------------------------------------- */
@@ -493,7 +530,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .phero .in { background: none !important; }
   .hero .k, .phero .sub, .phero .meta, .phero .ptype, .phero .tag, .phero a { color: #000; }
   .tile.article { background: none; border-color: #000; }
-  .tile.article, .tile.article h3 a, .tile.article p, .tile.article .meta, .tile.article .lbl { color: #000; }
+  .tile.article, .tile.article :is(h3, h4) a, .tile.article p, .tile.article .meta, .tile.article .lbl { color: #000; }
   .tile.photo figcaption { opacity: 1; position: static; background: none; color: #000; padding: .3rem 0; }
   .tile.photo figcaption .meta { color: #000; }
   footer.site { background: none; color: #000; }

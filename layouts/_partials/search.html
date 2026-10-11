@@ -1,2 +1,2 @@
 {{/* Search slot. The engine is chosen in cyvaquero/hugo-site-guyheckman_me#3; replace this partial's body when it lands. */}}
-<div id="search"><p>Search is not available yet.</p></div>
+<div id="search"><p>{{ (or (T "searchUnavailable") (partial "t.html" "searchUnavailable")) }}</p></div>

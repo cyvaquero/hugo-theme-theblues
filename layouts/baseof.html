@@ -7,7 +7,7 @@
   {{ partial "head.html" . }}
 </head>
 <body>
-  <a class="skip" href="#main">Skip to content</a>
+  <a class="skip" href="#main">{{ (or (T "skipToContent") (partial "t.html" "skipToContent")) }}</a>
   {{ partial "nav.html" . }}
   {{ block "header" . }}{{ partial "hero.html" . }}{{ end }}
   <main id="main" tabindex="-1">

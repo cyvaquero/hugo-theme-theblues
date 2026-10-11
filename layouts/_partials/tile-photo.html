@@ -1,12 +1,6 @@
 {{- /*
   One photo tile; the markup is in tile-photo-body.html. The same photo appears on the home wall and on each of its
-  tag, category and series walls, identical except for data-order, so the tile is rendered once per photo
-  (tile-photo-parts.html, cached) and only the order is filled in per wall. Context as tile-photo-body.html: page,
-  photo, i, n, order.
+  tag, category and series walls, and the tile is identical on all of them, so it is rendered once per photo and the
+  cached HTML is reused. Context as tile-photo-body.html: page, photo, i, n.
 */ -}}
-{{- $parts := partialCached "tile-photo-parts.html" . (printf "%s|%d|%d" .page.Path .i .n) -}}
-{{- if eq (len $parts) 2 -}}
-{{ index $parts 0 }}{{ .order }}{{ index $parts 1 }}
-{{- else -}}
-{{ partial "tile-photo-body.html" . }}
-{{- end -}}
+{{- partialCached "tile-photo-body.html" . (printf "%s|%d|%d" .page.Path .i .n) -}}

@@ -1,0 +1,39 @@
+{{- /*
+  Build-time check for the two copies of the dark color tokens in assets/css/main.css (#196): one under
+  @media (prefers-color-scheme: dark) for a system that asks for dark, one for a reader who picked dark with the switch.
+  They must hold the same declarations. This compares them (comments, whitespace and order don't count) and warns with
+  the ID theblues-dark-tokens, naming each token that differs or is missing from one copy; a build with
+  --panicOnWarning fails. It reads the stylesheet the build uses, so a site's own assets/css/main.css is checked too; a
+  stylesheet with neither block (a site's own tokens) has nothing to compare and gets no warning.
+  Call it through partialCached, as head.html does, so it runs once per build. It prints nothing.
+  When the theme sets a browser floor, CSS light-dark() can hold one copy and this check goes away (#208).
+*/ -}}
+{{- with resources.Get "css/main.css" -}}
+  {{- $css := replaceRE `(?s)/\*.*?\*/` "" (.Content | string) -}}
+  {{- $sys := findRESubmatch `:root:not\(\[data-theme=light\]\)\s*\{([^{}]*--bg:[^{}]*)\}` $css 1 -}}
+  {{- $pick := findRESubmatch `:root\[data-theme=dark\]\s*\{([^{}]*--bg:[^{}]*)\}` $css 1 -}}
+  {{- if and $sys $pick -}}
+    {{- $s := newScratch -}}
+    {{- range $i, $m := slice $sys $pick -}}
+      {{- range split (index (index $m 0) 1) ";" -}}
+        {{- with findRESubmatch `(?s)^\s*([\w-]+)\s*:\s*(.*?)\s*$` . 1 -}}
+          {{- $s.SetInMap (printf "%d" $i) (index (index . 0) 1) (replaceRE `\s+` " " (index (index . 0) 2)) -}}
+          {{- $s.Add "names" (slice (index (index . 0) 1)) -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $a := or ($s.Get "0") (dict) -}}
+    {{- $b := or ($s.Get "1") (dict) -}}
+    {{- $diff := slice -}}
+    {{- range sort (uniq ($s.Get "names")) -}}
+      {{- $x := index $a . | default "(missing)" -}}
+      {{- $y := index $b . | default "(missing)" -}}
+      {{- if ne $x $y }}{{ $diff = $diff | append (printf "%s (system dark %s, picked dark %s)" . $x $y) }}{{ end -}}
+    {{- end -}}
+    {{- with $diff -}}
+      {{- warnidf "theblues-dark-tokens" "assets/css/main.css: the two dark-token blocks differ: %s; keep them the same (#196)." (delimit . ", ") -}}
+    {{- end -}}
+  {{- else if or $sys $pick -}}
+    {{- warnidf "theblues-dark-tokens" "assets/css/main.css: only one of the two dark-token blocks was found (%s); the theme keeps both the same (#196)." (cond (ne (len $sys) 0) ":root:not([data-theme=light]) under prefers-color-scheme: dark" ":root[data-theme=dark]") -}}
+  {{- end -}}
+{{- end -}}

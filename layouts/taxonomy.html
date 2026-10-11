@@ -6,23 +6,29 @@
 */ -}}
 {{ $isTag := eq .Data.Singular "tag" }}
 <div class="atw">
-  <p class="meta">Every {{ .Data.Singular }} on the site, A to Z, with post counts.</p>
+  <p class="meta">{{ (or (T "taxonomyIntro" (dict "singular" .Data.Singular)) (partial "t.html" (slice "taxonomyIntro" (dict "singular" .Data.Singular)))) }}</p>
   {{ with .Content }}{{ . }}{{ end }}
-  {{ $cur := "" }}
-  {{- /* Sorted by the term page's title, which is what's listed and grouped by (a term's _index.md can retitle it, #18). */}}
+  {{- /* Sorted by the term page's title, which is what's listed and grouped by (a term's _index.md can retitle it, #18).
+    The locale collation can put an accented term among the plain ones (U, Ü, U), so the letters are collected first, in
+    order of first appearance, and each heading lists every term with that letter once (#165). */}}
+  {{ $terms := slice }}
+  {{- $letters := slice }}
   {{- range sort .Data.Terms.Alphabetical "Page.Title" }}
     {{- $n := len (where .Pages "Section" "in" site.MainSections) }}
     {{- if not $n }}{{ continue }}{{ end }}
-    {{- $name := .Page.Title }}
-    {{- $letter := upper (substr $name 0 1) }}
-    {{- if ne $letter $cur }}
-      {{- if $cur }}</ul>{{ end }}
-      {{- $cur = $letter }}
+    {{- $letter := upper (substr .Page.Title 0 1) }}
+    {{- $terms = $terms | append (dict "term" . "n" $n "letter" $letter) }}
+    {{- if not (in $letters $letter) }}{{ $letters = $letters | append $letter }}{{ end }}
+  {{- end }}
+  {{- range $i, $letter := $letters }}
   <h2>{{ $letter }}</h2>
   <ul class="atl">
-    {{- end }}
-    <li><a href="{{ .Page.RelPermalink }}" aria-label="{{ $name }}, {{ $n }} {{ cond (eq $n 1) "post" "posts" }}"><span class="nm">{{ if $isTag }}#{{ end }}{{ $name }}</span><span class="c">{{ $n }} {{ cond (eq $n 1) "post" "posts" }}</span></a></li>
+    {{- range where $terms "letter" $letter }}
+    {{- $n := .n }}
+    {{- $name := .term.Page.Title }}
+    <li><a href="{{ .term.Page.RelPermalink }}" aria-label="{{ $name }}, {{ (or (T "postCount" $n) (partial "t.html" (slice "postCount" $n))) }}"><span class="nm">{{ if $isTag }}#{{ end }}{{ $name }}</span><span class="c">{{ (or (T "postCount" $n) (partial "t.html" (slice "postCount" $n))) }}</span></a></li>
+    {{- end }}{{ if eq (add $i 1) (len $letters) }}
+  {{ end }}</ul>
   {{- end }}
-  {{ if $cur }}</ul>{{ end }}
 </div>
 {{ end }}

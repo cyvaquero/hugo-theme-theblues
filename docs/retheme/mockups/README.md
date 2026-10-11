@@ -1,6 +1,6 @@
 # Retheme mockups
 
-Static HTML mockups for The Blues theme (issue #4). Palette B, light and dark, hamburger nav below 820 px. They are
+Static HTML mockups for The Blues theme (site issue #4). Palette B, light and dark, hamburger nav below 820 px. They are
 design sketches, not theme code: single files with inline CSS and JS, no libraries or web fonts. The photos are hotlinked
 from the site's SmugMug URLs, so viewing them needs a network connection. Open them in a browser; each has a top bar with
 tabs and Light/Dark buttons.

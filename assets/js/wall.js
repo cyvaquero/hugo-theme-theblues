@@ -2,28 +2,31 @@
 // Progressive enhancement: the wall is complete and sorted newest first without this file; the controls markup is
 // hidden until this script runs. Behavior follows the final mockup (decision D12): type chips with counts, a
 // "View options" popover (Mode, Sort, Group by gallery, Reset), a Clear button and a live caption.
-// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-n (photos in the gallery), data-date and
-// data-order.
+// Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-n (photos in the gallery) and data-date.
+// A tile's server order is its position in the DOM when this script starts: the tie-breaker for sorting.
 // The type chips count the whole list, from #stage's data-articles and data-photos (article and photo tiles on every pager
 // page, #7); the caption, groups and sorting work on the tiles on the current page (the wall is paginated by tile), and the
 // caption starts "This page:" instead of "Showing" when the list has tiles on other pages. The "see all" tile of a gallery (data-more) is a
 // link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and groups like a photo
 // tile and always stays last in its gallery.
+// The text this script writes (captions, counts, the Articles group, On/Off) is the site's language: Hugo fills it in
+// when it builds this file (asset.html runs it as a template, js-text.html), from i18n/en.toml or the site's own file.
 (function () {
   var stage = document.getElementById('stage'), ctl = document.getElementById('ctl');
   if (!stage || !ctl) return;
 
-  // Group headings show a gallery's date as its tiles' captions do (date.html, which follows params.dateFormat); fd is
-  // the fallback for a gallery whose first tile here has no caption date.
-  var MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  function fd(d) { if (!d) return 'Undated'; var p = d.split('-'); return MO[+p[1] - 1] + ' ' + (+p[2]) + ', ' + p[0]; }
-  function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+  var TX = {{ partial "js-text.html" "wall" | jsonify }};
+  // A count's text: TX holds its one and other forms with %d for the number, and the language's plural rule picks one.
+  var PR; try { PR = new Intl.PluralRules(document.documentElement.lang || undefined); } catch (e) {}
+  function plural(n, f) { return ((PR ? PR.select(n) : n === 1 ? 'one' : 'other') === 'one' ? f.one : f.other).replace('%d', n); }
+  // A sentence with {articles} and {photos} marks for the two counts.
+  function fill(s, a, p) { return s.replace('{articles}', a).replace('{photos}', p); }
 
-  // Collect the tiles the server rendered.
+  // Collect the tiles the server rendered; ord is a tile's position in the server's order (newest first).
   var items = [], galleries = {}, galleryList = [];
-  [].slice.call(stage.querySelectorAll('.tile')).forEach(function (el) {
+  [].slice.call(stage.querySelectorAll('.tile')).forEach(function (el, idx) {
     var d = el.dataset, it = {
-      t: d.type === 'article' ? 'a' : 'p', date: d.date || '', ord: +d.order || 0,
+      t: d.type === 'article' ? 'a' : 'p', date: d.date || '', ord: idx,
       key: d.gallery || '', name: d.galleryTitle || '', el: el,
       more: d.more !== undefined ? (+d.more || 0) : -1  // see-all link tile: not a photo, never counted
     };
@@ -33,7 +36,9 @@
       if (!g) {
         var cap = el.querySelector('figcaption .meta');
         // The heading counts the whole gallery from data-n, also when part of it is on another pager page (#7).
-        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : fd(it.date), ord: it.ord, n: +d.n || 0 };
+        // Group headings show a gallery's date as its tiles' captions do (date.html, which follows params.dateFormat and the
+        // site's language); a custom wall without captions has no date text to show.
+        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : '', ord: it.ord, n: +d.n || 0 };
         galleryList.push(g);
       }
     }
@@ -43,7 +48,11 @@
   // Whole-list counts from the build; a wall without them (an older or custom wall.html) counts this page.
   function total(v, here) { return v !== undefined && v !== '' && !isNaN(+v) ? +v : here; }
   var TA = total(stage.dataset.articles, NA), TP = total(stage.dataset.photos, NP);
-  var paged = TA + TP !== NA + NP, shows = paged ? 'This page: ' : 'Showing ';
+  // The caption says "This page:" when the list has more than one pager page. The page count comes from the build
+  // (data-pages); counting tiles can't tell, because a see-all tile on page 2 is in no count (#167). A wall without it
+  // (an older or custom wall.html) falls back to comparing the counts.
+  var PG = stage.dataset.pages;
+  var paged = PG !== undefined && PG !== '' && !isNaN(+PG) ? +PG > 1 : TA + TP !== NA + NP;
 
   var DEF = { f: 'all', m: 'filter', s: 'new', g: false };
   var S = { f: DEF.f, m: DEF.m, s: DEF.s, g: DEF.g };
@@ -84,21 +93,34 @@
       d.hidden = !d.querySelector('.tile:not([hidden])');
     });
     var s;
-    if (S.m === 'filter') s = shows + plural(vis.a, 'article') + ', ' + plural(vis.p, 'photo');
-    else if (S.f === 'all') s = shows + plural(NA, 'article') + ', ' + plural(NP, 'photo') + ' (highlight: pick a type)';
-    else s = 'Highlighting ' + (S.f === 'article' ? plural(NA, 'article') + '; ' + plural(NP, 'photo') + ' dimmed'
-                                                  : plural(NP, 'photo') + '; ' + plural(NA, 'article') + ' dimmed') + (paged ? ' on this page' : '');
-    if (S.g && vis.p) s += ', grouped into ' + galleryList.length + (galleryList.length === 1 ? ' gallery' : ' galleries');
+    if (S.m === 'filter') s = fill(paged ? TX.showingPage : TX.showing, plural(vis.a, TX.articleCount), plural(vis.p, TX.photoCount));
+    else if (S.f === 'all') s = fill(paged ? TX.pickPage : TX.pick, plural(NA, TX.articleCount), plural(NP, TX.photoCount));
+    else s = fill(S.f === 'article' ? (paged ? TX.highlightArticlesPage : TX.highlightArticles) : (paged ? TX.highlightPhotosPage : TX.highlightPhotos),
+                  plural(NA, TX.articleCount), plural(NP, TX.photoCount));
+    if (S.g && vis.p) s += ', ' + plural(galleryList.length, TX.grouped);
     if (cap.textContent !== s) cap.textContent = s;  // the caption is a live region: announce changes only
     sync();
   }
 
   function flow() { var d = document.createElement('div'); d.className = 'mas'; return d; }
 
+  // The article tiles' titles are h3 on the flat wall (h1 > h2 "Posts" > h3). Grouped, the group titles take h3 and the
+  // tile titles become h4, so the outline stays in order (#172). The element is replaced, since its level is its tag.
+  function titles(tag) {
+    items.forEach(function (it) {
+      var h = it.t === 'a' && it.el.querySelector(':scope > h3, :scope > h4');
+      if (!h || h.localName === tag) return;
+      var n = document.createElement(tag);
+      while (h.firstChild) n.appendChild(h.firstChild);
+      it.el.replaceChild(n, h);
+    });
+  }
+
   // Rebuild the wall in the current order, flat or grouped into <details> sections.
   function render() {
     var cmp = sorter();
     stage.textContent = '';
+    titles(S.g ? 'h4' : 'h3');
     if (!S.g) {
       var m = flow();
       items.slice().sort(cmp).forEach(function (it) { m.appendChild(it.el); });
@@ -108,21 +130,24 @@
       galleryList.slice().sort(function (x, y) { return x.date === y.date ? (x.ord - y.ord) * dir : (x.date < y.date ? 1 : -1) * dir; })
         .forEach(function (g) {
           secs.push({
-            k: g.key, title: g.name, extra: g.shown + ' · ' + plural(g.n, 'photo'),
+            k: g.key, title: g.name, extra: (g.shown ? g.shown + ' · ' : '') + plural(g.n, TX.photoCount),
             its: items.filter(function (i) { return i.t === 'p' && i.key === g.key; }).sort(cmp)
           });
         });
       if (NA) {
-        var as = { k: '#articles', title: 'Articles', extra: plural(NA, 'article'),
+        var as = { k: '#articles', title: TX.articles, extra: plural(NA, TX.articleCount),
                    its: items.filter(function (i) { return i.t === 'a'; }).sort(cmp) };
         if (S.s === 'art') secs.unshift(as); else secs.push(as);
       }
       secs.forEach(function (sc) {
-        var d = document.createElement('details'), sm = document.createElement('summary'), x = document.createElement('span');
+        var d = document.createElement('details'), sm = document.createElement('summary'), h = document.createElement('h3'),
+            x = document.createElement('span');
         d.className = 'grp'; d.open = openGroups[sc.k] !== false;
         d.addEventListener('toggle', function () { openGroups[sc.k] = d.open; });
-        sm.appendChild(document.createTextNode(sc.title + ' · '));
-        x.className = 'meta'; x.textContent = sc.extra; sm.appendChild(x);
+        // The title is a heading inside the summary, so it is in the heading list (#172).
+        h.appendChild(document.createTextNode(sc.title + ' · '));
+        x.className = 'meta'; x.textContent = sc.extra; h.appendChild(x);
+        sm.appendChild(h);
         d.appendChild(sm);
         var m2 = flow();
         sc.its.forEach(function (it) { m2.appendChild(it.el); });
@@ -138,12 +163,12 @@
     qa('[data-f]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.f === S.f); });
     qa('[data-m2]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.m2 === S.m); });
     qa('[data-role=sort]').forEach(function (x) { x.value = S.s; });
-    qa('[data-role=grp]').forEach(function (c) { c.checked = S.g; c.parentNode.querySelector('.st').textContent = S.g ? 'On' : 'Off'; });
+    qa('[data-role=grp]').forEach(function (c) { c.checked = S.g; c.parentNode.querySelector('.st').textContent = S.g ? TX.on : TX.off; });
     var inPop = (S.m !== DEF.m) + (S.s !== DEF.s) + (S.g ? 1 : 0), any = inPop + (S.f !== DEF.f);
     qa('[data-badge=opts]').forEach(function (e) {
       e.hidden = !inPop;
       e.textContent = ' ' + inPop;  // the leading space keeps the name "View options 1 active" where flex items aren't spaced
-      var v = document.createElement('span'); v.className = 'vh'; v.textContent = ' active'; e.appendChild(v);
+      var v = document.createElement('span'); v.className = 'vh'; v.textContent = ' ' + TX.active; e.appendChild(v);
     });
     qa('[data-role=clear],[data-role=reset]').forEach(function (e) { e.hidden = !any; });
   }
@@ -193,6 +218,21 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); closePop(true); }
   }, true);
+
+  // A photo tile's caption shows on hover or focus and covers part of the photo. Escape hides it without moving the
+  // pointer or focus (WCAG 1.4.13, #173): the tile gets the class "cx" until the pointer and focus have both left it.
+  // An Escape that closes the View options popover (handled above, with preventDefault) does only that.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    [].slice.call(stage.querySelectorAll('.tile.photo:hover, .tile.photo:focus-within')).forEach(function (t) { t.classList.add('cx'); });
+  });
+  function capBack(e) {
+    var t = e.target.closest && e.target.closest('.tile.photo.cx');
+    // After the event, so the tile's :focus-within and :hover already reflect where focus and the pointer went.
+    if (t) setTimeout(function () { if (!t.matches(':hover, :focus-within')) t.classList.remove('cx'); }, 0);
+  }
+  stage.addEventListener('mouseout', capBack);
+  stage.addEventListener('focusout', capBack);
 
   // Hovering a chip with a mouse previews the highlight (stage[data-pv] drives the CSS). Not on keyboard focus or touch,
   // where it would dim the wall while the reader is still moving through the controls.

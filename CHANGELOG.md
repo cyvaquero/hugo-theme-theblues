@@ -3,6 +3,83 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.0] - 2026-10-11
+
+### Added
+- The theme's text can be translated, and dates follow the site's language (#192, #249). All 100 pieces of text the
+  theme writes, including the wall's caption and counts, the comment and lightbox messages, the feed's channel text and
+  the date layouts, are in `i18n/en.toml`. A site translates them with its own `i18n/<language>.toml` (README,
+  "Translating the theme"). Text a language has no entry for falls back to English, and a language with no theme text
+  at all gets English labels and the `theblues-i18n` warning. `wall.js`, `comments.js` and `gallery.js` get their text
+  at build time, with one script per language on a multilingual site. Month and day names come from Hugo's locale data
+  for other languages, while English sites keep US English names (`en-GB` writes "Sep"). Hugo's English 404 title is
+  replaced by the site's text. Count text picks the right singular or plural form on every build. For an English site
+  the built pages are unchanged; the 550-post build takes 0.51 s against 0.49 s.
+- The build checks that the two copies of the dark color tokens in `assets/css/main.css` match, and warns with the ID
+  `theblues-dark-tokens`, naming each token that differs (#196).
+- The README says which browsers the theme supports: the current and previous major versions of Chrome, Edge, Firefox
+  and Safari. It names the oldest versions with everything working (Chrome and Edge 108, Firefox 121, Safari 16.4) and
+  what degrades below them (#208, #250).
+- The README has a "Content Security Policy" section listing the origins a site's policy needs for the theme, SmugMug,
+  Google Analytics, Disqus, `embed` and YouTube, with an example policy, tested with every listed service (#185).
+- The README says when Google Analytics loads, and that the theme has no consent step. It also explains how a site that
+  needs consent can gate or replace it (#176).
+- The README shows screenshots of the theme: the home wall in light and dark, a photo post, the lightbox, an article,
+  the View options popover, a tag page, the color theme switch and the phone menu. There are nine WebP files, 0.84 MB
+  in all, with alt text and capture steps (#209).
+
+### Changed
+- Wall tiles no longer carry a `data-order` attribute. A site's own CSS or script that reads it must take the tile's
+  position from the DOM. `wall.js` sorts exactly as before, checked across 728 control states (#188).
+- Rewriting a SmugMug URL to another size now happens in one partial (`smug-size.html`, with sizes in
+  `smug-sizes.html`). Only the last path segment is rewritten, so a URL with an earlier `/X2/` directory keeps it
+  (#190).
+- Group titles on the wall, and the series box title, are headings (#172). With Group by gallery on, each group title
+  is an `h3` and the article tiles become `h4`. The series box title is an `h2`. They look the same. A site's CSS that
+  targets `.tile.article h3` needs `h4` too, and `.series strong.t` becomes `.series .t`.
+
+### Fixed
+- Feeds list posts newest first, so a series `weight` no longer pushes newer posts off a feed with a `limit` (#163).
+- Walls, term heroes and previous/next links are right after an edit under `hugo --watch`, as under `hugo server`
+  (#164, #191).
+- The tag, category and series A to Z indexes show each letter heading once, with accented letters under their own
+  heading (#165).
+- A photos-category post with no gallery photos is an article on its own page too, with a table of contents and
+  reading time (#166).
+- The wall caption starts "This page:" on every page of a list that has a pager (#167).
+- The lightbox no longer stays empty and busy when a photo fails to load: the counter and the announcement update, and
+  the busy state ends (#168).
+- The desktop nav wraps onto a second row, so a long menu or zoomed text no longer pushes the theme switch off screen.
+  At 821px with eight items, everything is now in view (#171).
+- Escape hides a photo tile's caption without moving the pointer or focus. An Escape that closes the View options
+  popover or the mobile menu does only that (#173, #227).
+- The skip link's focus ring is sand on the navy band (6.63:1, was 1.96:1) and is no longer cut off at the window's
+  corner (#174).
+- More links are 44px tall on touch screens: the nav brand and desktop nav links, the hero category link, the table
+  of contents, the series box links and post navigation. The README lists exactly what is enlarged (#175).
+- `hugo new content post/20261011-my-new-post.md` gives the title "My New Post", without the date, and the archetype
+  has a commented `series` line (#179).
+- The footer's LinkedIn and GitHub links tell screen readers they open in a new tab (#186).
+- The table of contents label "On this page" is an `h2`, so it's in the heading list. It looks the same (#226).
+- Keyboard focus on gallery thumbnails is visible. The ring is drawn on the thumbnail's frame, which used to clip it;
+  without `:has()` it's drawn just inside the edge (#248).
+- Documentation corrections:
+  - the README's build-time figure is now about 0.5 s for 550 posts (#170);
+  - what the image and link render hooks resolve (#177);
+  - the "same 30 URLs" claim is dated to the switch from Clean White (#180);
+  - the defaults for `slogan`, `tagline`, `title_404` and `subtitle` (#181);
+  - a site-repo issue reference in the mockups README (#183);
+  - posts start at `##`, and `youtube` needs a `title` (#187);
+  - `theme.toml`'s `[original]` uses the themes gallery's keys (#194);
+  - release tags have no `v` prefix, so a Hugo Module import gets the default branch (#195);
+  - the accessibility target is stated against Section 508, including the 602 duties (#197);
+  - `analytics-on.html` is a build-time value (#213).
+
+### Security
+- An `http://` gallery photo or hero image is no longer fetched in cleartext at build time. The build warns with the ID
+  `theblues-insecure-photo`, naming the URL, and the URL is published as written (#184).
+- A Markdown image with an `http://` source warns with the same ID, once per URL (#218).
+
 ## [1.3.0] - 2026-10-11
 
 ### Added

@@ -1,8 +1,8 @@
 {{ define "init" }}{{ partial "wall-pager.html" (dict "page" . "posts" ((where .RegularPages "Section" "in" site.MainSections).ByDate.Reverse)) }}{{ end }}
 {{ define "header" }}
 {{- /* Term hero: "Tagged: x" (or Category / Series for those taxonomies) with post and photo counts. */ -}}
-{{ $labels := dict "tags" "Tagged" "categories" "Category" "series" "Series" }}
-{{ $kinds := dict "tags" "Tag" "categories" "Category" "series" "Series" }}
+{{ $labels := dict "tags" ((or (T "termLabelTags") (partial "t.html" "termLabelTags"))) "categories" ((or (T "termLabelCategories") (partial "t.html" "termLabelCategories"))) "series" ((or (T "termLabelSeries") (partial "t.html" "termLabelSeries"))) }}
+{{ $kinds := dict "tags" ((or (T "termKindTags") (partial "t.html" "termKindTags"))) "categories" ((or (T "termKindCategories") (partial "t.html" "termKindCategories"))) "series" ((or (T "termKindSeries") (partial "t.html" "termKindSeries"))) }}
 {{ $plural := .Data.Plural }}
 {{ $label := index $labels $plural | default (.Data.Singular | title) }}
 {{ $kind := index $kinds $plural | default (.Data.Singular | title) }}
@@ -13,10 +13,10 @@
 {{- $hs := dict }}{{ with $cover }}{{ $hs = partialCached "hero-sizes.html" (dict "src" . "h" 416) . 416 }}{{ $.Store.Set "theblues-hero" . }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end }}
 <header class="phero thero"{{ with $cover }} style="--hi:url('{{ . }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <div class="in">
-    <a class="tl" href="{{ site.Home.RelPermalink }}">&larr; Back to all posts</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">All {{ .Title | lower }} &rarr;</a>{{ end }}
+    <a class="tl" href="{{ site.Home.RelPermalink }}">&larr; {{ (or (T "backToAllPosts") (partial "t.html" "backToAllPosts")) }}</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">{{ (or (T "allOfTerm") (partial "t.html" "allOfTerm")) }} {{ .Title | lower }} &rarr;</a>{{ end }}
     <div class="ptype">{{ $kind }}</div>
     <h1>{{ $label }}: {{ .Title }}</h1>
-    <div class="meta">{{ len $posts }} {{ cond (eq (len $posts) 1) "post" "posts" }}{{ if $photos }} &middot; {{ $photos }} {{ cond (eq $photos 1) "photo" "photos" }}{{ end }}</div>
+    <div class="meta">{{ (or (T "postCount" (len $posts)) (partial "t.html" (slice "postCount" (len $posts)))) }}{{ if $photos }} &middot; {{ (or (T "photoCount" $photos) (partial "t.html" (slice "photoCount" $photos))) }}{{ end }}</div>
     {{ with .Description }}<p class="sub">{{ . }}</p>{{ end }}
   </div>
 </header>
