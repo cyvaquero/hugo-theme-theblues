@@ -13,8 +13,9 @@ All notable changes to this theme are documented here. The format follows
   WebP files under `images/` (`readme-*.webp`), 34 to 175 KB each and 0.84 MB in all, captured from the exampleSite in
   headless Chrome; "Testing the theme" says how (build, viewport sizes, color scheme, pages and states, format and
   quality) so they can be made again. `images/screenshot.png` and `images/tn.png` for the themes gallery are unchanged:
-  they still match the current look. Each image was looked at after capture: photos loaded, no broken layout. No
-  template or output changed.
+  they still match the current look. The phone screenshot is shown 260px wide, so it doesn't fill the column of
+  GitHub's README view. Each image was looked at after capture: photos loaded, no broken layout. No template or output
+  changed.
 
 ## [1.3.34] - Unreleased
 
