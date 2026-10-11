@@ -3,6 +3,20 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.12] - Unreleased
+
+### Fixed
+- A post made with `hugo new content post/20261011-my-new-post.md` now gets the title "My New Post" instead of "20261011
+  My New Post" (#179). `archetypes/post.md` strips a leading `YYYYMMDD-` from the file name before it turns hyphens into
+  spaces and title-cases it, as `page-title.html` does for a post with no title. The slug is unchanged (the whole file
+  name, date included), so URLs of new posts follow the file name as before. The archetype also gets a commented
+  `# series: []` line next to the commented `showtoc` one, and the README's layout list and Front matter text now describe
+  `archetypes/post.md`. Checked with Hugo 0.167.0 in a scratch copy of the exampleSite: `20261011-my-new-post.md` wrote
+  `title: "20261011 My New Post"` before and writes `title: "My New Post"` now, `nodate-post.md` writes `title: "Nodate
+  Post"` both ways, and the only other difference in the front matter is the new commented line. The archetype is not
+  part of a site's built output: guyheckman.me, the 80-post and 550-post sites and the exampleSite, in development and
+  production builds, are byte-identical to 1.3.11 apart from the footer version.
+
 ## [1.3.11] - Unreleased
 
 ### Fixed

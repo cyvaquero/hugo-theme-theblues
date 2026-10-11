@@ -174,6 +174,7 @@ assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swip
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
 data/theblues.toml         the theme version shown in the footer
+archetypes/post.md         front matter for `hugo new content post/<name>.md`: title from the file name without a leading YYYYMMDD-, commented showtoc and series lines
 layouts/baseof.html        page shell
 layouts/home.html          landing page: hero, controls, masonry wall, pagination
 layouts/section.html       section lists such as /post/ (same wall, main-section pages only)
@@ -341,7 +342,9 @@ into absolute URLs.
 
 Front matter: `title`, `subtitle`, `description`, `date`, `image` (the page's hero image and share image; without it the
 hero uses the first gallery photo, then the site's `header_image`, see Share image), `showtoc`, `categories` (a list,
-or a single string), `tags`, `series`.
+or a single string), `tags`, `series`. `hugo new content post/<name>.md` writes these from `archetypes/post.md`: the title
+is the file name without a leading `YYYYMMDD-`, hyphens as spaces, title-cased (as the theme does for a post with no
+title), the slug is the whole file name, and `showtoc` and `series` are there as commented lines to uncomment.
 
 ## Accessibility
 
