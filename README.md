@@ -511,8 +511,13 @@ box title ("Part 2 of 3: Name") is an h2.
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
 system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). In forced-colors mode (Windows high
 contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
-off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling, and targets
-are 44px on touch screens. A print stylesheet prints black on white.
+off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling. On touch
+screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover
+(switch and selects), the Menu button, the color theme switch, the nav links and brand, tag links (hero, tiles, lists),
+the footer links, pagination, the table of contents entries, the series box's list and previous/next links, post
+navigation and the category link in a post's hero. Only the height is set, so a short link stays narrow. Not enlarged:
+links inside running text (post bodies, the comments note), the series name link in the series box title, and an
+article tile's title link, which is covered by the tile, itself one link. A print stylesheet prints black on white.
 
 **Writing accessible content.**
 
