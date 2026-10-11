@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.36] - Unreleased
+
+### Fixed
+- The README's Installation section now says that release tags have no `v` prefix (`1.3.0`), which Go and Hugo Modules
+  don't recognize as versions, so a site that imports the theme as a module, like the Hugo themes gallery, gets the tip
+  of the default branch rather than a release (#195). Releases are used by pinning the submodule to a tag. The example
+  tag is now `1.3.0`. Documentation only.
+
 ## [1.3.35] - Unreleased
 
 ### Added
