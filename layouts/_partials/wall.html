@@ -1,11 +1,11 @@
 {{- /*
   The masonry wall for one pager. Context: a map with "tiles" (this pager's slice from wall-tiles.html; order = position on
   the page) and "na"/"np" (article and photo tiles in the whole list, on every pager page; see-all tiles not counted),
-  which wall.js shows in the type chips (#7). Without JavaScript this is the whole feature: one CSS-columns flow, newest first. assets/js/wall.js re-sorts,
+  which wall.js shows in the type chips (#7), and "pages" (the number of pager pages, for the caption, #167). Without JavaScript this is the whole feature: one CSS-columns flow, newest first. assets/js/wall.js re-sorts,
   filters and groups the tiles.
 */ -}}
 <h2 class="vh">Posts</h2>{{/* keeps the outline h1 > h2 > h3 (tile titles) */}}
-<div id="stage" class="wall" data-pv="all" data-articles="{{ .na }}" data-photos="{{ .np }}">
+<div id="stage" class="wall" data-pv="all" data-articles="{{ .na }}" data-photos="{{ .np }}" data-pages="{{ .pages }}">
   <div class="mas">
     {{- range $order, $t := .tiles }}
     {{ if eq $t.type "article" }}{{ partial "tile-article.html" (dict "page" $t.page "order" $order) }}

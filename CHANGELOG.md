@@ -3,6 +3,22 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.4] - Unreleased
+
+### Fixed
+- The wall caption starts "This page:" on every page of a list that has a pager. It said "Showing" on page 1 of a list
+  whose first page held every counted tile, for example four photo tiles with the gallery's see-all tile on page 2
+  ("Showing 0 articles, 4 photos" above a pager). The script guessed the paging from tile counts, which leave out see-all
+  tiles; the build now writes the number of pager pages on the wall (`data-pages` on `#stage`) and the script uses that,
+  falling back to the old comparison for a custom `wall.html` without it (#167). Checked in headless Chrome
+  (Hugo 0.167.0, production build, served with `script-src 'self'` and no `unsafe-inline`; no violations or script errors
+  from theme code) on a site with one five-photo gallery, 4 tiles per page and 4 photos per gallery: before, page 1 of
+  the photos category and of the home page read "Showing 0 articles, 4 photos"; now "This page: 0 articles, 4 photos".
+  On all 90 wall pages of guyheckman.me, the 80-post site and the exampleSite the caption prefix matches the presence of
+  the pager, before and after. Built output of those sites and the 550-post site, in a development and a production
+  build, differs from 1.3.3 only in the new `data-pages` attribute on each wall, the footer version and the wall
+  script's file name and content.
+
 ## [1.3.3] - Unreleased
 
 ### Fixed

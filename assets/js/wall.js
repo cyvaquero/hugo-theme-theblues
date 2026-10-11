@@ -43,7 +43,11 @@
   // Whole-list counts from the build; a wall without them (an older or custom wall.html) counts this page.
   function total(v, here) { return v !== undefined && v !== '' && !isNaN(+v) ? +v : here; }
   var TA = total(stage.dataset.articles, NA), TP = total(stage.dataset.photos, NP);
-  var paged = TA + TP !== NA + NP, shows = paged ? 'This page: ' : 'Showing ';
+  // The caption says "This page:" when the list has more than one pager page. The page count comes from the build
+  // (data-pages); counting tiles can't tell, because a see-all tile on page 2 is in no count (#167). A wall without it
+  // (an older or custom wall.html) falls back to comparing the counts.
+  var PG = stage.dataset.pages;
+  var paged = PG !== undefined && PG !== '' && !isNaN(+PG) ? +PG > 1 : TA + TP !== NA + NP, shows = paged ? 'This page: ' : 'Showing ';
 
   var DEF = { f: 'all', m: 'filter', s: 'new', g: false };
   var S = { f: DEF.f, m: DEF.m, s: DEF.s, g: DEF.g };
