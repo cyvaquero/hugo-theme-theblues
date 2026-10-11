@@ -168,9 +168,10 @@ A site can add its own page types without overriding theme files:
 ## Translating the theme
 
 The text the theme writes is in `i18n/en.toml`, and templates read it with Hugo's `T`: labels, headings, the wall's
-caption and counts, the comment and lightbox messages, the page-number text, and the three date layouts. Month and day
-names in dates follow the site's language (the theme formats dates with `time.Format`). To translate the theme, or
-reword its English, for a site:
+caption and counts, the comment and lightbox messages, the page-number text, and the three date layouts. English is the
+default: text a site's language has no entry for is shown in English. Month and day names in dates follow the site's
+language (the theme formats dates with `time.Format`), except that every English site gets US English names. To
+translate the theme, or reword its English, for a site:
 
 1. Copy the theme's `i18n/en.toml` to `i18n/<language>.toml` in the site, where `<language>` is the site's language code
    (`de`, `fr`, `pt-br`; the key under `[languages]`, or `defaultContentLanguage`). A site's entries replace the theme's
@@ -178,14 +179,16 @@ reword its English, for a site:
 2. Translate the `other = "…"` values and keep the entry names and the placeholders in them (`{{ .n }}`, `{{ .part }}`,
    `{articles}` and so on). An entry with `one` and `other` is a count: `{{ .Count }}` is the number, and the language's
    plural rules pick the form. Write plain text, which the theme escapes; only `commentsHosted` is HTML.
-3. For any language but English, keep every entry. The theme has no file for it, and Hugo does not fall back to English
-   for an entry that is missing from a language's file: it is empty. `hugo --printI18nWarnings` lists them. A language
-   with no file at all uses the default language's file; when the default language is not English and has no file, all
-   the labels are empty and the build warns (`theblues-i18n`).
+3. An entry missing from a language's file is shown in the default language's text and, when that has none either, in
+   the theme's English (`layouts/_partials/t.html`), so a partial translation still has every label.
+   `hugo --printI18nWarnings` lists the missing entries. A language with no file at all uses the default language's
+   file; when the default language is not English and has no file, the labels are all English and the build warns
+   (`theblues-i18n`).
 4. Set the site's `locale` (for example `de-DE`), which also sets `<html lang>`. The three date entries are Go layouts
    (`dateFormat` for dates on posts, tiles and wall headings unless `params.dateFormat` is set, `dateFormatDay` for the
    archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
-   Hugo's locale data, so `en-GB` writes September as "Sept".
+   Hugo's locale data, except on an English site (language `en` or `en-*`), which gets US English names whatever its
+   `locale`: `en-GB` writes September as "Sep", not "Sept".
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js` and
 `gallery.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -329,7 +332,7 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   bullet under "How the wall works"), `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
   can't check or label it; better fixed than silenced) and `theblues-dark-tokens` (the two copies of the dark color
   tokens in `assets/css/main.css` differ; see Styles under Extending from a site) and `theblues-i18n` (the site's
-  language has no theme text; see Translating the theme), for example
+  language has no theme text, so the labels are in English; see Translating the theme), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
   The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major

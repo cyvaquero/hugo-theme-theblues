@@ -10,20 +10,20 @@
 {{- $out := dict -}}
 {{- if eq . "wall" -}}
   {{- $out = dict
-    "articleCount" (dict "one" (T "articleCount" (dict "count" 1 "Count" "%d")) "other" (T "articleCount" (dict "count" 2 "Count" "%d")))
-    "photoCount" (dict "one" (T "photoCount" (dict "count" 1 "Count" "%d")) "other" (T "photoCount" (dict "count" 2 "Count" "%d")))
-    "grouped" (dict "one" (T "grouped" (dict "count" 1 "Count" "%d")) "other" (T "grouped" (dict "count" 2 "Count" "%d")))
-    "articles" (T "articles") "on" (T "on") "off" (T "off") "active" (T "active")
-    "showing" (T "captionShowing") "showingPage" (T "captionShowingPage")
-    "pick" (T "captionPick") "pickPage" (T "captionPickPage")
-    "highlightArticles" (T "highlightArticles") "highlightArticlesPage" (T "highlightArticlesPage")
-    "highlightPhotos" (T "highlightPhotos") "highlightPhotosPage" (T "highlightPhotosPage") -}}
+    "articleCount" (dict "one" ((or (T "articleCount" (dict "count" 1 "Count" "%d")) (partial "t.html" (slice "articleCount" (dict "count" 1 "Count" "%d"))))) "other" ((or (T "articleCount" (dict "count" 2 "Count" "%d")) (partial "t.html" (slice "articleCount" (dict "count" 2 "Count" "%d"))))))
+    "photoCount" (dict "one" ((or (T "photoCount" (dict "count" 1 "Count" "%d")) (partial "t.html" (slice "photoCount" (dict "count" 1 "Count" "%d"))))) "other" ((or (T "photoCount" (dict "count" 2 "Count" "%d")) (partial "t.html" (slice "photoCount" (dict "count" 2 "Count" "%d"))))))
+    "grouped" (dict "one" ((or (T "grouped" (dict "count" 1 "Count" "%d")) (partial "t.html" (slice "grouped" (dict "count" 1 "Count" "%d"))))) "other" ((or (T "grouped" (dict "count" 2 "Count" "%d")) (partial "t.html" (slice "grouped" (dict "count" 2 "Count" "%d"))))))
+    "articles" ((or (T "articles") (partial "t.html" "articles"))) "on" ((or (T "on") (partial "t.html" "on"))) "off" ((or (T "off") (partial "t.html" "off"))) "active" ((or (T "active") (partial "t.html" "active")))
+    "showing" ((or (T "captionShowing") (partial "t.html" "captionShowing"))) "showingPage" ((or (T "captionShowingPage") (partial "t.html" "captionShowingPage")))
+    "pick" ((or (T "captionPick") (partial "t.html" "captionPick"))) "pickPage" ((or (T "captionPickPage") (partial "t.html" "captionPickPage")))
+    "highlightArticles" ((or (T "highlightArticles") (partial "t.html" "highlightArticles"))) "highlightArticlesPage" ((or (T "highlightArticlesPage") (partial "t.html" "highlightArticlesPage")))
+    "highlightPhotos" ((or (T "highlightPhotos") (partial "t.html" "highlightPhotos"))) "highlightPhotosPage" ((or (T "highlightPhotosPage") (partial "t.html" "highlightPhotosPage"))) -}}
 {{- else if eq . "comments" -}}
-  {{- $out = dict "loading" (T "commentsLoading") "loaded" (T "commentsLoaded") "failed" (T "commentsFailed") "tryAgain" (T "tryAgain") -}}
+  {{- $out = dict "loading" ((or (T "commentsLoading") (partial "t.html" "commentsLoading"))) "loaded" ((or (T "commentsLoaded") (partial "t.html" "commentsLoaded"))) "failed" ((or (T "commentsFailed") (partial "t.html" "commentsFailed"))) "tryAgain" ((or (T "tryAgain") (partial "t.html" "tryAgain"))) -}}
 {{- else if eq . "gallery" -}}
   {{- $out = dict
-    "viewer" (T "photoViewer") "previousPhoto" (T "previousPhoto") "previous" (T "previous") "nextPhoto" (T "nextPhoto")
-    "next" (T "next") "closeViewer" (T "closeViewer") "close" (T "close")
-    "photoOf" (T "photoOf" (dict "i" "{i}" "n" "{n}")) -}}
+    "viewer" ((or (T "photoViewer") (partial "t.html" "photoViewer"))) "previousPhoto" ((or (T "previousPhoto") (partial "t.html" "previousPhoto"))) "previous" ((or (T "previous") (partial "t.html" "previous"))) "nextPhoto" ((or (T "nextPhoto") (partial "t.html" "nextPhoto")))
+    "next" ((or (T "next") (partial "t.html" "next"))) "closeViewer" ((or (T "closeViewer") (partial "t.html" "closeViewer"))) "close" ((or (T "close") (partial "t.html" "close")))
+    "photoOf" ((or (T "photoOf" (dict "i" "{i}" "n" "{n}")) (partial "t.html" (slice "photoOf" (dict "i" "{i}" "n" "{n}"))))) -}}
 {{- end -}}
 {{- return $out -}}

@@ -1,7 +1,7 @@
 # The text The Blues shows, in English: templates read it with T, and assets/js/wall.js, comments.js and gallery.js get
 # theirs through layouts/_partials/js-text.html. A site translates the theme by adding its own i18n/<language>.toml with
-# the entries below (README, "Translating the theme"); in a language other than English an entry the site's file lacks
-# is empty, not English.
+# the entries below (README, "Translating the theme"); an entry the site's file lacks, in any language, is shown in
+# English from this file (layouts/_partials/t.html).
 #
 # Every entry is a table with its text under other (Hugo does not allow plain keys next to one and other). Values are
 # plain text, which the templates escape and the scripts insert as text, so write no markup or character references
