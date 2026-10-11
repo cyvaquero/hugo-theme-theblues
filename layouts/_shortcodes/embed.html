@@ -19,4 +19,4 @@
 {{- if not $host }}{{ errorf "embed: the URL has no host (%s)" .Position }}{{ end -}}
 {{- if not $own }}{{ errorf "embed: the site's baseURL has no host, so the URL can't be checked against it; set baseURL to a full URL (%s)" .Position }}{{ end -}}
 {{- if eq $host $own }}{{ errorf "embed: the URL is on this site's own host, where the sandbox gives no protection (%s)" .Position }}{{ end -}}
-<iframe class="embed smugmug-gallery" src="{{ $src }}" width="{{ $w }}" height="{{ $h }}" loading="lazy" title="{{ .Get 3 | default (T "embeddedContent") }}" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<iframe class="embed smugmug-gallery" src="{{ $src }}" width="{{ $w }}" height="{{ $h }}" loading="lazy" title="{{ .Get 3 | default ((or (T "embeddedContent") (partial "t.html" "embeddedContent"))) }}" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="strict-origin-when-cross-origin"></iframe>

@@ -4,6 +4,8 @@
   - format: a Go layout, default the site's params.dateFormat, else the dateFormat text ("Jan 2, 2006" in English);
   - time: true wraps the date in <time datetime="2006-01-02">;
   - undated: the text for a missing date, default the undated text ("Undated" in English; "" for none).
+  An English site (language en or en-*) gets US English month and day names whatever its locale, as before #192 ("Sep",
+  not en-GB's "Sept"); a site in another language gets its locale's names through time.Format.
   Returns a string, or HTML when time is set. assets/js/wall.js copies a gallery's date from its first tile's caption
   for its group headings, so they follow params.dateFormat too.
   Usage: {{ partial "date.html" (dict "date" .Date "time" true) }}
@@ -11,9 +13,10 @@
 {{- $d := .date -}}
 {{- $out := "" -}}
 {{- if $d.IsZero -}}
-  {{- $out = cond (isset . "undated") .undated (T "undated") -}}
+  {{- $out = cond (isset . "undated") .undated ((or (T "undated") (partial "t.html" "undated"))) -}}
 {{- else -}}
-  {{- $out = time.Format (.format | default site.Params.dateFormat | default (T "dateFormat") | string) $d -}}
+  {{- $layout := .format | default site.Params.dateFormat | default ((or (T "dateFormat") (partial "t.html" "dateFormat"))) | string -}}
+  {{- $out = cond (hasPrefix (lower site.Language.Lang) "en") ($d.Format $layout) (time.Format $layout $d) -}}
   {{- if .time }}{{ $out = printf "<time datetime=\"%s\">%s</time>" (time.Format "2006-01-02" $d) $out | safeHTML }}{{ end -}}
 {{- end -}}
 {{- return $out -}}

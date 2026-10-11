@@ -4,4 +4,4 @@
 */ -}}
 {{- .Page.Store.Set "hasGallery" true -}}
 {{- $_ := .Inner -}}
-<div class="mas gal" role="group" aria-label="{{ T "photoGallery" }}">{{ range .Store.Get "photos" }}{{ . | safeHTML }}{{ end }}</div>
+<div class="mas gal" role="group" aria-label="{{ (or (T "photoGallery") (partial "t.html" "photoGallery")) }}">{{ range .Store.Get "photos" }}{{ . | safeHTML }}{{ end }}</div>
