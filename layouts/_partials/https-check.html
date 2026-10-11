@@ -1,0 +1,17 @@
+{{- /*
+  Is this image URL a cleartext http:// one? Context: dict "url" (the image URL) "what" (what it is, for the warning, for
+  example "gallery photo" or "hero image"). Returns true for an http:// URL (any case), after warning with the ID
+  theblues-insecure-photo; a site can silence it with ignoreLogs, and the theme then still leaves the URL alone. An
+  https:// URL, a path or anything else returns false with no warning. The theme never fetches an http:// image at
+  build time (img-size.html skips it; hero-sizes.html only reads https://photos.smugmug.com), and a browser blocks
+  one on an https page as mixed content, or under a CSP that allows only https: images, so the page shows no
+  picture where the post meant one (#184). The URL is published as written.
+  Callers run it once per URL and build: img-size.html and hero-sizes.html call it through partialCached already, so a
+  URL warns once, not once per tile or page.
+  Usage: {{ if partial "https-check.html" (dict "url" $src "what" "gallery photo") }}…{{ end }}
+*/ -}}
+{{- $insecure := findRE `(?i)^http://` .url 1 -}}
+{{- if $insecure -}}
+  {{- warnidf "theblues-insecure-photo" "%s %s is not an https URL, so the theme does not request it at build time (no width and height, no smaller sizes), and a browser blocks it as mixed content on an https site. Use an https:// URL (#184)." .what .url -}}
+{{- end -}}
+{{- return (gt (len $insecure) 0) -}}
