@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.29] - Unreleased
+
+### Fixed
+- The README no longer says both Markdown render hooks resolve "a path to a page or page resource" (#177). Checked
+  against the hooks: a link (`layouts/_markup/render-link.html`) resolves a page or a page resource, and an image
+  (`layouts/_markup/render-image.html`) resolves a page resource or a file in the site's `assets/`, not a page. The
+  README says that now. Documentation only; no template or output changed.
+
 ## [1.3.28] - Unreleased
 
 ### Fixed
