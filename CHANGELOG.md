@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.30] - Unreleased
+
+### Fixed
+- The README's opening no longer says the theme builds "the same 30 URLs as Clean White" as if that stayed true as
+  the site grew (#180). It now says the theme builds the site's real content with no Hugo warnings, and that at the
+  switch from Clean White it produced the same 30 URLs (the count `docs/retheme/clean-white-inventory.md` records).
+  Documentation only; no template or output changed.
+
 ## [1.3.29] - Unreleased
 
 ### Fixed

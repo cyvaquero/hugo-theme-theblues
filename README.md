@@ -7,8 +7,8 @@ follows the system setting (`prefers-color-scheme`) unless the reader picks Ligh
 It has a hero with a wavy-underlined slogan, a full-width masonry wall (three columns from 900 px) that mixes photo tiles and
 article tiles, a calm "View options" popover (filter or highlight by type, sort, group by gallery), photo posts with a masonry
 gallery and a `<dialog>` lightbox, articles with a table of contents and series box, tag pages, and serif headlines. It builds
-the site's real content to the same 30 URLs as Clean White with no Hugo warnings. See "Known limits" below and the
-[open issues](https://github.com/cyvaquero/hugo-theme-theblues/issues).
+the site's real content with no Hugo warnings, and at the switch from Clean White it produced the same 30 URLs. See "Known
+limits" below and the [open issues](https://github.com/cyvaquero/hugo-theme-theblues/issues).
 
 ## Requirements
 
