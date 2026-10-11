@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.46] - Unreleased
+
+### Fixed
+- On a wall split across pages, the type chips count the whole list instead of only the tiles on the page you're on:
+  exampleSite's home (4 tiles per page) read "All 4, Articles 3, Photos 1", "All 3, Articles 2, Photos 1" and
+  "All 1, Articles 1, Photos 0" on its three pages, and now reads "All 8, Articles 6, Photos 2" on each. The caption still
+  describes the page and now says so ("This page: 2 articles, 1 photo"); a one-page wall, like every wall on
+  guyheckman.me today, reads as before (#7).
+
 ## [1.2.45] - Unreleased
 
 ### Added

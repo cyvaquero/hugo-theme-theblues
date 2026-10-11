@@ -8,6 +8,6 @@
 <div class="pb"><p class="meta">No posts yet.</p></div>
 {{- else }}
 {{ partial "controls.html" . }}
-{{ partial "wall.html" (dict "tiles" $wall.tiles) }}
+{{ partial "wall.html" (dict "tiles" $wall.tiles "na" $wall.na "np" $wall.np) }}
 {{ partial "pagination.html" $wall.pag }}
 {{- end }}
