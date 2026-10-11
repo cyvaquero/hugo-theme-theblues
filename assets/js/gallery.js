@@ -1,7 +1,8 @@
 // Native <dialog> lightbox for the masonry galleries (.gal) on photo posts (decision D7).
 // Previous/next buttons, arrow, Home and End keys, swipe, counter, Esc to close, focus returns to the photo that was
 // opened. Each link points at the large image (X3); the thumbnail in the page stays X2. The counter and alt text change
-// only when the new image has loaded, so they always describe the photo on screen (#3); neighbors are preloaded.
+// only when the new image has loaded (or both it and the thumbnail have failed), so they always describe the photo on
+// screen (#3, #168); neighbors are preloaded.
 (function () {
   var galleries = document.querySelectorAll('.gal');
   if (!galleries.length || typeof HTMLDialogElement === 'undefined') return;
@@ -49,7 +50,11 @@
       preload(idx + 1); preload(idx - 1);
     }
     pre.onload = done;
-    pre.onerror = function () { pre.onerror = null; if (thumb && pre.src !== thumb.src) pre.src = thumb.src; else done(); };
+    // The large image failed: try the thumbnail once; if that fails too, still finish (broken image, counter and caption
+    // updated, no longer busy) instead of leaving the viewer empty and busy (#168).
+    pre.onerror = function () {
+      if (thumb && pre.src !== thumb.src) { pre.onerror = done; pre.src = thumb.src; } else done();
+    };
     pre.src = a.href;
   }
 

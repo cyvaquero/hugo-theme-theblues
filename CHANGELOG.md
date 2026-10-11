@@ -3,6 +3,21 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.5] - Unreleased
+
+### Fixed
+- The lightbox no longer stays empty and busy when a photo can't be loaded. If the large image failed, the viewer tried
+  the thumbnail, but a failure of that too was ignored, so the dialog stayed `aria-busy="true"` with no image and an
+  empty counter, and moving on from a loaded photo left the old photo showing (#168). It now finishes either way: the
+  counter and the spoken "Photo N of M: caption" update, the busy state ends, and the browser's broken-image state shows.
+  Checked in headless Chrome (Hugo 0.167.0, served with `script-src 'self'` and no `unsafe-inline`; no violations or
+  script errors) on a gallery of three photos whose second one fails: before, opening it, or pressing Next from the first
+  photo, left `aria-busy="true"`, "1 / 3" or an empty counter, and the first photo on screen; now the counter reads
+  "2 / 3", the live region "Photo 2 of 3: Broken two", `aria-busy` is gone, and Next goes on to photo 3. When only the
+  large image fails, the thumbnail still shows (checked with the X3 request failed and X2 served). Built output of
+  guyheckman.me, the 80-post and 550-post sites and the exampleSite, in a development and a production build, differs
+  from 1.3.4 only in the footer version and the gallery script's file name and content.
+
 ## [1.3.4] - Unreleased
 
 ### Fixed
