@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.31] - Unreleased
+
+### Fixed
+- The README's settings list now says what happens when the hero and 404 texts are unset (#181). `slogan` is the site
+  title, `tagline` is `params.description`, and `title_404` is the theme's "Page not found" (the `pageNotFound`
+  translation entry). A post's front matter `subtitle` shows only in a post's own hero, and falls back to the post's
+  `description`; every other page's hero shows its `description` alone. Checked against `layouts/home.html`, `layouts/404.html`,
+  `layouts/post/page.html` and `layouts/_partials/hero.html`. Documentation only; no template or output changed.
+
 ## [1.3.30] - Unreleased
 
 ### Fixed
