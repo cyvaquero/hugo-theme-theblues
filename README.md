@@ -28,7 +28,8 @@ the site's real content to the same 30 URLs as Clean White with no Hugo warnings
   - `theme.js` (in `<head>`, not deferred, so a picked mode applies before the first paint) and `menu.js`, on every
     page;
   - `wall.js` and `gallery.js`, only where needed;
-  - `analytics.js`, only when the site sets a GA ID, and only in production builds;
+  - `analytics.js`, only when the site sets a GA ID, and only in production builds. It has no consent step (see
+    `[services.googleAnalytics] id` under "Site settings it reads");
   - `comments.js`, on posts when the site sets a Disqus shortname.
 
   A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used.
@@ -138,7 +139,8 @@ A site can add its own page types without overriding theme files:
   otherwise. `head.html` uses the same partial, so a site that shows an analytics notice only when analytics loads
   stays in step with the theme: `{{ if partial "analytics-on.html" . }}…{{ end }}`. Its name and result are kept
   stable; a change is called out in the CHANGELOG. Theme versions before 1.2.49 don't have it; a site that must build
-  with them can check `templates.Exists "_partials/analytics-on.html"` first.
+  with them can check `templates.Exists "_partials/analytics-on.html"` first. The theme itself shows no notice and asks
+  for no consent before it loads analytics (see `[services.googleAnalytics] id` under "Site settings it reads").
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
   `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
@@ -296,6 +298,15 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   - Analytics loads only in production builds, unless `[privacy.googleAnalytics] disable = true`. A site can ask the
     theme whether it loads with `layouts/_partials/analytics-on.html` (see Extending from a site).
   - A visitor who sends Do Not Track or Global Privacy Control gets nothing: no gtag.js request and no hit.
+  - **There is no consent step.** In a production build with a GA ID and `[privacy.googleAnalytics] disable` unset,
+    Google Analytics loads as soon as a page is viewed, for every visitor who doesn't send Do Not Track or Global
+    Privacy Control: the browser requests `gtag.js` from `www.googletagmanager.com` and Google Analytics records the
+    visit. The theme has no consent banner, prompt or gate, and a visitor who sends neither signal has not agreed to
+    anything. A site that needs consent (GDPR, the ePrivacy Directive) must gate or disable analytics itself: set
+    `[privacy.googleAnalytics] disable = true` (or leave the GA ID out) and load Google Analytics from its own consent
+    code, for example from `layouts/_partials/head-end.html`; or put its own `assets/js/analytics.js` in the site,
+    which replaces the theme's and gets the ID as `data-id`, and have it wait for consent. Whether a site needs
+    consent is for its owner to decide.
 - `[services.disqus] shortname`: comments are click to load. Posts show a "Show comments" button, and nothing from Disqus
   loads before it is clicked. Builds for other environments (`hugo server`, `--environment staging`) show a note
   instead; analytics, likewise, loads only in production. A leading slash in the shortname is ignored. Optional front
@@ -319,7 +330,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   The `series` taxonomy also has to be declared by the site (see Taxonomies).
 - Hugo's `[privacy]` settings: the theme loads Google Analytics and Disqus with its own scripts, not Hugo's internal
   templates, so only these apply:
-  - `[privacy.googleAnalytics] disable = true` leaves analytics out;
+  - `[privacy.googleAnalytics] disable = true` leaves analytics out (the way to switch it off for a site that needs
+    consent before analytics loads);
   - `[privacy.disqus] disable = true` leaves the comments out (no button, no script);
   - `[privacy.googleAnalytics] respectDoNotTrack` has no effect: Do Not Track and Global Privacy Control are always
     honored. The other `privacy.googleAnalytics` settings are for Hugo's internal template and are ignored too.
