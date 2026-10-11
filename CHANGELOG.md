@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.23] - Unreleased
+
+### Fixed
+- An Escape that closes the mobile menu no longer also hides the caption of a photo tile under the pointer (#227).
+  `assets/js/menu.js` now marks the Escape as handled (`preventDefault`), which the caption handler from #173 already
+  respects, as it does for the View options popover. Checked in headless Chrome at 700px with the menu open and the
+  pointer on a photo tile: 1.3.21 closed the menu and hid the caption; now the menu closes and the caption stays, and a
+  second Escape hides it. Built HTML is unchanged apart from the footer version and the
+  script's fingerprint.
+
 ## [1.3.22] - Unreleased
 
 ### Added
