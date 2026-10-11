@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.33] - Unreleased
+
+### Fixed
+- `theme.toml`'s `[original]` table now uses the keys the Hugo themes gallery documents (#194): `author`, `homepage`
+  (the original author's site) and `repo` (the original theme's source). It had `name` and a `homepage` that pointed
+  at the repository. It now names Huabing Zhao, his site `https://zhaohuabing.com` (from his GitHub profile) and the Clean
+  White repository; "Clean White" stays in a comment, since the spec has no name key. `demosite` is not added. Checked
+  against the spec in the gohugoio/hugoThemes README, and that the file still parses as TOML (Hugo's own parser).
+  `min_version` is unchanged. No template or output changed.
+
 ## [1.3.32] - Unreleased
 
 ### Fixed
