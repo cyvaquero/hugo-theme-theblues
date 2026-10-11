@@ -3,20 +3,20 @@
   smaller size than X2. Context: dict "src" (the X2 URL) "w" "h" (its size, from img-size.html). Returns dict "srcset"
   "sizes", or an empty dict for any other URL or when the size isn't known.
   SmugMug serves each size of a photo at the X2 URL with the size name in place of X2 in the path segment and the file
-  suffix (/X2/i-ABC-X2.jpg becomes /L/i-ABC-L.jpg), scaled to fit a box: M 600×450, L 800×600, XL 1024×768,
-  X2 1280×960, never enlarged. Checked on every photo on guyheckman.me (2026-10-10). So each size's width is X2's
-  scaled to that box; a size that wouldn't be smaller than X2 is left out.
+  suffix (/X2/i-ABC-X2.jpg becomes /L/i-ABC-L.jpg, smug-size.html), scaled to fit a box (the boxes are in
+  smug-sizes.html), never enlarged. So each size's width is X2's scaled to that box; a size that wouldn't be smaller
+  than X2 is left out.
   sizes follows the masonry in main.css: 1 column below 560px, 2 from 560px, 3 from 900px, inside the 72rem --wide
   column with 1rem gutters and 12px (--gap) between columns.
 */ -}}
 {{- $out := dict -}}
 {{- if and .w .h (findRE `^https://photos\.smugmug\.com/.+/X2/[^/]+$` .src 1) -}}
   {{- $set := slice -}}
-  {{- range slice (slice "M" 600 450) (slice "L" 800 600) (slice "XL" 1024 768) -}}
-    {{- $r := math.Min (div (float (index . 1)) $.w) (div (float (index . 2)) $.h) -}}
+  {{- $boxes := (partialCached "smug-sizes.html" "sizes").boxes -}}
+  {{- range first (sub (len $boxes) 1) $boxes -}}{{- /* every box but X2 itself */ -}}
+    {{- $r := math.Min (div (float .w) $.w) (div (float .h) $.h) -}}
     {{- if lt $r 1 -}}
-      {{- $u := replaceRE `/X2/` (printf "/%s/" (index . 0)) $.src -}}
-      {{- $u = replaceRE `-X2(\.[A-Za-z0-9]+)$` (printf "-%s$1" (index . 0)) $u -}}
+      {{- $u := partial "smug-size.html" (dict "src" $.src "from" "X2" "to" .n) -}}
       {{- $set = $set | append (printf "%s %dw" $u (int (math.Round (mul $r $.w)))) -}}
     {{- end -}}
   {{- end -}}

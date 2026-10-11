@@ -178,8 +178,8 @@ layouts/search/section.html  search page (placeholder until the engine is chosen
 layouts/404.html
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-sizes, controls, wall, tile-photo, tile-photo-body,
-                           tile-photo-parts, tile-article, photos, is-photo, smug-full, smug-srcset, img-size, gallery-figure,
-                           cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
+                           tile-photo-parts, tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
+                           img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page, term-stats
 layouts/_shortcodes/       gallery, galleries (masonry), embed
@@ -214,7 +214,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   a `srcset` of SmugMug's M, L and XL sizes plus X2, with `sizes` matching the masonry columns, so phones and one-x
   screens load a smaller file (`layouts/_partials/smug-srcset.html`). SmugMug names each size in the URL's path segment
   and file suffix (`/X2/i-ABC-X2.jpg`, `/L/i-ABC-L.jpg`) and scales it to fit a box: M 600×450, L 800×600, XL 1024×768,
-  X2 1280×960.
+  X2 1280×960 (`smug-sizes.html` holds the table, `smug-size.html` the URL rewrite that this partial, `smug-full.html`
+  and `hero-sizes.html` share).
 - A hero photo on `photos.smugmug.com` whose URL names a size (M, L, XL, X2, X3, X4 or X5, such as a photo post's X3
   cover or an `image` set to an X5 URL) also gets smaller sizes for phones and one-x screens
   (`layouts/_partials/hero-sizes.html`): for each of five viewport tiers in `main.css` (one-x up to 480, 800, 1280 and

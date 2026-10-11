@@ -1,10 +1,6 @@
 {{- /*
   Derives the lightbox (large) image URL from a SmugMug thumbnail URL by replacing size X2 with X3 in both the path
-  segment and the file suffix: /X2/i-ABC-X2.jpg becomes /X3/i-ABC-X3.jpg. Other URLs are returned unchanged.
+  segment and the file suffix: /X2/i-ABC-X2.jpg becomes /X3/i-ABC-X3.jpg. Other URLs are returned unchanged. The rewrite
+  is smug-size.html's (#190).
 */ -}}
-{{- $u := . -}}
-{{- if findRE `/X2/` $u 1 -}}
-  {{- $u = replaceRE `/X2/` "/X3/" $u -}}
-  {{- $u = replaceRE `-X2(\.[A-Za-z0-9]+)$` "-X3$1" $u -}}
-{{- end -}}
-{{- return $u -}}
+{{- return partial "smug-size.html" (dict "src" . "from" "X2" "to" "X3") -}}

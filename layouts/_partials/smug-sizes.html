@@ -1,0 +1,13 @@
+{{- /*
+  The SmugMug sizes the theme knows (#190), in one place for smug-srcset.html and hero-sizes.html. Returns a dict:
+  "names" - every size name from smallest to largest; a size's index is its rank.
+  "boxes" - the sizes SmugMug scales a photo to fit, smallest first, each a dict "n" (name) "w" "h" (the box in pixels):
+            M 600×450, L 800×600, XL 1024×768, X2 1280×960. A photo is never enlarged, so a size's pixels are the photo's
+            X2 pixels scaled to fit its box (X3 and up can't be worked out from X2's). Checked on every photo on
+            guyheckman.me (2026-10-10).
+  Usage: {{ $sizes := partialCached "smug-sizes.html" "sizes" }}
+*/ -}}
+{{- return dict
+  "names" (slice "M" "L" "XL" "X2" "X3" "X4" "X5")
+  "boxes" (slice (dict "n" "M" "w" 600 "h" 450) (dict "n" "L" "w" 800 "h" 600) (dict "n" "XL" "w" 1024 "h" 768) (dict "n" "X2" "w" 1280 "h" 960))
+-}}
