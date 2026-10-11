@@ -68,6 +68,23 @@ All notable changes to this theme are documented here. The format follows
   the same position as in 1.3.15. Built output of guyheckman.me and the exampleSite, in development and production
   builds, differs from 1.3.15 only in the fingerprinted stylesheet name and the footer version.
 
+## [1.3.16] - Unreleased
+
+### Security
+- A Markdown image with an `http://` source now warns at build time (#218). `![](http://…)` was published as
+  `<img src="http://…">` with no warning, which a browser blocks as mixed content on an https site or under a CSP that
+  allows only `https:` images (CWE-319); the gallery and hero paths already warned (#184), Markdown images didn't. The
+  image render hook now calls `https-check.html`, so the same warning (ID `theblues-insecure-photo`, naming the URL) is
+  printed once per URL for a Markdown image, in any letter case of the scheme, `--panicOnWarning` fails the build, and a
+  site can silence it with `ignoreLogs`. The image is kept and published as written; `https://` and relative images, and
+  page resources, don't warn. The README names Markdown images next to the other cases. Checked with Hugo 0.167.0 on a
+  scratch copy of the exampleSite with two posts: one with `![](http://example.com/a.jpg)` (twice),
+  `HTTP://example.com/b.jpg`, an `https://` image and a page-resource image, the other repeating the first URL.
+  1.3.15 built with no warning; now the build prints two warnings (one per distinct URL, none for the `https://` or
+  relative image), `--panicOnWarning` stops it, and the `<img>` HTML of all 34 images is identical to 1.3.15. Built
+  output of guyheckman.me and the exampleSite, production (minified, `--panicOnWarning`) and development, matched 1.3.15
+  byte for byte after normalizing fingerprints, SRI hashes and the footer version (0 of 71 and 0 of 55 files differ).
+
 ## [1.3.15] - Unreleased
 
 ### Added
