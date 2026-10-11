@@ -3,432 +3,135 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.2.53] - Unreleased
-
-### Changed
-- Faster builds for sites with long series or many photo tiles. The series box renders each series' list once instead of
-  once per post in it (a long series made every post's build cost grow with its length), and a photo tile is rendered
-  once and reused on the home, tag, category and series walls, filling in only its position. Median build times with
-  Hugo 0.167.0: guyheckman.me (8 posts) 91.2 → 92.7 ms, within noise; 80 posts 189.8 → 153.4 ms; 550 posts 1058.3 →
-  454.1 ms. The built output is byte-for-byte the same on all three, and with `hugo server` an edited post title or
-  photo title shows up in other posts' series boxes and on the walls on the next rebuild. The README's layout list adds
-  the four new partials (series-items, series-item, tile-photo-body, tile-photo-parts).
-
-## [1.2.52] - Unreleased
-
-### Changed
-- The README's layout list names every partial in `layouts/_partials/`, adding `img-size` and `smug-srcset`. The built
-  site is unchanged (#153).
-
-## [1.2.51] - Unreleased
-
-### Changed
-- Tag, category and series pages and photo posts preload their hero photo again, now at the smaller sizes from 1.2.50:
-  their hero is now the page's largest paint, and the preload brings it sooner instead of slowing what paints first.
-  On guyheckman.me with the cache off and a slow network (150 ms, 1.5 Mbit/s), median of 5 runs, light and dark, the
-  largest paint compared with 1.2.50 comes 330–1,180 ms sooner at 375px (photography tag 4.0 s to 3.1 s, Monterrey
-  gallery 4.3 s to 3.1 s, Boston gallery 4.2 s to 3.8 s, Boston tag 3.8 s to 3.5 s, Hugo tag 1.8 s to 1.5 s) and
-  110–340 ms sooner at 1280px; no measured page got slower (#149).
-
-## [1.2.50] - Unreleased
-
-### Changed
-- Phones and one-x screens load a smaller SmugMug size of the hero photo, picked so it still fills the hero at the
-  screen's pixel density: the hero looks the same, and its preload asks for the same size. For example, the
-  photography tag's X5 hero becomes L at 375px and X2 at 1280px, and a photo post's X3 hero becomes L and X2. On
-  guyheckman.me with the cache off and a slow network (150 ms, 1.5 Mbit/s), median of 5 runs, the hero's largest
-  paint at 375px comes sooner: About and article posts 3.2–3.7 s to 1.0 s (hero 329 KB to 72 KB), the home page 4.4 s to
-  3.1 s and tag pages with the site's header image 2.6 s to 1.8 s (192 KB to 113 KB), the Boston gallery 7.7–7.9 s to
-  4.2 s (778 KB to 150 KB), and the photography tag 12.1–12.3 s to 4.0 s (1.57 MB to 116 KB). At 1280px the photography
-  tag and the Monterrey gallery go from 14.6 s to 8.6 s (1.57 MB to 443 KB), the Boston tag from 7.3 s to 6.1 s and the
-  Boston gallery from 12.3 s to 11.0–11.9 s (778 KB to 544 KB), and pages whose hero was already X2 or L don't change.
-  Screens denser than two-x, wider than 1600px, or two-x wider than 640px
-  keep the size the page names, as do photos on other hosts. Share images are unchanged (#149).
-
-## [1.2.49] - Unreleased
+## [1.3.0] - 2026-10-11
 
 ### Added
+- An optional footer menu: `[[menus.footer]]` entries show as links under the social links, in a navigation landmark
+  named "Footer", styled like the social links (44px targets, same colors). Sites without one render the same footer
+  as before (cyvaquero/hugo-site-guyheckman_me#84).
+- `params.dateFormat` sets how dates read on posts, wall tiles and the wall's gallery headings, as a Go layout (for
+  example `2 January 2006`); without it they stay `Jan 2, 2006`. The archive's `Jan 2` and the series box's
+  `Jan 2006` are unchanged. The wall script takes a gallery heading's date from the gallery's first tile instead of
+  formatting it itself, so the two can't disagree. Strings stay English (#6).
 - Sites can ask the theme whether Google Analytics loads on a page with `{{ if partial "analytics-on.html" . }}`, for
   example to show an analytics notice only when analytics loads. The theme's own `<head>` uses the same partial, so
-  the two can't disagree, and the README lists it under "Extending from a site" as stable. Built pages are unchanged
-  (#146).
-
-## [1.2.48] - Unreleased
-
-### Fixed
-- The nav links no longer jump left when the color theme switch appears: on desktop widths the switch keeps its space,
-  invisible, until the theme script shows it, and without JavaScript it still takes no space. On guyheckman.me with the
-  cache off and a slow network, the home and tag pages' layout shift (CLS) at 1280px goes from 0.0024 to 0 in light
-  and dark; at 375px it stays 0 (#138).
-
-## [1.2.47] - Unreleased
-
-### Changed
-- The hero photo is preloaded only where it is the page's largest paint: the home page, the default hero (About,
-  Archive, Search, section pages), the 404 page and article posts. Tag, category and series pages and photo posts no
-  longer preload it, since their first tiles or title paint first and the preloaded hero, a large SmugMug size, slowed
-  them by 80 to 450 ms in 1.2.45. Loading those heroes sooner is left for smaller hero sizes (#7, #149).
-
-## [1.2.46] - Unreleased
-
-### Fixed
-- On a wall split across pages, the type chips count the whole list instead of only the tiles on the page you're on:
-  exampleSite's home (4 tiles per page) read "All 4, Articles 3, Photos 1", "All 3, Articles 2, Photos 1" and
-  "All 1, Articles 1, Photos 0" on its three pages, and now reads "All 8, Articles 6, Photos 2" on each. The caption still
-  describes the page and now says so ("This page: 2 articles, 1 photo"); a one-page wall, like every wall on
-  guyheckman.me today, reads as before (#7).
-
-## [1.2.45] - Unreleased
-
-### Added
-- A page's hero photo starts loading at once, with high priority, instead of after the stylesheet has loaded: `<head>`
-  preloads it (`<link rel="preload" as="image" fetchpriority="high">`) on every page whose hero has a photo, and on no
-  other page, so the browser never warns about an unused preload. On guyheckman.me with the cache off and a slow
-  network (median of 5), the largest paint comes 330 ms sooner on the home page at 375 and 1280px (4.74 → 4.41 s,
-  7.63 → 7.31 s) and about 150 ms sooner on About; the 404 page 1.81 → 1.43 s (median of 3). Where the largest paint
-  is not the hero, the preloaded photo competes with it: a tag page's first tile paints 80 to 450 ms later and a
-  gallery post's title at 1280px about 220 ms later (#7).
-
-## [1.2.44] - Unreleased
-
-### Added
+  the two can't disagree, and the README lists it under "Extending from a site" as stable (#146).
 - Wall tiles and gallery photos load a size that fits the screen instead of always SmugMug's 1280px X2: they offer
   SmugMug's M, L and XL sizes as well (`srcset` and `sizes`), when the build knows the photo's size. Photo bytes on
   guyheckman.me, page scrolled to the end, cache off: the home page 4.81 → 1.12 MB on a one-x screen at 375 or 1280px
   and 4.81 → 2.66 MB at 1280px on a two-x screen; the Boston gallery 8.12 → 2.23 MB and 8.12 → 4.17 MB; a three-x
   phone still loads X2, as before. The lightbox still opens the X3 size (#7).
-
-## [1.2.43] - Unreleased
-
-### Fixed
-- Wall tiles and gallery photos keep their shape while they load, so the masonry no longer reshuffles as photos arrive:
-  the build reads each photo's width and height (downloading it once into Hugo's resource cache) and puts them on the
-  image. On guyheckman.me's home page 7 of 12 photo tiles changed height when their photo loaded and 10 to 11 tiles
-  moved; on the Boston gallery 9 of 18 changed height and 15 to 16 moved (375 and 1280px). Now none do, and the loaded
-  pages look the same. A cold build of guyheckman.me (empty cache, 33 photos, 14 MB downloaded) takes about 1.5 s instead of
-  97 ms; with the cache warm it takes 100 to 101 ms. An offline build leaves the sizes out without a warning; a photo URL that
-  answers 404 or isn't an image warns (`theblues-image-size`) (#7).
-
-## [1.2.42] - Unreleased
-
-### Fixed
-- With "Group by gallery" on, a gallery split across two wall pages is headed with all its photos on both pages, not
-  only the ones on that page: with 5 tiles per page, guyheckman.me's Boston Gallery read "4 photos" on one page and
-  "14 photos" on the next, and now reads "18 photos" on both. Photo and see-all tiles carry the gallery's photo count
-  as `data-n` for the wall script. Chip counts and the caption still count the tiles on the page (#7).
-
-## [1.2.41] - Unreleased
-
-### Fixed
-- The wall no longer jumps down when its controls appear: the controls bar keeps its space, invisible, until the wall
-  script shows it, and without JavaScript it still takes no space. On guyheckman.me with the cache off and a slow
-  network, the home page's layout shift (CLS) goes from 0.075 to 0 at 375px and from 0.069 to 0.002 at 1280px, and a
-  tag page's from 0.043 to 0 and 0.002; the 0.002 left is the nav's color theme switch appearing (#7).
-
-## [1.2.40] - Unreleased
-
-### Changed
-- The previous and next post links sort the posts once per build instead of once for every post. Median build with
-  2,000 generated posts 2.79 → 2.70 s and with 600 posts 812 → 808 ms; guyheckman.me and the fixture site are
-  unchanged (within a millisecond or two). All four build byte-for-byte the same (#7).
-
-## [1.2.39] - Unreleased
-
-### Changed
-- A tag, category or series page works out its hero's photo count and cover once per term instead of once per pager
-  page, which went through every post in the term each time. Median build with 2,000 generated posts 8.9 → 2.8 s and
-  with 600 posts 835 → 812 ms; guyheckman.me (96 → 95 ms) and the fixture site (84 → 84 ms) are unchanged. The built
-  pages are the same apart from the blank lines the old loop left before a term page's hero, one run per post in the
-  term, which are gone (#7).
-
-## [1.2.38] - Unreleased
-
-### Changed
-- Big sites build much faster: a post's photos, its photo-or-article check and its cover, and each list's wall tiles,
-  are now worked out once per build and kept with the page, instead of only in Hugo's partial cache, which holds about
-  a thousand entries and on a site with a few hundred posts kept evicting them, so they were recomputed for every page
-  that used them. Median build with 2,000 generated posts 68.5 → 8.9 s; with 600 posts (822 → 835 ms), guyheckman.me
-  (97 → 96 ms) and the fixture site (84 → 84 ms) it is unchanged. All four build byte-for-byte the same. Under
-  `hugo server` the theme still uses the partial cache, so an edited template shows up at once (#7).
-
-## [1.2.37] - Unreleased
-
-### Changed
-- A series follows its posts' `weight` when they set one, as Hugo orders pages: weighted posts first, lowest first,
-  then the rest; oldest first within each. The series box's list and numbering and the "Part N of M" tile chip use
-  that order. Series whose posts set no weight are ordered by date as before (#6).
-
-## [1.2.36] - Unreleased
-
-### Changed
-- README lists the layout's fixed breakpoints (560, 700, 821 and 900px) and what changes at each, for sites that style
-  their own pages to match. They stay fixed rather than becoming settings (#6).
-
-## [1.2.35] - Unreleased
-
-### Changed
-- The footer shows the site's `copyright` setting as written, when the site sets one, so a site can choose its own
-  wording or a year range; the feed already used it. Without it the footer still reads "© <title> <current year>" (#6).
-
-## [1.2.34] - Unreleased
-
-### Added
-- `params.dateFormat` sets how dates read on posts, wall tiles and the wall's gallery headings, as a Go layout (for
-  example `2 January 2006`); without it they stay `Jan 2, 2006`. The archive's `Jan 2` and the series box's
-  `Jan 2006` are unchanged. The wall script takes a gallery heading's date from the gallery's first tile instead of
-  formatting it itself, so the two can't disagree. Strings stay English (#6).
-
-## [1.2.33] - Unreleased
-
-### Added
-- The README's "Site settings it reads" covers the feed settings (`params.author`, which adds an author to the feeds
-  only as a table with an `email`; `copyright`, used by the feeds but not the footer; `[services.rss] limit`) and the
-  `[markup]` settings that change what the theme shows (highlighting classes, table of contents levels, stand-alone
-  image figures), and says what the front matter `image` does. The built site is unchanged (#6).
-
-## [1.2.32] - Unreleased
-
-### Changed
-- Post dates and the "Undated" fallback come from one partial, `date.html`, instead of being written out in nine
-  places (post header, article and photo tiles, the see-all tile, the series box and the archive), so a change to the
-  date format is made once. `wall.js` still formats its group headings itself, and the partial says to keep the two
-  the same. The built site is byte-for-byte the same, and an undated post still warns (#6).
-
-## [1.2.31] - Unreleased
-
-### Changed
-- The series box and the "Part N of M" chip on wall tiles get a post's position in its series from one partial
-  (`series-info.html`, which now returns every series the post is in) instead of two copies of the same loop, so they
-  can't disagree. The built site is byte-for-byte the same, including a post in two series (#6).
-
-## [1.2.30] - Unreleased
-
-### Changed
-- The home wall, section and term walls, the archive, post navigation and the taxonomy indexes list the pages in the
-  site's `mainSections`, as the home feed already did, instead of only the `post` section. A site that keeps posts in
-  another section (or several) sets `mainSections` and gives those pages the `post` type to get the post template;
-  the README's "Content structure" shows both. Without `mainSections`, Hugo uses the section with the most pages, so
-  the README now says to set `mainSections = ["post"]`, and the fixture site does. guyheckman.me and the fixture site
-  build byte-for-byte the same (#6).
-
-## [1.2.29] - Unreleased
-
-### Fixed
-- A post whose headings are all outside the `markup.tableOfContents` levels (only `####` headings with the default
-  levels, for example) no longer shows an empty "On this page" box: the TOC shows when Hugo's table of contents has a
-  link, not just a list item. If a Hugo update changes the `<nav id="TableOfContents">` wrapper the theme checks and
-  labels, the build warns (`theblues-toc-markup`, which stops `--panicOnWarning` builds) instead of silently dropping
-  the label. The theme keeps Hugo's TOC, since templates can't read the TOC levels. On the fixture site and
-  guyheckman.me every other page is byte-for-byte the same; the fixture site has a post for the case (#87, #117).
-
-## [1.2.28] - Unreleased
-
-### Fixed
-- The page hero's small sand text (the "Article" / "Photo gallery" label and the date line) stays at 4.5:1 or more over
-  a bright photo however long the title is. The darker part of the scrim now starts just above the text instead of at
-  a fixed share of the hero's height, and the rest of the photo keeps a light .45 scrim. Measured over a white photo
-  on the fixture site with an 84-character title, at 320, 375, 768 and 1280px in both modes: the label is 5.86:1 at
-  every width, up from as low as 3.55:1 (768px) and 3.84:1 (320px); a short title with a subtitle went from 4.48:1 to
-  5.86:1 on phones. With a short title the photo above the text is lighter than before (.45 to about .55 where it was
-  .65 to .85). Layout and HTML are unchanged (#74).
-
-## [1.2.27] - Unreleased
-
-### Added
+- Every page whose hero has a photo preloads it at once, with high priority (`<link rel="preload" as="image"
+  fetchpriority="high">`), at the same size the hero uses, and no other page does, so the browser never warns about an
+  unused preload. On guyheckman.me with the cache off and a slow network (150 ms, 1.5 Mbit/s), median of 5: the home
+  page's largest paint comes 330 ms sooner at 375 and 1280px (4.74 → 4.41 s, 7.63 → 7.31 s), About about 150 ms
+  sooner, the 404 page 1.81 → 1.43 s; tag pages and photo posts 330–1,180 ms sooner at 375px than without the preload
+  (photography tag 4.0 → 3.1 s, Monterrey gallery 4.3 → 3.1 s) and 110–340 ms sooner at 1280px (#7, #149).
 - An "Accessibility" section in the README: the target (WCAG 2.1 AA, which also covers Section 508's WCAG 2.0 AA
   for web content), keyboard support for the skip link, nav menu, theme switch, wall controls, lightbox and comments,
   the live announcements, color, forced-colors, motion and reflow behavior, how to write accessible content (gallery
   titles, alt text, headings, line numbers, embed titles), and the known gaps with links to their issues. #94's
   mapping of WCAG 2.1 and Section 508 is linked from it (#79, #94).
 
-## [1.2.26] - Unreleased
-
-### Added
-- `exampleSite/`, a fixture site whose content exercises the theme's edge cases (untitled and undated posts,
-  commented-out and positional gallery photos, a `{{% galleries %}}` block, `embed`, Markdown link and image hooks,
-  the legacy menu, a footer menu and wall pagination past page 1), and a README section on building it with
-  `--panicOnWarning --printPathWarnings --printUnusedTemplates` and comparing the output before and after a change. It
-  builds with no warnings and no unused templates; sites that install the theme don't use it (#93).
-
-## [1.2.25] - Unreleased
-
 ### Changed
-- The visually hidden `.vh` class uses `clip-path: inset(50%)`, keeping the deprecated `clip` as a fallback. Screen
-  reader text and the accessible names it supplies are unchanged (#92).
-
-## [1.2.24] - Unreleased
-
-### Changed
-- The `theme-color` values in `head.html` and the `--band` token in `main.css` now point at each other in comments,
-  and the README says a palette change updates both, so the browser-UI color can't drift from the nav band unnoticed.
-  The built site is unchanged (#91).
-
-## [1.2.23] - Unreleased
-
-### Fixed
-- Posts created with `hugo new` follow the site's `params.showtoc` again: the post archetype no longer writes
-  `showtoc: true`, which overrode the site default, and offers a commented-out `showtoc: false` instead (#90).
-
-## [1.2.22] - Unreleased
-
-### Changed
-- The README, `hugo.toml` and `theme.toml` say which minimum-Hugo setting counts: `[module.hugoVersion] min` in the
-  theme's `hugo.toml`, which Hugo checks and warns about. `theme.toml`'s `min_version` is gallery metadata that mirrors
-  it; both stay at 0.163.3 (#89).
-
-## [1.2.21] - Unreleased
-
-### Changed
-- Theme script and stylesheet tags come from two partials, `script.html` and `stylesheet.html`, instead of eight
-  copies of the same markup in `head.html` and `baseof.html`. The built pages are byte-for-byte the same (#88).
-
-## [1.2.20] - Unreleased
+- Phones and one-x screens load a smaller SmugMug size of the hero photo, picked so it still fills the hero at the
+  screen's pixel density: the hero looks the same. For example, the photography tag's X5 hero becomes L at 375px and
+  X2 at 1280px, and a photo post's X3 hero becomes L and X2. On guyheckman.me with the cache off and a slow network,
+  median of 5, the hero's largest paint at 375px comes sooner: About and article posts 3.2–3.7 s to 1.0 s (hero 329 KB
+  to 72 KB), the home page 4.4 s to 3.1 s, the Boston gallery 7.7–7.9 s to 4.2 s (778 KB to 150 KB), and the
+  photography tag 12.1–12.3 s to 4.0 s (1.57 MB to 116 KB); at 1280px the photography tag and the Monterrey gallery go
+  from 14.6 s to 8.6 s (1.57 MB to 443 KB). Screens denser than two-x, wider than 1600px, or two-x wider than 640px
+  keep the size the page names, as do photos on other hosts. Share images are unchanged (#149).
+- Big sites build much faster. A post's photos, photo-or-article check and cover, and each list's wall tiles, are
+  worked out once per build instead of being evicted from Hugo's small partial cache and recomputed; a term works out
+  its hero's photo count and cover once instead of once per pager page; post navigation sorts the posts once; the
+  series box renders each series' list once instead of once per post in it; and a photo tile is rendered once and
+  reused on the home, tag, category and series walls. Median build with Hugo 0.167.0: 2,000 generated posts 68.5 →
+  2.70 s; 550 posts 1058.3 → 454.1 ms; 80 posts 189.8 → 153.4 ms; guyheckman.me (8 posts) unchanged within noise.
+  Built pages are byte-for-byte the same apart from blank lines the old term-page loop left before the hero, and under
+  `hugo server` edits show up on the next rebuild (#7, #182).
+- A series follows its posts' `weight` when they set one, as Hugo orders pages: weighted posts first, lowest first,
+  negative weights included, then the rest, oldest first within each. The series box's list and numbering and the
+  "Part N of M" tile chip use that order. Series whose posts set no weight are ordered by date as before (#6, #161).
+- The home wall, section and term walls, the archive, post navigation and the taxonomy indexes list the pages in the
+  site's `mainSections`, as the home feed already did, instead of only the `post` section. A site that keeps posts in
+  another section (or several) sets `mainSections` and gives those pages the `post` type to get the post template;
+  the README's "Content structure" shows both and says to set `mainSections = ["post"]`. guyheckman.me builds
+  byte-for-byte the same (#6).
+- The footer shows the site's `copyright` setting as written, when the site sets one, so a site can choose its own
+  wording or a year range; the feed already used it. Without it the footer still reads "© <title> <current year>" (#6).
+- The theme's build warnings have IDs, so a site can silence them with `ignoreLogs`: `theblues-gallery-no-title` for
+  a `gallery` photo without a `title`, and `theblues-undated` for a post without a `date`. Hugo prints the
+  `ignoreLogs` line to add under each warning, and the README lists every ID (#85).
 
 ### Deprecated
 - The legacy `params.addtional_menus` nav list (Clean White's spelling). It still works when no `[[menus.main]]` is
   defined, but the build now warns once (`theblues-addtional-menus`, silenceable with `ignoreLogs`) to move to
   `[[menus.main]]`; it will be removed in a future major version (#86).
 
-## [1.2.19] - Unreleased
-
-### Changed
-- The theme's build warnings have IDs, so a site can silence them with `ignoreLogs`: `theblues-gallery-no-title` for
-  a `gallery` photo without a `title`, and `theblues-undated` for a post without a `date`. Hugo prints the
-  `ignoreLogs` line to add under each warning, and the README lists both IDs (#85).
-
-## [1.2.18] - Unreleased
-
 ### Fixed
-- The note posts show instead of comments now reads "Disqus comments are not loaded outside production builds",
-  which matches when it appears: in any non-production build, such as `--environment staging`, not only in
-  development. The README says the same (#84).
-
-## [1.2.17] - Unreleased
-
-### Fixed
-- A missing theme stylesheet or script fails the build with `theblues: asset "css/main.css" not found in assets/`,
-  instead of publishing every page without it and exiting successfully. `asset.html` itself still returns nothing for
-  a missing file, so a site's own partials can keep using it for optional files (#83).
-
-## [1.2.16] - Unreleased
-
-### Changed
-- `docs/retheme/decisions.md` matches the theme again: superseding notes on D4 (the color theme switch), D8 (click to
-  load, `privacy.disqus.disable`), D11 (the theme's own GA loader, which always honors Do Not Track and Global Privacy
-  Control) and D12 (Highlight mode, tile data attributes, code blocks in dark mode), and a new D15 record for the
-  color theme switch (#81).
-
-## [1.2.15] - Unreleased
-
-### Changed
-- README corrections: the stylesheet notes mention `nojs.css` (loaded in `<noscript>`) next to `main.css`; the
-  Layout list adds `nojs.css`, `analytics.js`, `comments.js`, `data/theblues.toml`, `rss.xml`, `wall-stand` and
-  `static/`; undated posts sort last on the wall except with Oldest first; the positional `gallery` form takes only
-  `src` and gets "Photo N" alt text; and the build-time note describes the per-list tile cache instead of a rebuild
-  per pager page (#80).
-
-## [1.2.14] - Unreleased
-
-### Fixed
+- "Show comments" moves keyboard and screen reader focus to a "Comments" heading and says what is happening. It used
+  to focus an empty, unnamed container, announce nothing, and, if Disqus was blocked, remove the button with no way to
+  try again. A polite status now reads "Loading comments…", then "Comments loaded.", or "Comments couldn't be loaded.
+  Check your connection or content blocker, then try again." when Disqus is blocked or hasn't answered after 15 seconds,
+  and the button comes back as "Try again" (WCAG 2.4.3 Focus Order, 4.1.3 Status Messages; #162). Disqus still loads
+  only after the click, with no inline scripts, styles or handlers; the status text is 10.5:1 in light and 12.8:1 in
+  dark.
+- The wall and nav no longer jump when their controls appear: the wall's controls bar and, on desktop widths, the
+  color theme switch keep their space, invisible, until their scripts show them, and without JavaScript they take no
+  space. On guyheckman.me with the cache off and a slow network, the home page's layout shift (CLS) goes from 0.075 to
+  0 at 375px and from 0.069 to 0 at 1280px, and a tag page's from 0.043 to 0 (#7, #138).
+- Wall tiles and gallery photos keep their shape while they load, so the masonry no longer reshuffles as photos arrive:
+  the build reads each photo's width and height (downloading it once into Hugo's resource cache) and puts them on the
+  image. On guyheckman.me's home page 7 of 12 photo tiles changed height when their photo loaded and 10 to 11 tiles
+  moved; on the Boston gallery 9 of 18 changed height and 15 to 16 moved (375 and 1280px). Now none do. A cold build
+  of guyheckman.me (empty cache, 33 photos, 14 MB downloaded) takes about 1.5 s instead of 97 ms; with the cache warm
+  it takes 100 to 101 ms. An offline build leaves the sizes out without a warning; a photo URL that answers 404 or
+  isn't an image warns (`theblues-image-size`) (#7).
+- On a wall split across pages, the type chips count the whole list, a gallery split across two pages is headed with
+  all its photos on both, and the caption says it describes the page ("This page: 2 articles, 1 photo"). exampleSite's
+  home (4 tiles per page) read "All 4", "All 3" and "All 1" on its three pages and now reads "All 8, Articles 6,
+  Photos 2" on each; guyheckman.me's Boston Gallery, split at 5 tiles per page, read "4 photos" then "14 photos" and
+  now reads "18 photos" on both. A one-page wall reads as before (#7).
+- The page hero's small sand text (the "Article" / "Photo gallery" label and the date line) stays at 4.5:1 or more over
+  a bright photo however long the title is: the darker part of the scrim starts just above the text, and the rest of
+  the photo keeps a light .45 scrim. Over a white photo with an 84-character title the label is 5.86:1 at 320, 375,
+  768 and 1280px in both modes, up from as low as 3.55:1 (#74).
+- A post whose headings are all outside the `markup.tableOfContents` levels no longer shows an empty "On this page"
+  box. If a Hugo update changes the `<nav id="TableOfContents">` wrapper the theme checks and labels, the build warns
+  (`theblues-toc-markup`) instead of silently dropping the label (#87, #117).
 - Wall pages after the first have their own title: `/page/2/` is "guyheckman.me – Page 2" and `/tags/x/page/2/`
-  "X – Page 2 | guyheckman.me", so tabs, history and screen readers can tell them from page 1. Page 1 and every other
-  page are unchanged. The wall layouts now build their paginator in an `init` block that `baseof.html` runs before
-  `<head>`; `wall-page.html` takes the list page as its context and reads what the new `wall-pager.html` stored (#78).
-
-## [1.2.13] - Unreleased
-
-### Fixed
+  "X – Page 2 | guyheckman.me", so tabs, history and screen readers can tell them from page 1 (#78).
 - Keyboard order in the wall's "View options" popover: Shift+Tab from its first control returns to View options with
-  the popover still open, instead of jumping to Clear and closing it. Tab now goes View options, the popover's
-  controls, then Clear. The popover and controls are in the same place as before (#77).
-
-## [1.2.12] - Unreleased
-
-### Changed
-- The README's syntax-highlighting notes say that line numbers meet contrast only with `noClasses = false`: with
-  Hugo's default inline highlighting, Chroma's styles draw them in a low-contrast gray (`#7f7f7f` in most: 4.0:1 on
-  white, 3.18:1 on a highlighted line, 3.71:1 in the default `monokai`), and inline styles give the theme nothing to
-  override (#76).
-
-## [1.2.11] - Unreleased
-
-### Fixed
-- Long unbroken words and URLs in the body text of the archive, taxonomy index, section and search pages wrap at
-  320px instead of being clipped out of reach (a 100-character URL made the page 858px wide in a 305px viewport;
-  now 305px). Long term names on the taxonomy index wrap too. Pages without such text look the same (#75).
-
-## [1.2.10] - Unreleased
-
-### Fixed
-- The build warning for a `gallery` photo without a `title` identifies the photo: it now gives the photo's `src`, and
-  for a photo inside a `galleries` block the block's line instead of `:1:1`, for example
-  `photo 2 (https://…/i-2-X2.jpg) has no title … ("content/post/g.md:7:1")` (#73).
-
-## [1.2.9] - Unreleased
-
-### Fixed
+  the popover still open, instead of jumping to Clear and closing it (#77).
+- Long unbroken words and URLs in the body text of the archive, taxonomy index, section and search pages, and long
+  term names on the taxonomy index, wrap at 320px instead of being clipped out of reach (a 100-character URL made the
+  page 858px wide in a 305px viewport; now 305px) (#75).
 - Hugo's `[privacy.disqus] disable = true` turns comments off: posts get no "Show comments" button and no
   `comments.js`. Before, the setting was ignored (#72).
-
-### Changed
-- The README lists which of Hugo's `[privacy]` settings apply with this theme: `privacy.googleAnalytics.disable` and
-  `privacy.disqus.disable` do, while `respectDoNotTrack` and the other Google Analytics privacy settings have no effect,
-  since Do Not Track and Global Privacy Control are always honored (#72).
-
-## [1.2.8] - Unreleased
-
-### Fixed
+- The note posts show instead of comments reads "Disqus comments are not loaded outside production builds", which
+  matches when it appears: in any non-production build, not only in development (#84).
 - A post that wraps its `gallery` calls in the `{{% galleries %}}` form, which renders no photos, no longer takes its
-  hero and `og:image` from those hidden photos, and they no longer appear as wall tiles: such a post gets the site
-  cover and, with no other photos, an article tile. The README's share-image and `galleries` notes say so (#71).
-
-## [1.2.7] - Unreleased
+  hero and `og:image` from those hidden photos, and they no longer appear as wall tiles (#71).
+- Tag, category and series pages whose posts have no photos show the header image when `params.header_image` is a
+  relative path such as `img/head.jpg`, instead of a URL that broke under `/tags/x/` (#67).
+- Feeds no longer print an empty `<lastBuildDate>` or one in year 0001 when the listed posts are missing or all
+  undated; the date comes from the newest listed item, and the element is left out when there is none (#68).
+- `params.wall.photosPerGallery` is validated like `tilesPerPage`: 0 or a negative value fails the build with
+  "params.wall.photosPerGallery must be 1 or more (got N)", instead of 0 silently meaning 4 and a negative value
+  failing with Hugo's internal error (#69).
+- A missing theme stylesheet or script fails the build with `theblues: asset "css/main.css" not found in assets/`,
+  instead of publishing every page without it and exiting successfully (#83).
+- The build warning for a `gallery` photo without a `title` gives the photo's `src`, and for a photo inside a
+  `galleries` block the block's line instead of `:1:1` (#73).
+- Posts created with `hugo new` follow the site's `params.showtoc` again: the post archetype no longer writes
+  `showtoc: true` (#90).
 
 ### Security
 - The `embed` shortcode's same-host check can no longer be bypassed. A URL written `https:///own-host/…` (an empty
   host to Hugo, the site's host to a browser) slipped past it and loaded same-origin, where the sandbox gives no
   protection. The build now fails unless the host follows `https://` directly, with no user name, backslash or space
   before the path, and also fails when the URL's host or the site's `baseURL` host is empty (#70).
-
-## [1.2.6] - Unreleased
-
-### Fixed
-- `params.wall.photosPerGallery` is validated like `tilesPerPage`: 0 or a negative value fails the build with
-  "params.wall.photosPerGallery must be 1 or more (got N)". Before, 0 silently meant the default of 4, and a negative
-  value failed with Hugo's internal "sequence length must be non-negative". The README states the range (#69).
-
-## [1.2.5] - Unreleased
-
-### Fixed
-- Feeds no longer print an empty `<lastBuildDate>` or one in year 0001 when the listed posts are missing or all
-  undated (for example a home feed whose main sections have no dated posts while the About page has a date). The date
-  now comes from the newest listed item, and the element is left out when there is none (#68).
-
-## [1.2.4] - Unreleased
-
-### Fixed
-- Tag, category and series pages whose posts have no photos show the header image when `params.header_image` is a
-  path such as `img/head.jpg`: the term hero now makes it absolute (`https://example.org/img/head.jpg`) like every
-  other hero, instead of a relative URL that broke under `/tags/x/` (#67).
-
-## [1.2.3] - Unreleased
-
-### Removed
-- An unused stylesheet rule for `<h1>` inside the archive and tag index body, which has none; the stylesheet is 72
-  bytes smaller and the pages look the same (#63).
-
-## [1.2.2] - Unreleased
-
-### Changed
-- The README and the theme's `hugo.toml` comment name the site configuration `hugo.toml`, the name Hugo's documentation
-  uses; `config.toml` still works (cyvaquero/hugo-site-guyheckman_me#102).
-
-## [1.2.1] - Unreleased
-
-### Added
-- An optional footer menu: `[[menus.footer]]` entries show as links under the social links, in a navigation landmark
-  named "Footer", styled like the social links (44px targets, same colors). Sites without one render the same footer
-  as before (cyvaquero/hugo-site-guyheckman_me#84).
 
 ## [1.2.0] - 2026-10-09
 
@@ -652,33 +355,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
-[1.2.27]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.26]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.25]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.24]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.23]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.22]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.21]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.20]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.19]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.18]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.17]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.16]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.15]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.14]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.13]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.12]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.11]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.10]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.9]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.8]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.7]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.6]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.5]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.4]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.3]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.2]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
-[1.2.1]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...develop
+[1.3.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/cyvaquero/hugo-theme-theblues/releases/tag/1.0.0
