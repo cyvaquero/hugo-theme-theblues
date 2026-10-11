@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.44] - Unreleased
+
+### Added
+- Wall tiles and gallery photos load a size that fits the screen instead of always SmugMug's 1280px X2: they offer
+  SmugMug's M, L and XL sizes as well (`srcset` and `sizes`), when the build knows the photo's size. Photo bytes on
+  guyheckman.me, page scrolled to the end, cache off: the home page 4.81 → 1.12 MB on a one-x screen at 375 or 1280px
+  and 4.81 → 2.66 MB at 1280px on a two-x screen; the Boston gallery 8.12 → 2.23 MB and 8.12 → 4.17 MB; a three-x
+  phone still loads X2, as before. The lightbox still opens the X3 size (#7).
+
 ## [1.2.43] - Unreleased
 
 ### Fixed

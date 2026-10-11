@@ -197,6 +197,11 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   fetches them all. When a photo can't be fetched (offline, a timeout, a server error) the attributes are left out
   without a warning and the tile holds a 3:2 placeholder; when the server answers that the photo doesn't exist (HTTP 404)
   or isn't an image, the build warns (warning ID `theblues-image-size`).
+- When the size is known and the photo is a SmugMug `X2` URL on `photos.smugmug.com`, tiles and gallery images also get
+  a `srcset` of SmugMug's M, L and XL sizes plus X2, with `sizes` matching the masonry columns, so phones and one-x
+  screens load a smaller file (`layouts/_partials/smug-srcset.html`). SmugMug names each size in the URL's path segment
+  and file suffix (`/X2/i-ABC-X2.jpg`, `/L/i-ABC-L.jpg`) and scales it to fit a box: M 600×450, L 800×600, XL 1024×768,
+  X2 1280×960.
 
 ### Known limits
 
