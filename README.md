@@ -177,10 +177,11 @@ layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery)
 layouts/search/section.html  search page (placeholder until the engine is chosen)
 layouts/404.html
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
-layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-sizes, controls, wall, tile-photo, tile-article, photos, is-photo,
-                           smug-full, smug-srcset, img-size, gallery-figure, cover, series-info, series-box, post-nav, page-title,
-                           pagination, date, comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles,
-                           wall-stand, wall-pager, wall-page, term-stats
+layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-sizes, controls, wall, tile-photo, tile-photo-body,
+                           tile-photo-parts, tile-article, photos, is-photo, smug-full, smug-srcset, img-size, gallery-figure,
+                           cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
+                           comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
+                           wall-pager, wall-page, term-stats
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png

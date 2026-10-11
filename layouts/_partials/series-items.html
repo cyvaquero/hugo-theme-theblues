@@ -1,0 +1,12 @@
+{{- /* The list items of one series, rendered once per series rather than once per post in it: a slice of maps with link
+  (the <li> linking to the post) and cur (the <li> for the post being viewed). series-box.html picks one of the two per
+  post, so a long series costs one render of each entry, not one per entry per post.
+  Usage: {{ $items := partialCached "series-items.html" .pages .url }} (.pages and .url from series-info.html)
+*/ -}}
+{{- $out := slice -}}
+{{- range $i, $p := . -}}
+  {{- $out = $out | append (dict
+    "link" (partial "series-item.html" (dict "p" $p "i" $i "cur" false))
+    "cur" (partial "series-item.html" (dict "p" $p "i" $i "cur" true))) -}}
+{{- end -}}
+{{- return $out -}}

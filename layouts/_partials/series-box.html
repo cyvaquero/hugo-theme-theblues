@@ -1,14 +1,14 @@
 {{- /* Series box: "Part N of M: Name", the numbered list of posts and previous/next within the series, for each series
-  the page is in (positions from series-info.html). Post titles go through page-title.html, so an untitled post still
-  gets link text (#65). */ -}}
+  the page is in (positions from series-info.html). The list items are rendered once per series (series-items.html).
+*/ -}}
 {{- range partialCached "series-info.html" . .Path -}}
   {{- $pages := .pages -}}
   {{- $idx := sub .part 1 }}
 <div class="series">
   <strong class="t">Part {{ .part }} of {{ .total }}: <a href="{{ .url }}">{{ .name }}</a></strong>
   <ol>
-    {{- range $i, $p := $pages }}
-    <li>{{ if eq $i $idx }}<strong aria-current="page">{{ add $i 1 }}. {{ partial "page-title.html" $p }}</strong>{{ else }}<a href="{{ $p.RelPermalink }}">{{ add $i 1 }}. {{ partial "page-title.html" $p }}</a>{{ end }}<span class="meta">{{ partial "date.html" (dict "date" $p.Date "format" "Jan 2006") }}</span></li>
+    {{- range $i, $it := partialCached "series-items.html" $pages .url }}
+    {{ if eq $i $idx }}{{ $it.cur }}{{ else }}{{ $it.link }}{{ end }}
     {{- end }}
   </ol>
   <div class="pager">
