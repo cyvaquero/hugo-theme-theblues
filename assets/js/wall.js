@@ -104,10 +104,23 @@
 
   function flow() { var d = document.createElement('div'); d.className = 'mas'; return d; }
 
+  // The article tiles' titles are h3 on the flat wall (h1 > h2 "Posts" > h3). Grouped, the group titles take h3 and the
+  // tile titles become h4, so the outline stays in order (#172). The element is replaced, since its level is its tag.
+  function titles(tag) {
+    items.forEach(function (it) {
+      var h = it.t === 'a' && it.el.querySelector(':scope > h3, :scope > h4');
+      if (!h || h.localName === tag) return;
+      var n = document.createElement(tag);
+      while (h.firstChild) n.appendChild(h.firstChild);
+      it.el.replaceChild(n, h);
+    });
+  }
+
   // Rebuild the wall in the current order, flat or grouped into <details> sections.
   function render() {
     var cmp = sorter();
     stage.textContent = '';
+    titles(S.g ? 'h4' : 'h3');
     if (!S.g) {
       var m = flow();
       items.slice().sort(cmp).forEach(function (it) { m.appendChild(it.el); });
@@ -127,11 +140,14 @@
         if (S.s === 'art') secs.unshift(as); else secs.push(as);
       }
       secs.forEach(function (sc) {
-        var d = document.createElement('details'), sm = document.createElement('summary'), x = document.createElement('span');
+        var d = document.createElement('details'), sm = document.createElement('summary'), h = document.createElement('h3'),
+            x = document.createElement('span');
         d.className = 'grp'; d.open = openGroups[sc.k] !== false;
         d.addEventListener('toggle', function () { openGroups[sc.k] = d.open; });
-        sm.appendChild(document.createTextNode(sc.title + ' · '));
-        x.className = 'meta'; x.textContent = sc.extra; sm.appendChild(x);
+        // The title is a heading inside the summary, so it is in the heading list (#172).
+        h.appendChild(document.createTextNode(sc.title + ' · '));
+        x.className = 'meta'; x.textContent = sc.extra; h.appendChild(x);
+        sm.appendChild(h);
         d.appendChild(sm);
         var m2 = flow();
         sc.its.forEach(function (it) { m2.appendChild(it.el); });
