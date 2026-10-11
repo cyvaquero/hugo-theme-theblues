@@ -158,6 +158,10 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .thm .ic { width: 1.15rem; height: 1.15rem; }
 @media (min-width: 821px) {
   nav.site li.theme { padding: 0; }
+  /* The switch is hidden until theme.js shows it. In the desktop row it keeps its space until then (invisible, so out
+     of the accessibility tree and the tab order), so the links don't move left when it appears. Without JavaScript
+     nojs.css collapses it again (#138). */
+  nav.site li.theme[hidden] { display: flex !important; visibility: hidden; }
   nav.site .menu { display: none; }
   nav.site .links { display: flex; position: static; flex-direction: row; gap: 1.25rem; background: none; border: 0; box-shadow: none; padding: 0; }
   nav.site .links a { border: 0; padding: .35rem 0; }

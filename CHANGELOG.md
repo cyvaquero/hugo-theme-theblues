@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.48] - Unreleased
+
+### Fixed
+- The nav links no longer jump left when the color theme switch appears: on desktop widths the switch keeps its space,
+  invisible, until the theme script shows it, and without JavaScript it still takes no space. On guyheckman.me with the
+  cache off and a slow network, the home and tag pages' layout shift (CLS) at 1280px goes from 0.0024 to 0 in light
+  and dark; at 375px it stays 0 (#138).
+
 ## [1.2.47] - Unreleased
 
 ### Changed
