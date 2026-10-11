@@ -1,0 +1,6 @@
+{{- /*
+  A number that is the same everywhere in one build and different in the next (#164, #191): the time the build first asked
+  for it. Always call it through partialCached, which keeps one value for the build and drops it when Hugo rebuilds.
+  memo.html is the only caller.
+*/ -}}
+{{- return now.UnixNano -}}

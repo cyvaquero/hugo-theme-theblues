@@ -3,6 +3,27 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.8] - Unreleased
+
+### Fixed
+- Walls, term heroes and previous/next links are right after an edit under `hugo --watch`, as they already were under
+  `hugo server`. A page's Store survives a rebuild in both, and the theme kept its per-list and per-site results (a
+  wall's tiles, a term's photo count, the sorted posts behind the previous/next links) in it, skipping the Store only
+  when `hugo.IsServer` was true, so under `--watch` they kept describing posts from before the edit (#164). The
+  rule for when a kept value may be used was copied into six partials; it now lives in one new partial, `memo.html`,
+  which uses a kept value only within the build that kept it, using a per-build number from the new `build-token.html`
+  (Hugo drops the partial cache, and that number with it, at every rebuild). `cover.html`, `is-photo.html`,
+  `photos.html`, `term-stats.html`, `post-nav.html` and `wall-pager.html` call it and no longer look at `hugo.IsServer`;
+  the README lists both new partials (#191). Checked with Hugo 0.167.0 on a site with a five-photo gallery and two
+  articles: after renaming photo 1 and adding a sixth, `hugo --watch` kept writing the home and photos-category walls
+  with "Photo 1 of 5: Photo 1", the term hero with "5 photos" and the neighboring article's previous link with the old
+  title; they now read "Photo 1 of 6: P1 edited", "6 photos" and the new title, the same as a fresh build and as
+  `hugo server`, which was right before and still is. The memo reuses values: on the 550-post site the token is made
+  once per build and every value is kept once (400 `is-photo`, 174 `photos`, 425 `cover`, 14 `term-stats`, 16 wall
+  results and 1 `post-nav` list), and the build takes 0.50 s against 0.48 s before (median of 6, production, minified).
+  Built output of guyheckman.me, the 80-post and 550-post sites and the exampleSite, in a development and a production
+  build, is byte-identical to 1.3.7 apart from the footer version.
+
 ## [1.3.7] - Unreleased
 
 ### Changed

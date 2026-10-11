@@ -1,17 +1,18 @@
 {{- /*
   Cover image for a page: params.image, else the first photo (large size), else the site header image. Returned as an
   absolute URL (absURL leaves full URLs alone), so a relative path works in a hero on any page and in og:image.
-  Kept in the page's Store in production builds, as in photos.html (#7).
+  Kept in the page's Store by memo.html (#7, #164).
 */ -}}
 {{- $key := "theblues-cover" -}}
-{{- $out := cond hugo.IsServer nil (.Store.Get $key) -}}
-{{- if eq $out nil -}}
+{{- $out := "" -}}
+{{- $m := partial "memo.html" (dict "page" . "key" $key) -}}
+{{- if $m }}{{ $out = $m.val }}{{ else -}}
 {{- $c := .Params.image -}}
 {{- if not $c -}}
   {{- with partialCached "photos.html" . .Path -}}{{- $c = (index . 0).full -}}{{- end -}}
 {{- end -}}
 {{- $c = $c | default site.Params.header_image | default "" -}}
 {{- $out = cond (ne $c "") ($c | absURL) "" -}}
-{{- if not hugo.IsServer }}{{ .Store.Set $key $out }}{{ end -}}
+{{- $_ := partial "memo.html" (dict "page" . "key" $key "val" $out) -}}
 {{- end -}}
 {{- return $out -}}

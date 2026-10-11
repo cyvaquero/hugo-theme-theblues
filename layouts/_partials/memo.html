@@ -1,0 +1,28 @@
+{{- /*
+  Keeps a value that is costly to work out in a page's Store, so a big site doesn't recompute it for every use. The one
+  place that decides when a kept value may be used (#191, #164): only while the build that kept it is still the current
+  one. A page's Store survives a rebuild under hugo server and hugo --watch, for pages whose own source didn't change,
+  so a value kept from an earlier build (a wall's tiles, a term's photo count) could describe posts that have since
+  changed. Every value is therefore kept with the build's token, a number that the partial cache hands out unchanged
+  for the whole build (partialCached) and that Hugo throws away, with the rest of the cache, when it rebuilds. A kept
+  value with another token is not used, and is replaced when the new one is kept. Hugo's partial cache itself holds only
+  about a thousand entries (measured with Hugo 0.167), so per-page values kept in it would evict each other on a big site
+  (#7); the token is used on every call, so it stays.
+  Context: dict "page" (the page whose Store keeps the value) "key" (a name for it), and, to keep a value, "val".
+  Without "val" it looks one up: it returns a dict with "val" when a value from this build is kept, else an empty dict.
+  With "val" it keeps it, and returns it. A caller that wants nothing printed assigns the result: {{ $_ := partial … }}.
+  Usage:
+    {{ $m := partial "memo.html" (dict "page" $page "key" $key) }}
+    {{ if $m }}{{ $out = $m.val }}{{ else }}{{ … work $out out … }}{{ $_ := partial "memo.html" (dict "page" $page "key" $key "val" $out) }}{{ end }}
+*/ -}}
+{{- $token := partialCached "build-token.html" "token" -}}
+{{- $out := dict -}}
+{{- if isset . "val" -}}
+  {{- .page.Store.Set .key (dict "token" $token "val" .val) -}}
+  {{- $out = .val -}}
+{{- else -}}
+  {{- with .page.Store.Get .key -}}
+    {{- if eq .token $token }}{{ $out = dict "val" .val }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $out -}}

@@ -1,11 +1,12 @@
 {{- /* Previous (older) and next (newer) post by date, across all posts. Titles go through page-title.html, so an untitled
-  post still gets link text (#65). A production build sorts the posts once and keeps them in the home page's Store, as
-  photos.html does, instead of once per post (#7). */ -}}
+  post still gets link text (#65). memo.html sorts the posts once per build and keeps them in the home page's Store,
+  as photos.html does, instead of once per post (#7); a kept list is never used after a rebuild (#164). */ -}}
 {{- $key := "theblues-post-nav" -}}
-{{- $all := cond hugo.IsServer nil (site.Home.Store.Get $key) -}}
-{{- if eq $all nil -}}
+{{- $all := slice -}}
+{{- $m := partial "memo.html" (dict "page" site.Home "key" $key) -}}
+{{- if $m }}{{ $all = $m.val }}{{ else -}}
   {{- $all = (where site.RegularPages "Section" "in" site.MainSections).ByDate -}}
-  {{- if not hugo.IsServer }}{{ site.Home.Store.Set $key $all }}{{ end -}}
+  {{- $_ := partial "memo.html" (dict "page" site.Home "key" $key "val" $all) -}}
 {{- end -}}
 {{- $older := $all.Next . -}}
 {{- $newer := $all.Prev . -}}
