@@ -3,6 +3,19 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.35] - Unreleased
+
+### Added
+- The README now shows what the theme looks like (#209): a hero picture of the home wall that switches between light
+  and dark with the reader's GitHub theme, and a table with the photo post and its masonry gallery, the lightbox, an
+  article with the table of contents and series box, the wall's "View options" popover, a tag page, the color theme
+  switch, and the phone-width menu. Each image has alt text and the README reads the same without them. They are nine
+  WebP files under `images/` (`readme-*.webp`), 34 to 175 KB each and 0.84 MB in all, captured from the exampleSite in
+  headless Chrome; "Testing the theme" says how (build, viewport sizes, color scheme, pages and states, format and
+  quality) so they can be made again. `images/screenshot.png` and `images/tn.png` for the themes gallery are unchanged:
+  they still match the current look. Each image was looked at after capture: photos loaded, no broken layout. No
+  template or output changed.
+
 ## [1.3.34] - Unreleased
 
 ### Fixed

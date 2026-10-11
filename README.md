@@ -10,6 +10,27 @@ gallery and a `<dialog>` lightbox, articles with a table of contents and series 
 the site's real content with no Hugo warnings, and at the switch from Clean White it produced the same 30 URLs. See "Known
 limits" below and the [open issues](https://github.com/cyvaquero/hugo-theme-theblues/issues).
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/readme-home-dark.webp">
+  <img src="images/readme-home-light.webp" alt="The home page in light mode: a navy hero with the slogan, filter chips and a three-column masonry wall of article tiles and photo tiles.">
+</picture>
+
+The home wall, in the mode that matches your GitHub theme (on a site it follows the reader's system, or the switch in
+the nav). More views, all from the exampleSite fixture:
+
+| | |
+| --- | --- |
+| ![A photo post: a hero over the cover photo, then a three-column masonry gallery.](images/readme-photo-post.webp) | ![The lightbox, a native dialog, open on the first photo with Previous, Next and Close buttons and a 1 / 3 counter.](images/readme-lightbox.webp) |
+| A photo post with its masonry gallery. | The `<dialog>` lightbox. |
+| ![An article with a table of contents beside the text, and the series box at the end.](images/readme-article.webp) | ![The wall's "View options" popover open, with Filter or Highlight, a Sort menu and a Group by gallery switch.](images/readme-view-options.webp) |
+| An article with the table of contents and the series box. | The wall's "View options" popover. |
+| ![A tag page: a hero with the tag name and counts, then a wall of that tag's photos.](images/readme-tag-page.webp) | ![An article page in dark mode, chosen with the System, Light, Dark switch at the right of the nav.](images/readme-theme-switch.webp) |
+| A tag page with its hero and wall. | The color theme switch, set to Dark. |
+| ![The mobile layout at phone width, with the hamburger menu open over the wall.](images/readme-mobile-menu.webp) | |
+| The hamburger menu at phone width. | |
+
+How the images were made is in "Testing the theme" below.
+
 ## Requirements
 
 - Hugo **0.163.3** or later (standard or extended). Earlier versions have published Hugo security advisories, and the theme
@@ -579,6 +600,31 @@ a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder
 compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
 footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does; anything else that differs
 is a change in output.
+
+The screenshots under `images/` (`readme-*.webp`, about 0.8 MB in all) are captured from the exampleSite, so they can be
+made again. `images/screenshot.png` and `images/tn.png` are the themes gallery's own images (1500x1000 and 900x600) and
+are not made this way. To recreate the README images:
+
+- Build the fixture for production with a longer wall and a fixed base URL, since its own settings (4 tiles per page) are
+  made for testing pagination: from `exampleSite`, run `HUGO_PARAMS_WALL_TILESPERPAGE=24 HUGO_PARAMS_WALL_PHOTOSPERGALLERY=4
+  hugo --environment production --minify --themesDir ../.. -b http://127.0.0.1:8099/ -d <dir>`. Serve `<dir>` on port 8099
+  with any static file server.
+- Use headless Chrome (driven over the DevTools protocol by a script kept outside the repo) with device scale factor 1
+  and a 1280x800 viewport for desktop, and 390x844 at scale factor 2 with the mobile flag for the phone. Emulate
+  `prefers-color-scheme: light` (and `dark` for the dark hero), and allow network access only to `127.0.0.1` and
+  `photos.smugmug.com`. Most fixture photos are on `photos.example.org`, which doesn't exist, so the script answers those
+  requests with the three real SmugMug photos of the "SmugMug photos with sizes" post, one per photo.
+- Wait for all images to load, then save `Page.captureScreenshot` with `format: webp` and `quality: 80` (about 35 to
+  175 KB each). The pages and states:
+  - `home-light`, `home-dark`: `/`, scrolled to the top, in light and dark mode.
+  - `photo-post`: `/post/20260104-smugmug-photos/`, scrolled until the gallery is in view (its top 470 px below the
+    viewport top).
+  - `lightbox`: the same page after clicking the first gallery photo.
+  - `article`: `/post/20260105-dated-article/` at 1280x980, scrolled until the table of contents is 380 px from the top.
+  - `view-options`: `/` after clicking "View options", scrolled until the controls row is 20 px from the top.
+  - `tag-page`: `/tags/photos/` at the top.
+  - `theme-switch`: the article page after clicking the Dark button in the nav, with the system in light mode.
+  - `mobile-menu`: `/` at phone size with a clean `localStorage`, after clicking the Menu button.
 
 ## Design decisions
 
