@@ -12,8 +12,8 @@ All notable changes to this theme are documented here. The format follows
   image render hook now calls `https-check.html`, so the same warning (ID `theblues-insecure-photo`, naming the URL) is
   printed once per URL for a Markdown image, in any letter case of the scheme, `--panicOnWarning` fails the build, and a
   site can silence it with `ignoreLogs`. The image is kept and published as written; `https://` and relative images, and
-  page resources, don't warn. The README names Markdown images next to the other cases. Checked with Hugo 0.167.0 on a scratch copy of the exampleSite with two posts: one with `![](http://example.com/a.jpg)`
-  (twice), `HTTP://example.com/b.jpg`, an `https://` image and a page-resource image, the other repeating the first URL.
+  page resources, don't warn. The README names Markdown images next to the other cases. Checked with Hugo 0.167.0 on a scratch
+  copy of the exampleSite with two posts: one with `![](http://example.com/a.jpg)` (twice), `HTTP://example.com/b.jpg`, an `https://` image and a page-resource image, the other repeating the first URL.
   1.3.15 built with no warning; now the build prints two warnings (one per distinct URL, none for the `https://` or
   relative image), `--panicOnWarning` stops it, and the `<img>` HTML of all 34 images is identical to 1.3.15. Built
   output of guyheckman.me and the exampleSite, production (minified, `--panicOnWarning`) and development, matched 1.3.15
