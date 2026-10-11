@@ -21,7 +21,9 @@
   document.addEventListener('click', function (e) {
     if (links.classList.contains('open') && !e.target.closest('nav.site')) set(false);
   });
+  // Escape closes the menu and does nothing else: preventDefault marks it handled, so wall.js doesn't also hide a hovered
+  // photo tile's caption (#227). This listener runs first, since menu.js loads before wall.js.
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !e.defaultPrevented && links.classList.contains('open')) set(false, true);
+    if (e.key === 'Escape' && !e.defaultPrevented && links.classList.contains('open')) { e.preventDefault(); set(false, true); }
   });
 })();
