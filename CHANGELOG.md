@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.54] - Unreleased
+
+### Fixed
+- A post with a negative series `weight` (for example `weight: -1`) is part 1 of its series again. It used to drop out
+  of the series: it got no series box, and the other posts counted one fewer, so a series of three showed "Part 1 of 2"
+  and "Part 2 of 2" and the series' wall chips did the same. Posts with a weight now come first, lowest first, negative
+  weights included, then the posts without one, oldest first, as the README says (#161). Checked by building a series
+  with weights -1, 2, 0 and none: before, the -1 post had no box and the others said "of 4" for five posts; after, the
+  five posts read "Part 1 of 5" to "Part 5 of 5" in that order. The built output of guyheckman.me, 80 posts, 550 posts
+  and the exampleSite, in development and production builds, is byte-for-byte the same apart from the footer version,
+  since none of them uses a negative weight.
+
 ## [1.2.53] - Unreleased
 
 ### Changed

@@ -1,7 +1,7 @@
 {{- /*
   Position of a page in each of its series, in front matter order: returns a slice of maps with name, url, part
   (1-based), total and pages, empty when the page is not in a series. Pages are in Hugo's weight order: posts with a
-  weight first, lowest first, then the rest; oldest first within each (#6). series-box.html renders every
+  weight (negative ones included) first, lowest first, then the rest; oldest first within each (#6). series-box.html renders every
   entry; the "Part N of M" chip on wall tiles (tile-article.html) shows the first.
   Usage: {{ $series := partialCached "series-info.html" $page $page.Path }}
 */ -}}
@@ -9,7 +9,8 @@
 {{- $out := slice -}}
 {{- range .GetTerms "series" -}}
   {{- $byDate := .RegularPages.ByDate -}}
-  {{- $pages := (sort (where $byDate "Weight" "gt" 0) "Weight") | append (where $byDate "Weight" 0) -}}
+  {{- /* "ne 0", not "gt 0": Hugo accepts negative weights and sorts them first, and a "gt 0" / "eq 0" pair drops them from the series (#161). */ -}}
+  {{- $pages := (sort (where $byDate "Weight" "ne" 0) "Weight") | append (where $byDate "Weight" 0) -}}
   {{- $part := 0 -}}
   {{- range $i, $p := $pages -}}{{- if eq $p.RelPermalink $page.RelPermalink -}}{{- $part = add $i 1 -}}{{- end -}}{{- end -}}
   {{- if $part -}}
