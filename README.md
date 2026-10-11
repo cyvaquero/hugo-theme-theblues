@@ -339,6 +339,10 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   the series box's `Jan 2006` are the `dateFormatDay` and `dateFormatMonth` entries), `showtoc` (site-wide default for
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), and the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
+- Defaults for the hero and 404 texts: `slogan` is the site `title` when unset; `tagline` is `params.description` when
+  unset; `title_404` is the theme's "Page not found" (the `pageNotFound` entry of `i18n/en.toml`, so it is translated
+  with the rest). A post's front matter `subtitle` shows only in a post's own hero, where it falls back to the post's
+  `description`; every other page's hero shows its `description` alone.
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
   (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`), `theblues-addtional-menus`
   (the deprecated legacy menu, below), `theblues-image-size` (a wall or gallery photo URL that answers 404 or isn't an
