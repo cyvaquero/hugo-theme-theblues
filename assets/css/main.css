@@ -270,7 +270,11 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile { margin: 0 0 var(--gap); break-inside: avoid; position: relative; border-radius: 8px; display: block; }
 /* Photo tile: image only, camera badge, caption on hover or focus (always visible on touch). */
 .tile.photo { overflow: hidden; background: var(--code); }
-.tile.photo img { width: 100%; height: auto; aspect-ratio: auto 3 / 2; }
+.tile.photo img { width: 100%; height: auto; }
+/* Until it loads, an image has the shape of its width and height attributes, read at build time (img-size.html, #7);
+   without them (the size couldn't be read) it holds a 3:2 placeholder. An aspect-ratio here would override the
+   attributes, so it is set only on images without them. Same for gallery images. */
+.tile.photo img:not([width]) { aspect-ratio: auto 3 / 2; }
 .tile.photo a.cover { display: block; }
 .tile.photo .badge { position: absolute; top: .5rem; left: .5rem; display: inline-flex; gap: .35rem; align-items: center; background: rgb(var(--scrim) / .88); color: var(--bt); border-radius: 99px; padding: .15rem .6rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
 .tile.photo figcaption { position: absolute; inset: auto 0 0 0; padding: 2.5rem .8rem .7rem; background: linear-gradient(transparent, rgb(var(--scrim) / .85) 2.5rem, rgb(var(--scrim) / .92)); color: var(--bt); font-size: .92rem; opacity: 0; pointer-events: none; }
@@ -336,7 +340,8 @@ details.grp > summary .meta { font: 400 .85rem var(--sans); }
 .gal { max-width: var(--wide); margin: 1.5rem auto 0; padding: 0 1rem; }
 .gal figure { margin: 0 0 var(--gap); break-inside: avoid; border-radius: 8px; overflow: hidden; background: var(--code); }
 .gal a { display: block; }
-.gal img { width: 100%; height: auto; aspect-ratio: auto 3 / 2; }
+.gal img { width: 100%; height: auto; }
+.gal img:not([width]) { aspect-ratio: auto 3 / 2; }
 dialog.lb { border: 0; padding: 0; background: transparent; width: 100%; height: 100%; max-width: 100vw; max-height: 100vh; max-height: 100dvh; }
 html:has(dialog.lb[open]) { overflow: hidden; }  /* no page scrolling behind the lightbox */
 dialog.lb::backdrop { background: rgb(0 0 0 / .9); }

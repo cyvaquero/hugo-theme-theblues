@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.43] - Unreleased
+
+### Fixed
+- Wall tiles and gallery photos keep their shape while they load, so the masonry no longer reshuffles as photos arrive:
+  the build reads each photo's width and height (downloading it once into Hugo's resource cache) and puts them on the
+  image. On guyheckman.me's home page 7 of 12 photo tiles changed height when their photo loaded and 10 to 11 tiles
+  moved; on the Boston gallery 9 of 18 changed height and 15 to 16 moved (375 and 1280px). Now none do, and the loaded
+  pages look the same. A cold build of guyheckman.me (empty cache, 33 photos, 14 MB downloaded) takes about 1.5 s instead of
+  97 ms; with the cache warm it takes 100 to 101 ms. An offline build leaves the sizes out without a warning; a photo URL that
+  answers 404 or isn't an image warns (`theblues-image-size`) (#7).
+
 ## [1.2.42] - Unreleased
 
 ### Fixed
