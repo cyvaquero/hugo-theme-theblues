@@ -133,6 +133,12 @@ A site can add its own page types without overriding theme files:
   it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`.
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
   `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
+- **Analytics:** `layouts/_partials/analytics-on.html` returns `true` when the theme loads Google Analytics on the page
+  (a production build, `[services.googleAnalytics] id` set, `[privacy.googleAnalytics] disable` not set) and `false`
+  otherwise. `head.html` uses the same partial, so a site that shows an analytics notice only when analytics loads
+  stays in step with the theme: `{{ if partial "analytics-on.html" . }}…{{ end }}`. Its name and result are kept
+  stable; a change is called out in the CHANGELOG. Theme versions before 1.2.49 don't have it; a site that must build
+  with them can check `templates.Exists "_partials/analytics-on.html"` first.
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
   `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
@@ -171,7 +177,7 @@ layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery)
 layouts/search/section.html  search page (placeholder until the engine is chosen)
 layouts/404.html
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
-layouts/_partials/         head, head-end, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, gallery-figure, cover,
+layouts/_partials/         head, head-end, analytics-on, nav, hero, controls, wall, tile-photo, tile-article, photos, is-photo, smug-full, gallery-figure, cover,
                            series-info, series-box, post-nav, page-title, pagination, date, comments, social, footer, search, asset, script,
                            stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page, term-stats
@@ -266,7 +272,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 - `[[menus.footer]]` (optional): links shown in the footer under the social links, in a navigation landmark named
   "Footer", for example a privacy note (`url = "/about/#privacy"`) or a page (`pageRef`).
 - `[services.googleAnalytics] id`:
-  - Analytics loads only in production builds, unless `[privacy.googleAnalytics] disable = true`.
+  - Analytics loads only in production builds, unless `[privacy.googleAnalytics] disable = true`. A site can ask the
+    theme whether it loads with `layouts/_partials/analytics-on.html` (see Extending from a site).
   - A visitor who sends Do Not Track or Global Privacy Control gets nothing: no gtag.js request and no hit.
 - `[services.disqus] shortname`: comments are click to load. Posts show a "Show comments" button, and nothing from Disqus
   loads before it is clicked. Builds for other environments (`hugo server`, `--environment staging`) show a note
