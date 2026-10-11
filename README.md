@@ -26,7 +26,7 @@ the nav). More views, all from the exampleSite fixture:
 | An article with the table of contents and the series box. | The wall's "View options" popover. |
 | ![A tag page: a hero with the tag name and counts, then a wall of that tag's photos.](images/readme-tag-page.webp) | ![An article page in dark mode, chosen with the System, Light, Dark switch at the right of the nav.](images/readme-theme-switch.webp) |
 | A tag page with its hero and wall. | The color theme switch, set to Dark. |
-| ![The mobile layout at phone width, with the hamburger menu open over the wall.](images/readme-mobile-menu.webp) | |
+| <img src="images/readme-mobile-menu.webp" width="260" alt="The mobile layout at phone width, with the hamburger menu open over the wall."> | |
 | The hamburger menu at phone width. | |
 
 How the images were made is in "Testing the theme" below.
