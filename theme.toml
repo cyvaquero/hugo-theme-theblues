@@ -12,8 +12,9 @@ min_version = "0.163.3"
   name = "Guy Heckman"
   homepage = "https://guyheckman.me"
 
-# Baseline for the original layout and behavior.
+# Baseline for the original layout and behavior: the Clean White theme.
 # Started from (see NOTICE).
 [original]
-  name = "Clean White"
-  homepage = "https://github.com/zhaohuabing/hugo-theme-cleanwhite"
+  author = "Huabing Zhao"
+  homepage = "https://zhaohuabing.com"
+  repo = "https://github.com/zhaohuabing/hugo-theme-cleanwhite"
