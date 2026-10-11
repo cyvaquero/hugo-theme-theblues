@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.32] - Unreleased
+
+### Fixed
+- The mockups README now says "site issue #4" where it said "issue #4" (#183). Issue #4 is in the site repo
+  (`cyvaquero/hugo-site-guyheckman_me`), not this one, as `docs/retheme/decisions.md` already writes it. Documentation
+  only; no template or output changed.
+
 ## [1.3.31] - Unreleased
 
 ### Fixed
