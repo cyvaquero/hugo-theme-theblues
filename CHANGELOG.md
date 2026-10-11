@@ -3,6 +3,25 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.11] - Unreleased
+
+### Fixed
+- The README now says when Google Analytics loads and that the theme has no consent step (#176). It loads as soon as
+  a page is viewed, for every visitor who doesn't send Do Not Track or Global Privacy Control, in a production build
+  with a GA ID and `[privacy.googleAnalytics] disable` unset; the theme has no consent banner, prompt or gate. A site
+  that needs consent (GDPR, the ePrivacy Directive) must gate or disable analytics itself: set
+  `[privacy.googleAnalytics] disable = true` or leave the GA ID out, and load Google Analytics from its own consent
+  code (for example in `head-end.html`), or put its own `assets/js/analytics.js` in the site. The text is under
+  `[services.googleAnalytics] id` in "Site settings it reads", with pointers from the JavaScript list, the Analytics
+  note under "Extending from a site" and the `disable` line of the privacy settings. Documentation only. Checked
+  against `head.html`, `analytics-on.html` and `analytics.js` with Hugo 0.167.0 and headless Chrome on a production
+  build with a GA ID: with no signal the page requests `https://www.googletagmanager.com/gtag/js?id=…` on load and
+  fills `dataLayer`, with no click or prompt; with `navigator.globalPrivacyControl` true or `navigator.doNotTrack` `"1"`
+  there is no request and no `gtag`; `doNotTrack` `"0"` loads it. `disable = true` and a development build leave out
+  the script tag and file, and a site's own `assets/js/analytics.js` replaces the theme's in the page and gets the ID
+  as `data-id`. Built output of guyheckman.me, the 80-post and 550-post sites and the exampleSite, in development and
+  production builds, is byte-identical to 1.3.10 apart from the footer version.
+
 ## [1.3.10] - Unreleased
 
 ### Added
