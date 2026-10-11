@@ -3,6 +3,22 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.7] - Unreleased
+
+### Changed
+- The `exampleSite` fixtures now exercise the image-size, `srcset` and hero-size code, which none of them reached
+  before (they pointed at a made-up host, and the header image `img/head.jpg` did not exist), so the README's
+  before-and-after comparison of fixture output could not catch a regression in those partials (#193). Added
+  `static/img/head.jpg` (9 KB), a gallery post of three real `photos.smugmug.com` photos (two landscape, one portrait)
+  and an article whose `image` is a SmugMug X3 URL. A fixture build now writes `width`/`height` and a `srcset` of M, L,
+  XL and X2 on 13 images, the hero's `--hi1` to `--hi4` sizes on two pages, and the matching preloads. Photos are
+  fetched on the first build and then come from Hugo's cache; a fresh-cache build and a cached one give identical
+  output. Nothing changes for sites that use the theme. Checked with Hugo 0.167.0: development and production builds of
+  the exampleSite pass `--panicOnWarning --printPathWarnings --printUnusedTemplates`; against 1.3.6 the output differs
+  only by the two new posts, their tiles, pages, feed and sitemap entries and archive, tag and category lists, the
+  pager pages the extra tiles add, the previous/next links of the neighboring posts, and `img/head.jpg`. Output of
+  guyheckman.me, the 80-post and 550-post sites is byte-identical to 1.3.6 apart from the footer version.
+
 ## [1.3.6] - Unreleased
 
 ### Changed
