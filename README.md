@@ -200,7 +200,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   article layout (reading time, table of contents) on its own page.
 - Tiles carry `data-type`, `data-date`, `data-order` (and `data-gallery`, `data-gallery-title` and `data-n`, the
   gallery's photo count, on photos), which `wall.js` reads; `#stage` carries the whole list's article and photo tile
-  counts (`data-articles`, `data-photos`) for the type chips. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+  counts (`data-articles`, `data-photos`) for the type chips and its number of pager pages (`data-pages`), which makes the
+  caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
 - Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
