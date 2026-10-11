@@ -4,9 +4,11 @@
 // "View options" popover (Mode, Sort, Group by gallery, Reset), a Clear button and a live caption.
 // Tiles carry data-type (photo|article), data-gallery, data-gallery-title, data-n (photos in the gallery), data-date and
 // data-order.
-// Counts and groups are computed from the tiles on the current page (the wall is paginated by tile). The "see all" tile of a
-// gallery (data-more) is a link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and
-// groups like a photo tile and always stays last in its gallery.
+// The type chips count the whole list, from #stage's data-articles and data-photos (article and photo tiles on every pager
+// page, #7); the caption, groups and sorting work on the tiles on the current page (the wall is paginated by tile), and the
+// caption starts "This page:" instead of "Showing" when the list has tiles on other pages. The "see all" tile of a gallery (data-more) is a
+// link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and groups like a photo
+// tile and always stays last in its gallery.
 (function () {
   var stage = document.getElementById('stage'), ctl = document.getElementById('ctl');
   if (!stage || !ctl) return;
@@ -38,7 +40,10 @@
   });
   var NA = items.filter(function (i) { return i.t === 'a'; }).length;
   var NP = items.filter(function (i) { return i.t === 'p' && i.more < 0; }).length;
-  var NT = NA + NP;
+  // Whole-list counts from the build; a wall without them (an older or custom wall.html) counts this page.
+  function total(v, here) { return v !== undefined && v !== '' && !isNaN(+v) ? +v : here; }
+  var TA = total(stage.dataset.articles, NA), TP = total(stage.dataset.photos, NP);
+  var paged = TA + TP !== NA + NP, shows = paged ? 'This page: ' : 'Showing ';
 
   var DEF = { f: 'all', m: 'filter', s: 'new', g: false };
   var S = { f: DEF.f, m: DEF.m, s: DEF.s, g: DEF.g };
@@ -79,10 +84,10 @@
       d.hidden = !d.querySelector('.tile:not([hidden])');
     });
     var s;
-    if (S.m === 'filter') s = 'Showing ' + plural(vis.a, 'article') + ', ' + plural(vis.p, 'photo');
-    else if (S.f === 'all') s = 'Showing ' + plural(NA, 'article') + ', ' + plural(NP, 'photo') + ' (highlight: pick a type)';
+    if (S.m === 'filter') s = shows + plural(vis.a, 'article') + ', ' + plural(vis.p, 'photo');
+    else if (S.f === 'all') s = shows + plural(NA, 'article') + ', ' + plural(NP, 'photo') + ' (highlight: pick a type)';
     else s = 'Highlighting ' + (S.f === 'article' ? plural(NA, 'article') + '; ' + plural(NP, 'photo') + ' dimmed'
-                                                  : plural(NP, 'photo') + '; ' + plural(NA, 'article') + ' dimmed');
+                                                  : plural(NP, 'photo') + '; ' + plural(NA, 'article') + ' dimmed') + (paged ? ' on this page' : '');
     if (S.g && vis.p) s += ', grouped into ' + galleryList.length + (galleryList.length === 1 ? ' gallery' : ' galleries');
     if (cap.textContent !== s) cap.textContent = s;  // the caption is a live region: announce changes only
     sync();
@@ -143,9 +148,9 @@
     qa('[data-role=clear],[data-role=reset]').forEach(function (e) { e.hidden = !any; });
   }
 
-  // Chip counts come from the tiles on this page.
+  // Chip counts are the whole list's.
   qa('[data-f]').forEach(function (b) {
-    b.querySelector('.n').textContent = b.dataset.f === 'all' ? NT : b.dataset.f === 'article' ? NA : NP;
+    b.querySelector('.n').textContent = b.dataset.f === 'all' ? TA + TP : b.dataset.f === 'article' ? TA : TP;
   });
 
   // Popover: closes on Esc (focus returns to the button) and on outside click.

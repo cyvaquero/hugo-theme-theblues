@@ -190,7 +190,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   photo. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
   for series posts). A photo post with no parsable photos falls back to a single article tile.
 - Tiles carry `data-type`, `data-date`, `data-order` (and `data-gallery`, `data-gallery-title` and `data-n`, the
-  gallery's photo count, on photos), which `wall.js` reads. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+  gallery's photo count, on photos), which `wall.js` reads; `#stage` carries the whole list's article and photo tile
+  counts (`data-articles`, `data-photos`) for the type chips. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
 - Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
@@ -207,8 +208,9 @@ exampleSite/               fixture site for testing the theme (see Testing the t
 
 ### Known limits
 
-- The wall is paginated **by tile**, 24 per page (`params.wall.tilesPerPage`), so chip counts, the caption and group-by are
-  per page, and a gallery can be split across two pages; its "Group by gallery" heading still counts all its photos. With the current content (5 articles and 3 galleries) everything
+- The wall is paginated **by tile**, 24 per page (`params.wall.tilesPerPage`). The type chips count the whole list, but
+  filtering, the caption (which starts "This page:" when the list has more than one page), sorting and group-by work on
+  the tiles of the current page, and a gallery can be split across two pages; its "Group by gallery" heading still counts all its photos. With the current content (5 articles and 3 galleries) everything
   fits on one page of 20 tiles. Hugo's `.Paginate` only accepts a collection of pages, so
   `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
