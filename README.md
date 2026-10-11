@@ -489,7 +489,9 @@ on photos):
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.
 Photo tiles have names that start with their visible text ("Monterrey, Mexico Gallery, 9 photos, Feb 13, 2025. Photo 1
 of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a visually hidden "Posts" h2, and wall
-pages after the first have their own title.
+pages after the first have their own title. With Group by gallery on, each group title ("Articles · 5 articles") is an
+h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
+box title ("Part 2 of 3: Name") is an h2.
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
 system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). In forced-colors mode (Windows high

@@ -3,6 +3,26 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.18] - Unreleased
+
+### Fixed
+- Group titles on the wall and the series box title are now headings (#172). With "Group by gallery" on, each group
+  ("Articles · 5 articles", "Boston Gallery · Jan 7, 2026 · 4 photos") was only a disclosure triangle styled like a
+  heading, and the series box title ("Part 2 of 3: Name") was a `<strong>`, so a screen reader's heading list skipped
+  them. Each group title is now an `<h3>` inside its `<summary>`, and `wall.js` turns the article tiles' `<h3>` into
+  `<h4>` while the wall is grouped (and back when it isn't), so the outline reads h1, h2 "Posts", h3 group, h4 tile;
+  the series box title is an `<h2>`. They look as before. The flat wall's markup and the series box's CSS class are
+  unchanged apart from the tag. A site whose own CSS targets `.tile.article h3` needs `h4` as well, and one that
+  styles `.series strong.t` needs `.series .t`. The README's accessibility section describes the outline. WCAG 1.3.1 Info and
+  Relationships (A), Section 508 E205.4. Checked with Hugo 0.167.0 and headless Chrome (accessibility tree) on the
+  exampleSite: 1.3.17 listed h1, h2 "Posts" and three h3 tiles, flat or grouped, and the series post had no heading
+  for the box; now grouped it lists h3 "A photo gallery · Jan 7, 2026 · 4 photos", h3 "Articles · 3 articles" and the
+  three tiles as h4, flat is unchanged after grouping and ungrouping, and the series post lists h2 "Part 1 of 2: Fixture
+  Series". The group rows measured the same height and the same count position at 1280px and 390px (the count
+  that wraps below the title at 390px now lines up with the title instead of the triangle). Built output of
+  guyheckman.me and the exampleSite differs from 1.3.17 only in the series box markup of posts in a series, the
+  fingerprints and the footer version.
+
 ## [1.3.17] - Unreleased
 
 ### Fixed

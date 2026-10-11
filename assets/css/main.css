@@ -214,7 +214,8 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .tag { display: inline-block; border: 1px solid var(--line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem .25rem .15rem 0; text-decoration: none; }
 .meta { font-size: .85rem; color: var(--muted); }
 .series { border: 1px solid var(--line); border-left: .9rem solid var(--link); border-radius: 4px; padding: 1rem; background: var(--surface); margin: 2.5rem 0; }
-.series .t { display: block; font: 700 1.15rem / 1.3 var(--serif); }
+/* The title is an h2 (#172): the box is a section of the post, and its title belongs in the heading list. */
+.series .t { display: block; font: 700 1.15rem / 1.3 var(--serif); margin: 0; }
 .series ol { list-style: none; margin: .5rem 0 1rem; padding: 0; }
 .series li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); padding: .35rem 0; font-size: .95rem; }
 .series li .meta { flex: none; }
@@ -314,10 +315,10 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.article { background: var(--art-bg); color: var(--art-fg); border: 1px solid var(--art-line); border-left: 8px solid var(--hv); border-radius: 4px 10px 10px 4px; padding: 1rem 1.1rem 1rem 1rem; }
 .tile.article .lbl { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; font-size: .72rem; letter-spacing: .14em; font-weight: 700; color: var(--art-sub); text-transform: uppercase; }
 .tile.article .chip { margin-left: auto; border: 1px solid var(--art-sub); border-radius: 99px; padding: 0 .6rem; letter-spacing: .04em; text-transform: none; font-weight: 600; font-size: .76rem; }
-.tile.article h3 { font: 700 1.3rem / 1.25 var(--serif); margin: .55rem 0 .4rem; overflow-wrap: anywhere; }
-.tile.article h3 a { color: var(--art-fg); text-decoration: none; }
-.tile.article h3 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }  /* whole tile is the link */
-.tile.article h3 a:hover { color: var(--hv); text-decoration: underline; }
+.tile.article :is(h3, h4) { font: 700 1.3rem / 1.25 var(--serif); margin: .55rem 0 .4rem; overflow-wrap: anywhere; }
+.tile.article :is(h3, h4) a { color: var(--art-fg); text-decoration: none; }
+.tile.article :is(h3, h4) a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }  /* whole tile is the link */
+.tile.article :is(h3, h4) a:hover { color: var(--hv); text-decoration: underline; }
 .tile.article p { margin: 0 0 .6rem; font-size: .95rem; line-height: 1.5; color: var(--art-fg); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .tile.article .meta { color: var(--art-sub); font-size: .8rem; }
 .tile .meta a { position: relative; z-index: 1; display: inline-block; min-height: 24px; line-height: 24px; color: inherit; text-decoration: underline; text-underline-offset: .15em; margin-left: .35rem; }
@@ -326,8 +327,8 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 /* The whole tile shows the focus ring of its cover link, in --focus on the page (5.4:1 light, 8.1:1 dark). Only where
    :has() works: elsewhere the link keeps the default ring. */
 @supports selector(:has(*)) {
-  .tile.photo:has(> a:focus-visible), .tile.article:has(h3 a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
-  .tile.photo > a:focus-visible, .tile.article h3 a:focus-visible { outline: 0; }
+  .tile.photo:has(> a:focus-visible), .tile.article:has(:is(h3, h4) a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .tile.photo > a:focus-visible, .tile.article :is(h3, h4) a:focus-visible { outline: 0; }
 }
 .tile .meta a:hover { color: var(--hv); }
 /* Highlight mode and chip preview: the others turn gray and their photos fade, while their text keeps full contrast
@@ -338,12 +339,15 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.dim:hover, .tile.dim:focus-within { filter: none; }
 .tile.dim:hover img, .tile.dim:focus-within img { opacity: 1; }
 .tile.hl, #stage[data-pv=article] .tile.article, #stage[data-pv=photo] .tile.photo { outline: 3px dashed var(--muted); outline-offset: 3px; box-shadow: 0 0 0 1px var(--muted); }
-/* Group by gallery. */
+/* Group by gallery. Each title is an h3 inside its summary (#172), so it is in the heading list; wall.js turns the article
+   tiles' h3 into h4 while the wall is grouped, so the outline stays h2 (Posts) > h3 (group) > h4 (tile). The h3 is a flex
+   row of its own that lays out the title and the count the way the summary did, so the groups look as before. */
 details.grp { margin: 0 0 1.5rem; }
 details.grp > summary { cursor: pointer; font: 700 1.3rem / 1.3 var(--serif); padding: .6rem .2rem; min-height: 44px; border-bottom: 2px solid var(--line); margin-bottom: var(--gap); display: flex; align-items: center; flex-wrap: wrap; gap: .2rem .5rem; list-style: none; }
 details.grp > summary::-webkit-details-marker { display: none; }
 details.grp > summary::before { content: "\25B8"; content: "\25B8" / ""; display: inline-block; }
 details.grp[open] > summary::before { content: "\25BE"; content: "\25BE" / ""; }
+details.grp > summary > h3 { display: flex; align-items: center; flex-wrap: wrap; gap: .2rem .5rem; flex: 1 1 0; min-width: 0; margin: 0; font: inherit; }
 details.grp > summary .meta { font: 400 .85rem var(--sans); }
 
 /* 9 Pagination and post navigation ----------------------------------------------------------------------- */
@@ -498,7 +502,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .phero .in { background: none !important; }
   .hero .k, .phero .sub, .phero .meta, .phero .ptype, .phero .tag, .phero a { color: #000; }
   .tile.article { background: none; border-color: #000; }
-  .tile.article, .tile.article h3 a, .tile.article p, .tile.article .meta, .tile.article .lbl { color: #000; }
+  .tile.article, .tile.article :is(h3, h4) a, .tile.article p, .tile.article .meta, .tile.article .lbl { color: #000; }
   .tile.photo figcaption { opacity: 1; position: static; background: none; color: #000; padding: .3rem 0; }
   .tile.photo figcaption .meta { color: #000; }
   footer.site { background: none; color: #000; }
