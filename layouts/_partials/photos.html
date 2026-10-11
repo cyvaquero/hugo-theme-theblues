@@ -7,14 +7,16 @@
     inside it are dropped too, so they are not shown on walls or used as a cover or share image (#71).
   - Arguments are parsed like Hugo's: named (src=, title=) or positional (the first is src), quoted with "…" (\" and \\
     escapes) or `…`, so a } or > inside a quoted title and an escaped quote are read correctly.
-  A production build also keeps the result in the page's Store, since partialCached alone recomputes it on a big site:
+  The result is also kept in the page's Store by memo.html, since partialCached alone recomputes it on a big site:
   Hugo's partial cache holds about a thousand entries (measured with Hugo 0.167), so per-page entries evict each
-  other (#7). Not under hugo server, where a page's Store survives a template edit and would go stale.
+  other (#7). memo.html uses a kept result only within the build that kept it, so a rebuild under hugo server or
+  hugo --watch never shows an old one (#164).
   Usage: {{ $photos := partialCached "photos.html" $page $page.Path }}
 */ -}}
 {{- $key := "theblues-photos" -}}
-{{- $out := cond hugo.IsServer nil (.Store.Get $key) -}}
-{{- if eq $out nil -}}
+{{- $out := slice -}}
+{{- $m := partial "memo.html" (dict "page" . "key" $key) -}}
+{{- if $m }}{{ $out = $m.val }}{{ else -}}
 {{- $raw := replaceRE `(?s)<!--.*?-->` "" .RawContent -}}
 {{- $raw = replaceRE `(?s)\{\{%\s*galleries\b.*?\{\{%\s*/galleries\s*%\}\}` "" $raw -}}
 {{- $q := "\"(?:[^\"\\\\]|\\\\.)*\"|`[^`]*`" -}}
@@ -34,6 +36,6 @@
     {{- $out = $out | append (dict "src" $src "full" (partialCached "smug-full.html" $src $src) "title" $title) -}}
   {{- end -}}
 {{- end -}}
-{{- if not hugo.IsServer }}{{ .Store.Set $key $out }}{{ end -}}
+{{- $_ := partial "memo.html" (dict "page" . "key" $key "val" $out) -}}
 {{- end -}}
 {{- return $out -}}
