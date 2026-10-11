@@ -171,10 +171,10 @@ A site can add its own page types without overriding theme files:
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
   `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
 - **Analytics:** `layouts/_partials/analytics-on.html` returns `true` when the page includes the theme's Google
-  Analytics loader (`analytics.js`): a production build, `[services.googleAnalytics] id` set and `[privacy.googleAnalytics]
-  disable` not set. It is `false` otherwise. It is decided per build, not per visitor: the loader still loads nothing
-  for visitors who send Do Not Track or Global Privacy Control. `head.html` uses the same partial, so a site that shows an analytics notice only when analytics loads
-  stays in step with the theme: `{{ if partial "analytics-on.html" . }}…{{ end }}`. Its name and result are kept
+  Analytics loader (`analytics.js`): a production build, `[services.googleAnalytics] id` set and
+  `[privacy.googleAnalytics] disable` not set. It is `false` otherwise. It is decided per build, not per visitor: the
+  loader still loads nothing for visitors who send Do Not Track or Global Privacy Control. `head.html` uses the same
+  partial, so a site that shows an analytics notice only when analytics loads stays in step with the theme: `{{ if partial "analytics-on.html" . }}…{{ end }}`. Its name and result are kept
   stable; a change is called out in the CHANGELOG. Theme versions before 1.2.49 don't have it; a site that must build
   with them can check `templates.Exists "_partials/analytics-on.html"` first. The theme itself shows no notice and asks
   for no consent before it loads analytics (see `[services.googleAnalytics] id` under "Site settings it reads").
@@ -347,8 +347,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
   devices and screen readers. See Accessibility below.
 - Build time grows with the number of posts and list pages: each list page (home, section, every term) builds its own
-  tile list, once for all its pager pages. 550 posts built in about 0.5 s (median of 9 production, minified builds with a warm
-  cache, Hugo 0.167.0, theme 1.3.27); times depend on the machine, so compare runs on your own.
+  tile list, once for all its pager pages. 550 posts built in about 0.5 s (median of 9 production, minified builds
+  with a warm cache, Hugo 0.167.0, theme 1.3.27); times depend on the machine, so compare runs on your own.
 
 ## Site settings it reads
 
