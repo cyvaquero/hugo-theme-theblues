@@ -9,15 +9,30 @@
 */ -}}
 {{- $out := dict -}}
 {{- if eq . "wall" -}}
-  {{- $out = dict
-    "articleCount" (dict "one" ((or (T "articleCount" (dict "count" 1 "Count" "%d")) (partial "t.html" (slice "articleCount" (dict "count" 1 "Count" "%d"))))) "other" ((or (T "articleCount" (dict "count" 2 "Count" "%d")) (partial "t.html" (slice "articleCount" (dict "count" 2 "Count" "%d"))))))
-    "photoCount" (dict "one" ((or (T "photoCount" (dict "count" 1 "Count" "%d")) (partial "t.html" (slice "photoCount" (dict "count" 1 "Count" "%d"))))) "other" ((or (T "photoCount" (dict "count" 2 "Count" "%d")) (partial "t.html" (slice "photoCount" (dict "count" 2 "Count" "%d"))))))
-    "grouped" (dict "one" ((or (T "grouped" (dict "count" 1 "Count" "%d")) (partial "t.html" (slice "grouped" (dict "count" 1 "Count" "%d"))))) "other" ((or (T "grouped" (dict "count" 2 "Count" "%d")) (partial "t.html" (slice "grouped" (dict "count" 2 "Count" "%d"))))))
+  {{- /*
+    The three counts, as {one, other} with %d for the number (#249). T gets one plain number, 1 for the one form and 2
+    for the other, because a map with two count keys ("count" and "Count") makes Hugo choose the plural from either of
+    them, at random, and the string one reads as "other": a count of 1 then came out plural on some builds. The number is
+    then swapped for %d, the first whole number in the text (the entry puts it first or near it; \b keeps 2 from matching
+    inside 12 or 2025). An entry without the number, like "ein Artikel", is left as it is. The t.html fallback gets the
+    same plain number.
+  */ -}}
+  {{- $counts := dict -}}
+  {{- range slice "articleCount" "photoCount" "grouped" -}}
+    {{- $key := . -}}
+    {{- $forms := dict -}}
+    {{- range $form, $n := dict "one" 1 "other" 2 -}}
+      {{- $text := or (T $key $n) (partial "t.html" (slice $key $n)) -}}
+      {{- $forms = merge $forms (dict $form (replaceRE (printf `\b%d\b` $n) "%d" $text 1)) -}}
+    {{- end -}}
+    {{- $counts = merge $counts (dict $key $forms) -}}
+  {{- end -}}
+  {{- $out = merge $counts (dict
     "articles" ((or (T "articles") (partial "t.html" "articles"))) "on" ((or (T "on") (partial "t.html" "on"))) "off" ((or (T "off") (partial "t.html" "off"))) "active" ((or (T "active") (partial "t.html" "active")))
     "showing" ((or (T "captionShowing") (partial "t.html" "captionShowing"))) "showingPage" ((or (T "captionShowingPage") (partial "t.html" "captionShowingPage")))
     "pick" ((or (T "captionPick") (partial "t.html" "captionPick"))) "pickPage" ((or (T "captionPickPage") (partial "t.html" "captionPickPage")))
     "highlightArticles" ((or (T "highlightArticles") (partial "t.html" "highlightArticles"))) "highlightArticlesPage" ((or (T "highlightArticlesPage") (partial "t.html" "highlightArticlesPage")))
-    "highlightPhotos" ((or (T "highlightPhotos") (partial "t.html" "highlightPhotos"))) "highlightPhotosPage" ((or (T "highlightPhotosPage") (partial "t.html" "highlightPhotosPage"))) -}}
+    "highlightPhotos" ((or (T "highlightPhotos") (partial "t.html" "highlightPhotos"))) "highlightPhotosPage" ((or (T "highlightPhotosPage") (partial "t.html" "highlightPhotosPage")))) -}}
 {{- else if eq . "comments" -}}
   {{- $out = dict "loading" ((or (T "commentsLoading") (partial "t.html" "commentsLoading"))) "loaded" ((or (T "commentsLoaded") (partial "t.html" "commentsLoaded"))) "failed" ((or (T "commentsFailed") (partial "t.html" "commentsFailed"))) "tryAgain" ((or (T "tryAgain") (partial "t.html" "tryAgain"))) -}}
 {{- else if eq . "gallery" -}}

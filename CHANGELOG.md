@@ -3,530 +3,82 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.3.36] - Unreleased
-
-### Fixed
-- The README's Installation section now says that release tags have no `v` prefix (`1.3.0`), which Go and Hugo Modules
-  don't recognize as versions, so a site that imports the theme as a module, like the Hugo themes gallery, gets the tip
-  of the default branch rather than a release (#195). Releases are used by pinning the submodule to a tag. The example
-  tag is now `1.3.0`. Documentation only.
-
-## [1.3.35] - Unreleased
+## [1.4.0] - 2026-10-11
 
 ### Added
-- The README now shows what the theme looks like (#209): a hero picture of the home wall that switches between light
-  and dark with the reader's GitHub theme, and a table with the photo post and its masonry gallery, the lightbox, an
-  article with the table of contents and series box, the wall's "View options" popover, a tag page, the color theme
-  switch, and the phone-width menu. Each image has alt text and the README reads the same without them. They are nine
-  WebP files under `images/` (`readme-*.webp`), 34 to 175 KB each and 0.84 MB in all, captured from the exampleSite in
-  headless Chrome; "Testing the theme" says how (build, viewport sizes, color scheme, pages and states, format and
-  quality) so they can be made again. `images/screenshot.png` and `images/tn.png` for the themes gallery are unchanged:
-  they still match the current look. The phone screenshot is shown 260px wide, so it doesn't fill the column of
-  GitHub's README view. Each image was looked at after capture: photos loaded, no broken layout. No template or output
-  changed.
+- The theme's text can be translated, and dates follow the site's language (#192, #249). All 100 pieces of text the
+  theme writes, including the wall's caption and counts, the comment and lightbox messages, the feed's channel text and
+  the date layouts, are in `i18n/en.toml`. A site translates them with its own `i18n/<language>.toml` (README,
+  "Translating the theme"). Text a language has no entry for falls back to English, and a language with no theme text
+  at all gets English labels and the `theblues-i18n` warning. `wall.js`, `comments.js` and `gallery.js` get their text
+  at build time, with one script per language on a multilingual site. Month and day names come from Hugo's locale data
+  for other languages, while English sites keep US English names (`en-GB` writes "Sep"). Hugo's English 404 title is
+  replaced by the site's text. Count text picks the right singular or plural form on every build. For an English site
+  the built pages are unchanged; the 550-post build takes 0.51 s against 0.49 s.
+- The build checks that the two copies of the dark color tokens in `assets/css/main.css` match, and warns with the ID
+  `theblues-dark-tokens`, naming each token that differs (#196).
+- The README says which browsers the theme supports: the current and previous major versions of Chrome, Edge, Firefox
+  and Safari. It names the oldest versions with everything working (Chrome and Edge 108, Firefox 121, Safari 16.4) and
+  what degrades below them (#208, #250).
+- The README has a "Content Security Policy" section listing the origins a site's policy needs for the theme, SmugMug,
+  Google Analytics, Disqus, `embed` and YouTube, with an example policy, tested with every listed service (#185).
+- The README says when Google Analytics loads, and that the theme has no consent step. It also explains how a site that
+  needs consent can gate or replace it (#176).
+- The README shows screenshots of the theme: the home wall in light and dark, a photo post, the lightbox, an article,
+  the View options popover, a tag page, the color theme switch and the phone menu. There are nine WebP files, 0.84 MB
+  in all, with alt text and capture steps (#209).
 
-## [1.3.34] - Unreleased
-
-### Fixed
-- The README no longer says `analytics-on.html` returns `true` when the theme "loads Google Analytics on the page" (#213),
-  which reads as a per-visitor answer. It returns `true` when the page includes the theme's Google Analytics loader
-  (`analytics.js`): a production build, a Google Analytics ID set, and `[privacy.googleAnalytics] disable` unset. The
-  README now says that this is decided per build, and that the loader still loads nothing for visitors who send Do Not
-  Track or Global Privacy Control. Checked against the partial and `assets/js/analytics.js`. Documentation only; no
-  template or output changed.
-
-## [1.3.33] - Unreleased
-
-### Fixed
-- `theme.toml`'s `[original]` table now uses the keys the Hugo themes gallery documents (#194): `author`, `homepage`
-  (the original author's site) and `repo` (the original theme's source). It had `name` and a `homepage` that pointed
-  at the repository. It now names Huabing Zhao, his site `https://zhaohuabing.com` (from his GitHub profile) and the Clean
-  White repository; "Clean White" stays in a comment, since the spec has no name key. `demosite` is not added. Checked
-  against the spec in the gohugoio/hugoThemes README, and that the file still parses as TOML (Hugo's own parser).
-  `min_version` is unchanged. No template or output changed.
-
-## [1.3.32] - Unreleased
-
-### Fixed
-- The mockups README now says "site issue #4" where it said "issue #4" (#183). Issue #4 is in the site repo
-  (`cyvaquero/hugo-site-guyheckman_me`), not this one, as `docs/retheme/decisions.md` already writes it. Documentation
-  only; no template or output changed.
-
-## [1.3.31] - Unreleased
+### Changed
+- Wall tiles no longer carry a `data-order` attribute. A site's own CSS or script that reads it must take the tile's
+  position from the DOM. `wall.js` sorts exactly as before, checked across 728 control states (#188).
+- Rewriting a SmugMug URL to another size now happens in one partial (`smug-size.html`, with sizes in
+  `smug-sizes.html`). Only the last path segment is rewritten, so a URL with an earlier `/X2/` directory keeps it
+  (#190).
+- Group titles on the wall, and the series box title, are headings (#172). With Group by gallery on, each group title
+  is an `h3` and the article tiles become `h4`. The series box title is an `h2`. They look the same. A site's CSS that
+  targets `.tile.article h3` needs `h4` too, and `.series strong.t` becomes `.series .t`.
 
 ### Fixed
-- The README's settings list now says what happens when the hero and 404 texts are unset (#181). `slogan` is the site
-  title, `tagline` is `params.description`, and `title_404` is the theme's "Page not found" (the `pageNotFound`
-  translation entry). A post's front matter `subtitle` shows only in a post's own hero, and falls back to the post's
-  `description`; every other page's hero shows its `description` alone. Checked against `layouts/home.html`, `layouts/404.html`,
-  `layouts/post/page.html` and `layouts/_partials/hero.html`. Documentation only; no template or output changed.
-
-## [1.3.30] - Unreleased
-
-### Fixed
-- The README's opening no longer says the theme builds "the same 30 URLs as Clean White" as if that stayed true as
-  the site grew (#180). It now says the theme builds the site's real content with no Hugo warnings, and that at the
-  switch from Clean White it produced the same 30 URLs (the count `docs/retheme/clean-white-inventory.md` records).
-  Documentation only; no template or output changed.
-
-## [1.3.29] - Unreleased
-
-### Fixed
-- The README no longer says both Markdown render hooks resolve "a path to a page or page resource" (#177). Checked
-  against the hooks: a link (`layouts/_markup/render-link.html`) resolves a page or a page resource, and an image
-  (`layouts/_markup/render-image.html`) resolves a page resource or a file in the site's `assets/`, not a page. The
-  README says that now. Documentation only; no template or output changed.
-
-## [1.3.28] - Unreleased
-
-### Fixed
-- The README's build-time note now gives a current figure (#170). It said 550 posts built in about 0.34 s, measured for
-  1.2.0, which the later entries here (0.49 to 0.51 s) contradicted. It now says about 0.5 s, the median of 9 production,
-  minified builds of the 550-post site with a warm cache on Hugo 0.167.0 (range 0.49 to 0.58 s), and that times depend on
-  the machine. Documentation only; no template or output changed.
-
-## [1.3.27] - Unreleased
-
-### Fixed
-- The table of contents label ("On this page") is now an `h2` instead of a `<strong>`, so it shows in a screen reader's
-  heading list as the first section of a post, ahead of the body's `##` headings (#226). The list is still a `<nav>`
-  named "Table of contents". It looks the same: in headless Chrome the label's font, size, weight, spacing and color,
-  and a screenshot of the box, are identical to before at 1280px and 390px, in light and dark mode. Advisory
-  (WCAG 1.3.1, A).
-
-## [1.3.26] - Unreleased
-
-### Fixed
-- The footer's LinkedIn and GitHub links now say they open in a new tab (#186). Like links to other sites in post text,
-  they end with visually hidden "(opens in a new tab)" text, from the existing `opensInNewTab` entry, so a screen reader
-  announces "LinkedIn (opens in a new tab)". They look the same. Checked in headless Chrome with a LinkedIn and a GitHub
-  link set: the accessibility names changed from "LinkedIn" and "GitHub" to the longer ones, the links' positions and
-  sizes and a screenshot of the footer are identical to before, and nothing scrolls sideways. Advisory (WCAG 3.2.5, AAA).
-
-## [1.3.25] - Unreleased
-
-### Fixed
-- The README's accessibility section now says how its WCAG 2.1 AA target relates to Section 508 (#197). It names the
-  WCAG 2.1 criteria the theme meets that Section 508's WCAG 2.0 baseline doesn't require (1.4.11, 1.4.13, 4.1.3) and
-  says the software chapters (502, 503) don't apply to web content. It also gives the chapter 602 documentation
-  duties: the section is the theme's list of accessibility features (602.2), and the README should itself conform to
-  WCAG 2.0 AA (602.3). Documentation only.
-
-## [1.3.24] - Unreleased
-
-### Fixed
-- The README's "Writing accessible content" list now says to start a post's headings at `##`, since the hero holds the
-  page's h1 and a `#` heading in the body makes a second one, and to give Hugo's `youtube` shortcode a `title`, without
-  which every video frame is named "YouTube video" (#187). Checked with Hugo 0.167.0: a body `#` heading renders as
-  `<h1>`, and `youtube` without `title` gives `title="YouTube video"`. Documentation only.
-
-## [1.3.23] - Unreleased
-
-### Fixed
-- An Escape that closes the mobile menu no longer also hides the caption of a photo tile under the pointer (#227).
-  `assets/js/menu.js` now marks the Escape as handled (`preventDefault`), which the caption handler from #173 already
-  respects, as it does for the View options popover. Checked in headless Chrome at 700px with the menu open and the
-  pointer on a photo tile: 1.3.21 closed the menu and hid the caption; now the menu closes and the caption stays, and a
-  second Escape hides it. Built HTML is unchanged apart from the footer version and the
-  script's fingerprint.
-
-## [1.3.22] - Unreleased
-
-### Added
-- The README now says which browsers the theme supports (#208): the current and previous major versions of Chrome,
-  Edge, Firefox and Safari. It also names the oldest versions with everything working (Chrome and Edge 105, Firefox
-  121, Safari 16.4, from the CSS features in use: `:has()` and range media queries; not tested in those versions) and
-  what changes below them: the browser's own focus ring on wall tiles and code blocks without `:has()`, the full-size
-  hero image without range media queries, and a lightbox sized to `vh` without `dvh` units. Documentation only; the
-  built site is unchanged apart from the footer version.
-
-## [1.3.21] - Unreleased
-
-### Fixed
-- More links are 44px tall on touch screens, and the README now says exactly which (#175). The README said "targets are
-  44px on touch screens", but only chips, the View options and Clear buttons, the theme switch, tags and tile tag links
-  were enlarged. The touch-target rules (coarse pointer) now also cover the nav brand, the desktop nav row's links (on
-  a touch screen 821px or wider), the hero's category link, the table of contents entries, the series box's list and
-  previous/next links, and the post navigation links, and the tile tag links go from 43px to 44px. Only the height is
-  set. The README lists what is enlarged and what is not (links in running text, the series name link in the series
-  box title, an article tile's title link, which sits inside a tile that is one link). WCAG 2.5.5 Target Size is AAA
-  and not required (documentation accuracy); Section 508 602.2. Checked with Hugo 0.167.0 and headless Chrome with
-  touch emulation (`pointer: coarse`) at 390px: 1.3.20 measured the hero category link 44x16, TOC links 31 tall, series
-  links 25 and 28, post navigation links 28, the brand 42 and tile tag links 43; now each is 44 tall. A survey of every
-  link, button and control on 16 pages (home, a series post, an untitled post, photo posts, tag, category, archive,
-  About, Search, series pages, 404, a second wall page, with the popover and menu open) found nothing under 44px
-  except the Group switch's checkbox (its row is 44px), article tile title links (the tile is the target), inline
-  links in text and the series name link. At 1024px the desktop nav links were 35 and are now 44; the nav height on
-  guyheckman.me (821px and 1024px) is unchanged. The page grows a little where lists got taller: on the test series post
-  the table of contents 113px to 152px, the series box 185px to 215px, the post navigation 61px to 77px; the hero is
-  unchanged (416px). Without a coarse pointer every measured height is the same as before. Built output of
-  guyheckman.me and the exampleSite differs from 1.3.20 only in the fingerprints and the footer version.
-
-## [1.3.20] - Unreleased
-
-### Fixed
-- The skip link's focus ring is now sand and no longer cut off (#174). The ring was steel blue, 1.96:1 against the navy
-  band the link draws on in light mode (WCAG 1.4.11 needs 3:1), because the rule that switches the ring to sand on dark
-  surfaces left `.skip` out; and the link appeared at the very corner of the window, so the top and left of the ring
-  were outside it. Now `.skip` uses the sand ring, and a focused link sits `.5rem` in from the top and left. Dark mode
-  was already sand. WCAG 1.4.11 Non-text Contrast (AA, 2.1 only) and 2.4.7 Focus Visible (AA); Section 508 E205.4 for
-  2.4.7 only. The README's skip link entry says so. Checked with Hugo 0.167.0 and headless Chrome on the exampleSite,
-  pressing Tab once, with the system set to light and to dark and the switch set to Light and to Dark: 1.3.19 drew
-  rgb(69, 104, 130) on #1B3C53, 1.96:1, in both light cases, and sand on #0F2332, 9.22:1, in both dark cases, and the
-  ring's outer edge was 5px outside the window (clipped) in all four; now the ring is rgb(210, 193, 182), 6.63:1 on the
-  light band and 9.22:1 on the dark band, and its outer edge is 3px inside the window in all four. Built output of
-  guyheckman.me and the exampleSite differs from 1.3.19 only in the fingerprints and the footer version.
-
-## [1.3.19] - Unreleased
-
-### Fixed
-- Escape now hides a photo tile's caption (#173). A tile's caption appears over the lower part of the photo on hover or
-  keyboard focus (98px of a 244px tile in the test) and had no way to dismiss it, so it could cover part of the photo
-  until the pointer or focus moved away. Escape now hides it with the pointer and focus where they are; it shows again
-  once both have left the tile and come back. An Escape that closes the View options popover does only that. The
-  hiding rule is screen only, so a printed caption is unaffected (by the CSS; not tested). The caption is not moved. The README's keyboard list says so. WCAG 1.4.13 Content on Hover or Focus (AA, WCAG 2.1
-  only; no Section 508 basis, since 508 incorporates WCAG 2.0). Checked with Hugo 0.167.0 and headless Chrome on the
-  exampleSite at 1280px: in 1.3.18 the caption was opacity 1 on hover and on focus and stayed 1 after Escape; now
-  Escape sets it to 0 in both cases, it stays 0 while the pointer moves within the tile, and it returns to normal (0 at
-  rest, 1 on hover or focus) after the pointer leaves or focus moves away. The popover still closes on Escape.
-  Built output of guyheckman.me and the exampleSite differs from 1.3.18 only in the fingerprints and the footer
-  version.
-
-## [1.3.18] - Unreleased
-
-### Fixed
-- Group titles on the wall and the series box title are now headings (#172). With "Group by gallery" on, each group
-  ("Articles · 5 articles", "Boston Gallery · Jan 7, 2026 · 4 photos") was only a disclosure triangle styled like a
-  heading, and the series box title ("Part 2 of 3: Name") was a `<strong>`, so a screen reader's heading list skipped
-  them. Each group title is now an `<h3>` inside its `<summary>`, and `wall.js` turns the article tiles' `<h3>` into
-  `<h4>` while the wall is grouped (and back when it isn't), so the outline reads h1, h2 "Posts", h3 group, h4 tile;
-  the series box title is an `<h2>`. They look as before. The flat wall's markup and the series box's CSS class are
-  unchanged apart from the tag. A site whose own CSS targets `.tile.article h3` needs `h4` as well, and one that
-  styles `.series strong.t` needs `.series .t`. The README's accessibility section describes the outline. WCAG 1.3.1 Info and
-  Relationships (A), Section 508 E205.4. Checked with Hugo 0.167.0 and headless Chrome (accessibility tree) on the
-  exampleSite: 1.3.17 listed h1, h2 "Posts" and three h3 tiles, flat or grouped, and the series post had no heading
-  for the box; now grouped it lists h3 "A photo gallery · Jan 7, 2026 · 4 photos", h3 "Articles · 3 articles" and the
-  three tiles as h4, flat is unchanged after grouping and ungrouping, and the series post lists h2 "Part 1 of 2: Fixture
-  Series". The group rows measured the same height and the same count position at 1280px and 390px (the count
-  that wraps below the title at 390px now lines up with the title instead of the triangle). Built output of
-  guyheckman.me and the exampleSite differs from 1.3.17 only in the series box markup of posts in a series, the
-  fingerprints and the footer version.
-
-## [1.3.17] - Unreleased
-
-### Fixed
-- The desktop nav no longer pushes the theme switch off the screen when the menu is long (#171). From 821px the nav
-  links were one row that could not wrap, and `body { overflow-x: hidden }` hid whatever ran past the edge, so with
-  eight menu items (or a long site title, or text zoomed to 150% to 160% on a 1280px screen) the Light and Dark
-  buttons sat past the right edge of the window with no way to scroll to them. The row now wraps onto a second line
-  (right-aligned, with a smaller row gap), so every link and the switch stay in view. A menu that fits looks exactly as
-  before. The README's menu section says so. WCAG 1.4.4 Resize Text (AA), Section 508 E205.4. Checked with Hugo 0.167.0
-  and headless Chrome on an exampleSite copy with eight menu items (nine links with the Search entry) at 821px: 1.3.15
-  had System, Light and Dark at x 815 to 927 in an 821px window (page scrollWidth 930, so the last two were off
-  screen); now all links and the three buttons end at x 790 or less, on two rows. At 1280px every link and button is at
-  the same position as in 1.3.15. Built output of guyheckman.me and the exampleSite, in development and production
-  builds, differs from 1.3.15 only in the fingerprinted stylesheet name and the footer version.
-
-## [1.3.16] - Unreleased
+- Feeds list posts newest first, so a series `weight` no longer pushes newer posts off a feed with a `limit` (#163).
+- Walls, term heroes and previous/next links are right after an edit under `hugo --watch`, as under `hugo server`
+  (#164, #191).
+- The tag, category and series A to Z indexes show each letter heading once, with accented letters under their own
+  heading (#165).
+- A photos-category post with no gallery photos is an article on its own page too, with a table of contents and
+  reading time (#166).
+- The wall caption starts "This page:" on every page of a list that has a pager (#167).
+- The lightbox no longer stays empty and busy when a photo fails to load: the counter and the announcement update, and
+  the busy state ends (#168).
+- The desktop nav wraps onto a second row, so a long menu or zoomed text no longer pushes the theme switch off screen.
+  At 821px with eight items, everything is now in view (#171).
+- Escape hides a photo tile's caption without moving the pointer or focus. An Escape that closes the View options
+  popover or the mobile menu does only that (#173, #227).
+- The skip link's focus ring is sand on the navy band (6.63:1, was 1.96:1) and is no longer cut off at the window's
+  corner (#174).
+- More links are 44px tall on touch screens: the nav brand and desktop nav links, the hero category link, the table
+  of contents, the series box links and post navigation. The README lists exactly what is enlarged (#175).
+- `hugo new content post/20261011-my-new-post.md` gives the title "My New Post", without the date, and the archetype
+  has a commented `series` line (#179).
+- The footer's LinkedIn and GitHub links tell screen readers they open in a new tab (#186).
+- The table of contents label "On this page" is an `h2`, so it's in the heading list. It looks the same (#226).
+- Keyboard focus on gallery thumbnails is visible. The ring is drawn on the thumbnail's frame, which used to clip it;
+  without `:has()` it's drawn just inside the edge (#248).
+- Documentation corrections:
+  - the README's build-time figure is now about 0.5 s for 550 posts (#170);
+  - what the image and link render hooks resolve (#177);
+  - the "same 30 URLs" claim is dated to the switch from Clean White (#180);
+  - the defaults for `slogan`, `tagline`, `title_404` and `subtitle` (#181);
+  - a site-repo issue reference in the mockups README (#183);
+  - posts start at `##`, and `youtube` needs a `title` (#187);
+  - `theme.toml`'s `[original]` uses the themes gallery's keys (#194);
+  - release tags have no `v` prefix, so a Hugo Module import gets the default branch (#195);
+  - the accessibility target is stated against Section 508, including the 602 duties (#197);
+  - `analytics-on.html` is a build-time value (#213).
 
 ### Security
-- A Markdown image with an `http://` source now warns at build time (#218). `![](http://…)` was published as
-  `<img src="http://…">` with no warning, which a browser blocks as mixed content on an https site or under a CSP that
-  allows only `https:` images (CWE-319); the gallery and hero paths already warned (#184), Markdown images didn't. The
-  image render hook now calls `https-check.html`, so the same warning (ID `theblues-insecure-photo`, naming the URL) is
-  printed once per URL for a Markdown image, in any letter case of the scheme, `--panicOnWarning` fails the build, and a
-  site can silence it with `ignoreLogs`. The image is kept and published as written; `https://` and relative images, and
-  page resources, don't warn. The README names Markdown images next to the other cases. Checked with Hugo 0.167.0 on a
-  scratch copy of the exampleSite with two posts: one with `![](http://example.com/a.jpg)` (twice),
-  `HTTP://example.com/b.jpg`, an `https://` image and a page-resource image, the other repeating the first URL.
-  1.3.15 built with no warning; now the build prints two warnings (one per distinct URL, none for the `https://` or
-  relative image), `--panicOnWarning` stops it, and the `<img>` HTML of all 34 images is identical to 1.3.15. Built
-  output of guyheckman.me and the exampleSite, production (minified, `--panicOnWarning`) and development, matched 1.3.15
-  byte for byte after normalizing fingerprints, SRI hashes and the footer version (0 of 71 and 0 of 55 files differ).
-
-## [1.3.15] - Unreleased
-
-### Added
-- The README now has a "Content Security Policy" section listing the origins a site's CSP needs (#185): what the theme
-  itself needs (`'self'` for scripts and styles, no hashes, `style-src-attr 'unsafe-inline'` for the hero and tile
-  `style` attributes), and per optional service the `script-src`, `connect-src`, `img-src`, `frame-src` and `style-src`
-  origins for SmugMug photos, Google Analytics, Disqus, the `embed` shortcode and YouTube, with an example policy and
-  notes. Documentation only. Checked with Hugo 0.167.0 and headless Chrome on a production build of an exampleSite copy
-  with a Google Analytics ID, a Disqus shortname (an existing thread read through `disqus_url`, nothing posted), SmugMug
-  photos and YouTube embeds, served with the example policy enforced: the home page, a SmugMug hero, a gallery with the
-  lightbox open, the YouTube page and an article after "Show comments" gave no violation from anything the theme or the
-  listed services load, and the comments loaded. Disqus also asked for a cleartext VigLink pixel and for LiveIntent
-  (`d-code.liadm.com`); the README leaves them out, and they were blocked without breaking the comments. A first run with
-  every origin withheld reported exactly the requests the lists name. Chrome could not reach `google-analytics.com` in
-  the test, so no analytics hit was recorded. Built output of guyheckman.me, the 80-post and 550-post sites and the
-  exampleSite, in development and production builds, is byte-identical to 1.3.14 apart from the footer version.
-
-## [1.3.14] - Unreleased
-
-### Security
-- An `http://` photo URL is no longer fetched at build time, and the build now warns about it (#184). The size lookup
-  for wall tiles and gallery images (`img-size.html`) requested any `http://` or `https://` URL, so a photo given as
-  `http://` was downloaded in cleartext, where its size could be tampered with in transit (CWE-319), and the page then
-  published `<img src="http://…">`, which a browser blocks as mixed content on an https site or under a CSP that allows
-  only `https:` images. Now only `https://` photos are fetched, and the new partial `https-check.html` warns with the
-  ID `theblues-insecure-photo`, naming the URL, for an `http://` gallery photo and for an `http://` hero image
-  (`hero-sizes.html`, which only ever read `https://photos.smugmug.com`), once per URL, so a build with `--panicOnWarning`
-  fails; a site can silence it with `ignoreLogs`. The URL itself is published as written, and the tile and gallery image
-  get no width and height, as for a photo that can't be fetched. The README lists the ID and says so under the photo
-  size bullet, and the layout list names the partial. Markdown images (`![](http://…)`) are not checked. Checked with
-  Hugo 0.167.0 on a crafted post with an `http://` SmugMug-style gallery photo and a post with an `http://` `image`,
-  served from a local server that logs requests (a scratch site that allows that host in `security.http`) and a fresh
-  cache: 1.3.13 made one cleartext `GET` for the photo and wrote `width=960 height=300`, with no warning; now the server
-  sees no request, the page has `<img src=http://… alt=Insecure>` without a size, the build prints three warnings (the
-  photo, its X3 hero and the `image` hero, one each) and `--panicOnWarning` stops it. guyheckman.me, the 80-post and
-  550-post sites and the exampleSite, in development and production builds (production with `--panicOnWarning`), build
-  with no warning and are byte-identical to 1.3.13 apart from the footer version.
-
-## [1.3.13] - Unreleased
-
-### Fixed
-- A site can now translate the theme's text and get localized dates without overriding templates (#192). All the text
-  the theme writes (labels, headings, the wall's caption and counts, the comment and lightbox messages, the page-number
-  text, the feed's channel text, the alt text "Photo N" and the three date layouts: 100 entries) is in the new
-  `i18n/en.toml`, which the templates read with `T`, with `one` and `other` forms where the text picked "post" or
-  "posts", "photo" or "photos" and so on. Dates use `time.Format`, so month and day names follow the site's language.
-  `assets/js/wall.js`, `comments.js` and `gallery.js` get their text through the new `layouts/_partials/js-text.html`:
-  `asset.html` runs a script that contains a Go template action as a template, so the HTML is the same for every
-  language (no data attributes), and a site with more than one language gets a script per language (`js/wall.de.js`).
-  The wall's English month list is gone: group headings take their date from the tile captions the server wrote, and a
-  custom wall without captions shows no date text there instead of an English one. Hugo's English title for the 404 page
-  ("404 Page not found") is replaced by the site's text. A site translates the theme with its own `i18n/<language>.toml`
-  (README, "Translating the theme", which also lists what stays as it is: text that comes from the site, the link names
-  RSS, LinkedIn and GitHub, the "©" and year of the footer's fallback line and build warning and error messages).
-  English is the default. Text a site's language has no entry for, in the site's file or the default language's, is shown
-  in English from the theme's `i18n/en.toml` (the new `layouts/_partials/t.html`, which reads it as data through a
-  mount in the theme's `hugo.toml`; templates call it only when `T` comes back empty, so English pages never run it). A
-  site whose language has no theme text at all gets English labels and a build warning with the ID `theblues-i18n`
-  (the README lists it); the fix is to copy `i18n/en.toml` to `i18n/<language>.toml` and translate it. The same warning ID
-  fires if a site's own module settings drop the theme's mount, which would leave missing text empty. Month and day
-  names come from Hugo's locale data for other languages, but an English site (`en` or `en-*`) keeps US English names
-  whatever its `locale`, so `en-GB` still writes "Sep", not "Sept". Checked with Hugo 0.167.0: for an English site (`en-US`) the built output of
-  guyheckman.me, the 80-post and 550-post sites and the exampleSite, in development and production builds, is
-  byte-identical to 1.3.11 apart from the footer version and the file names and SRI hashes of the three scripts (2,155
-  files compared), and so is a crafted exampleSite copy with every month, posts that cross midnight in other time zones,
-  one-photo, three-photo and four-photo galleries ("1 more photo", "2 more photos"), a one-post series and tag, an
-  empty section, an embed without a title, an external link, and titles and terms with `&`, `+`, quotes and `<`. In
-  headless Chrome the wall's caption, chips, badge, On/Off and group headings in 11 states on seven wall pages, the
-  lightbox's labels and counter, and the comments' failure message and "Try again" button are identical to 1.3.11. A
-  scratch exampleSite copy in German (`defaultContentLanguage = "de"`, `locale = "de-DE"`, a site `i18n/de.toml` that is
-  not part of the theme) shows the translated labels, "Erstellt mit Hugo 0.167.0 und The Blues 1.3.13", "10. Jan. 2026"
-  and "15. Dez." in the archive, "1 Beitrag" and "2 Beiträge", and a German 404 title; the wall's captions are German
-  ("Hervorgehoben: 3 Artikel; 1 Foto abgeblendet auf dieser Seite, in 1 Galerie gruppiert") and its group headings read
-  "A photo gallery · 7. Jan. 2026 · 4 Fotos". An English and German site builds `wall.en.js` and `wall.de.js` and each
-  page loads its own. The same German copy without its `i18n/de.toml` shows every label, count and script message in
-  English ("Skip to content", "4 photos", "Photo viewer") with German dates, where it had empty labels; with a
-  `de.toml` of two entries those two are German and the rest English. An `en-GB` copy of the exampleSite is
-  byte-identical to 1.3.11, and a September post there reads "Sep 15, 2026". The 550-post production build takes 0.51 s
-  against 0.49 s before (minified, three runs each); calling the English fallback as a partial on every lookup took
-  about twice as long, which is why templates try `T` first. The README's exampleSite check (`--panicOnWarning`, `--printUnusedTemplates`) passes.
-
-## [1.3.12] - Unreleased
-
-### Fixed
-- A post made with `hugo new content post/20261011-my-new-post.md` now gets the title "My New Post" instead of "20261011
-  My New Post" (#179). `archetypes/post.md` strips a leading `YYYYMMDD-` from the file name before it turns hyphens into
-  spaces and title-cases it, as `page-title.html` does for a post with no title. The slug is unchanged (the whole file
-  name, date included), so URLs of new posts follow the file name as before. The archetype also gets a commented
-  `# series: []` line next to the commented `showtoc` one, and the README's layout list and Front matter text now describe
-  `archetypes/post.md`. Checked with Hugo 0.167.0 in a scratch copy of the exampleSite: `20261011-my-new-post.md` wrote
-  `title: "20261011 My New Post"` before and writes `title: "My New Post"` now, `nodate-post.md` writes `title: "Nodate
-  Post"` both ways, and the only other difference in the front matter is the new commented line. The archetype is not
-  part of a site's built output: guyheckman.me, the 80-post and 550-post sites and the exampleSite, in development and
-  production builds, are byte-identical to 1.3.11 apart from the footer version.
-
-## [1.3.11] - Unreleased
-
-### Fixed
-- The README now says when Google Analytics loads and that the theme has no consent step (#176). It loads as soon as
-  a page is viewed, for every visitor who doesn't send Do Not Track or Global Privacy Control, in a production build
-  with a GA ID and `[privacy.googleAnalytics] disable` unset; the theme has no consent banner, prompt or gate. A site
-  that needs consent (GDPR, the ePrivacy Directive) must gate or disable analytics itself: set
-  `[privacy.googleAnalytics] disable = true` or leave the GA ID out, and load Google Analytics from its own consent
-  code (for example in `head-end.html`), or put its own `assets/js/analytics.js` in the site. The text is under
-  `[services.googleAnalytics] id` in "Site settings it reads", with pointers from the JavaScript list, the Analytics
-  note under "Extending from a site" and the `disable` line of the privacy settings. Documentation only. Checked
-  against `head.html`, `analytics-on.html` and `analytics.js` with Hugo 0.167.0 and headless Chrome on a production
-  build with a GA ID: with no signal the page requests `https://www.googletagmanager.com/gtag/js?id=…` on load and
-  fills `dataLayer`, with no click or prompt; with `navigator.globalPrivacyControl` true or `navigator.doNotTrack` `"1"`
-  there is no request and no `gtag`; `doNotTrack` `"0"` loads it. `disable = true` and a development build leave out
-  the script tag and file, and a site's own `assets/js/analytics.js` replaces the theme's in the page and gets the ID
-  as `data-id`. Built output of guyheckman.me, the 80-post and 550-post sites and the exampleSite, in development and
-  production builds, is byte-identical to 1.3.10 apart from the footer version.
-
-## [1.3.10] - Unreleased
-
-### Added
-- The build now checks that the two copies of the dark color tokens in `assets/css/main.css` match (#196). The tokens
-  are written out twice, once under `@media (prefers-color-scheme: dark)` for a system that asks for dark and once for
-  a reader who picked dark with the switch, and the two had to be kept the same by hand. The new partial
-  `dark-tokens-check.html`, called once per build from `head.html`, reads the stylesheet the build uses (a site's own
-  `assets/css/main.css` too), compares the declarations of the two blocks (comments, spacing and order don't count) and
-  warns with the ID `theblues-dark-tokens`, naming each token that differs or is missing from one copy, so a build with
-  `--panicOnWarning`, like the exampleSite check in the README, fails. A stylesheet with neither block gets no warning.
-  The README lists the ID with the others and the layout list names the partial. Both copies stay for now: comments at
-  both blocks and in the stylesheet header point to the check and to #208, where CSS `light-dark()` can replace the
-  two copies once the theme sets a browser floor. Checked with Hugo 0.167.0: guyheckman.me, the 80-post and 550-post
-  sites and the exampleSite build with no warning and, in production, byte-identical to 1.3.9 apart from the footer
-  version; in a development build the HTML is identical and `css/main.css` differs only by the three new comments.
-  With a scratch copy of the stylesheet, changing `--link` in one block gives "the two dark-token blocks differ:
-  --link (system dark #D2C1B6, picked dark #D2C1B7)" and `--panicOnWarning` stops the build; a token removed from one
-  block and another changed in it give one warning naming both; a block that can't be found gives a warning, and
-  neither block gives none; changes to comments, spacing or order give none. On the 550-post site the check runs once
-  (one warning for 682 pages when the copies differ) and the build takes 0.498 s against 0.507 s before (median of 6,
-  production, minified), so it costs nothing measurable.
-
-## [1.3.9] - Unreleased
-
-### Changed
-- Wall tiles no longer carry a `data-order` attribute. This is a markup change: a site whose own CSS or script reads
-  `data-order` from `.tile` elements must take the tile's position from the DOM instead. `data-type`, `data-date`,
-  `data-gallery`, `data-gallery-title`, `data-n` and `data-more` are unchanged. `assets/js/wall.js` now takes each
-  tile's server order, which it uses only as the tie-breaker when sorting, from the tile's position in the DOM when the
-  script starts (#188). The photo tile cache no longer renders the tile with a marker, splits the HTML around it and
-  puts the order back in per wall (and falls back to uncached rendering if a photo title contained the marker): the
-  tile is the same on every wall, so `tile-photo.html` caches `tile-photo-body.html` directly, keyed by page path,
-  photo index and photo count. `tile-photo-parts.html` is removed, and `tile-article.html`, `tile-more.html`,
-  `tile-photo-body.html` and `wall.html` no longer take an `order`; the README's layout list and tile attribute text
-  are updated. Checked with Hugo 0.167.0 on a build of the old theme first: on every wall page of guyheckman.me
-  (16 pages, 118 tiles), the 80-post site (60 pages, 1,180 tiles), the 550-post site (257 pages, 5,900 tiles) and the
-  exampleSite (19 pages, 56 tiles), in development and production builds, `data-order` equalled the tile's index in the
-  DOM, so the tie-breaker is unchanged. Against 1.3.8, the output of all four differs only by the removed `data-order`
-  attributes, the `wall.js` fingerprint and `integrity` hash, and the footer version (the old output with `data-order`
-  stripped is identical otherwise). In headless Chrome with a strict CSP (`script-src 'self'`, no `unsafe-inline`),
-  14 wall pages of the production builds (home, section, tag, category and later pager pages, including days with
-  several posts and galleries with a see-all tile) went through every combination of Newest first, Oldest first,
-  Galleries first and Articles first, filter and highlight, All, Article and Photo, and Group by gallery on and off,
-  then a closed group, Clear and Reset: all 728 states have the same ordered tile list and the same wall and controls
-  markup as 1.3.8, with no CSP violations or script errors. The same run on 3 pages of the development builds, which
-  serve `wall.js` unminified, gives 156 identical states. Forcing the order to 0 in `wall.js` makes the run report
-  differences, so the comparison does see tie order. The 550-post site builds in 0.494 s against 0.513 s before (median of 6, production,
-  minified).
-
-## [1.3.8] - Unreleased
-
-### Fixed
-- Walls, term heroes and previous/next links are right after an edit under `hugo --watch`, as they already were under
-  `hugo server`. A page's Store survives a rebuild in both, and the theme kept its per-list and per-site results (a
-  wall's tiles, a term's photo count, the sorted posts behind the previous/next links) in it, skipping the Store only
-  when `hugo.IsServer` was true, so under `--watch` they kept describing posts from before the edit (#164). The
-  rule for when a kept value may be used was copied into six partials; it now lives in one new partial, `memo.html`,
-  which uses a kept value only within the build that kept it, using a per-build number from the new `build-token.html`
-  (Hugo drops the partial cache, and that number with it, at every rebuild). `cover.html`, `is-photo.html`,
-  `photos.html`, `term-stats.html`, `post-nav.html` and `wall-pager.html` call it and no longer look at `hugo.IsServer`;
-  the README lists both new partials (#191). Checked with Hugo 0.167.0 on a site with a five-photo gallery and two
-  articles: after renaming photo 1 and adding a sixth, `hugo --watch` kept writing the home and photos-category walls
-  with "Photo 1 of 5: Photo 1", the term hero with "5 photos" and the neighboring article's previous link with the old
-  title; they now read "Photo 1 of 6: P1 edited", "6 photos" and the new title, the same as a fresh build and as
-  `hugo server`, which was right before and still is. The memo reuses values: on the 550-post site the token is made
-  once per build and every value is kept once (400 `is-photo`, 174 `photos`, 425 `cover`, 14 `term-stats`, 16 wall
-  results and 1 `post-nav` list), and the build takes 0.50 s against 0.48 s before (median of 6, production, minified).
-  Built output of guyheckman.me, the 80-post and 550-post sites and the exampleSite, in a development and a production
-  build, is byte-identical to 1.3.7 apart from the footer version.
-
-## [1.3.7] - Unreleased
-
-### Changed
-- The `exampleSite` fixtures now exercise the image-size, `srcset` and hero-size code, which none of them reached
-  before (they pointed at a made-up host, and the header image `img/head.jpg` did not exist), so the README's
-  before-and-after comparison of fixture output could not catch a regression in those partials (#193). Added
-  `static/img/head.jpg` (9 KB), a gallery post of three real `photos.smugmug.com` photos (two landscape, one portrait)
-  and an article whose `image` is a SmugMug X3 URL. A fixture build now writes `width`/`height` and a `srcset` of M, L,
-  XL and X2 on 13 images, the hero's `--hi1` to `--hi4` sizes on two pages, and the matching preloads. Photos are
-  fetched on the first build and then come from Hugo's cache; a fresh-cache build and a cached one give identical
-  output. Nothing changes for sites that use the theme. Checked with Hugo 0.167.0: development and production builds of
-  the exampleSite pass `--panicOnWarning --printPathWarnings --printUnusedTemplates`; against 1.3.6 the output differs
-  only by the two new posts, their tiles, pages, feed and sitemap entries and archive, tag and category lists, the
-  pager pages the extra tiles add, the previous/next links of the neighboring posts, and `img/head.jpg`. Output of
-  guyheckman.me, the 80-post and 550-post sites is byte-identical to 1.3.6 apart from the footer version.
-
-## [1.3.6] - Unreleased
-
-### Changed
-- Rewriting a SmugMug URL to another size now happens in one place. `smug-full.html` (X2 to X3 for the lightbox),
-  `smug-srcset.html` (M, L, XL) and `hero-sizes.html` (the hero tiers) each carried their own copy of the path-segment and
-  file-suffix rewrite, and the first two their own copy of the size boxes (M 600×450, L 800×600, XL 1024×768, X2
-  1280×960). The rewrite is now the new partial `smug-size.html` and the sizes and boxes the new `smug-sizes.html`, and
-  the README names both (#190). No output changes for SmugMug URLs of the form `…/SIZE/file-SIZE.ext`; only the last
-  path segment is rewritten now, so a URL with an earlier `/X2/` directory in its path (which SmugMug doesn't produce)
-  keeps that directory instead of having it rewritten too. Checked with Hugo 0.167.0: built output of guyheckman.me
-  (105 `srcset`s, 31 hero tier sets), the 80-post and 550-post sites (1,050 and 5,250 `srcset`s) and the exampleSite, in
-  a development and a production build, is byte-identical to 1.3.5 apart from the footer version and fingerprints; a
-  site of galleries and covers in every size form (X2, X3, L, XL, X4, M, a query string, another host, a
-  missing suffix) is identical too, except for that earlier-`/X2/` case.
-
-## [1.3.5] - Unreleased
-
-### Fixed
-- The lightbox no longer stays empty and busy when a photo can't be loaded. If the large image failed, the viewer tried
-  the thumbnail, but a failure of that too was ignored, so the dialog stayed `aria-busy="true"` with no image and an
-  empty counter, and moving on from a loaded photo left the old photo showing (#168). It now finishes either way: the
-  counter and the spoken "Photo N of M: caption" update, the busy state ends, and the browser's broken-image state shows.
-  Checked in headless Chrome (Hugo 0.167.0, served with `script-src 'self'` and no `unsafe-inline`; no violations or
-  script errors) on a gallery of three photos whose second one fails: before, opening it, or pressing Next from the first
-  photo, left `aria-busy="true"`, "1 / 3" or an empty counter, and the first photo on screen; now the counter reads
-  "2 / 3", the live region "Photo 2 of 3: Broken two", `aria-busy` is gone, and Next goes on to photo 3. When only the
-  large image fails, the thumbnail still shows (checked with the X3 request failed and X2 served). Built output of
-  guyheckman.me, the 80-post and 550-post sites and the exampleSite, in a development and a production build, differs
-  from 1.3.4 only in the footer version and the gallery script's file name and content.
-
-## [1.3.4] - Unreleased
-
-### Fixed
-- The wall caption starts "This page:" on every page of a list that has a pager. It said "Showing" on page 1 of a list
-  whose first page held every counted tile, for example four photo tiles with the gallery's see-all tile on page 2
-  ("Showing 0 articles, 4 photos" above a pager). The script guessed the paging from tile counts, which leave out see-all
-  tiles; the build now writes the number of pager pages on the wall (`data-pages` on `#stage`) and the script uses that,
-  falling back to the old comparison for a custom `wall.html` without it (#167). Checked in headless Chrome
-  (Hugo 0.167.0, production build, served with `script-src 'self'` and no `unsafe-inline`; no violations or script errors
-  from theme code) on a site with one five-photo gallery, 4 tiles per page and 4 photos per gallery: before, page 1 of
-  the photos category and of the home page read "Showing 0 articles, 4 photos"; now "This page: 0 articles, 4 photos".
-  On all 90 wall pages of guyheckman.me, the 80-post site and the exampleSite the caption prefix matches the presence of
-  the pager, before and after. Built output of those sites and the 550-post site, in a development and a production
-  build, differs from 1.3.3 only in the new `data-pages` attribute on each wall, the footer version and the wall
-  script's file name and content.
-
-## [1.3.3] - Unreleased
-
-### Fixed
-- A post in the photos category (or with a `galleries` shortcode) that has no gallery photos is an article everywhere.
-  The wall already showed it as an article tile, but its own page used the photo layout: headed "Photo gallery", with no
-  table of contents or reading time (#166). The post page now uses the photo layout only when the post has photos, as
-  the wall does. Checked with Hugo 0.167.0 on a post with `categories: [Photos]`, a Markdown image and a heading and no
-  gallery: the page was headed "Photo gallery" with no TOC or "min read"; it is now headed "Article", with the table
-  of contents and "min read". A post with a gallery is unchanged. Built output of guyheckman.me, the 80-post and 550-post
-  sites and the exampleSite, in a development and a production build, is byte-identical to 1.3.2 apart from the footer
-  version and the stylesheet and script file names.
-
-## [1.3.2] - Unreleased
-
-### Fixed
-- The tag, category and series A to Z indexes show each letter heading once. A term whose first letter has an accent
-  (Ü, É) sorts among the plain ones in the site's locale order, and the list opened a new heading whenever the letter
-  changed, so tags uarc, Über, ubuntu and unix gave the headings U, Ü, U (#165). The page now collects the letters first
-  and lists each one's terms under its heading, in the same order; accented letters keep their own heading (U and Ü
-  once each). Checked with Hugo 0.167.0 on a site with those tags plus e and É: before, the headings were E, É, U, Ü, U;
-  now E, É, U (Uarc, Ubuntu, Unix), Ü (Über). Built output of guyheckman.me, the 80-post and 550-post sites and the
-  exampleSite, in a development and a production build, is byte-identical to 1.3.1 apart from the footer version and the
-  stylesheet and script file names.
-
-## [1.3.1] - Unreleased
-
-### Fixed
-- Feeds list their posts newest first again. The home, section and term feeds took the posts in Hugo's default order,
-  weight first, so a post with a series `weight` (the README's way to order a series) came ahead of newer ones, and with
-  `[services.rss] limit` set the newest posts could fall off the feed (#163). Items are now sorted by publish date,
-  newest first, before the limit applies; the feed of a taxonomy's terms keeps Hugo's order. Checked with Hugo 0.167.0 on
-  a site with posts weighted -1 and 2 older than an unweighted post and `limit = 2`: `index.xml` was Series one, Series
-  two (the two newest posts missing) and is now Gallery of five, Photos category no gallery; the series feed, which
-  has no limit, now lists Series two before Series one. Built output of the 80-post and 550-post sites, guyheckman.me and
-  the exampleSite, in a development and a production build, differs from 1.3.0 only in the order of items in 16 feeds
-  of each synthetic site (every item and every channel field is the same, and every feed is in date order); guyheckman.me
-  and the exampleSite are byte-identical apart from the footer version and the stylesheet and script file names.
+- An `http://` gallery photo or hero image is no longer fetched in cleartext at build time. The build warns with the ID
+  `theblues-insecure-photo`, naming the URL, and the URL is published as written (#184).
+- A Markdown image with an `http://` source warns with the same ID, once per URL (#218).
 
 ## [1.3.0] - 2026-10-11
 
