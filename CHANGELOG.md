@@ -3,6 +3,21 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.50] - Unreleased
+
+### Changed
+- Phones and one-x screens load a smaller SmugMug size of the hero photo, picked so it still fills the hero at the
+  screen's pixel density: the hero looks the same, and its preload asks for the same size. For example, the
+  photography tag's X5 hero becomes L at 375px and X2 at 1280px, and a photo post's X3 hero becomes L and X2. On
+  guyheckman.me with the cache off and a slow network (150 ms, 1.5 Mbit/s), median of 5 runs, the hero's largest
+  paint at 375px comes sooner: About and article posts 3.2–3.7 s to 1.0 s (hero 329 KB to 72 KB), the home page 4.4 s to
+  3.1 s and tag pages with the site's header image 2.6 s to 1.8 s (192 KB to 113 KB), the Boston gallery 7.7–7.9 s to
+  4.2 s (778 KB to 150 KB), and the photography tag 12.1–12.3 s to 4.0 s (1.57 MB to 116 KB). At 1280px the photography
+  tag and the Monterrey gallery go from 14.6 s to 8.6 s (1.57 MB to 443 KB), the Boston tag from 7.3 s to 6.1 s and the
+  Boston gallery from 12.3 s to 11.0–11.9 s (778 KB to 544 KB), and pages whose hero was already X2 or L don't change.
+  Screens denser than two-x, wider than 1600px, or two-x wider than 640px
+  keep the size the page names, as do photos on other hosts. Share images are unchanged (#149).
+
 ## [1.2.49] - Unreleased
 
 ### Added

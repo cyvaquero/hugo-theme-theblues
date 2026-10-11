@@ -23,10 +23,14 @@
   record their photo in the page's Store as "theblues-hero", but they run after this <head>, so the link is written with templates.Defer
   once the page is done. A page whose layout replaces the header block with no photo (a site's own layout) records
   nothing and gets no preload, so the browser never warns about an unused preload. Term pages and photo posts don't
-  record theirs: their first tiles or title paint first, and a preloaded heavy hero delayed them (#149). Cleared first, since a page's Store
-  survives a rebuild under hugo server. */ -}}
-{{- .Store.Delete "theblues-hero" }}{{ $p := . }}{{ with (templates.Defer (dict "key" (printf "theblues-hero %s" $p.RelPermalink) "data" (dict "page" $p))) }}{{ with .page.Store.Get "theblues-hero" }}
-<link rel="preload" as="image" href="{{ . }}" fetchpriority="high">{{ end }}{{ end }}
+  record theirs: their first tiles or title paint first, and a preloaded heavy hero delayed them (#149). A hero with
+  smaller SmugMug sizes (hero-sizes.html, stored as "theblues-hero-sizes") gets one link per size, each with the media
+  query its size is used under in main.css, so exactly one matches and the browser fetches what the CSS shows (#149).
+  Cleared first, since a page's Store survives a rebuild under hugo server. */ -}}
+{{- .Store.Delete "theblues-hero" }}{{ .Store.Delete "theblues-hero-sizes" }}{{ $p := . }}{{ with (templates.Defer (dict "key" (printf "theblues-hero %s" $p.RelPermalink) "data" (dict "page" $p))) }}{{ $pg := .page }}{{ with $pg.Store.Get "theblues-hero" }}
+{{- $hs := $pg.Store.Get "theblues-hero-sizes" }}{{ if and $hs (eq $hs.src .) }}{{ range $hs.links }}
+<link rel="preload" as="image" href="{{ .href }}" media="{{ .media }}" fetchpriority="high">{{ end }}{{ else }}
+<link rel="preload" as="image" href="{{ . }}" fetchpriority="high">{{ end }}{{ end }}{{ end }}
 {{- /* Icons ship in the theme's static/; a site replaces them by putting files with the same names in its own static/ (#1). */}}
 <link rel="icon" href="{{ "favicon.ico" | relURL }}" sizes="16x16 32x32 48x48">
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
