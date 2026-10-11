@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.37] - Unreleased
+
+### Fixed
+- Keyboard focus on a gallery thumbnail is visible again (#248). The thumbnail's frame clips anything drawn outside the
+  link, so Tab moved focus with no sign of where it was, on photo posts and in galleries inside articles. The 3px focus
+  ring (steel on the page, sand in dark mode) is now drawn on the frame, as it is on a wall tile. In a browser without
+  `:has()` (before Firefox 121) the ring is drawn just inside the thumbnail's edge, steel with a sand line inside it,
+  so it shows on a light or a dark photo. Forced-colors mode keeps the ring. CSS only; the built HTML is unchanged.
+
 ## [1.3.36] - Unreleased
 
 ### Fixed

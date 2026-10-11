@@ -43,7 +43,8 @@ How the images were made is in "Testing the theme" below.
   the CSS features the theme uses (`:has()`, range media queries); they are not tested in those versions. Below them
   the pages still work, with less polish:
   - before Firefox 121 (no `:has()`), a focused wall tile and a focused code block get the browser's ring on the
-    link or the `<pre>` instead of one around the whole tile or block;
+    link or the `<pre>` instead of one around the whole tile or block, and a focused gallery thumbnail gets a ring
+    drawn inside its edge (steel with a sand line inside it) instead of outside it;
   - before Chrome and Edge 104 and Safari 16.4 (no range media queries), a SmugMug hero always loads its full-size
     image instead of the smaller size for the screen;
   - before Chrome and Edge 108, Firefox 101 and Safari 15.4 (no `dvh` units), the lightbox sizes to `vh`, so on a phone
