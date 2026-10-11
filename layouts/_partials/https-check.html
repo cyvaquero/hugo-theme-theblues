@@ -6,8 +6,9 @@
   build time (img-size.html skips it; hero-sizes.html only reads https://photos.smugmug.com), and a browser blocks
   one on an https page as mixed content, or under a CSP that allows only https: images, so the page shows no
   picture where the post meant one (#184). The URL is published as written.
-  Callers run it once per URL and build: img-size.html and hero-sizes.html call it through partialCached already, so a
-  URL warns once, not once per tile or page.
+  Callers run it once per URL and build: img-size.html, hero-sizes.html and the Markdown image render hook
+  (layouts/_markup/render-image.html, #218) call it through partialCached, so a URL warns once, not once per tile or
+  page.
   Usage: {{ if partial "https-check.html" (dict "url" $src "what" "gallery photo") }}…{{ end }}
 */ -}}
 {{- $insecure := findRE `(?i)^http://` .url 1 -}}
