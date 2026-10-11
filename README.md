@@ -196,7 +196,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   `gallery` shortcodes (`src` and `title`) in source order, each linking to the post, followed by one dashed **see-all tile**
   ("Boston Gallery, 14 more photos") that links to the gallery post when photos remain. The gallery post itself shows every
   photo. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
-  for series posts). A photo post with no parsable photos falls back to a single article tile.
+  for series posts). A photo post with no parsable photos falls back to a single article tile on the wall and to the
+  article layout (reading time, table of contents) on its own page.
 - Tiles carry `data-type`, `data-date`, `data-order` (and `data-gallery`, `data-gallery-title` and `data-n`, the
   gallery's photo count, on photos), which `wall.js` reads; `#stage` carries the whole list's article and photo tile
   counts (`data-articles`, `data-photos`) for the type chips. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.

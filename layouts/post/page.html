@@ -1,10 +1,11 @@
 {{- /*
   Posts. A photo post (see partials/is-photo.html) leads with the pictures: hero with the cover, masonry gallery from the
   gallery shortcodes, lightbox. An article gets a serif body with a sticky table of contents. Both end with the series
-  box, Disqus (posts only) and previous/next posts.
+  box, Disqus (posts only) and previous/next posts. A photo post with no gallery photos (a photos category and no
+  gallery shortcode, or none that parses) is an article here, as it is on the wall (wall-tiles.html, #166).
 */ -}}
 {{ define "header" }}
-{{ $photo := partialCached "is-photo.html" . .Path }}
+{{ $photo := and (partialCached "is-photo.html" . .Path) (partialCached "photos.html" . .Path) }}
 {{ $cover := partialCached "cover.html" . .Path }}{{ $hs := dict }}{{ with $cover }}{{ $hs = partialCached "hero-sizes.html" (dict "src" . "h" 416) . 416 }}{{ end }}
 {{- with $cover }}{{ $.Store.Set "theblues-hero" . }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end }}
 <header class="phero"{{ with $cover }} style="--hi:url('{{ . }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
@@ -26,7 +27,7 @@
 </header>
 {{ end }}
 {{ define "main" }}
-{{ if partialCached "is-photo.html" . .Path }}
+{{ if and (partialCached "is-photo.html" . .Path) (partialCached "photos.html" . .Path) }}
 <div class="pbody">{{ .Content }}</div>
 <div class="pb">
   {{ partial "series-box.html" . }}

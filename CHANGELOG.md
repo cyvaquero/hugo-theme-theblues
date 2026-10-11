@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.3] - Unreleased
+
+### Fixed
+- A post in the photos category (or with a `galleries` shortcode) that has no gallery photos is an article everywhere.
+  The wall already showed it as an article tile, but its own page used the photo layout: headed "Photo gallery", with no
+  table of contents or reading time (#166). The post page now uses the photo layout only when the post has photos, as
+  the wall does. Checked with Hugo 0.167.0 on a post with `categories: [Photos]`, a Markdown image and a heading and no
+  gallery: the page was headed "Photo gallery" with no TOC or "min read"; it is now headed "Article", with the table
+  of contents and "min read". A post with a gallery is unchanged. Built output of guyheckman.me, the 80-post and 550-post
+  sites and the exampleSite, in a development and a production build, is byte-identical to 1.3.2 apart from the footer
+  version and the stylesheet and script file names.
+
 ## [1.3.2] - Unreleased
 
 ### Fixed
