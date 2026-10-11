@@ -1,6 +1,7 @@
 {{- /*
   Markdown images. Only http and https URLs and scheme-less paths are used; anything else renders the image with no
-  src. A path that names a page resource or a file in assets/ resolves to its permalink. A titled image becomes a
+  src. An http:// source is kept as written but warns (theblues-insecure-photo, https-check.html, #218), once per URL.
+  A path that names a page resource or a file in assets/ resolves to its permalink. A titled image becomes a
   <figure> with a caption only when it stands alone (.IsBlock, which needs
   markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false); inline, the title is the tooltip. Of a block
   image's Markdown attributes, only class, id, width and height are kept.
@@ -11,6 +12,9 @@
   {{- $u := $r.Value -}}
   {{- if in (slice "" "http" "https") (lower $u.Scheme) -}}
     {{- $src = .Destination -}}
+    {{- if eq (lower $u.Scheme) "http" -}}
+      {{- $_ := partialCached "https-check.html" (dict "url" .Destination "what" "Markdown image") .Destination "Markdown image" -}}
+    {{- end -}}
     {{- if and (not $u.Scheme) (not $u.Host) $u.Path -}}
       {{- $path := strings.TrimPrefix "./" $u.Path -}}
       {{- with or (.PageInner.Resources.Get $path) (resources.Get $path) -}}
