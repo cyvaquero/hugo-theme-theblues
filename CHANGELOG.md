@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.26] - Unreleased
+
+### Fixed
+- The footer's LinkedIn and GitHub links now say they open in a new tab (#186). Like links to other sites in post text,
+  they end with visually hidden "(opens in a new tab)" text, from the existing `opensInNewTab` entry, so a screen reader
+  announces "LinkedIn (opens in a new tab)". They look the same. Checked in headless Chrome with a LinkedIn and a GitHub
+  link set: the accessibility names changed from "LinkedIn" and "GitHub" to the longer ones, the links' positions and
+  sizes and a screenshot of the footer are identical to before, and nothing scrolls sideways. Advisory (WCAG 3.2.5, AAA).
+
 ## [1.3.25] - Unreleased
 
 ### Fixed
