@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.28] - Unreleased
+
+### Fixed
+- The README's build-time note now gives a current figure (#170). It said 550 posts built in about 0.34 s, measured for
+  1.2.0, which the later entries here (0.49 to 0.51 s) contradicted. It now says about 0.5 s, the median of 9 production,
+  minified builds of the 550-post site with a warm cache on Hugo 0.167.0 (range 0.49 to 0.58 s), and that times depend on
+  the machine. Documentation only; no template or output changed.
+
 ## [1.3.27] - Unreleased
 
 ### Fixed
