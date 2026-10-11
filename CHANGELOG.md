@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.34] - Unreleased
+
+### Fixed
+- The README no longer says `analytics-on.html` returns `true` when the theme "loads Google Analytics on the page" (#213),
+  which reads as a per-visitor answer. It returns `true` when the page includes the theme's Google Analytics loader
+  (`analytics.js`): a production build, a Google Analytics ID set, and `[privacy.googleAnalytics] disable` unset. The
+  README now says that this is decided per build, and that the loader still loads nothing for visitors who send Do Not
+  Track or Global Privacy Control. Checked against the partial and `assets/js/analytics.js`. Documentation only; no
+  template or output changed.
+
 ## [1.3.33] - Unreleased
 
 ### Fixed
