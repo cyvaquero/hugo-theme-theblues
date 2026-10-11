@@ -166,7 +166,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
      nojs.css collapses it again (#138). */
   nav.site li.theme[hidden] { display: flex !important; visibility: hidden; }
   nav.site .menu { display: none; }
-  nav.site .links { display: flex; position: static; flex-direction: row; gap: 1.25rem; background: none; border: 0; box-shadow: none; padding: 0; }
+  /* The row wraps, with a smaller row gap, so a long menu or a large text size (zoom) never pushes the theme switch past
+     the edge, where body's overflow-x: hidden would hide it (#171). */
+  nav.site .links { display: flex; position: static; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; gap: .25rem 1.25rem; background: none; border: 0; box-shadow: none; padding: 0; }
   nav.site .links a { border: 0; padding: .35rem 0; }
 }
 

@@ -350,6 +350,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   version.
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
+  From 821px the links are one row; when the menu, the site title and the theme switch don't fit (many items, or a
+  large text size or zoom), the row wraps onto a second line, so every link and the switch stay reachable (#171).
   Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
 - `[[menus.footer]]` (optional): links shown in the footer under the social links, in a navigation landmark named
   "Footer", for example a privacy note (`url = "/about/#privacy"`) or a page (`pageRef`).
