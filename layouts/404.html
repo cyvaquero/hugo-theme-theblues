@@ -1,4 +1,5 @@
 {{ define "header" }}
+{{ with site.Params.image_404 }}{{ $.Store.Set "theblues-hero" (. | absURL) }}{{ end -}}
 <header class="hero"{{ with site.Params.image_404 }} style="--hi:url('{{ . | absURL }}')"{{ end }}>
   <h1>404</h1>
   <p class="sub">{{ site.Params.title_404 | default "Page not found" }}</p>

@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.45] - Unreleased
+
+### Added
+- A page's hero photo starts loading at once, with high priority, instead of after the stylesheet has loaded: `<head>`
+  preloads it (`<link rel="preload" as="image" fetchpriority="high">`) on every page whose hero has a photo, and on no
+  other page, so the browser never warns about an unused preload. On guyheckman.me with the cache off and a slow
+  network (median of 5), the largest paint comes 330 ms sooner on the home page at 375 and 1280px (4.74 → 4.41 s,
+  7.63 → 7.31 s) and about 150 ms sooner on About; the 404 page 1.81 → 1.43 s (median of 3). Where the largest paint
+  is not the hero, the preloaded photo competes with it: a tag page's first tile paints 80 to 450 ms later and a
+  gallery post's title at 1280px about 220 ms later (#7).
+
 ## [1.2.44] - Unreleased
 
 ### Added

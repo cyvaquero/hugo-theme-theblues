@@ -1,5 +1,5 @@
 {{- /* Default page hero (Archive, About, Search, section pages): title and description over the page or site photo. */ -}}
-{{ $img := partialCached "cover.html" . .Path }}
+{{ $img := partialCached "cover.html" . .Path }}{{ with $img }}{{ $.Store.Set "theblues-hero" . }}{{ end }}
 <header class="phero"{{ with $img }} style="--hi:url('{{ . }}')"{{ end }}>
   <div class="in">
     <h1>{{ partial "page-title.html" . }}</h1>

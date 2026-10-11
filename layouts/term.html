@@ -9,7 +9,7 @@
 {{ $posts := where .RegularPages "Section" "in" site.MainSections }}
 {{ $stats := partialCached "term-stats.html" . .Path }}
 {{ $photos := $stats.photos }}
-{{ $cover := $stats.cover }}
+{{ $cover := $stats.cover }}{{ with $cover }}{{ $.Store.Set "theblues-hero" . }}{{ end }}
 <header class="phero thero"{{ with $cover }} style="--hi:url('{{ . }}')"{{ end }}>
   <div class="in">
     <a class="tl" href="{{ site.Home.RelPermalink }}">&larr; Back to all posts</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">All {{ .Title | lower }} &rarr;</a>{{ end }}
