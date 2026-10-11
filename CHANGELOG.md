@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.25] - Unreleased
+
+### Fixed
+- The README's accessibility section now says how its WCAG 2.1 AA target relates to Section 508 (#197). It names the
+  WCAG 2.1 criteria the theme meets that Section 508's WCAG 2.0 baseline doesn't require (1.4.11, 1.4.13, 4.1.3) and
+  says the software chapters (502, 503) don't apply to web content. It also gives the chapter 602 documentation
+  duties: the section is the theme's list of accessibility features (602.2), and the README should itself conform to
+  WCAG 2.0 AA (602.3). Documentation only.
+
 ## [1.3.24] - Unreleased
 
 ### Fixed
