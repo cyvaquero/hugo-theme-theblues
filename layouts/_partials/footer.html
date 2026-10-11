@@ -1,5 +1,9 @@
 <footer class="site">
   <div class="soc">{{ partial "social.html" . }}</div>
-  <p>&copy; {{ site.Title }} {{ now.Year }}</p>
+  {{- with site.Menus.footer }}
+  <nav class="fnav" aria-label="Footer">{{ range . }}<a href="{{ .URL }}">{{ .Name }}</a>{{ end }}</nav>
+  {{- end }}
+  {{- /* The site's copyright line as written, or "© <title> <year>" without one (#6). */}}
+  <p>{{ with site.Copyright }}{{ . }}{{ else }}&copy; {{ site.Title }} {{ now.Year }}{{ end }}</p>
   <p class="ver">Built with Hugo {{ hugo.Version }}{{ with hugo.Data.theblues.version }} and The Blues {{ . }}{{ end }}</p>
 </footer>

@@ -1,7 +1,8 @@
 {{ define "main" }}
 {{- /*
   Taxonomy index: default hero, then an A-Z list with post counts (no tag cloud, decision D14). Counts and the list cover
-  the "post" section only, matching the term pages; terms used only outside it are left out.
+  the site's main sections only (site.MainSections), matching the term pages; terms used only outside them are left
+  out.
 */ -}}
 {{ $isTag := eq .Data.Singular "tag" }}
 <div class="atw">
@@ -10,7 +11,7 @@
   {{ $cur := "" }}
   {{- /* Sorted by the term page's title, which is what's listed and grouped by (a term's _index.md can retitle it, #18). */}}
   {{- range sort .Data.Terms.Alphabetical "Page.Title" }}
-    {{- $n := len (where .Pages "Section" "post") }}
+    {{- $n := len (where .Pages "Section" "in" site.MainSections) }}
     {{- if not $n }}{{ continue }}{{ end }}
     {{- $name := .Page.Title }}
     {{- $letter := upper (substr $name 0 1) }}

@@ -1,0 +1,32 @@
+{{- /*
+  Builds the tile slice for the given posts and paginates it BY TILE (params.wall.tilesPerPage, default 24). Context: a
+  map with "page" (the list page, which owns the paginator) and "posts" (sorted newest first). Prints nothing: it keeps
+  the result in the page's Store as "wall" (posts, the paginator, this pager page's tiles, and the whole list's article and
+  photo tile counts, na and np, for the wall's type chips, #7), for wall-page.html and head.html. The wall layouts call it from their "init" block, which baseof runs before <head>, so the title can carry
+  the page number (#78).
+  Hugo's .Paginate only accepts a collection of pages, not a slice of arbitrary values. So the pager is driven by a stand-in
+  collection with exactly one entry per tile (the home page repeated); the pager supplies the page count, page number and
+  URLs, and the tile slice is cut with the same offsets. Hugo builds a page's paginator once and then renders it once per
+  pager page, so on /page/2/ the same call returns page 2.
+  The tiles and the stand-in are cached per list page (its .Path): every pager page of a list has the same posts, so they
+  are built once per list instead of once per pager page. A production build also keeps them in the list page's Store,
+  as photos.html does, so a big site's partial cache can't evict them between pager pages (#7).
+*/ -}}
+{{- $wall := dict "posts" .posts -}}
+{{- if .posts }}
+{{- $size := 24 -}}
+{{- with site.Params.wall }}{{ $v := .tilesPerPage }}{{ if ne $v nil }}{{ $size = int $v }}{{ end }}{{ end -}}
+{{- if lt $size 1 }}{{ errorf "params.wall.tilesPerPage must be 1 or more (got %d)" $size }}{{ end -}}
+{{- $built := cond hugo.IsServer nil (.page.Store.Get "theblues-wall-tiles") -}}
+{{- if eq $built nil -}}
+  {{- $t := partialCached "wall-tiles.html" .posts .page.Path -}}
+  {{- $built = dict "tiles" $t "stand" (partialCached "wall-stand.html" $t .page.Path) "na" (len (where $t "type" "article")) "np" (len (where $t "type" "photo")) -}}
+  {{- if not hugo.IsServer }}{{ .page.Store.Set "theblues-wall-tiles" $built }}{{ end -}}
+{{- end -}}
+{{- $tiles := $built.tiles -}}
+{{- $stand := $built.stand -}}
+{{- $pag := .page.Paginate $stand $size -}}
+{{- $start := mul (sub $pag.PageNumber 1) $size -}}
+{{- $wall = merge $wall (dict "pag" $pag "tiles" (first $size (after $start $tiles)) "na" $built.na "np" $built.np) -}}
+{{- end }}
+{{- .page.Store.Set "wall" $wall -}}

@@ -5,8 +5,9 @@
 */ -}}
 {{ define "header" }}
 {{ $photo := partialCached "is-photo.html" . .Path }}
-{{ $cover := partialCached "cover.html" . .Path }}
-<header class="phero"{{ with $cover }} style="--hi:url('{{ . }}')"{{ end }}>
+{{ $cover := partialCached "cover.html" . .Path }}{{ $hs := dict }}{{ with $cover }}{{ $hs = partialCached "hero-sizes.html" (dict "src" . "h" 416) . 416 }}{{ end }}
+{{- with $cover }}{{ $.Store.Set "theblues-hero" . }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end }}
+<header class="phero"{{ with $cover }} style="--hi:url('{{ . }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <div class="in">
     <div class="ptype">
       {{- if $photo }}<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo gallery
@@ -16,8 +17,7 @@
     {{ with (.Params.subtitle | default .Description) }}<p class="sub">{{ . }}</p>{{ end }}
     <div class="meta">
       {{- with .GetTerms "categories" }}{{ range $i, $c := . }}{{ if $i }}, {{ end }}<a href="{{ $c.RelPermalink }}">{{ $c.LinkTitle | title }}</a>{{ end }} &middot; {{ end -}}
-      {{- if .Date.IsZero }}{{ warnf "%s has no date; it is shown as Undated. Set date in its front matter (#36)." .File.Path }}Undated
-      {{- else }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2, 2006" }}</time>{{ end }}
+      {{- if .Date.IsZero }}{{ warnidf "theblues-undated" "%s has no date; it is shown as Undated. Set date in its front matter (#36)." .File.Path }}{{ end }}{{ partial "date.html" (dict "date" .Date "time" true) }}
       {{- if $photo }}{{ with partialCached "photos.html" . .Path }} &middot; {{ len . }} {{ cond (eq (len .) 1) "photo" "photos" }}{{ end }}
       {{- else }} &middot; {{ .ReadingTime }} min read{{ end -}}
       {{- range .GetTerms "tags" }} <a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}
@@ -33,13 +33,18 @@
   {{ partial "comments.html" . }}
 </div>
 {{ else }}
-{{- /* showtoc: false (boolean or the string "false") turns the TOC off (#18). */}}
-{{ $toc := and (ne (lower (printf "%v" (.Param "showtoc"))) "false") (in .TableOfContents "<li>") }}
+{{- /* showtoc: false (boolean or the string "false") turns the TOC off (#18). The TOC shows when Hugo's has a link,
+  so a post whose headings are all outside the TOC levels gets none (#117). Templates can't read the TOC levels, so the
+  theme keeps Hugo's TOC rather than building one from .Fragments, and warns if its wrapper changes, since the check
+  and the aria-label below depend on that markup (#87). */}}
+{{- $tocNav := `<nav id="TableOfContents">` }}
+{{- if not (in .TableOfContents $tocNav) }}{{ warnidf "theblues-toc-markup" "%s: Hugo's table of contents has no %s, so the theme can't check it or label it; update layouts/post/page.html (#87)." .File.Path $tocNav }}{{ end }}
+{{ $toc := and (ne (lower (printf "%v" (.Param "showtoc"))) "false") (in .TableOfContents "<a ") }}
 <div class="apage{{ if $toc }} has-toc{{ end }}">
   {{ if $toc }}
   <div class="toc">
     <strong>On this page</strong>
-    {{ replace .TableOfContents `<nav id="TableOfContents">` `<nav id="TableOfContents" aria-label="Table of contents">` | safeHTML }}
+    {{ replace .TableOfContents $tocNav `<nav id="TableOfContents" aria-label="Table of contents">` | safeHTML }}
   </div>
   {{ end }}
   <article>

@@ -1,15 +1,12 @@
 {{- /*
-  One photo tile (image only, camera badge, caption on hover/focus). Context: page (the post), photo (map from
-  photos.html), i (0-based index in the gallery), n (photos in the gallery), order (position in the wall).
-  The data attributes are read by assets/js/wall.js.
+  One photo tile; the markup is in tile-photo-body.html. The same photo appears on the home wall and on each of its
+  tag, category and series walls, identical except for data-order, so the tile is rendered once per photo
+  (tile-photo-parts.html, cached) and only the order is filled in per wall. Context as tile-photo-body.html: page,
+  photo, i, n, order.
 */ -}}
-{{- $pg := .page -}}
-{{- $t := partial "page-title.html" $pg -}}{{- /* falls back to the file name for an untitled post (#65) */ -}}
-{{- $p := .photo -}}
-{{- $what := cond (eq .n 1) "photo" "photos" -}}
-<figure class="tile photo" data-type="photo" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $t }}" data-date="{{ if not $pg.Date.IsZero }}{{ $pg.Date.Format "2006-01-02" }}{{ end }}" data-order="{{ .order }}">
-  <a class="cover" href="{{ $pg.RelPermalink }}" aria-label="{{ $t }}, {{ .n }} {{ $what }}, {{ if $pg.Date.IsZero }}undated{{ else }}{{ $pg.Date.Format "Jan 2, 2006" }}{{ end }}. Photo {{ add .i 1 }} of {{ .n }}{{ with $p.title }}: {{ . }}{{ end }}">
-    <img src="{{ $p.src }}" alt="" loading="lazy" decoding="async"><span class="badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo</span>
-  </a>
-  <figcaption>{{ $t }} &middot; {{ .n }} {{ $what }}<div class="meta">{{ if $pg.Date.IsZero }}Undated{{ else }}{{ $pg.Date.Format "Jan 2, 2006" }}{{ end }}</div></figcaption>
-</figure>
+{{- $parts := partialCached "tile-photo-parts.html" . (printf "%s|%d|%d" .page.Path .i .n) -}}
+{{- if eq (len $parts) 2 -}}
+{{ index $parts 0 }}{{ .order }}{{ index $parts 1 }}
+{{- else -}}
+{{ partial "tile-photo-body.html" . }}
+{{- end -}}

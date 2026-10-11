@@ -5,6 +5,7 @@ license = "Apache-2.0"
 licenselink = "https://github.com/cyvaquero/hugo-theme-theblues/blob/main/LICENSE"
 tags = ["blog", "responsive", "dark mode", "photography", "minimal"]
 features = ["light and dark", "responsive", "series taxonomy", "photo galleries", "table of contents", "google analytics (respects Do Not Track and Global Privacy Control)", "disqus comments (click to load)"]
+# Metadata for the themes gallery only; Hugo enforces [module.hugoVersion] min in hugo.toml. Keep the two the same.
 min_version = "0.163.3"
 
 [author]

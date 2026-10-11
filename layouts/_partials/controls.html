@@ -1,6 +1,8 @@
 {{- /*
   Browse controls: type chips, the "View options" popover, Clear and the live caption. Hidden until assets/js/wall.js
   runs (progressive enhancement); the wall works without them. Flags the page so baseof loads wall.js.
+  The popover follows its button in the markup (it is absolutely positioned, so this doesn't move it), so Tab goes from
+  View options into the popover and Shift+Tab comes back to the button (#77).
 */ -}}
 {{- .Store.Set "hasWall" true -}}
 <div class="ctl" id="ctl" role="region" aria-label="Browse controls" hidden>
@@ -10,8 +12,6 @@
     <button type="button" data-f="photo" aria-pressed="false">Photos <span class="n"></span></button>
   </div>
   <button type="button" class="vbtn" id="vb" aria-expanded="false" aria-controls="pop">View options<span class="bdg" data-badge="opts" hidden></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button>
-  <button type="button" class="clr" data-role="clear" hidden>Clear</button>
-  <p class="cap" aria-live="polite"></p>
   <div class="pop" id="pop" role="group" aria-label="View options" hidden>
     <div class="ps"><span class="pl">Mode</span>
       <div class="seg mode" role="group" aria-label="Filter mode">
@@ -30,4 +30,6 @@
     <label class="swt"><span>Group by gallery</span><span class="r"><span class="st" aria-hidden="true">Off</span><input type="checkbox" role="switch" data-role="grp"></span></label>
     <button type="button" class="clr" data-role="reset" hidden>Reset</button>
   </div>
+  <button type="button" class="clr" data-role="clear" hidden>Clear</button>
+  <p class="cap" aria-live="polite"></p>
 </div>

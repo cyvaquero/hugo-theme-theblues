@@ -1,0 +1,28 @@
+{{- /*
+  Width and height of a remote photo, read at build time, so the wall and gallery images reserve their shape before
+  they load and the masonry doesn't reflow (#7). Context: the image URL. Returns dict "w" "h", or an empty dict when the
+  size isn't known; callers then leave the attributes out and the CSS 3:2 placeholder applies.
+  resources.GetRemote keeps each download in Hugo's getresource file cache (caches.getresource, by default
+  :cacheDir/:project, kept forever), so only a photo new to the cache is fetched. A fetch that fails (offline, DNS,
+  timeout, a server error or a refusal) is silent, so an offline build still passes --panicOnWarning. A server that
+  answers but has no image there (HTTP 404, or not an image) is a broken photo link, so that warns
+  (theblues-image-size); a site can silence it with ignoreLogs.
+  Usage: {{ $sz := partialCached "img-size.html" $src $src }}
+*/ -}}
+{{- $out := dict -}}
+{{- if findRE `^https?://` . 1 -}}
+  {{- $r := try (resources.GetRemote .) -}}
+  {{- if not $r.Err -}}
+    {{- with $r.Value -}}
+      {{- if reflect.IsImageResourceWithMeta . -}}
+        {{- $w := try .Width -}}{{- $h := try .Height -}}
+        {{- if and (not $w.Err) (not $h.Err) (gt $w.Value 0) (gt $h.Value 0) }}{{ $out = dict "w" $w.Value "h" $h.Value }}{{ end -}}
+      {{- else -}}
+        {{- warnidf "theblues-image-size" "image size: %s is not an image (%s), so its tile and gallery image get no width and height" $ .MediaType.Type -}}
+      {{- end -}}
+    {{- else -}}
+      {{- warnidf "theblues-image-size" "image size: %s was not found (HTTP 404), so its tile and gallery image get no width and height" . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $out -}}

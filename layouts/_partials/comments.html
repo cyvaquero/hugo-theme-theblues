@@ -1,18 +1,26 @@
 {{- /*
   Disqus on blog posts only (decision D8), click to load (#16): the page shows a "Show comments" button, and
-  assets/js/comments.js loads Disqus only when it is clicked. Development builds show a note instead. Optional front
-  matter disqus_url, disqus_identifier and disqus_title are passed to Disqus. Included from post/page.html.
+  assets/js/comments.js loads Disqus only when it is clicked. Builds for any environment other than production
+  (hugo server, --environment staging) show a note instead (#84). Optional front matter disqus_url, disqus_identifier
+  and disqus_title are passed to Disqus. Included from post/page.html.
+  Hugo's [privacy.disqus] disable = true turns comments off (#72).
+  The heading and the status are for the script (#162): after the click it shows the heading and focuses it (an empty
+  container has no name to announce), and it writes "Loading comments…", "Comments loaded." or the failure message into
+  the status. The status is a live region and is on the page from the start, empty, because a region added together
+  with its text is often not announced. The heading stays hidden until then, so a reader without JavaScript sees none.
 */ -}}
-{{ with site.Config.Services.Disqus.Shortname }}
+{{ with site.Config.Services.Disqus.Shortname }}{{ if not site.Config.Privacy.Disqus.Disable }}
 {{- $.Store.Set "hasComments" true }}
 <div class="comments" id="disqus-comment">
   {{- if hugo.IsProduction }}
+  <h2 id="comments-h" tabindex="-1" hidden>Comments</h2>
+  <div id="comments-status" class="cstatus" role="status"></div>
   <button type="button" class="showc" hidden data-shortname="{{ . }}"{{ with $.Params.disqus_url }} data-url="{{ . }}"{{ end }}{{ with $.Params.disqus_identifier }} data-identifier="{{ . }}"{{ end }}{{ with $.Params.disqus_title }} data-title="{{ . }}"{{ end }}>Show comments</button>
   <noscript><p class="meta">Comments need JavaScript.</p></noscript>
   {{- else }}
-  <p class="meta">Disqus comments are not loaded in development builds.</p>
+  <p class="meta">Disqus comments are not loaded outside production builds.</p>
   {{- end }}
   <div id="disqus_thread"></div>
   <p class="meta">Comments are hosted by <a href="https://disqus.com/">Disqus</a>. Showing them sends your visit to Disqus and its partners.</p>
 </div>
-{{ end }}
+{{ end }}{{ end }}

@@ -1,0 +1,79 @@
+{{- /*
+  Smaller SmugMug sizes for a hero photo (#149), so a phone or a one-x screen doesn't load a size much larger than the
+  hero box. Context: dict "src" (the hero URL, as in --hi) "h" (the tallest the hero box gets, in CSS pixels: 416 for
+  .phero, whose min-height is at most 26rem; 240 for .hero, about 225 at most). Returns dict "src", "vars" (extra
+  declarations for the hero's style attribute, ";--hi1:url(…)" and so on) and "links" (slice of dict "href" "media"
+  for the preload), or an empty dict for any other URL, or when the size can't be read (offline build): the hero then
+  keeps its one URL, as before.
+  Tiers, the same as in main.css (section 4), by viewport width and pixel ratio:
+    1: one-x, up to 480px     2: one-x, 481 to 800px     3: one-x, 801 to 1280px
+    4: over one-x up to two-x, up to 640px                 5: one-x, 1281 to 1600px
+  Wider or denser screens use the src size. For each tier, the hero gets the smallest of SmugMug's M, L, XL, X2 and X3
+  that is smaller than src and still covers the box at the tier's widest viewport and highest pixel ratio
+  (background-size: cover needs the photo at least as wide as the viewport and as tall as the box, in device pixels;
+  1px is allowed for SmugMug's rounding, 1279 for 1280), so it is never shown at less than one photo pixel per device
+  pixel. Sizes follow smug-srcset.html: the size name replaces the one in the path segment and the file suffix, scaled
+  to fit a box (M 600×450, L 800×600, XL 1024×768, X2 1280×960), never enlarged, so each size's pixels are worked out
+  from X2's, read at build time as img-size.html does. Only URLs whose path is plain letters, digits and -_.~/ qualify, so the
+  declarations need no quotes or escaping.
+*/ -}}
+{{- $out := dict -}}
+{{- $names := slice "M" "L" "XL" "X2" "X3" "X4" "X5" -}}
+{{- $m := findRESubmatch `^https://photos\.smugmug\.com/[A-Za-z0-9_.~/-]+/(M|L|XL|X2|X3|X4|X5)/[A-Za-z0-9_.~-]+-(M|L|XL|X2|X3|X4|X5)\.([A-Za-z0-9]+)$` .src 1 -}}
+{{- if and $m (eq (index $m 0 1) (index $m 0 2)) -}}
+  {{- $cur := index $m 0 1 -}}
+  {{- $rank := 0 }}{{ range $i, $n := $names }}{{ if eq $n $cur }}{{ $rank = $i }}{{ end }}{{ end -}}
+  {{- $re := printf `/%s/([A-Za-z0-9_.~-]+)-%s\.([A-Za-z0-9]+)$` $cur $cur -}}
+  {{- /* Pixels of the X2 size, and of X3 for an X4 or X5 hero (X3's can't be worked out from X2's). Read like
+    img-size.html, but a failure of any kind is silent: the hero just keeps its one URL. */ -}}
+  {{- $px := dict -}}
+  {{- range $n := cond (gt $rank 4) (slice "X2" "X3") (slice "X2") -}}
+    {{- $r := try (resources.GetRemote (replaceRE $re (printf "/%s/${1}-%s.${2}" $n $n) $.src)) -}}
+    {{- if and (not $r.Err) $r.Value -}}{{- with $r.Value -}}{{- if reflect.IsImageResourceWithMeta . -}}
+      {{- $w := try .Width }}{{ $h := try .Height -}}
+      {{- if and (not $w.Err) (not $h.Err) (gt $w.Value 0) (gt $h.Value 0) }}{{ $px = merge $px (dict (lower $n) (dict "w" $w.Value "h" $h.Value)) }}{{ end -}}
+    {{- end -}}{{- end -}}{{- end -}}
+  {{- end -}}
+  {{- $sz := $px.x2 | default dict -}}
+  {{- if and $sz.w $sz.h (gt $rank 0) -}}
+    {{- /* Candidates, smallest first, with their pixels. */ -}}
+    {{- $cands := slice -}}
+    {{- range first $rank (slice (slice "M" 600 450) (slice "L" 800 600) (slice "XL" 1024 768) (slice "X2" 1280 960)) -}}
+      {{- $r := math.Min 1 (div (float (index . 1)) $sz.w) (div (float (index . 2)) $sz.h) -}}
+      {{- $cands = $cands | append (dict "n" (index . 0) "w" (math.Floor (mul $r $sz.w)) "h" (math.Floor (mul $r $sz.h))) -}}
+    {{- end -}}
+    {{- with $px.x3 }}{{ $cands = $cands | append (dict "n" "X3" "w" .w "h" .h) }}{{ end -}}
+    {{- $tiers := slice
+      (dict "w" 480 "d" 1 "media" "(resolution <= 1dppx) and (width <= 480px)")
+      (dict "w" 800 "d" 1 "media" "(resolution <= 1dppx) and (480px < width <= 800px)")
+      (dict "w" 1280 "d" 1 "media" "(resolution <= 1dppx) and (800px < width <= 1280px)")
+      (dict "w" 640 "d" 2 "media" "(1dppx < resolution <= 2dppx) and (width <= 640px)")
+      (dict "w" 1600 "d" 1 "media" "(resolution <= 1dppx) and (1280px < width <= 1600px)")
+    -}}
+    {{- $vars := "" -}}
+    {{- $urls := slice -}}
+    {{- range $i, $t := $tiers -}}
+      {{- $u := $.src -}}
+      {{- range $c := $cands -}}
+        {{- if and (eq $u $.src) (ge (add $c.w 1) (mul $t.w $t.d)) (ge (add $c.h 1) (mul $.h $t.d)) -}}
+          {{- $u = replaceRE $re (printf "/%s/${1}-%s.${2}" $c.n $c.n) $.src -}}
+        {{- end -}}
+      {{- end -}}
+      {{- if ne $u $.src }}{{ $vars = printf "%s;--hi%d:url(%s)" $vars (add $i 1) $u }}{{ end -}}
+      {{- $urls = $urls | append $u -}}
+    {{- end -}}
+    {{- with $vars -}}
+      {{- /* One preload per URL, for the tiers that use it; the src size also covers what no tier does: denser
+        screens, and wider ones. */ -}}
+      {{- $links := slice -}}
+      {{- range $u := ($urls | append $.src | uniq) -}}
+        {{- $media := slice -}}
+        {{- range $i, $t := $tiers }}{{ if eq (index $urls $i) $u }}{{ $media = $media | append $t.media }}{{ end }}{{ end -}}
+        {{- if eq $u $.src }}{{ $media = $media | append "(resolution > 2dppx)" "(resolution > 1dppx) and (width > 640px)" "(width > 1600px)" }}{{ end -}}
+        {{- $links = $links | append (dict "href" $u "media" (delimit $media ", ")) -}}
+      {{- end -}}
+      {{- $out = dict "src" $.src "vars" . "links" $links -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $out -}}

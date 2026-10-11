@@ -1,0 +1,52 @@
+# Fixture site for The Blues: content that exercises the theme's edge cases (README, "Testing the theme"). Not used by
+# sites that install the theme. Build from this folder with the theme checkout two levels up:
+#   hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d <output dir>
+baseURL = "https://example.org/"
+title = "The Blues fixtures"
+locale = "en-US"
+theme = "hugo-theme-theblues"
+# The section that holds the posts (README, "Content structure").
+mainSections = ["post"]
+# The fixtures trigger these warnings on purpose (an untitled photo, an undated post, the legacy menu, and the raw HTML
+# Hugo drops for a {{% galleries %}} block); they are silenced here so --panicOnWarning still catches anything else.
+ignoreLogs = ["theblues-gallery-no-title", "theblues-undated", "theblues-addtional-menus", "warning-goldmark-raw-html"]
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+  series = "series"
+
+[markup.highlight]
+  noClasses = false
+[markup.tableOfContents]
+  startLevel = 1
+  endLevel = 3
+
+[services.disqus]
+  shortname = "theblues-fixtures"
+
+[params]
+  header_image = "img/head.jpg"
+  slogan = "Testing the blues."
+  tagline = "Edge cases, all on one site."
+  description = "Fixture content for The Blues."
+  search_enabled = true
+  showtoc = true
+  # A legacy Clean White menu: used because no [[menus.main]] is defined (deprecated, #86).
+  [[params.addtional_menus]]
+    title = "ABOUT"
+    href = "/about"
+  [[params.addtional_menus]]
+    title = "ARCHIVE"
+    href = "/archive/"
+  [params.social]
+    rss = true
+    github = "https://github.com/cyvaquero/hugo-theme-theblues"
+  [params.wall]
+    # Small, so the home wall and the photos category run past page 1.
+    tilesPerPage = 4
+    photosPerGallery = 2
+
+[[menus.footer]]
+  name = "Privacy"
+  url = "/about/#privacy"

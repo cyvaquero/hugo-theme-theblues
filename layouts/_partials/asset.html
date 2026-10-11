@@ -2,6 +2,9 @@
   Returns a CSS/JS resource from assets/. Production builds are minified and fingerprinted (comments stripped, content
   hash in the file name). Development builds (hugo server) return the readable, commented source unchanged.
   Usage: {{ with partialCached "asset.html" "css/main.css" "css/main.css" }}...{{ .RelPermalink }}...{{ end }}
+  Returns nil when the file doesn't exist, so a site's own partials can use it for optional files. The theme's own
+  callers fail the build in that case (an {{ else }} with errorf), so a missing theme asset can't silently drop its tag
+  from every page (#83).
 */ -}}
 {{- $r := resources.Get . -}}
 {{- if and $r (not hugo.IsDevelopment) -}}

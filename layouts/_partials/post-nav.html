@@ -1,6 +1,12 @@
 {{- /* Previous (older) and next (newer) post by date, across all posts. Titles go through page-title.html, so an untitled
-  post still gets link text (#65). */ -}}
-{{- $all := (where site.RegularPages "Section" "post").ByDate -}}
+  post still gets link text (#65). A production build sorts the posts once and keeps them in the home page's Store, as
+  photos.html does, instead of once per post (#7). */ -}}
+{{- $key := "theblues-post-nav" -}}
+{{- $all := cond hugo.IsServer nil (site.Home.Store.Get $key) -}}
+{{- if eq $all nil -}}
+  {{- $all = (where site.RegularPages "Section" "in" site.MainSections).ByDate -}}
+  {{- if not hugo.IsServer }}{{ site.Home.Store.Set $key $all }}{{ end -}}
+{{- end -}}
 {{- $older := $all.Next . -}}
 {{- $newer := $all.Prev . -}}
 {{- if or $older $newer }}

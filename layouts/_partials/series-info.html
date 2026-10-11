@@ -1,16 +1,20 @@
 {{- /*
-  Position of a page in its (first) series: returns a map with name, url, part (1-based), total and pages (oldest first),
-  or an empty map when the page is not in a series. Used for the "Part N of M" chip on wall tiles (series-box.html renders every series itself).
+  Position of a page in each of its series, in front matter order: returns a slice of maps with name, url, part
+  (1-based), total and pages, empty when the page is not in a series. Pages are in Hugo's weight order: posts with a
+  weight (negative ones included) first, lowest first, then the rest; oldest first within each (#6). series-box.html renders every
+  entry; the "Part N of M" chip on wall tiles (tile-article.html) shows the first.
+  Usage: {{ $series := partialCached "series-info.html" $page $page.Path }}
 */ -}}
 {{- $page := . -}}
-{{- $info := dict -}}
-{{- with .GetTerms "series" -}}
-  {{- $t := index . 0 -}}
-  {{- $pages := $t.RegularPages.ByDate -}}
+{{- $out := slice -}}
+{{- range .GetTerms "series" -}}
+  {{- $byDate := .RegularPages.ByDate -}}
+  {{- /* "ne 0", not "gt 0": Hugo accepts negative weights and sorts them first, and a "gt 0" / "eq 0" pair drops them from the series (#161). */ -}}
+  {{- $pages := (sort (where $byDate "Weight" "ne" 0) "Weight") | append (where $byDate "Weight" 0) -}}
   {{- $part := 0 -}}
   {{- range $i, $p := $pages -}}{{- if eq $p.RelPermalink $page.RelPermalink -}}{{- $part = add $i 1 -}}{{- end -}}{{- end -}}
   {{- if $part -}}
-    {{- $info = dict "name" $t.LinkTitle "url" $t.RelPermalink "part" $part "total" (len $pages) "pages" $pages -}}
+    {{- $out = $out | append (dict "name" .LinkTitle "url" .RelPermalink "part" $part "total" (len $pages) "pages" $pages) -}}
   {{- end -}}
 {{- end -}}
-{{- return $info -}}
+{{- return $out -}}

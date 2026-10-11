@@ -1,5 +1,7 @@
-# Theme configuration (module settings). Site settings live in the site's config.toml.
+# Theme configuration (module settings). Site settings live in the site's hugo.toml.
 [module]
   [module.hugoVersion]
     extended = false
+    # The minimum Hugo version: Hugo checks this one and warns on older versions. theme.toml's min_version mirrors it
+    # for the themes gallery; keep the two the same.
     min = "0.163.3"

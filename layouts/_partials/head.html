@@ -4,6 +4,11 @@
 {{ $st := site.Params.SEOTitle | default site.Title }}
 {{- /* "Page | Site", or just the page title when the site title is empty (#18). */}}
 {{ $title := cond .IsHome ($st | default $pt) (cond (ne $st "") (printf "%s | %s" $pt $st) $pt) }}
+{{- /* Wall pages after the first add their number: "Site – Page 2", "Hugo – Page 2 | Site" (#78). The wall layouts
+  build the paginator before <head> (wall-pager.html); other pages have no "wall" in their Store. */}}
+{{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}
+{{ $title = cond (or $.IsHome (eq $st "")) (printf "%s – Page %d" $title .PageNumber) (printf "%s – Page %d | %s" $pt .PageNumber $st) }}
+{{ end }}{{ end }}{{ end }}
 {{ $desc := .Description | default site.Params.description }}
 {{ $img := partialCached "cover.html" . .Path }}
 {{- /* Share image: the page's own image or first photo, else params.og_image, else the cover (the header image). */}}
@@ -13,10 +18,26 @@
 {{ with $desc }}<meta name="description" content="{{ . }}">{{ end }}
 {{ with site.Params.keyword }}<meta name="keywords" content="{{ . }}">{{ end }}
 <link rel="canonical" href="{{ .Permalink }}">
+{{- /* Hero image preload (#7): the hero's photo is a CSS background, which the browser finds only after main.css has
+  loaded and the hero is laid out. Every theme hero (home, 404, hero.html, posts and term pages) records its photo in
+  the page's Store as "theblues-hero", but they run after this <head>, so the link is written with templates.Defer
+  once the page is done. A page whose layout replaces the header block with no photo (a site's own layout) records
+  nothing and gets no preload, so the browser never warns about an unused preload. Term pages and photo posts got no
+  preload in 1.2.47, when their heavy X3 or X5 heroes delayed their first paint; with the smaller sizes below their
+  hero is the largest paint and the preload brings it sooner (#149). A hero with
+  smaller SmugMug sizes (hero-sizes.html, stored as "theblues-hero-sizes") gets one link per size, each with the media
+  query its size is used under in main.css, so exactly one matches and the browser fetches what the CSS shows (#149).
+  Cleared first, since a page's Store survives a rebuild under hugo server. */ -}}
+{{- .Store.Delete "theblues-hero" }}{{ .Store.Delete "theblues-hero-sizes" }}{{ $p := . }}{{ with (templates.Defer (dict "key" (printf "theblues-hero %s" $p.RelPermalink) "data" (dict "page" $p))) }}{{ $pg := .page }}{{ with $pg.Store.Get "theblues-hero" }}
+{{- $hs := $pg.Store.Get "theblues-hero-sizes" }}{{ if and $hs (eq $hs.src .) }}{{ range $hs.links }}
+<link rel="preload" as="image" href="{{ .href }}" media="{{ .media }}" fetchpriority="high">{{ end }}{{ else }}
+<link rel="preload" as="image" href="{{ . }}" fetchpriority="high">{{ end }}{{ end }}{{ end }}
 {{- /* Icons ship in the theme's static/; a site replaces them by putting files with the same names in its own static/ (#1). */}}
 <link rel="icon" href="{{ "favicon.ico" | relURL }}" sizes="16x16 32x32 48x48">
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | relURL }}">
+{{- /* The browser-UI color is the nav band's: --band in assets/css/main.css (the light value, and the dark value in both
+  dark blocks). Keep these two values the same as those (#91); theme.js reads them back from these metas. */}}
 <meta name="theme-color" content="#1B3C53" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F2332" media="(prefers-color-scheme: dark)">
 {{- /* The site feed on every page, plus a list page's own feed (term, section) (#2). */}}
@@ -40,10 +61,11 @@
 <meta name="color-scheme" content="light dark">
 {{- /* Color theme switch (#22): blocking on purpose, so a picked light or dark mode applies before the first paint. It
   runs after the color-scheme and theme-color metas, which it updates. External, so a CSP needs no hash for it. */}}
-{{ with partialCached "asset.html" "js/theme.js" "js/theme.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}></script>{{ end }}
-{{ with partialCached "asset.html" "css/main.css" "css/main.css" }}<link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}>{{ end }}
-{{- /* Google Analytics: production builds only, unless privacy.googleAnalytics.disable is set, through
-  assets/js/analytics.js, which loads nothing for Do Not Track or Global Privacy Control visitors (#16). */}}
-{{ with site.Config.Services.GoogleAnalytics.ID }}{{ $id := . }}{{ if and hugo.IsProduction (not site.Config.Privacy.GoogleAnalytics.Disable) }}{{ with partialCached "asset.html" "js/analytics.js" "js/analytics.js" }}<script src="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }} data-id="{{ $id }}" defer></script>{{ end }}{{ end }}{{ end }}
-{{ with partialCached "asset.html" "css/nojs.css" "css/nojs.css" }}<noscript><link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}></noscript>{{ end }}
+{{ partial "script.html" (dict "path" "js/theme.js") }}
+{{ partial "stylesheet.html" "css/main.css" }}
+{{- /* Google Analytics: production builds with a GA ID only, unless privacy.googleAnalytics.disable is set, as decided
+  by analytics-on.html, which sites call too (#146). assets/js/analytics.js loads nothing for Do Not Track or Global
+  Privacy Control visitors (#16). */}}
+{{ if partial "analytics-on.html" . }}{{ partial "script.html" (dict "path" "js/analytics.js" "data" (dict "id" site.Config.Services.GoogleAnalytics.ID) "defer" true) }}{{ end }}
+<noscript>{{ partial "stylesheet.html" "css/nojs.css" }}</noscript>
 {{ partial "head-end.html" . -}}
