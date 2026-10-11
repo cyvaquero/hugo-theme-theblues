@@ -3,6 +3,28 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.21] - Unreleased
+
+### Fixed
+- More links are 44px tall on touch screens, and the README now says exactly which (#175). The README said "targets are
+  44px on touch screens", but only chips, the View options and Clear buttons, the theme switch, tags and tile tag links
+  were enlarged. The touch-target rules (coarse pointer) now also cover the nav brand, the desktop nav row's links (on
+  a touch screen 821px or wider), the hero's category link, the table of contents entries, the series box's list and
+  previous/next links, and the post navigation links, and the tile tag links go from 43px to 44px. Only the height is
+  set. The README lists what is enlarged and what is not (links in running text, the series name link in the series
+  box title, an article tile's title link, which sits inside a tile that is one link). WCAG 2.5.5 Target Size is AAA
+  and not required (documentation accuracy); Section 508 602.2. Checked with Hugo 0.167.0 and headless Chrome with
+  touch emulation (`pointer: coarse`) at 390px: 1.3.20 measured the hero category link 44x16, TOC links 31 tall, series
+  links 25 and 28, post navigation links 28, the brand 42 and tile tag links 43; now each is 44 tall. A survey of every
+  link, button and control on 16 pages (home, a series post, an untitled post, photo posts, tag, category, archive,
+  About, Search, series pages, 404, a second wall page, with the popover and menu open) found nothing under 44px
+  except the Group switch's checkbox (its row is 44px), article tile title links (the tile is the target), inline
+  links in text and the series name link. At 1024px the desktop nav links were 35 and are now 44; the nav height on
+  guyheckman.me (821px and 1024px) is unchanged. The page grows a little where lists got taller: on the test series post
+  the table of contents 113px to 152px, the series box 185px to 215px, the post navigation 61px to 77px; the hero is
+  unchanged (416px). Without a coarse pointer every measured height is the same as before. Built output of
+  guyheckman.me and the exampleSite differs from 1.3.20 only in the fingerprints and the footer version.
+
 ## [1.3.20] - Unreleased
 
 ### Fixed

@@ -470,7 +470,17 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .seg.mode button { min-height: 44px; }
   .thm button { min-width: 44px; min-height: 44px; }
   .tag { min-height: 44px; display: inline-flex; align-items: center; padding: 0 .9rem; }
-  .tile .meta a { display: inline-block; padding: .6rem .2rem; }
+  .tile .meta a { display: inline-block; padding: .6rem .2rem; min-height: 44px; }
+  /* Links in text and lists (#175): at least 44px tall. Only the height is set; a short word stays narrower. Blocks and
+     rows get the height from min-height and center their text; the hero's inline category links keep their line by
+     taking the extra height back as negative margin, so the hero doesn't grow. */
+  nav.site .brand { display: inline-flex; align-items: center; min-height: 44px; padding: 0; }
+  .phero .meta a:not(.tag) { display: inline-block; min-height: 44px; line-height: 44px; margin-block: -11px; vertical-align: middle; }
+  .toc a { display: flex; align-items: center; min-height: 44px; padding: 0; }
+  .series li { align-items: center; min-height: 44px; padding: 0; }
+  .series li a, .series .pager a { display: inline-flex; align-items: center; min-height: 44px; }
+  .nav2 a { display: inline-flex; align-items: center; min-height: 44px; }
+  @media (min-width: 821px) { nav.site .links a { display: inline-flex; align-items: center; min-height: 44px; } }  /* the desktop row; the menu's links are 44px already */
 }
 
 /* 14 Reduced motion --------------------------------------------------------------------------------------- */
