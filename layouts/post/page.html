@@ -6,7 +6,7 @@
 {{ define "header" }}
 {{ $photo := partialCached "is-photo.html" . .Path }}
 {{ $cover := partialCached "cover.html" . .Path }}{{ $hs := dict }}{{ with $cover }}{{ $hs = partialCached "hero-sizes.html" (dict "src" . "h" 416) . 416 }}{{ end }}
-{{- if not $photo }}{{ with $cover }}{{ $.Store.Set "theblues-hero" . }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end }}{{ end }}
+{{- with $cover }}{{ $.Store.Set "theblues-hero" . }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end }}
 <header class="phero"{{ with $cover }} style="--hi:url('{{ . }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <div class="in">
     <div class="ptype">

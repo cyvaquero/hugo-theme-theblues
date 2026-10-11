@@ -10,7 +10,7 @@
 {{ $stats := partialCached "term-stats.html" . .Path }}
 {{ $photos := $stats.photos }}
 {{ $cover := $stats.cover }}
-{{- $hs := dict }}{{ with $cover }}{{ $hs = partialCached "hero-sizes.html" (dict "src" . "h" 416) . 416 }}{{ end }}
+{{- $hs := dict }}{{ with $cover }}{{ $hs = partialCached "hero-sizes.html" (dict "src" . "h" 416) . 416 }}{{ $.Store.Set "theblues-hero" . }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end }}
 <header class="phero thero"{{ with $cover }} style="--hi:url('{{ . }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <div class="in">
     <a class="tl" href="{{ site.Home.RelPermalink }}">&larr; Back to all posts</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">All {{ .Title | lower }} &rarr;</a>{{ end }}
