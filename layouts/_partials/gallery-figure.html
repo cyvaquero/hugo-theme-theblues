@@ -1,3 +1,6 @@
-{{- /* One gallery photo: the X2 thumbnail linking to the X3 size. Context: dict "src" "alt". Used by the gallery shortcode. */ -}}
-<figure><a href="{{ partialCached "smug-full.html" .src .src }}"><img src="{{ .src }}" alt="{{ .alt }}" loading="lazy" decoding="async"></a></figure>
+{{- /* One gallery photo: the X2 thumbnail linking to the X3 size, with its width and height when img-size.html can read
+  them (#7). Context: dict "src" "alt". Used by the gallery shortcode. */ -}}
+{{- $sz := partialCached "img-size.html" .src .src -}}
+{{- $ss := partialCached "smug-srcset.html" (dict "src" .src "w" $sz.w "h" $sz.h) .src -}}
+<figure><a href="{{ partialCached "smug-full.html" .src .src }}"><img src="{{ .src }}"{{ with $sz }} width="{{ .w }}" height="{{ .h }}"{{ end }}{{ with $ss }} srcset="{{ .srcset }}" sizes="{{ .sizes }}"{{ end }} alt="{{ .alt }}" loading="lazy" decoding="async"></a></figure>
 {{- /**/ -}}

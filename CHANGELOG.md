@@ -3,13 +3,61 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.2.43] - Unreleased
+## [1.2.48] - Unreleased
 
 ### Fixed
 - The nav links no longer jump left when the color theme switch appears: on desktop widths the switch keeps its space,
   invisible, until the theme script shows it, and without JavaScript it still takes no space. On guyheckman.me with the
   cache off and a slow network, the home and tag pages' layout shift (CLS) at 1280px goes from 0.0024 to 0 in light
   and dark; at 375px it stays 0 (#138).
+
+## [1.2.47] - Unreleased
+
+### Changed
+- The hero photo is preloaded only where it is the page's largest paint: the home page, the default hero (About,
+  Archive, Search, section pages), the 404 page and article posts. Tag, category and series pages and photo posts no
+  longer preload it, since their first tiles or title paint first and the preloaded hero, a large SmugMug size, slowed
+  them by 80 to 450 ms in 1.2.45. Loading those heroes sooner is left for smaller hero sizes (#7, #149).
+
+## [1.2.46] - Unreleased
+
+### Fixed
+- On a wall split across pages, the type chips count the whole list instead of only the tiles on the page you're on:
+  exampleSite's home (4 tiles per page) read "All 4, Articles 3, Photos 1", "All 3, Articles 2, Photos 1" and
+  "All 1, Articles 1, Photos 0" on its three pages, and now reads "All 8, Articles 6, Photos 2" on each. The caption still
+  describes the page and now says so ("This page: 2 articles, 1 photo"); a one-page wall, like every wall on
+  guyheckman.me today, reads as before (#7).
+
+## [1.2.45] - Unreleased
+
+### Added
+- A page's hero photo starts loading at once, with high priority, instead of after the stylesheet has loaded: `<head>`
+  preloads it (`<link rel="preload" as="image" fetchpriority="high">`) on every page whose hero has a photo, and on no
+  other page, so the browser never warns about an unused preload. On guyheckman.me with the cache off and a slow
+  network (median of 5), the largest paint comes 330 ms sooner on the home page at 375 and 1280px (4.74 → 4.41 s,
+  7.63 → 7.31 s) and about 150 ms sooner on About; the 404 page 1.81 → 1.43 s (median of 3). Where the largest paint
+  is not the hero, the preloaded photo competes with it: a tag page's first tile paints 80 to 450 ms later and a
+  gallery post's title at 1280px about 220 ms later (#7).
+
+## [1.2.44] - Unreleased
+
+### Added
+- Wall tiles and gallery photos load a size that fits the screen instead of always SmugMug's 1280px X2: they offer
+  SmugMug's M, L and XL sizes as well (`srcset` and `sizes`), when the build knows the photo's size. Photo bytes on
+  guyheckman.me, page scrolled to the end, cache off: the home page 4.81 → 1.12 MB on a one-x screen at 375 or 1280px
+  and 4.81 → 2.66 MB at 1280px on a two-x screen; the Boston gallery 8.12 → 2.23 MB and 8.12 → 4.17 MB; a three-x
+  phone still loads X2, as before. The lightbox still opens the X3 size (#7).
+
+## [1.2.43] - Unreleased
+
+### Fixed
+- Wall tiles and gallery photos keep their shape while they load, so the masonry no longer reshuffles as photos arrive:
+  the build reads each photo's width and height (downloading it once into Hugo's resource cache) and puts them on the
+  image. On guyheckman.me's home page 7 of 12 photo tiles changed height when their photo loaded and 10 to 11 tiles
+  moved; on the Boston gallery 9 of 18 changed height and 15 to 16 moved (375 and 1280px). Now none do, and the loaded
+  pages look the same. A cold build of guyheckman.me (empty cache, 33 photos, 14 MB downloaded) takes about 1.5 s instead of
+  97 ms; with the cache warm it takes 100 to 101 ms. An offline build leaves the sizes out without a warning; a photo URL that
+  answers 404 or isn't an image warns (`theblues-image-size`) (#7).
 
 ## [1.2.42] - Unreleased
 

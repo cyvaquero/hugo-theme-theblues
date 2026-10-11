@@ -5,7 +5,7 @@
 */ -}}
 {{ define "header" }}
 {{ $photo := partialCached "is-photo.html" . .Path }}
-{{ $cover := partialCached "cover.html" . .Path }}
+{{ $cover := partialCached "cover.html" . .Path }}{{ if not $photo }}{{ with $cover }}{{ $.Store.Set "theblues-hero" . }}{{ end }}{{ end }}
 <header class="phero"{{ with $cover }} style="--hi:url('{{ . }}')"{{ end }}>
   <div class="in">
     <div class="ptype">

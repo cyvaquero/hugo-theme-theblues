@@ -127,7 +127,10 @@ A site can add its own page types without overriding theme files:
 
 - **Templates:** a site's `layouts/<section>/page.html` or `section.html` renders inside the theme's `baseof.html`. It
   fills the `main` block, and can replace the default hero by defining the `header` block. The nav, footer, stylesheet
-  and menu script still come from the theme.
+  and menu script still come from the theme. The heroes of the home, About-style, 404 and article pages preload their
+  photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`); tag pages and photo posts don't, since
+  something else paints first there. A `header` block of the site's own gets no preload unless
+  it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`.
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
   `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
@@ -188,13 +191,27 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   photo. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
   for series posts). A photo post with no parsable photos falls back to a single article tile.
 - Tiles carry `data-type`, `data-date`, `data-order` (and `data-gallery`, `data-gallery-title` and `data-n`, the
-  gallery's photo count, on photos), which `wall.js` reads. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+  gallery's photo count, on photos), which `wall.js` reads; `#stage` carries the whole list's article and photo tile
+  counts (`data-articles`, `data-photos`) for the type chips. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
+- Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
+  `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
+  doesn't reflow. Hugo keeps the downloads in its `getresource` file cache (by default `:cacheDir/:project`, kept until
+  cleared), so a build fetches only photos new to the cache; a build without a cache (for example on a fresh CI machine)
+  fetches them all. When a photo can't be fetched (offline, a timeout, a server error) the attributes are left out
+  without a warning and the tile holds a 3:2 placeholder; when the server answers that the photo doesn't exist (HTTP 404)
+  or isn't an image, the build warns (warning ID `theblues-image-size`).
+- When the size is known and the photo is a SmugMug `X2` URL on `photos.smugmug.com`, tiles and gallery images also get
+  a `srcset` of SmugMug's M, L and XL sizes plus X2, with `sizes` matching the masonry columns, so phones and one-x
+  screens load a smaller file (`layouts/_partials/smug-srcset.html`). SmugMug names each size in the URL's path segment
+  and file suffix (`/X2/i-ABC-X2.jpg`, `/L/i-ABC-L.jpg`) and scales it to fit a box: M 600×450, L 800×600, XL 1024×768,
+  X2 1280×960.
 
 ### Known limits
 
-- The wall is paginated **by tile**, 24 per page (`params.wall.tilesPerPage`), so chip counts, the caption and group-by are
-  per page, and a gallery can be split across two pages; its "Group by gallery" heading still counts all its photos. With the current content (5 articles and 3 galleries) everything
+- The wall is paginated **by tile**, 24 per page (`params.wall.tilesPerPage`). The type chips count the whole list, but
+  filtering, the caption (which starts "This page:" when the list has more than one page), sorting and group-by work on
+  the tiles of the current page, and a gallery can be split across two pages; its "Group by gallery" heading still counts all its photos. With the current content (5 articles and 3 galleries) everything
   fits on one page of 20 tiles. Hugo's `.Paginate` only accepts a collection of pages, so
   `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
@@ -236,7 +253,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
   (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`), `theblues-addtional-menus`
-  (the deprecated legacy menu, below) and `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
+  (the deprecated legacy menu, below), `theblues-image-size` (a wall or gallery photo URL that answers 404 or isn't an
+  image) and `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
   can't check or label it; better fixed than silenced), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.

@@ -2,15 +2,18 @@
   One photo tile (image only, camera badge, caption on hover/focus). Context: page (the post), photo (map from
   photos.html), i (0-based index in the gallery), n (photos in the gallery), order (position in the wall).
   The data attributes are read by assets/js/wall.js; data-n gives a gallery heading its whole count when the gallery is
-  split across pager pages (#7).
+  split across pager pages (#7). The image gets its width and height when img-size.html can read them, so the tile
+  keeps its shape while it loads (#7).
 */ -}}
 {{- $pg := .page -}}
 {{- $t := partial "page-title.html" $pg -}}{{- /* falls back to the file name for an untitled post (#65) */ -}}
 {{- $p := .photo -}}
+{{- $sz := partialCached "img-size.html" $p.src $p.src -}}
+{{- $ss := partialCached "smug-srcset.html" (dict "src" $p.src "w" $sz.w "h" $sz.h) $p.src -}}
 {{- $what := cond (eq .n 1) "photo" "photos" -}}
 <figure class="tile photo" data-type="photo" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $t }}" data-n="{{ .n }}" data-date="{{ partial "date.html" (dict "date" $pg.Date "format" "2006-01-02" "undated" "") }}" data-order="{{ .order }}">
   <a class="cover" href="{{ $pg.RelPermalink }}" aria-label="{{ $t }}, {{ .n }} {{ $what }}, {{ partial "date.html" (dict "date" $pg.Date "undated" "undated") }}. Photo {{ add .i 1 }} of {{ .n }}{{ with $p.title }}: {{ . }}{{ end }}">
-    <img src="{{ $p.src }}" alt="" loading="lazy" decoding="async"><span class="badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo</span>
+    <img src="{{ $p.src }}"{{ with $sz }} width="{{ .w }}" height="{{ .h }}"{{ end }}{{ with $ss }} srcset="{{ .srcset }}" sizes="{{ .sizes }}"{{ end }} alt="" loading="lazy" decoding="async"><span class="badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo</span>
   </a>
   <figcaption>{{ $t }} &middot; {{ .n }} {{ $what }}<div class="meta">{{ partial "date.html" (dict "date" $pg.Date) }}</div></figcaption>
 </figure>
