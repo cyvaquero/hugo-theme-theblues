@@ -3,6 +3,25 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.55] - Unreleased
+
+### Fixed
+- "Show comments" now moves keyboard and screen reader focus to a "Comments" heading and says what is happening. It used
+  to focus an empty, unnamed container, announce nothing, and, if Disqus was blocked, remove the button with no way to
+  try again. A polite status now reads "Loading comments…", then "Comments loaded.", or "Comments couldn't be loaded.
+  Check your connection or content blocker, then try again." when Disqus is blocked or hasn't answered after 15 seconds,
+  and the button comes back as "Try again" (WCAG 2.4.3 Focus Order, 4.1.3 Status Messages; #162). Disqus still loads
+  only after the click, and the script and styles stay CSP-safe: no inline scripts, styles or handlers. Checked in
+  headless Chrome on a production build of guyheckman.me's Monterrey post: after Enter on the button, focus is on the
+  named heading (accessibility tree: heading "Comments", focused, level 2) and the status, a `role="status"` region
+  that is on the page from the start, goes "Loading comments…" then either "Comments loaded." (Disqus allowed, iframe
+  present) or the failure message (Disqus requests blocked, and a request held past 15 seconds); Try again then loaded
+  the comments. With `script-src 'self' https://guyheckman-me.disqus.com https://c.disquscdn.com` and no
+  `unsafe-inline`, no violation came from the theme's scripts (the only one was Disqus's own embed.js asking for a
+  third-party script). The status text is 10.5:1 on the page in light and 12.8:1 in dark. Other pages are unchanged:
+  the built output of guyheckman.me, 80 posts, 550 posts and the exampleSite, and a staging build, differs from 1.2.54
+  only in the comments block of posts that have comments, the footer version and the stylesheet and script file names.
+
 ## [1.2.54] - Unreleased
 
 ### Fixed

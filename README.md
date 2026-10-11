@@ -337,7 +337,9 @@ on photos):
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
   Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe); Escape or Close returns
   focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
-- **Comments:** "Show comments" loads Disqus and moves focus to the comments.
+- **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
+  announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
+  seconds, "Comments couldn't be loaded…" with the button back as "Try again".
 
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.
