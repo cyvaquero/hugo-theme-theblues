@@ -21,12 +21,13 @@ All notable changes to this theme are documented here. The format follows
   DOM, so the tie-breaker is unchanged. Against 1.3.8, the output of all four differs only by the removed `data-order`
   attributes, the `wall.js` fingerprint and `integrity` hash, and the footer version (the old output with `data-order`
   stripped is identical otherwise). In headless Chrome with a strict CSP (`script-src 'self'`, no `unsafe-inline`),
-  14 wall pages (home, section, tag, category and later pager pages, including days with several posts and galleries
-  with a see-all tile) went through every combination of Newest first, Oldest first, Galleries first and Articles
-  first, filter and highlight, All, Article and Photo, and Group by gallery on and off, then a closed group, Clear and
-  Reset: all 728 states have the same ordered tile list and the same wall and controls markup as 1.3.8, with no CSP
-  violations or script errors; forcing the order to 0 in `wall.js` makes the same run report differences, so the
-  comparison does see tie order. The 550-post site builds in 0.494 s against 0.513 s before (median of 6, production,
+  14 wall pages of the production builds (home, section, tag, category and later pager pages, including days with
+  several posts and galleries with a see-all tile) went through every combination of Newest first, Oldest first,
+  Galleries first and Articles first, filter and highlight, All, Article and Photo, and Group by gallery on and off,
+  then a closed group, Clear and Reset: all 728 states have the same ordered tile list and the same wall and controls
+  markup as 1.3.8, with no CSP violations or script errors. The same run on 3 pages of the development builds, which
+  serve `wall.js` unminified, gives 156 identical states. Forcing the order to 0 in `wall.js` makes the run report
+  differences, so the comparison does see tie order. The 550-post site builds in 0.494 s against 0.513 s before (median of 6, production,
   minified).
 
 ## [1.3.8] - Unreleased
