@@ -19,10 +19,11 @@
 {{ with site.Params.keyword }}<meta name="keywords" content="{{ . }}">{{ end }}
 <link rel="canonical" href="{{ .Permalink }}">
 {{- /* Hero image preload (#7): the hero's photo is a CSS background, which the browser finds only after main.css has
-  loaded and the hero is laid out. The hero templates (home, 404, term, post/page and hero.html) record their photo
-  in the page's Store as "theblues-hero", but they run after this <head>, so the link is written with templates.Defer
+  loaded and the hero is laid out. The heroes that are a page's largest paint (home, 404, hero.html and article posts)
+  record their photo in the page's Store as "theblues-hero", but they run after this <head>, so the link is written with templates.Defer
   once the page is done. A page whose layout replaces the header block with no photo (a site's own layout) records
-  nothing and gets no preload, so the browser never warns about an unused preload. Cleared first, since a page's Store
+  nothing and gets no preload, so the browser never warns about an unused preload. Term pages and photo posts don't
+  record theirs: their first tiles or title paint first, and a preloaded heavy hero delayed them (#149). Cleared first, since a page's Store
   survives a rebuild under hugo server. */ -}}
 {{- .Store.Delete "theblues-hero" }}{{ $p := . }}{{ with (templates.Defer (dict "key" (printf "theblues-hero %s" $p.RelPermalink) "data" (dict "page" $p))) }}{{ with .page.Store.Get "theblues-hero" }}
 <link rel="preload" as="image" href="{{ . }}" fetchpriority="high">{{ end }}{{ end }}

@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.47] - Unreleased
+
+### Changed
+- The hero photo is preloaded only where it is the page's largest paint: the home page, the default hero (About,
+  Archive, Search, section pages), the 404 page and article posts. Tag, category and series pages and photo posts no
+  longer preload it, since their first tiles or title paint first and the preloaded hero, a large SmugMug size, slowed
+  them by 80 to 450 ms in 1.2.45. Loading those heroes sooner is left for smaller hero sizes (#7, #149).
+
 ## [1.2.46] - Unreleased
 
 ### Fixed

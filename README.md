@@ -127,8 +127,9 @@ A site can add its own page types without overriding theme files:
 
 - **Templates:** a site's `layouts/<section>/page.html` or `section.html` renders inside the theme's `baseof.html`. It
   fills the `main` block, and can replace the default hero by defining the `header` block. The nav, footer, stylesheet
-  and menu script still come from the theme. The theme's heroes preload their photo from `<head>`
-  (`<link rel="preload" as="image" fetchpriority="high">`); a `header` block of the site's own gets no preload unless
+  and menu script still come from the theme. The heroes of the home, About-style, 404 and article pages preload their
+  photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`); tag pages and photo posts don't, since
+  something else paints first there. A `header` block of the site's own gets no preload unless
   it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`.
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
   `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
