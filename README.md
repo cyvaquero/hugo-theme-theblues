@@ -17,6 +17,16 @@ the site's real content to the same 30 URLs as Clean White with no Hugo warnings
   (`[module.hugoVersion] min`), which Hugo checks and warns about; `theme.toml`'s `min_version` only mirrors it for the
   themes gallery.
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
+- **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, on desktop and mobile
+  (#208). The oldest versions with everything working are Chrome and Edge 105, Firefox 121 and Safari 16.4, going by
+  the CSS features the theme uses (`:has()`, range media queries); they are not tested in those versions. Below them
+  the pages still work, with less polish:
+  - before Firefox 121 (no `:has()`), a focused wall tile and a focused code block get the browser's ring on the
+    link or the `<pre>` instead of one around the whole tile or block;
+  - before Chrome and Edge 104 and Safari 16.4 (no range media queries), a SmugMug hero always loads its full-size
+    image instead of the smaller size for the screen;
+  - before Chrome and Edge 108, Firefox 101 and Safari 15.4 (no `dvh` units), the lightbox sizes to `vh`, so on a phone
+    the browser's toolbar can cover part of the photo.
 - **CSS is hand-written**: `assets/css/main.css` holds every style, commented and readable, with no framework, no
   `@import`, and no third-party or legacy stylesheets. The only other stylesheet, `assets/css/nojs.css`, is a few lines
   loaded inside `<noscript>` that show the nav links when the hamburger menu can't work. Hugo minifies and fingerprints
@@ -155,8 +165,8 @@ A site can add its own page types without overriding theme files:
   the same declarations (`layouts/_partials/dark-tokens-check.html`, once per build): if they differ, or only one is
   found, it warns with the ID `theblues-dark-tokens` naming the tokens, and `--panicOnWarning` fails the build. It reads
   the `assets/css/main.css` the build uses, so a site that overrides the file with an edited copy is checked too; a
-  stylesheet with neither block gets no warning. CSS `light-dark()` could replace the two copies once the theme sets a
-  browser floor (#208).
+  stylesheet with neither block gets no warning. CSS `light-dark()`, which every supported browser has (see
+  Requirements), could replace the two copies (#196).
 - **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings (#6):
   - 560px: masonry walls and `galleries` blocks go from one column to two;
   - 700px: the View options popover becomes a 20rem panel at the right instead of spanning the controls, and the wall
