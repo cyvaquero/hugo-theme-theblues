@@ -6,11 +6,14 @@
   :cacheDir/:project, kept forever), so only a photo new to the cache is fetched. A fetch that fails (offline, DNS,
   timeout, a server error or a refusal) is silent, so an offline build still passes --panicOnWarning. A server that
   answers but has no image there (HTTP 404, or not an image) is a broken photo link, so that warns
-  (theblues-image-size); a site can silence it with ignoreLogs.
+  (theblues-image-size); a site can silence it with ignoreLogs. Only https:// URLs are fetched: an http:// one is never
+  requested over the network in cleartext, where its size could be tampered with, and warns instead
+  (theblues-insecure-photo, https-check.html, #184); the tile and gallery image get no width and height.
   Usage: {{ $sz := partialCached "img-size.html" $src $src }}
 */ -}}
 {{- $out := dict -}}
-{{- if findRE `^https?://` . 1 -}}
+{{- if partial "https-check.html" (dict "url" . "what" "gallery photo") -}}
+{{- else if findRE `^https://` . 1 -}}
   {{- $r := try (resources.GetRemote .) -}}
   {{- if not $r.Err -}}
     {{- with $r.Value -}}

@@ -18,6 +18,8 @@
   declarations need no quotes or escaping.
 */ -}}
 {{- $out := dict -}}
+{{- /* An http:// hero warns (theblues-insecure-photo); it never gets smaller sizes, since only https://photos.smugmug.com is read below. */ -}}
+{{- $_ := partialCached "https-check.html" (dict "url" .src "what" "hero image") .src "hero image" -}}
 {{- $sizes := partialCached "smug-sizes.html" "sizes" -}}
 {{- $names := $sizes.names -}}
 {{- $m := findRESubmatch `^https://photos\.smugmug\.com/[A-Za-z0-9_.~/-]+/(M|L|XL|X2|X3|X4|X5)/[A-Za-z0-9_.~-]+-(M|L|XL|X2|X3|X4|X5)\.([A-Za-z0-9]+)$` .src 1 -}}

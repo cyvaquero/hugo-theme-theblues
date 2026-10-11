@@ -3,6 +3,27 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.14] - Unreleased
+
+### Security
+- An `http://` photo URL is no longer fetched at build time, and the build now warns about it (#184). The size lookup
+  for wall tiles and gallery images (`img-size.html`) requested any `http://` or `https://` URL, so a photo given as
+  `http://` was downloaded in cleartext, where its size could be tampered with in transit (CWE-319), and the page then
+  published `<img src="http://…">`, which a browser blocks as mixed content on an https site or under a CSP that allows
+  only `https:` images. Now only `https://` photos are fetched, and the new partial `https-check.html` warns with the
+  ID `theblues-insecure-photo`, naming the URL, for an `http://` gallery photo and for an `http://` hero image
+  (`hero-sizes.html`, which only ever read `https://photos.smugmug.com`), once per URL, so a build with `--panicOnWarning`
+  fails; a site can silence it with `ignoreLogs`. The URL itself is published as written, and the tile and gallery image
+  get no width and height, as for a photo that can't be fetched. The README lists the ID and says so under the photo
+  size bullet, and the layout list names the partial. Markdown images (`![](http://…)`) are not checked. Checked with
+  Hugo 0.167.0 on a crafted post with an `http://` SmugMug-style gallery photo and a post with an `http://` `image`,
+  served from a local server that logs requests (a scratch site that allows that host in `security.http`) and a fresh
+  cache: 1.3.13 made one cleartext `GET` for the photo and wrote `width=960 height=300`, with no warning; now the server
+  sees no request, the page has `<img src=http://… alt=Insecure>` without a size, the build prints three warnings (the
+  photo, its X3 hero and the `image` hero, one each) and `--panicOnWarning` stops it. guyheckman.me, the 80-post and
+  550-post sites and the exampleSite, in development and production builds (production with `--panicOnWarning`), build
+  with no warning and are byte-identical to 1.3.13 apart from the footer version.
+
 ## [1.3.13] - Unreleased
 
 ### Fixed
