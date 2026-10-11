@@ -44,7 +44,7 @@
 <div class="apage{{ if $toc }} has-toc{{ end }}">
   {{ if $toc }}
   <div class="toc">
-    <strong>{{ (or (T "onThisPage") (partial "t.html" "onThisPage")) }}</strong>
+    <h2>{{ (or (T "onThisPage") (partial "t.html" "onThisPage")) }}</h2>
     {{ replace .TableOfContents $tocNav (printf `<nav id="TableOfContents" aria-label="%s">` ((or (T "tableOfContents") (partial "t.html" "tableOfContents")) | htmlEscape)) | safeHTML }}
   </div>
   {{ end }}

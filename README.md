@@ -514,7 +514,7 @@ Photo tiles have names that start with their visible text ("Monterrey, Mexico Ga
 of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a visually hidden "Posts" h2, and wall
 pages after the first have their own title. With Group by gallery on, each group title ("Articles · 5 articles") is an
 h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
-box title ("Part 2 of 3: Name") is an h2.
+box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s.
 Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, end
 their name with a visually hidden "(opens in a new tab)".
 
