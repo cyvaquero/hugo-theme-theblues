@@ -219,6 +219,21 @@
     if (e.key === 'Escape' && !pop.hidden) { e.preventDefault(); closePop(true); }
   }, true);
 
+  // A photo tile's caption shows on hover or focus and covers part of the photo. Escape hides it without moving the
+  // pointer or focus (WCAG 1.4.13, #173): the tile gets the class "cx" until the pointer and focus have both left it.
+  // An Escape that closes the View options popover (handled above, with preventDefault) does only that.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || e.defaultPrevented) return;
+    [].slice.call(stage.querySelectorAll('.tile.photo:hover, .tile.photo:focus-within')).forEach(function (t) { t.classList.add('cx'); });
+  });
+  function capBack(e) {
+    var t = e.target.closest && e.target.closest('.tile.photo.cx');
+    // After the event, so the tile's :focus-within and :hover already reflect where focus and the pointer went.
+    if (t) setTimeout(function () { if (!t.matches(':hover, :focus-within')) t.classList.remove('cx'); }, 0);
+  }
+  stage.addEventListener('mouseout', capBack);
+  stage.addEventListener('focusout', capBack);
+
   // Hovering a chip with a mouse previews the highlight (stage[data-pv] drives the CSS). Not on keyboard focus or touch,
   // where it would dim the wall while the reader is still moving through the controls.
   function pvOn(e) {

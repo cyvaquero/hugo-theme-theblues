@@ -302,6 +302,9 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.photo figcaption { position: absolute; inset: auto 0 0 0; padding: 2.5rem .8rem .7rem; background: linear-gradient(transparent, rgb(var(--scrim) / .85) 2.5rem, rgb(var(--scrim) / .92)); color: var(--bt); font-size: .92rem; opacity: 0; pointer-events: none; }
 .tile.photo:hover figcaption, .tile.photo:focus-within figcaption { opacity: 1; }
 @media (hover: none) { .tile.photo figcaption { opacity: 1; } }
+/* Escape hides a shown caption (wall.js sets .cx until the pointer and focus leave the tile, #173). Screen only: a printed
+   caption always shows. */
+@media screen { .tile.photo.cx figcaption { opacity: 0; } }
 .tile.photo figcaption .meta { color: var(--hv); }
 /* "See all" tile: last tile of a gallery on the wall. Dashed frame, large camera icon and an arrow label, so it differs from
    photo and article tiles by shape and icon, not color. */

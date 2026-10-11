@@ -478,6 +478,9 @@ on photos):
   and moves focus into it; Tab and Shift+Tab move between the button and the popover, and Escape, a click outside or
   moving focus away closes it (Escape returns focus to the button). Clear moves focus to the All chip; Reset closes the
   popover and returns to View options.
+- **Photo tile captions:** a caption shows over the photo while the pointer or focus is on the tile; Escape hides it
+  without moving either, and it comes back once the pointer and focus have left the tile and returned (WCAG 1.4.13).
+  On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
   Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe); Escape or Close returns
   focus to the photo that was opened. Modifier clicks still open the large image in a new tab.

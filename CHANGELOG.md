@@ -3,6 +3,21 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.19] - Unreleased
+
+### Fixed
+- Escape now hides a photo tile's caption (#173). A tile's caption appears over the lower part of the photo on hover or
+  keyboard focus (98px of a 244px tile in the test) and had no way to dismiss it, so it could cover part of the photo
+  until the pointer or focus moved away. Escape now hides it with the pointer and focus where they are; it shows again
+  once both have left the tile and come back. An Escape that closes the View options popover does only that. The
+  hiding rule is screen only, so a printed caption is unaffected (by the CSS; not tested). The caption is not moved. The README's keyboard list says so. WCAG 1.4.13 Content on Hover or Focus (AA, WCAG 2.1
+  only; no Section 508 basis, since 508 incorporates WCAG 2.0). Checked with Hugo 0.167.0 and headless Chrome on the
+  exampleSite at 1280px: in 1.3.18 the caption was opacity 1 on hover and on focus and stayed 1 after Escape; now
+  Escape sets it to 0 in both cases, it stays 0 while the pointer moves within the tile, and it returns to normal (0 at
+  rest, 1 on hover or focus) after the pointer leaves or focus moves away. The popover still closes on Escape.
+  Built output of guyheckman.me and the exampleSite differs from 1.3.18 only in the fingerprints and the footer
+  version.
+
 ## [1.3.18] - Unreleased
 
 ### Fixed
