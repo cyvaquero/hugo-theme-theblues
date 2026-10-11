@@ -80,7 +80,10 @@ git submodule add https://github.com/cyvaquero/hugo-theme-theblues.git themes/hu
 theme = "hugo-theme-theblues"
 ```
 
-Pin the submodule to a release tag (for example `1.1.0`). The theme is not packaged as a Hugo Module (there is no `go.mod`).
+Pin the submodule to a release tag (for example `1.3.0`). The theme is not packaged as a Hugo Module (there is no
+`go.mod`), and its release tags have no `v` prefix, which Go and Hugo Modules don't recognize as versions. So a site that
+imports the theme as a module, like the Hugo themes gallery, gets the tip of the default branch, not a release. To use a
+release, add the theme as a submodule and pin the tag.
 
 The footer shows the Hugo version and the theme version. The theme version lives in `data/theblues.toml`; bump it
 with every CHANGELOG version. A site can override it with its own `data/theblues.toml`.
