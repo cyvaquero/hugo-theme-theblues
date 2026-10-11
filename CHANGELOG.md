@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.52] - Unreleased
+
+### Changed
+- The README's layout list names every partial in `layouts/_partials/`, adding `img-size` and `smug-srcset`. The built
+  site is unchanged (#153).
+
 ## [1.2.51] - Unreleased
 
 ### Changed
