@@ -3,8 +3,13 @@
   and the site's i18n/<language>.toml, and the theme ships i18n/en.toml only, so a site in another language needs its own
   file (README, "Translating the theme"). Without one, the theme's labels are in English (t.html). The check looks up
   one entry; entries missing from an incomplete file show with hugo --printI18nWarnings. Prints nothing; head.html calls
-  it through partialCached, so it runs once per language and build (#192).
+  it through partialCached, so it runs once per language and build (#192). It also checks that the theme's English text
+  is there for t.html: a site whose own module settings replace the theme's mounts loses the mount of i18n/en.toml as
+  data, and the fallback to English with it.
 */ -}}
 {{- if not (T "skipToContent") -}}
   {{- warnidf "theblues-i18n" "no theme text for the language %q: copy the theme's i18n/en.toml to i18n/%s.toml in the site and translate it; until then the theme's labels are in English (#192)." site.Language.Lang site.Language.Lang -}}
+{{- end -}}
+{{- if not (partial "t.html" "skipToContent") -}}
+  {{- warnidf "theblues-i18n" "the theme's English text is missing from hugo.Data (theblues_i18n_en): keep the mount of the theme's i18n/en.toml in its hugo.toml, or text the site's language lacks is empty, not English (#192)." -}}
 {{- end -}}

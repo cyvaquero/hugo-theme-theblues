@@ -23,7 +23,8 @@ All notable changes to this theme are documented here. The format follows
   in English from the theme's `i18n/en.toml` (the new `layouts/_partials/t.html`, which reads it as data through a
   mount in the theme's `hugo.toml`; templates call it only when `T` comes back empty, so English pages never run it). A
   site whose language has no theme text at all gets English labels and a build warning with the ID `theblues-i18n`
-  (the README lists it); the fix is to copy `i18n/en.toml` to `i18n/<language>.toml` and translate it. Month and day
+  (the README lists it); the fix is to copy `i18n/en.toml` to `i18n/<language>.toml` and translate it. The same warning ID
+  fires if a site's own module settings drop the theme's mount, which would leave missing text empty. Month and day
   names come from Hugo's locale data for other languages, but an English site (`en` or `en-*`) keeps US English names
   whatever its `locale`, so `en-GB` still writes "Sep", not "Sept". Checked with Hugo 0.167.0: for an English site (`en-US`) the built output of
   guyheckman.me, the 80-post and 550-post sites and the exampleSite, in development and production builds, is
