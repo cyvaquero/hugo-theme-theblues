@@ -3,6 +3,19 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.38] - Unreleased
+
+### Fixed
+- The wall's script no longer ships the plural text for a count of 1 on some builds (#249). On about a third of builds
+  the built `wall.*.js` had "1 photos", "1 articles" or "grouped into 1 galleries" as its one form, and the script's
+  fingerprint changed between identical builds. The theme now gives Hugo one plain number for each form, so every build
+  has the right one and other forms and the same file. It works for any language file: the number is swapped for the
+  script's `%d` mark wherever the entry puts it. Checked: 750 calls of the text partial in three builds gave the right
+  forms every time (before, 85 to 99 wrong of 250 per build); 20 builds of the example site gave one identical
+  `wall.*.js`, where 6 of 20 differed before; a German site with its own `de.toml` and one without it (English text)
+  both got the right forms; the wall caption shows "1 photo" and "grouped into 1 gallery". The built pages are unchanged
+  apart from the script's fingerprint.
+
 ## [1.3.37] - Unreleased
 
 ### Fixed
