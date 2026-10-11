@@ -1,0 +1,29 @@
+{{- /*
+  The text a theme script shows, from the site's language (i18n/en.toml, or the site's own i18n/<language>.toml), as a map
+  for the script to read. Context: the script's name, "wall", "comments" or "gallery". Returns the map, or an empty one
+  for any other name. A script gets it through {{ partial "js-text.html" "wall" | jsonify }} in its own source, which
+  asset.html runs as a template (#192); the HTML stays the same for every language, so the text is not in data
+  attributes. A count has the one and other forms, with %d where the number goes (the script picks the form with
+  Intl.PluralRules), and a sentence with names in it has {name} marks for the script to fill in.
+  Usage: assets/js/wall.js, comments.js and gallery.js.
+*/ -}}
+{{- $out := dict -}}
+{{- if eq . "wall" -}}
+  {{- $out = dict
+    "articleCount" (dict "one" (T "articleCount" (dict "count" 1 "Count" "%d")) "other" (T "articleCount" (dict "count" 2 "Count" "%d")))
+    "photoCount" (dict "one" (T "photoCount" (dict "count" 1 "Count" "%d")) "other" (T "photoCount" (dict "count" 2 "Count" "%d")))
+    "grouped" (dict "one" (T "grouped" (dict "count" 1 "Count" "%d")) "other" (T "grouped" (dict "count" 2 "Count" "%d")))
+    "articles" (T "articles") "on" (T "on") "off" (T "off") "active" (T "active")
+    "showing" (T "captionShowing") "showingPage" (T "captionShowingPage")
+    "pick" (T "captionPick") "pickPage" (T "captionPickPage")
+    "highlightArticles" (T "highlightArticles") "highlightArticlesPage" (T "highlightArticlesPage")
+    "highlightPhotos" (T "highlightPhotos") "highlightPhotosPage" (T "highlightPhotosPage") -}}
+{{- else if eq . "comments" -}}
+  {{- $out = dict "loading" (T "commentsLoading") "loaded" (T "commentsLoaded") "failed" (T "commentsFailed") "tryAgain" (T "tryAgain") -}}
+{{- else if eq . "gallery" -}}
+  {{- $out = dict
+    "viewer" (T "photoViewer") "previousPhoto" (T "previousPhoto") "previous" (T "previous") "nextPhoto" (T "nextPhoto")
+    "next" (T "next") "closeViewer" (T "closeViewer") "close" (T "close")
+    "photoOf" (T "photoOf" (dict "i" "{i}" "n" "{n}")) -}}
+{{- end -}}
+{{- return $out -}}

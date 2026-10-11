@@ -3,13 +3,16 @@
 // opened. Each link points at the large image (X3); the thumbnail in the page stays X2. The counter and alt text change
 // only when the new image has loaded (or both it and the thumbnail have failed), so they always describe the photo on
 // screen (#3, #168); neighbors are preloaded.
+// The text it shows is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
+// js-text.html), from i18n/en.toml or the site's own file.
 (function () {
   var galleries = document.querySelectorAll('.gal');
   if (!galleries.length || typeof HTMLDialogElement === 'undefined') return;
 
+  var TX = {{ partial "js-text.html" "gallery" | jsonify }};
   var dlg = document.createElement('dialog');
   dlg.className = 'lb';
-  dlg.setAttribute('aria-label', 'Photo viewer');
+  dlg.setAttribute('aria-label', TX.viewer);
   // Built with DOM calls, not innerHTML, so it works under a Trusted Types CSP (#16).
   function el(tag, attrs, text) {
     var e = document.createElement(tag);
@@ -19,13 +22,13 @@
   }
   var inner = el('div', { 'class': 'in' }), bar = el('div', { 'class': 'bb' });
   inner.appendChild(el('img', { alt: '' }));
-  bar.appendChild(el('button', { type: 'button', 'data-a': 'p', 'aria-label': 'Previous photo' }, 'Previous'));
+  bar.appendChild(el('button', { type: 'button', 'data-a': 'p', 'aria-label': TX.previousPhoto }, TX.previous));
   // The visible counter ("4 / 18") is hidden from screen readers; a visually hidden live region announces the position
   // and the photo's alt text instead ("Photo 4 of 18: La Huasteca", #38).
   bar.appendChild(el('span', { 'class': 'count', 'aria-hidden': 'true' }));
   bar.appendChild(el('span', { 'class': 'vh', 'aria-live': 'polite' }));
-  bar.appendChild(el('button', { type: 'button', 'data-a': 'n', 'aria-label': 'Next photo' }, 'Next'));
-  bar.appendChild(el('button', { type: 'button', 'data-a': 'c', 'aria-label': 'Close photo viewer' }, 'Close'));
+  bar.appendChild(el('button', { type: 'button', 'data-a': 'n', 'aria-label': TX.nextPhoto }, TX.next));
+  bar.appendChild(el('button', { type: 'button', 'data-a': 'c', 'aria-label': TX.closeViewer }, TX.close));
   inner.appendChild(bar);
   dlg.appendChild(inner);
   document.body.appendChild(dlg);
@@ -45,7 +48,7 @@
       img.src = pre.src || (thumb ? thumb.src : '');
       img.alt = thumb ? thumb.alt : '';
       count.textContent = (idx + 1) + ' / ' + list.length;
-      say.textContent = 'Photo ' + (idx + 1) + ' of ' + list.length + (img.alt ? ': ' + img.alt : '');
+      say.textContent = TX.photoOf.replace('{i}', idx + 1).replace('{n}', list.length) + (img.alt ? ': ' + img.alt : '');
       dlg.removeAttribute('aria-busy');
       preload(idx + 1); preload(idx - 1);
     }

@@ -13,14 +13,14 @@
 {{- $.Store.Set "hasComments" true }}
 <div class="comments" id="disqus-comment">
   {{- if hugo.IsProduction }}
-  <h2 id="comments-h" tabindex="-1" hidden>Comments</h2>
+  <h2 id="comments-h" tabindex="-1" hidden>{{ T "commentsHeading" }}</h2>
   <div id="comments-status" class="cstatus" role="status"></div>
-  <button type="button" class="showc" hidden data-shortname="{{ . }}"{{ with $.Params.disqus_url }} data-url="{{ . }}"{{ end }}{{ with $.Params.disqus_identifier }} data-identifier="{{ . }}"{{ end }}{{ with $.Params.disqus_title }} data-title="{{ . }}"{{ end }}>Show comments</button>
-  <noscript><p class="meta">Comments need JavaScript.</p></noscript>
+  <button type="button" class="showc" hidden data-shortname="{{ . }}"{{ with $.Params.disqus_url }} data-url="{{ . }}"{{ end }}{{ with $.Params.disqus_identifier }} data-identifier="{{ . }}"{{ end }}{{ with $.Params.disqus_title }} data-title="{{ . }}"{{ end }}>{{ T "showComments" }}</button>
+  <noscript><p class="meta">{{ T "commentsNeedJs" }}</p></noscript>
   {{- else }}
-  <p class="meta">Disqus comments are not loaded outside production builds.</p>
+  <p class="meta">{{ T "commentsNotLoaded" }}</p>
   {{- end }}
   <div id="disqus_thread"></div>
-  <p class="meta">Comments are hosted by <a href="https://disqus.com/">Disqus</a>. Showing them sends your visit to Disqus and its partners.</p>
+  <p class="meta">{{ T "commentsHosted" | safeHTML }}</p>
 </div>
 {{ end }}{{ end }}

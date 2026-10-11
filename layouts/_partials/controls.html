@@ -5,31 +5,31 @@
   View options into the popover and Shift+Tab comes back to the button (#77).
 */ -}}
 {{- .Store.Set "hasWall" true -}}
-<div class="ctl" id="ctl" role="region" aria-label="Browse controls" hidden>
-  <div class="seg" role="group" aria-label="Show type">
-    <button type="button" data-f="all" aria-pressed="true">All <span class="n"></span></button>
-    <button type="button" data-f="article" aria-pressed="false">Articles <span class="n"></span></button>
-    <button type="button" data-f="photo" aria-pressed="false">Photos <span class="n"></span></button>
+<div class="ctl" id="ctl" role="region" aria-label="{{ T "browseControls" }}" hidden>
+  <div class="seg" role="group" aria-label="{{ T "showType" }}">
+    <button type="button" data-f="all" aria-pressed="true">{{ T "all" }} <span class="n"></span></button>
+    <button type="button" data-f="article" aria-pressed="false">{{ T "articles" }} <span class="n"></span></button>
+    <button type="button" data-f="photo" aria-pressed="false">{{ T "photos" }} <span class="n"></span></button>
   </div>
-  <button type="button" class="vbtn" id="vb" aria-expanded="false" aria-controls="pop">View options<span class="bdg" data-badge="opts" hidden></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button>
-  <div class="pop" id="pop" role="group" aria-label="View options" hidden>
-    <div class="ps"><span class="pl">Mode</span>
-      <div class="seg mode" role="group" aria-label="Filter mode">
-        <button type="button" data-m2="filter" aria-pressed="true">Filter</button>
-        <button type="button" data-m2="highlight" aria-pressed="false">Highlight</button>
+  <button type="button" class="vbtn" id="vb" aria-expanded="false" aria-controls="pop">{{ T "viewOptions" }}<span class="bdg" data-badge="opts" hidden></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button>
+  <div class="pop" id="pop" role="group" aria-label="{{ T "viewOptions" }}" hidden>
+    <div class="ps"><span class="pl">{{ T "mode" }}</span>
+      <div class="seg mode" role="group" aria-label="{{ T "filterMode" }}">
+        <button type="button" data-m2="filter" aria-pressed="true">{{ T "filter" }}</button>
+        <button type="button" data-m2="highlight" aria-pressed="false">{{ T "highlight" }}</button>
       </div>
     </div>
-    <label class="ps"><span class="pl">Sort</span>
+    <label class="ps"><span class="pl">{{ T "sort" }}</span>
       <select class="sel" data-role="sort">
-        <option value="new">Newest first</option>
-        <option value="old">Oldest first</option>
-        <option value="gal">Galleries first</option>
-        <option value="art">Articles first</option>
+        <option value="new">{{ T "sortNewest" }}</option>
+        <option value="old">{{ T "sortOldest" }}</option>
+        <option value="gal">{{ T "sortGalleries" }}</option>
+        <option value="art">{{ T "sortArticles" }}</option>
       </select>
     </label>
-    <label class="swt"><span>Group by gallery</span><span class="r"><span class="st" aria-hidden="true">Off</span><input type="checkbox" role="switch" data-role="grp"></span></label>
-    <button type="button" class="clr" data-role="reset" hidden>Reset</button>
+    <label class="swt"><span>{{ T "groupByGallery" }}</span><span class="r"><span class="st" aria-hidden="true">{{ T "off" }}</span><input type="checkbox" role="switch" data-role="grp"></span></label>
+    <button type="button" class="clr" data-role="reset" hidden>{{ T "reset" }}</button>
   </div>
-  <button type="button" class="clr" data-role="clear" hidden>Clear</button>
+  <button type="button" class="clr" data-role="clear" hidden>{{ T "clear" }}</button>
   <p class="cap" aria-live="polite"></p>
 </div>

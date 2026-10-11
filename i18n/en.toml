@@ -1,0 +1,241 @@
+# The text The Blues shows, in English: templates read it with T, and assets/js/wall.js, comments.js and gallery.js get
+# theirs through layouts/_partials/js-text.html. A site translates the theme by adding its own i18n/<language>.toml with
+# the entries below (README, "Translating the theme"); in a language other than English an entry the site's file lacks
+# is empty, not English.
+#
+# Every entry is a table with its text under other (Hugo does not allow plain keys next to one and other). Values are
+# plain text, which the templates escape and the scripts insert as text, so write no markup or character references
+# except in commentsHosted, which is HTML. Counts have one and other forms, and {{ .Count }} is the number; the scripts, which
+# count in the browser, use only the one and other forms of articleCount, photoCount and grouped. Other entries mark where
+# the page puts a name or a number: {{ .n }}, {{ .part }} and so on.
+
+# --- Page frame ---
+[skipToContent]
+other = "Skip to content"
+[backToHome]
+other = "Back to the home page"
+[pageNotFound]
+other = "Page not found"
+[noPostsYet]
+other = "No posts yet."
+[undated]
+other = "Undated"
+[undatedInline]
+other = "undated"
+[postsHeading]
+other = "Posts"
+[article]
+other = "Article"
+[photoGallery]
+other = "Photo gallery"
+[photoBadge]
+other = "Photo"
+[opensInNewTab]
+other = "(opens in a new tab)"
+[embeddedContent]
+other = "Embedded content"
+[searchLabel]
+other = "SEARCH"
+[searchUnavailable]
+other = "Search is not available yet."
+
+# Go layouts for dates (Go reference time Mon Jan 2 2006; month and day names follow the site's language). A site's
+# params.dateFormat replaces the first.
+[dateFormat]
+other = "Jan 2, 2006"
+[dateFormatDay]
+other = "Jan 2"
+[dateFormatMonth]
+other = "Jan 2006"
+
+# --- Navigation and footer ---
+[mainNavigation]
+other = "Main"
+[menu]
+other = "Menu"
+[colorTheme]
+other = "Color theme"
+[themeSystem]
+other = "System"
+[themeLight]
+other = "Light"
+[themeDark]
+other = "Dark"
+[footerNavigation]
+other = "Footer"
+[builtWith]
+other = "Built with Hugo {{ .hugo }}"
+[builtWithTheme]
+other = "Built with Hugo {{ .hugo }} and The Blues {{ .theme }}"
+[postNavigation]
+other = "Post navigation"
+[tableOfContents]
+other = "Table of contents"
+[onThisPage]
+other = "On this page"
+
+# --- Pagination ---
+[pagination]
+other = "Pagination"
+[newer]
+other = "Newer"
+[older]
+other = "Older"
+[pageNumber]
+other = "Page {{ .n }}"
+
+# --- Lists and terms ---
+[backToAllPosts]
+other = "Back to all posts"
+[allOfTerm]
+other = "All"
+[termLabelTags]
+other = "Tagged"
+[termLabelCategories]
+other = "Category"
+[termLabelSeries]
+other = "Series"
+[termKindTags]
+other = "Tag"
+[termKindCategories]
+other = "Category"
+[termKindSeries]
+other = "Series"
+[taxonomyIntro]
+other = "Every {{ .singular }} on the site, A to Z, with post counts."
+[feedTitle]
+other = "{{ .title }} on {{ .site }}"
+[feedDescription]
+other = "Recent content on {{ .site }}"
+[feedDescriptionIn]
+other = "Recent content in {{ .title }} on {{ .site }}"
+
+# --- Counts ---
+[postCount]
+one = "{{ .Count }} post"
+other = "{{ .Count }} posts"
+[photoCount]
+one = "{{ .Count }} photo"
+other = "{{ .Count }} photos"
+[articleCount]
+one = "{{ .Count }} article"
+other = "{{ .Count }} articles"
+[morePhotos]
+one = "{{ .Count }} more photo"
+other = "{{ .Count }} more photos"
+[minRead]
+one = "{{ .Count }} min read"
+other = "{{ .Count }} min read"
+
+# --- Posts, tiles and series ---
+[partOf]
+other = "Part {{ .part }} of {{ .total }}"
+[photoOf]
+other = "Photo {{ .i }} of {{ .n }}"
+[photoN]
+other = "Photo {{ .n }}"
+[seeAll]
+other = "see all {{ .n }}"
+
+# --- Wall controls ---
+[browseControls]
+other = "Browse controls"
+[showType]
+other = "Show type"
+[all]
+other = "All"
+[articles]
+other = "Articles"
+[photos]
+other = "Photos"
+[viewOptions]
+other = "View options"
+[mode]
+other = "Mode"
+[filterMode]
+other = "Filter mode"
+[filter]
+other = "Filter"
+[highlight]
+other = "Highlight"
+[sort]
+other = "Sort"
+[sortNewest]
+other = "Newest first"
+[sortOldest]
+other = "Oldest first"
+[sortGalleries]
+other = "Galleries first"
+[sortArticles]
+other = "Articles first"
+[groupByGallery]
+other = "Group by gallery"
+[off]
+other = "Off"
+[on]
+other = "On"
+[reset]
+other = "Reset"
+[clear]
+other = "Clear"
+[active]
+other = "active"
+
+# The wall's live caption, which wall.js writes. {articles} and {photos} stand for the counts (articleCount, photoCount).
+# The "page" forms are used when the list has more than one page of tiles.
+[captionShowing]
+other = "Showing {articles}, {photos}"
+[captionShowingPage]
+other = "This page: {articles}, {photos}"
+[captionPick]
+other = "Showing {articles}, {photos} (highlight: pick a type)"
+[captionPickPage]
+other = "This page: {articles}, {photos} (highlight: pick a type)"
+[highlightArticles]
+other = "Highlighting {articles}; {photos} dimmed"
+[highlightArticlesPage]
+other = "Highlighting {articles}; {photos} dimmed on this page"
+[highlightPhotos]
+other = "Highlighting {photos}; {articles} dimmed"
+[highlightPhotosPage]
+other = "Highlighting {photos}; {articles} dimmed on this page"
+[grouped]
+one = "grouped into {{ .Count }} gallery"
+other = "grouped into {{ .Count }} galleries"
+
+# --- Comments (Disqus) ---
+[commentsHeading]
+other = "Comments"
+[showComments]
+other = "Show comments"
+[commentsNeedJs]
+other = "Comments need JavaScript."
+[commentsNotLoaded]
+other = "Disqus comments are not loaded outside production builds."
+# This one is HTML: it holds the link to Disqus.
+[commentsHosted]
+other = 'Comments are hosted by <a href="https://disqus.com/">Disqus</a>. Showing them sends your visit to Disqus and its partners.'
+[commentsLoading]
+other = "Loading comments…"
+[commentsLoaded]
+other = "Comments loaded."
+[commentsFailed]
+other = "Comments couldn’t be loaded. Check your connection or content blocker, then try again."
+[tryAgain]
+other = "Try again"
+
+# --- Lightbox ---
+[photoViewer]
+other = "Photo viewer"
+[previousPhoto]
+other = "Previous photo"
+[previous]
+other = "Previous"
+[nextPhoto]
+other = "Next photo"
+[next]
+other = "Next"
+[closeViewer]
+other = "Close photo viewer"
+[close]
+other = "Close"

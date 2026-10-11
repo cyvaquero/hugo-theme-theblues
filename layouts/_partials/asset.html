@@ -1,12 +1,20 @@
 {{- /*
   Returns a CSS/JS resource from assets/. Production builds are minified and fingerprinted (comments stripped, content
   hash in the file name). Development builds (hugo server) return the readable, commented source unchanged.
+  A script with a Go template action in it (wall.js, comments.js and gallery.js, which hold {{ partial "js-text.html" … }})
+  is run as a template first, so the text it shows comes from the site's language (#192). On a site with more than one
+  language the file is written once per language, with the language in its name (wall.de.js).
   Usage: {{ with partialCached "asset.html" "css/main.css" "css/main.css" }}...{{ .RelPermalink }}...{{ end }}
   Returns nil when the file doesn't exist, so a site's own partials can use it for optional files. The theme's own
   callers fail the build in that case (an {{ else }} with errorf), so a missing theme asset can't silently drop its tag
   from every page (#83).
 */ -}}
 {{- $r := resources.Get . -}}
+{{- if and $r (strings.HasSuffix . ".js") (strings.Contains $r.Content "{{") -}}
+  {{- $to := . -}}
+  {{- if gt (len hugo.Sites) 1 }}{{ $to = replaceRE `\.js$` (printf ".%s.js" site.Language.Lang) . }}{{ end -}}
+  {{- $r = $r | resources.ExecuteAsTemplate $to dict -}}
+{{- end -}}
 {{- if and $r (not hugo.IsDevelopment) -}}
   {{- $r = $r | minify | fingerprint -}}
 {{- end -}}

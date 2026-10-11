@@ -12,10 +12,9 @@
 {{- $p := .photo -}}
 {{- $sz := partialCached "img-size.html" $p.src $p.src -}}
 {{- $ss := partialCached "smug-srcset.html" (dict "src" $p.src "w" $sz.w "h" $sz.h) $p.src -}}
-{{- $what := cond (eq .n 1) "photo" "photos" -}}
 <figure class="tile photo" data-type="photo" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $t }}" data-n="{{ .n }}" data-date="{{ partial "date.html" (dict "date" $pg.Date "format" "2006-01-02" "undated" "") }}">
-  <a class="cover" href="{{ $pg.RelPermalink }}" aria-label="{{ $t }}, {{ .n }} {{ $what }}, {{ partial "date.html" (dict "date" $pg.Date "undated" "undated") }}. Photo {{ add .i 1 }} of {{ .n }}{{ with $p.title }}: {{ . }}{{ end }}">
-    <img src="{{ $p.src }}"{{ with $sz }} width="{{ .w }}" height="{{ .h }}"{{ end }}{{ with $ss }} srcset="{{ .srcset }}" sizes="{{ .sizes }}"{{ end }} alt="" loading="lazy" decoding="async"><span class="badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Photo</span>
+  <a class="cover" href="{{ $pg.RelPermalink }}" aria-label="{{ $t }}, {{ T "photoCount" .n }}, {{ partial "date.html" (dict "date" $pg.Date "undated" (T "undatedInline")) }}. {{ T "photoOf" (dict "i" (add .i 1) "n" .n) }}{{ with $p.title }}: {{ . }}{{ end }}">
+    <img src="{{ $p.src }}"{{ with $sz }} width="{{ .w }}" height="{{ .h }}"{{ end }}{{ with $ss }} srcset="{{ .srcset }}" sizes="{{ .sizes }}"{{ end }} alt="" loading="lazy" decoding="async"><span class="badge"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>{{ T "photoBadge" }}</span>
   </a>
-  <figcaption>{{ $t }} &middot; {{ .n }} {{ $what }}<div class="meta">{{ partial "date.html" (dict "date" $pg.Date) }}</div></figcaption>
+  <figcaption>{{ $t }} &middot; {{ T "photoCount" .n }}<div class="meta">{{ partial "date.html" (dict "date" $pg.Date) }}</div></figcaption>
 </figure>

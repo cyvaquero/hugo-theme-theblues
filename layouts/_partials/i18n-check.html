@@ -1,0 +1,10 @@
+{{- /*
+  Warns (theblues-i18n) when the site's language has no text for the theme: Hugo takes a language's text from the theme's
+  and the site's i18n/<language>.toml, and the theme ships i18n/en.toml only, so a site in another language needs its own
+  file (README, "Translating the theme"). Without one, every label of the theme is empty. The check looks up one entry;
+  entries missing from an incomplete file show with hugo --printI18nWarnings. Prints nothing; head.html calls it through
+  partialCached, so it runs once per language and build (#192).
+*/ -}}
+{{- if not (T "skipToContent") -}}
+  {{- warnidf "theblues-i18n" "no theme text for the language %q: copy the theme's i18n/en.toml to i18n/%s.toml in the site and translate it, or the theme's labels are empty (#192)." site.Language.Lang site.Language.Lang -}}
+{{- end -}}
