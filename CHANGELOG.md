@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.22] - Unreleased
+
+### Added
+- The README now says which browsers the theme supports (#208): the current and previous major versions of Chrome,
+  Edge, Firefox and Safari. It also names the oldest versions with everything working (Chrome and Edge 105, Firefox
+  121, Safari 16.4, from the CSS features in use: `:has()` and range media queries; not tested in those versions) and
+  what changes below them: the browser's own focus ring on wall tiles and code blocks without `:has()`, the full-size
+  hero image without range media queries, and a lightbox sized to `vh` without `dvh` units. Documentation only; the
+  built site is unchanged apart from the footer version.
+
 ## [1.3.20] - Unreleased
 
 ### Fixed
