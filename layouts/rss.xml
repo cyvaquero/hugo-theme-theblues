@@ -46,9 +46,9 @@
 {{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>{{ if eq .Title .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{ T "feedTitle" (dict "title" . "site" $.Site.Title) }}{{ else }}{{ .Site.Title }}{{ end }}{{ end }}</title>
+		<title>{{ if eq .Title .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{ (or (T "feedTitle" (dict "title" . "site" $.Site.Title)) (partial "t.html" (slice "feedTitle" (dict "title" . "site" $.Site.Title)))) }}{{ else }}{{ .Site.Title }}{{ end }}{{ end }}</title>
 		<link>{{ .Permalink }}</link>
-		<description>{{ if and .Title (ne .Title .Site.Title) }}{{ T "feedDescriptionIn" (dict "title" .Title "site" .Site.Title) }}{{ else }}{{ T "feedDescription" (dict "site" .Site.Title) }}{{ end }}</description>
+		<description>{{ if and .Title (ne .Title .Site.Title) }}{{ (or (T "feedDescriptionIn" (dict "title" .Title "site" .Site.Title)) (partial "t.html" (slice "feedDescriptionIn" (dict "title" .Title "site" .Site.Title)))) }}{{ else }}{{ (or (T "feedDescription" (dict "site" .Site.Title)) (partial "t.html" (slice "feedDescription" (dict "site" .Site.Title)))) }}{{ end }}</description>
 		<generator>Hugo</generator>
 		<language>{{ site.Language.Locale }}</language>
 		{{ with $authorEmail }}

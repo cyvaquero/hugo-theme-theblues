@@ -2,14 +2,14 @@
 <div class="atw">
   {{ with .Content }}{{ . }}{{ end }}
   {{ range (where site.RegularPages "Section" "in" site.MainSections).GroupByDate "2006" }}
-  <h2>{{ if eq .Key "0001" }}{{ T "undated" }}{{ else }}{{ .Key }}{{ end }}</h2>{{/* posts without a date group under year 0001 (#36) */}}
+  <h2>{{ if eq .Key "0001" }}{{ (or (T "undated") (partial "t.html" "undated")) }}{{ else }}{{ .Key }}{{ end }}</h2>{{/* posts without a date group under year 0001 (#36) */}}
   <ul class="atl">
     {{ range .Pages }}
-    <li><a href="{{ .RelPermalink }}"><span class="nm">{{ partial "page-title.html" . }}</span><span class="c">{{ partial "date.html" (dict "date" .Date "format" (T "dateFormatDay") "time" true) }}</span></a></li>
+    <li><a href="{{ .RelPermalink }}"><span class="nm">{{ partial "page-title.html" . }}</span><span class="c">{{ partial "date.html" (dict "date" .Date "format" ((or (T "dateFormatDay") (partial "t.html" "dateFormatDay"))) "time" true) }}</span></a></li>
     {{ end }}
   </ul>
   {{ else }}
-  <p class="meta">{{ T "noPostsYet" }}</p>
+  <p class="meta">{{ (or (T "noPostsYet") (partial "t.html" "noPostsYet")) }}</p>
   {{ end }}
 </div>
 {{ end }}

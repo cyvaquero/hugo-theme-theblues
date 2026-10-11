@@ -7,7 +7,7 @@
 {{- /* Wall pages after the first add their number: "Site – Page 2", "Hugo – Page 2 | Site" (#78). The wall layouts
   build the paginator before <head> (wall-pager.html); other pages have no "wall" in their Store. */}}
 {{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}
-{{ $title = cond (or $.IsHome (eq $st "")) (printf "%s – %s" $title (T "pageNumber" (dict "n" .PageNumber))) (printf "%s – %s | %s" $pt (T "pageNumber" (dict "n" .PageNumber)) $st) }}
+{{ $title = cond (or $.IsHome (eq $st "")) (printf "%s – %s" $title ((or (T "pageNumber" (dict "n" .PageNumber)) (partial "t.html" (slice "pageNumber" (dict "n" .PageNumber)))))) (printf "%s – %s | %s" $pt ((or (T "pageNumber" (dict "n" .PageNumber)) (partial "t.html" (slice "pageNumber" (dict "n" .PageNumber))))) $st) }}
 {{ end }}{{ end }}{{ end }}
 {{ $desc := .Description | default site.Params.description }}
 {{ $img := partialCached "cover.html" . .Path }}
@@ -42,7 +42,7 @@
 <meta name="theme-color" content="#0F2332" media="(prefers-color-scheme: dark)">
 {{- /* The site feed on every page, plus a list page's own feed (term, section) (#2). */}}
 {{ with site.Home.OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">{{ end }}
-{{ if not (or .IsHome (eq .Section "search")) }}{{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ T "feedTitle" (dict "title" $pt "site" site.Title) }}" href="{{ .Permalink }}">{{ end }}{{ end }}
+{{ if not (or .IsHome (eq .Section "search")) }}{{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ (or (T "feedTitle" (dict "title" $pt "site" site.Title)) (partial "t.html" (slice "feedTitle" (dict "title" $pt "site" site.Title)))) }}" href="{{ .Permalink }}">{{ end }}{{ end }}
 {{ if or (eq .Kind "404") (eq .Section "search") }}<meta name="robots" content="noindex">{{ end }}
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:type" content="{{ cond .IsPage "article" "website" }}">

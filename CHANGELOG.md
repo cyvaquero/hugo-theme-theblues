@@ -19,10 +19,13 @@ All notable changes to this theme are documented here. The format follows
   ("404 Page not found") is replaced by the site's text. A site translates the theme with its own `i18n/<language>.toml`
   (README, "Translating the theme", which also lists what stays as it is: text that comes from the site, the link names
   RSS, LinkedIn and GitHub, the "©" and year of the footer's fallback line and build warning and error messages).
-  Two things to know when upgrading. A site whose language is not English and has no `i18n/<language>.toml` would show
-  empty labels, so the build now warns with the ID `theblues-i18n` (the README lists it) and the fix is to copy
-  `i18n/en.toml` to that file. And month names now come from Hugo's locale data, so a site with `locale = "en-GB"` gets
-  "Sept" for September where it had "Sep". Checked with Hugo 0.167.0: for an English site (`en-US`) the built output of
+  English is the default. Text a site's language has no entry for, in the site's file or the default language's, is shown
+  in English from the theme's `i18n/en.toml` (the new `layouts/_partials/t.html`, which reads it as data through a
+  mount in the theme's `hugo.toml`; templates call it only when `T` comes back empty, so English pages never run it). A
+  site whose language has no theme text at all gets English labels and a build warning with the ID `theblues-i18n`
+  (the README lists it); the fix is to copy `i18n/en.toml` to `i18n/<language>.toml` and translate it. Month and day
+  names come from Hugo's locale data for other languages, but an English site (`en` or `en-*`) keeps US English names
+  whatever its `locale`, so `en-GB` still writes "Sep", not "Sept". Checked with Hugo 0.167.0: for an English site (`en-US`) the built output of
   guyheckman.me, the 80-post and 550-post sites and the exampleSite, in development and production builds, is
   byte-identical to 1.3.11 apart from the footer version and the file names and SRI hashes of the three scripts (2,155
   files compared), and so is a crafted exampleSite copy with every month, posts that cross midnight in other time zones,
@@ -35,8 +38,12 @@ All notable changes to this theme are documented here. The format follows
   and "15. Dez." in the archive, "1 Beitrag" and "2 Beiträge", and a German 404 title; the wall's captions are German
   ("Hervorgehoben: 3 Artikel; 1 Foto abgeblendet auf dieser Seite, in 1 Galerie gruppiert") and its group headings read
   "A photo gallery · 7. Jan. 2026 · 4 Fotos". An English and German site builds `wall.en.js` and `wall.de.js` and each
-  page loads its own. The 550-post production build takes 0.49 s against 0.49 s before (median of 7, minified), so it
-  costs nothing measurable. The README's exampleSite check (`--panicOnWarning`, `--printUnusedTemplates`) passes.
+  page loads its own. The same German copy without its `i18n/de.toml` shows every label, count and script message in
+  English ("Skip to content", "4 photos", "Photo viewer") with German dates, where it had empty labels; with a
+  `de.toml` of two entries those two are German and the rest English. An `en-GB` copy of the exampleSite is
+  byte-identical to 1.3.11, and a September post there reads "Sep 15, 2026". The 550-post production build takes 0.51 s
+  against 0.49 s before (minified, three runs each); calling the English fallback as a partial on every lookup took
+  about twice as long, which is why templates try `T` first. The README's exampleSite check (`--panicOnWarning`, `--printUnusedTemplates`) passes.
 
 ## [1.3.12] - Unreleased
 
