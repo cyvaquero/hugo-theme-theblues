@@ -261,8 +261,9 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   cleared), so a build fetches only photos new to the cache; a build without a cache (for example on a fresh CI machine)
   fetches them all. Only `https://` photos are fetched: an `http://` URL is never requested in cleartext, where its size
   could be tampered with, and a browser blocks it as mixed content on an https site or under a CSP that allows only
-  `https:` images, so the build warns (warning ID `theblues-insecure-photo`, for a gallery photo or a hero image, once
-  per URL) and the tile and gallery image get no width and height; the URL is published as written, so use `https://`.
+  `https:` images, so the build warns (warning ID `theblues-insecure-photo`, for a gallery photo, a hero image or a
+  Markdown image, once per URL) and the tile and gallery image get no width and height; the URL is published as
+  written, so use `https://`. A Markdown image (`![](http://…)`) gets the same warning and is kept as written.
   When a photo can't be fetched (offline, a timeout, a server error) the attributes are left out
   without a warning and the tile holds a 3:2 placeholder; when the server answers that the photo doesn't exist (HTTP 404)
   or isn't an image, the build warns (warning ID `theblues-image-size`).
@@ -328,8 +329,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
   (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`), `theblues-addtional-menus`
   (the deprecated legacy menu, below), `theblues-image-size` (a wall or gallery photo URL that answers 404 or isn't an
-  image), `theblues-insecure-photo` (a gallery photo or hero image whose URL starts with `http://`; see the photo size
-  bullet under "How the wall works"), `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
+  image), `theblues-insecure-photo` (a gallery photo, hero image or Markdown image whose URL starts with `http://`;
+  see the photo size bullet under "How the wall works"), `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
   can't check or label it; better fixed than silenced) and `theblues-dark-tokens` (the two copies of the dark color
   tokens in `assets/css/main.css` differ; see Styles under Extending from a site) and `theblues-i18n` (the site's
   language has no theme text, so the labels are in English; see Translating the theme), for example
