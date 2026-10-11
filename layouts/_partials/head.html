@@ -58,8 +58,9 @@
   runs after the color-scheme and theme-color metas, which it updates. External, so a CSP needs no hash for it. */}}
 {{ partial "script.html" (dict "path" "js/theme.js") }}
 {{ partial "stylesheet.html" "css/main.css" }}
-{{- /* Google Analytics: production builds only, unless privacy.googleAnalytics.disable is set, through
-  assets/js/analytics.js, which loads nothing for Do Not Track or Global Privacy Control visitors (#16). */}}
-{{ with site.Config.Services.GoogleAnalytics.ID }}{{ if and hugo.IsProduction (not site.Config.Privacy.GoogleAnalytics.Disable) }}{{ partial "script.html" (dict "path" "js/analytics.js" "data" (dict "id" .) "defer" true) }}{{ end }}{{ end }}
+{{- /* Google Analytics: production builds with a GA ID only, unless privacy.googleAnalytics.disable is set, as decided
+  by analytics-on.html, which sites call too (#146). assets/js/analytics.js loads nothing for Do Not Track or Global
+  Privacy Control visitors (#16). */}}
+{{ if partial "analytics-on.html" . }}{{ partial "script.html" (dict "path" "js/analytics.js" "data" (dict "id" site.Config.Services.GoogleAnalytics.ID) "defer" true) }}{{ end }}
 <noscript>{{ partial "stylesheet.html" "css/nojs.css" }}</noscript>
 {{ partial "head-end.html" . -}}

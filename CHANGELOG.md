@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.2.49] - Unreleased
+
+### Added
+- Sites can ask the theme whether Google Analytics loads on a page with `{{ if partial "analytics-on.html" . }}`, for
+  example to show an analytics notice only when analytics loads. The theme's own `<head>` uses the same partial, so
+  the two can't disagree, and the README lists it under "Extending from a site" as stable. Built pages are unchanged
+  (#146).
+
 ## [1.2.48] - Unreleased
 
 ### Fixed
