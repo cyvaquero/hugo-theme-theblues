@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.27] - Unreleased
+
+### Fixed
+- The table of contents label ("On this page") is now an `h2` instead of a `<strong>`, so it shows in a screen reader's
+  heading list as the first section of a post, ahead of the body's `##` headings (#226). The list is still a `<nav>`
+  named "Table of contents". It looks the same: in headless Chrome the label's font, size, weight, spacing and color,
+  and a screenshot of the box, are identical to before at 1280px and 390px, in light and dark mode. Advisory
+  (WCAG 1.3.1, A).
+
 ## [1.3.26] - Unreleased
 
 ### Fixed
