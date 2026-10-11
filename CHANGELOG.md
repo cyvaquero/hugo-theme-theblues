@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.24] - Unreleased
+
+### Fixed
+- The README's "Writing accessible content" list now says to start a post's headings at `##`, since the hero holds the
+  page's h1 and a `#` heading in the body makes a second one, and to give Hugo's `youtube` shortcode a `title`, without
+  which every video frame is named "YouTube video" (#187). Checked with Hugo 0.167.0: a body `#` heading renders as
+  `<h1>`, and `youtube` without `title` gives `title="YouTube video"`. Documentation only.
+
 ## [1.3.22] - Unreleased
 
 ### Added

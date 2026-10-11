@@ -525,9 +525,12 @@ article tile's title link, which is covered by the tile, itself one link. A prin
   text is "Photo N" and the build warns (`theblues-gallery-no-title`).
 - Write Markdown image alt text (`![alt](src)`); a title makes a captioned figure only for stand-alone images (see
   Markdown links and images).
-- Keep heading levels in order in posts; the table of contents is built from them.
+- Start a post's headings at `##`: the hero already holds the page's h1 (the post title), so a `#` heading in the
+  body makes a second h1. Keep the levels in order below that; the table of contents is built from them.
 - Use `[markup.highlight] noClasses = false` if posts show line numbers (see Syntax highlighting).
 - Give `embed` a title (the fourth argument); it names the frame.
+- Give Hugo's `youtube` shortcode a `title` (`{{< youtube id="…" title="…" >}}`); without one every video frame
+  is named "YouTube video".
 
 **Known gaps.** Not yet checked with screen readers or on real touch devices. Inline-highlighted line numbers fail contrast ([#76](https://github.com/cyvaquero/hugo-theme-theblues/issues/76), documented above). Other accessibility issues are
 listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-theblues/issues?q=is%3Aopen+label%3Aaccessibility).
