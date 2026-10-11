@@ -3,6 +3,21 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.6] - Unreleased
+
+### Changed
+- Rewriting a SmugMug URL to another size now happens in one place. `smug-full.html` (X2 to X3 for the lightbox),
+  `smug-srcset.html` (M, L, XL) and `hero-sizes.html` (the hero tiers) each carried their own copy of the path-segment and
+  file-suffix rewrite, and the first two their own copy of the size boxes (M 600×450, L 800×600, XL 1024×768, X2
+  1280×960). The rewrite is now the new partial `smug-size.html` and the sizes and boxes the new `smug-sizes.html`, and
+  the README names both (#190). No output changes for SmugMug URLs of the form `…/SIZE/file-SIZE.ext`; only the last
+  path segment is rewritten now, so a URL with an earlier `/X2/` directory in its path (which SmugMug doesn't produce)
+  keeps that directory instead of having it rewritten too. Checked with Hugo 0.167.0: built output of guyheckman.me
+  (105 `srcset`s, 31 hero tier sets), the 80-post and 550-post sites (1,050 and 5,250 `srcset`s) and the exampleSite, in
+  a development and a production build, is byte-identical to 1.3.5 apart from the footer version and fingerprints; a
+  site of galleries and covers in every size form (X2, X3, L, XL, X4, M, a query string, another host, a
+  missing suffix) is identical too, except for that earlier-`/X2/` case.
+
 ## [1.3.5] - Unreleased
 
 ### Fixed
