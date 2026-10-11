@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.2] - Unreleased
+
+### Fixed
+- The tag, category and series A to Z indexes show each letter heading once. A term whose first letter has an accent
+  (Ü, É) sorts among the plain ones in the site's locale order, and the list opened a new heading whenever the letter
+  changed, so tags uarc, Über, ubuntu and unix gave the headings U, Ü, U (#165). The page now collects the letters first
+  and lists each one's terms under its heading, in the same order; accented letters keep their own heading (U and Ü
+  once each). Checked with Hugo 0.167.0 on a site with those tags plus e and É: before, the headings were E, É, U, Ü, U;
+  now E, É, U (Uarc, Ubuntu, Unix), Ü (Über). Built output of guyheckman.me, the 80-post and 550-post sites and the
+  exampleSite, in a development and a production build, is byte-identical to 1.3.1 apart from the footer version and the
+  stylesheet and script file names.
+
 ## [1.3.1] - Unreleased
 
 ### Fixed
