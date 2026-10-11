@@ -475,7 +475,15 @@ Notes:
 ## Accessibility
 
 The theme targets **WCAG 2.1 level AA**. That also covers the Revised Section 508 standards for web content, which
-incorporate WCAG 2.0 AA (E205.4); [#94](https://github.com/cyvaquero/hugo-theme-theblues/issues/94) maps the review findings to both standards.
+incorporate WCAG 2.0 AA (E205.4), and asks for more: Non-text Contrast (1.4.11), Content on Hover or Focus (1.4.13)
+and Status Messages (4.1.3) are WCAG 2.1 criteria that Section 508 doesn't require, and the theme targets them too.
+Section 508's software requirements (chapters 502 and 503) don't apply to web content that conforms to WCAG 2.0 AA
+(the exception in 501.1). Its documentation requirements (chapter 602) do: this section is the theme's list of
+accessibility and compatibility features (602.2), and the README, as electronic documentation, should itself conform
+to WCAG 2.0 AA (602.3).
+[#94](https://github.com/cyvaquero/hugo-theme-theblues/issues/94) (1.2.0) and
+[#197](https://github.com/cyvaquero/hugo-theme-theblues/issues/197) (1.3.0) map the review findings to both
+standards.
 
 **Keyboard.** Everything works from the keyboard, with a 3px focus ring (steel on the page, sand on the navy band and
 on photos):
