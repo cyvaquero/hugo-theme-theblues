@@ -18,7 +18,9 @@
    Palette B: navy #1B3C53, steel #456882, sand #D2C1B6, cream #F9F3EF.
    Light or dark follows the system setting (prefers-color-scheme) unless the reader picks one with the switch in the nav
    (assets/js/theme.js sets data-theme="light" or "dark" on <html>, #22). The dark tokens are therefore listed twice,
-   once for each way of asking for dark mode; keep the two copies the same.
+   once for each way of asking for dark mode; keep the two copies the same. The build checks it: a difference warns
+   (ID theblues-dark-tokens, layouts/_partials/dark-tokens-check.html). When the theme sets a browser floor, CSS
+   light-dark() can hold one copy (#208).
    Colors are set only in the token block below (and in Print, which forces black on white); --bt, --hv and --scrim are
    the same in both modes, since they sit on the navy band or on photos under a navy scrim. */
 
@@ -60,7 +62,8 @@
   --gap: 12px;              /* masonry gutter */
   color-scheme: light dark;
 }
-/* Dark: the system asks for it and the reader hasn't picked light, ... */
+/* Dark: the system asks for it and the reader hasn't picked light, ... (This block and the next must match; the build
+   warns if they don't, theblues-dark-tokens. light-dark() may replace both later, #208.) */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme=light]) {
     --bg: #142E40;
@@ -88,7 +91,7 @@
     --sx-hl: #1B3C53;
   }
 }
-/* ... or the reader picked dark. Same values as above. */
+/* ... or the reader picked dark. Same values as above (checked at build time, theblues-dark-tokens; see #208). */
 :root[data-theme=dark] {
   --bg: #142E40;
   --text: #F9F3EF;        /* 12.8:1 */

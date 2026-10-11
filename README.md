@@ -146,6 +146,12 @@ A site can add its own page types without overriding theme files:
   `--measure`. Their names are kept stable; a rename or removal is called out in the CHANGELOG.
   A site's own dark-mode colors should use the theme's two dark selectors, so they follow the switch as well as the
   system: `@media (prefers-color-scheme: dark) { :root:not([data-theme=light]) … }` and `:root[data-theme=dark] …`.
+  The theme's own dark tokens are written out in both of those places, and the build checks that the two copies hold
+  the same declarations (`layouts/_partials/dark-tokens-check.html`, once per build): if they differ, or only one is
+  found, it warns with the ID `theblues-dark-tokens` naming the tokens, and `--panicOnWarning` fails the build. It reads
+  the `assets/css/main.css` the build uses, so a site that overrides the file with an edited copy is checked too; a
+  stylesheet with neither block gets no warning. CSS `light-dark()` could replace the two copies once the theme sets a
+  browser floor (#208).
 - **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings (#6):
   - 560px: masonry walls and `galleries` blocks go from one column to two;
   - 700px: the View options popover becomes a 20rem panel at the right instead of spanning the controls, and the wall
@@ -181,7 +187,7 @@ layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-sizes, 
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
-                           wall-pager, wall-page, term-stats, memo, build-token
+                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
@@ -274,8 +280,9 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
   (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`), `theblues-addtional-menus`
   (the deprecated legacy menu, below), `theblues-image-size` (a wall or gallery photo URL that answers 404 or isn't an
-  image) and `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
-  can't check or label it; better fixed than silenced), for example
+  image), `theblues-toc-markup` (Hugo's table of contents markup changed, so the theme
+  can't check or label it; better fixed than silenced) and `theblues-dark-tokens` (the two copies of the dark color
+  tokens in `assets/css/main.css` differ; see Styles under Extending from a site), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
   The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major

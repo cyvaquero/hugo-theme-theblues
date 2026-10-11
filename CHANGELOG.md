@@ -3,6 +3,28 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.10] - Unreleased
+
+### Added
+- The build now checks that the two copies of the dark color tokens in `assets/css/main.css` match (#196). The tokens
+  are written out twice, once under `@media (prefers-color-scheme: dark)` for a system that asks for dark and once for
+  a reader who picked dark with the switch, and the two had to be kept the same by hand. The new partial
+  `dark-tokens-check.html`, called once per build from `head.html`, reads the stylesheet the build uses (a site's own
+  `assets/css/main.css` too), compares the declarations of the two blocks (comments, spacing and order don't count) and
+  warns with the ID `theblues-dark-tokens`, naming each token that differs or is missing from one copy, so a build with
+  `--panicOnWarning`, like the exampleSite check in the README, fails. A stylesheet with neither block gets no warning.
+  The README lists the ID with the others and the layout list names the partial. Both copies stay for now: comments at
+  both blocks and in the stylesheet header point to the check and to #208, where CSS `light-dark()` can replace the
+  two copies once the theme sets a browser floor. Checked with Hugo 0.167.0: guyheckman.me, the 80-post and 550-post
+  sites and the exampleSite build with no warning and, in production, byte-identical to 1.3.9 apart from the footer
+  version; in a development build the HTML is identical and `css/main.css` differs only by the three new comments.
+  With a scratch copy of the stylesheet, changing `--link` in one block gives "the two dark-token blocks differ:
+  --link (system dark #D2C1B6, picked dark #D2C1B7)" and `--panicOnWarning` stops the build; a token removed from one
+  block and another changed in it give one warning naming both; a block that can't be found gives a warning, and
+  neither block gives none; changes to comments, spacing or order give none. On the 550-post site the check runs once
+  (one warning for 682 pages when the copies differ) and the build takes 0.498 s against 0.507 s before (median of 6,
+  production, minified), so it costs nothing measurable.
+
 ## [1.3.9] - Unreleased
 
 ### Changed
