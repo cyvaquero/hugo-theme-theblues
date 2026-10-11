@@ -298,7 +298,7 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   `rel=prev` and `rel=next`.
 - A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall (first with Oldest first), has no  `pubDate` in feeds, and the build warns.
 - Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
-  `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`). The theme sets no referrer policy; browsers default to
+  `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no referrer policy; browsers default to
   `strict-origin-when-cross-origin`, which a site can also send as a header.
 - The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
   sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
@@ -392,6 +392,72 @@ hero uses the first gallery photo, then the site's `header_image`, see Share ima
 or a single string), `tags`, `series`. `hugo new content post/<name>.md` writes these from `archetypes/post.md`: the title
 is the file name without a leading `YYYYMMDD-`, hyphens as spaces, title-cased (as the theme does for a post with no
 title), the slug is the whole file name, and `showtoc` and `series` are there as commented lines to uncomment.
+
+## Content Security Policy
+
+The theme is written to run under a strict CSP: no inline scripts, no inline `<style>`, no `eval`, no `@import`, no
+web fonts and no `data:` URLs. The origins a site's policy must allow are these, grouped by what needs them. Everything
+else can stay at `default-src 'none'`.
+
+**The theme itself**
+
+| Directive | Value | Why |
+|---|---|---|
+| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
+| `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
+| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
+| `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
+| `base-uri`, `form-action`, `object-src` | `'none'` | The theme uses none of them. |
+
+**Optional services**, needed only when the site uses them:
+
+| Service | Directive | Origins |
+|---|---|---|
+| SmugMug photos (gallery photos, hero sizes) | `img-src` | `https://photos.smugmug.com` |
+| Google Analytics (`[services.googleAnalytics] id`, production builds) | `script-src` | `https://www.googletagmanager.com` (`gtag.js`) |
+| | `connect-src` | `https://*.google-analytics.com https://*.google.com https://www.googletagmanager.com` |
+| | `img-src` | `https://*.google-analytics.com https://www.googletagmanager.com` |
+| Disqus (`[services.disqus] shortname`) | `script-src` | `https://<shortname>.disqus.com` (`embed.js`) and `https://c.disquscdn.com` |
+| | `frame-src` | `https://disqus.com` |
+| | `connect-src` | `https://links.services.disqus.com` |
+| | `img-src` | `https://referrer.disqus.com https://c.disquscdn.com` |
+| | `style-src` | `https://c.disquscdn.com` (its `realtime` stylesheet; blocking it only costs that styling) |
+| `embed` shortcode | `frame-src` | the host of each embed's URL |
+| YouTube, through `embed` or Hugo's `youtube` shortcode | `frame-src` | `https://www.youtube-nocookie.com` with `[privacy.youTube] privacyEnhanced = true`, else `https://www.youtube.com` |
+
+The theme has no YouTube shortcode of its own; both ways above give an iframe, so a video needs `frame-src` only, and
+Hugo's `youtube` shortcode needs the same `style-src-attr 'unsafe-inline'` as the theme.
+
+An example for a site with SmugMug photos, Google Analytics and Disqus (`guyheckman-me` stands for the Disqus shortname):
+
+```
+default-src 'none'; script-src 'self' https://www.googletagmanager.com https://guyheckman-me.disqus.com https://c.disquscdn.com;
+style-src 'self' https://c.disquscdn.com; style-src-attr 'unsafe-inline';
+img-src 'self' https://photos.smugmug.com https://www.googletagmanager.com https://*.google-analytics.com https://referrer.disqus.com https://c.disquscdn.com;
+connect-src https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://links.services.disqus.com;
+frame-src https://disqus.com https://www.youtube-nocookie.com; base-uri 'none'; form-action 'none'; object-src 'none'
+```
+
+Notes:
+
+- **Disqus loads more than it needs.** After "Show comments", Disqus's own script also tries a cleartext `http://cdn.viglink.com`
+  pixel (VigLink) and LiveIntent (`d-code.liadm.com` script, `rp.liadm.com` requests, an `i.liadm.com` frame). The list
+  above leaves them out on purpose: with the policy above they are blocked, the browser logs the violations, and the
+  comments still load and show ("Comments loaded."). Allowing them lets those companies see your readers' visits. Disqus
+  changes what it loads without notice, so expect to see violations from it in the console.
+- **Google Analytics** loads only for a visitor who sends neither Do Not Track nor Global Privacy Control, so a browser
+  with either signal never makes those requests. The origins are the ones Google documents for GA4 without advertising
+  features (developers.google.com/tag-platform/security/guides/csp); with Google signals or ads features turned on,
+  Google lists more (`https://*.g.doubleclick.net`, `https://*.google.<TLD>`, `https://pagead2.googlesyndication.com`
+  and `frame-src https://www.googletagmanager.com`).
+- Comments and analytics load only in production builds; a development build needs none of those origins.
+- Checked with Hugo 0.167.0 and headless Chrome (CDP) on a production build of a copy of the exampleSite with a Google
+  Analytics ID, the Disqus shortname above (reading an existing thread through `disqus_url`; nothing was posted),
+  SmugMug photos and YouTube embeds, served with the example policy as an enforced header. The home page, a SmugMug hero,
+  a gallery with the lightbox opened, the YouTube page and an article with comments loaded gave no violation from
+  anything the theme loads or the lists above allow; the only violations were the VigLink pixel and the LiveIntent
+  script. Without the Google, Disqus or YouTube origins, the same pages reported the violations for exactly those
+  requests. In that test Chrome could not connect to `google-analytics.com`, so no analytics hit was recorded.
 
 ## Accessibility
 

@@ -3,6 +3,23 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.3.15] - Unreleased
+
+### Added
+- The README now has a "Content Security Policy" section listing the origins a site's CSP needs (#185): what the theme
+  itself needs (`'self'` for scripts and styles, no hashes, `style-src-attr 'unsafe-inline'` for the hero and tile
+  `style` attributes), and per optional service the `script-src`, `connect-src`, `img-src`, `frame-src` and `style-src`
+  origins for SmugMug photos, Google Analytics, Disqus, the `embed` shortcode and YouTube, with an example policy and
+  notes. Documentation only. Checked with Hugo 0.167.0 and headless Chrome on a production build of an exampleSite copy
+  with a Google Analytics ID, a Disqus shortname (an existing thread read through `disqus_url`, nothing posted), SmugMug
+  photos and YouTube embeds, served with the example policy enforced: the home page, a SmugMug hero, a gallery with the
+  lightbox open, the YouTube page and an article after "Show comments" gave no violation from anything the theme or the
+  listed services load, and the comments loaded. Disqus also asked for a cleartext VigLink pixel and for LiveIntent
+  (`d-code.liadm.com`); the README leaves them out, and they were blocked without breaking the comments. A first run with
+  every origin withheld reported exactly the requests the lists name. Chrome could not reach `google-analytics.com` in
+  the test, so no analytics hit was recorded. Built output of guyheckman.me, the 80-post and 550-post sites and the
+  exampleSite, in development and production builds, is byte-identical to 1.3.14 apart from the footer version.
+
 ## [1.3.14] - Unreleased
 
 ### Security
