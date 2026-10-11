@@ -325,8 +325,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
 - Reduced motion is handled (all transitions are gated on `prefers-reduced-motion`). Not yet checked on real devices: touch
   devices and screen readers. See Accessibility below.
 - Build time grows with the number of posts and list pages: each list page (home, section, every term) builds its own
-  tile list, once for all its pager pages. 550 posts built in about 0.5 s (median of 9 production, minified builds with a warm
-  cache, Hugo 0.167.0, theme 1.3.27); times depend on the machine, so compare runs on your own.
+  tile list, once for all its pager pages. 550 posts built in about 0.5 s (median of 9 production, minified builds
+  with a warm cache, Hugo 0.167.0, theme 1.3.27); times depend on the machine, so compare runs on your own.
 
 ## Site settings it reads
 
