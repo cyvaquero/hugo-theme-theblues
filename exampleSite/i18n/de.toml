@@ -1,0 +1,12 @@
+# A partial German translation for the multilingual test variant (variants/multilingual.toml): the entries it lacks fall
+# back to the theme's English.
+[skipToContent]
+other = "Zum Inhalt springen"
+[menu]
+other = "Menü"
+[mainNavigation]
+other = "Hauptnavigation"
+[backToAllPosts]
+other = "Zurück zu allen Beiträgen"
+[pageNotFound]
+other = "Seite nicht gefunden"
