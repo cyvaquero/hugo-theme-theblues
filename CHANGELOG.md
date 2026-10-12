@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.10] - 2026-10-11
+
+### Changed
+- The hero's photo setup (its smaller SmugMug sizes, and the two Store keys `head.html` reads for the preload) now lives
+  in one partial, `hero-style.html`, instead of being copied into `home.html`, `term.html`, `404.html`, `post/page.html`
+  and `hero.html` (#264). A change to the hero's preload or size data is one edit. The built pages are unchanged, byte
+  for byte, on guyheckman.me and the exampleSite.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security

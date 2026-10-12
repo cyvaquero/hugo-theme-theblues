@@ -1,0 +1,22 @@
+{{- /*
+  The one place that sets up a hero's photo (#264). Context: a map with "page" (the page whose hero it is), "src" (the
+  photo's absolute URL, or empty for a hero with no photo) and "h" (the tallest the hero box gets in CSS pixels: 416 for
+  .phero, 240 for .hero, as hero-sizes.html takes it). It works out the hero's smaller SmugMug sizes (hero-sizes.html),
+  and records the photo and the sizes in the page's Store as "theblues-hero" and "theblues-hero-sizes", which head.html
+  reads, after the page is done, for the preload links (#7, #149). Returns a map with "src" (the photo URL, empty for
+  none) and "vars" (extra declarations for the hero's style attribute, ";--hi1:url(…)" and so on, empty when the hero
+  keeps its one URL). A hero writes its style with them, so the URL is escaped for its place in the attribute:
+    <header class="hero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
+  The result is a map, not the finished style string, because the string would have to be marked safe, and then the URL
+  would not be escaped for CSS any more.
+  A hero is cached per photo and height (partialCached), as hero-sizes.html's callers always did, and the Store is
+  written again on every page. Used by home.html, term.html, 404.html, post/page.html and hero.html.
+  Usage: {{ $hero := partial "hero-style.html" (dict "page" . "src" $cover "h" 416) }}
+*/ -}}
+{{- $hs := dict -}}
+{{- with .src -}}
+  {{- $hs = partialCached "hero-sizes.html" (dict "src" . "h" $.h) . $.h -}}
+  {{- $.page.Store.Set "theblues-hero" . -}}
+  {{- $.page.Store.Set "theblues-hero-sizes" $hs -}}
+{{- end -}}
+{{- return (dict "src" .src "vars" $hs.vars) -}}
