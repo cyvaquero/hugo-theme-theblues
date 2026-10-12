@@ -43,3 +43,7 @@ defaultContentLanguage = "de"
   [[module.mounts]]
     source = "static"
     target = "static"
+  # The theme's layouts as assets, as in hugo.toml, so the English-fallback pair check runs in this build too (#263).
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"
