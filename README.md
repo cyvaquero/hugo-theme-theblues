@@ -232,6 +232,11 @@ translate the theme, or reword its English, for a site:
    archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
    Hugo's locale data, except on an English site (language `en` or `en-*`), which gets US English names whatever its
    `locale`: `en-GB` writes September as "Sep", not "Sept".
+5. For a right-to-left language, set `direction = "rtl"` on it (`[languages.ar]`), and the theme writes `dir="rtl"` on `<html>`
+   (#266), so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir` attribute,
+   as before. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
+   the bars, indents, drop-downs and alignment keep their left-to-right sides. Mirroring them with CSS logical
+   properties is tracked in #296.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js` and
 `gallery.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -346,8 +351,21 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   number, fails the build with a message naming the setting (#256). The pager shows the first and last pages and two on
   each side of the current one.
 - Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
-  guyheckman.me"), but use page 1's canonical URL and have no `rel=prev/next` in the head. The pager links carry
-  `rel=prev` and `rel=next`.
+  guyheckman.me"), but use page 1's canonical URL (`<link rel="canonical">` and `og:url`) and have no `rel=prev/next` in the
+  head. The pager links carry `rel=prev` and `rel=next`. This is deliberate (#251). The wall paginates by tile, newest
+  first, so a later page is a shifting slice of one feed: adding a post moves every tile down a slot and tiles cross
+  from page to page, so `/page/2/` shows different tiles from one build to the next. Page 1 is the stable entry point, and
+  nothing is hidden behind the pager: every post is reachable, and indexable, at its own permalink, which the sitemap lists
+  (Hugo's sitemap holds pages, not the pager's `/page/N/` URLs), and its tile links to it. The archive page
+  (`layout: archive`, see Archive above) lists every post, with no pager, and each post links to the one before and after it.
+  This departs from Google's current guidance, that each page of a paginated list be its own canonical
+  ([pagination and incremental page loading](https://developers.google.com/search/docs/specialty/ecommerce/pagination-and-incremental-page-loading));
+  Google says it no longer uses `rel=prev/next`. The cost is that a post is found through its permalink, the sitemap or the
+  archive rather than through a later pager page. A site that wants each pager page to be its own canonical has no setting
+  for it: it replaces `layouts/_partials/head.html` with a copy in which the `.Permalink` of the `<link rel="canonical">`
+  and of `og:url` becomes the pager's URL when the page number is above 1, for example
+  `{{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}{{ .URL | absURL }}{{ end }}{{ end }}{{ end }}`
+  (`.Store.Get "wall"` is empty on pages that are not walls), and keeps that copy up to date through theme upgrades.
 - A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall (first with Oldest first), has no  `pubDate` in feeds, and the build warns.
 - Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
   `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no referrer policy; browsers default to
@@ -611,15 +629,17 @@ hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../
 
 `hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
 Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
-compared. Also build it minified, as a site is deployed, and the three variants under `exampleSite/variants/`, which
+compared. Also build it minified, as a site is deployed, and the four variants under `exampleSite/variants/`, which
 cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
 the legacy `params.addtional_menus`), a second language with a partial translation (`i18n/de.toml`, content in
-`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, and a
-Google Analytics ID, which the theme loads in production builds only:
+`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
+Google Analytics ID, which the theme loads in production builds only, and a right-to-left language (`rtl`: Arabic with
+`direction = "rtl"` next to English, #266), whose pages must start `<html lang="ar" dir="rtl">` while the English ones
+have no `dir`:
 
 ```bash
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
-for v in main-menu multilingual analytics; do
+for v in main-menu multilingual analytics rtl; do
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
 done
 ```
