@@ -1,0 +1,18 @@
+{{- /* The check described in head-end.html (#263). Prints nothing. */ -}}
+{{- $en := hugo.Data.theblues_i18n_en | default dict -}}
+{{- range resources.Match "theblues-layouts/**" -}}
+  {{- if not (strings.HasSuffix .Name "/_partials/t.html") -}}
+    {{- $file := strings.TrimPrefix "/theblues-layouts/" .Name -}}
+    {{- $c := .Content -}}
+    {{- $t := slice -}}
+    {{- range findRE `\(T "[A-Za-z0-9_]+"` $c }}{{ $t = $t | append (replaceRE `^\(T "(.*)"$` "$1" .) }}{{ end -}}
+    {{- $p := slice -}}
+    {{- range findRE `partial "t\.html" \(?(?:slice )?"[A-Za-z0-9_]+"` $c }}{{ $p = $p | append (replaceRE `^.*"([A-Za-z0-9_]+)"$` "$1" .) }}{{ end -}}
+    {{- if ne (delimit $t ",") (delimit $p ",") -}}
+      {{- warnidf "theblues-i18n-pair" "%s: T keys (%s) and t.html keys (%s) differ; each (or (T …) (partial \"t.html\" …)) must name one key (#263)." $file (delimit $t ", ") (delimit $p ", ") -}}
+    {{- end -}}
+    {{- range $t -}}
+      {{- if not (index $en .) }}{{ warnidf "theblues-i18n-pair" "%s: T key %q is not in i18n/en.toml (#263)." $file . }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

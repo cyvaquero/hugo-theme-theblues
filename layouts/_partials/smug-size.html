@@ -1,15 +1,17 @@
 {{- /*
   The URL of another size of a SmugMug photo (#190). SmugMug names each size twice, in the last path segment and in the
   file suffix (/X2/i-ABC-X2.jpg becomes /L/i-ABC-L.jpg). Context: dict "src" (the URL) "from" (the size it names, such as
-  "X2") "to" (the size wanted). Returns the rewritten URL, or src unchanged when its last path segment isn't "from".
+  "X2") "to" (the size wanted). Returns the rewritten URL, or src unchanged when its last path segment isn't "from". A query string or fragment after
+  the file name is kept as it is (#253).
   smug-full.html, smug-srcset.html and hero-sizes.html all rewrite through this partial; the sizes and their boxes are in
   smug-sizes.html.
   Usage: {{ partial "smug-size.html" (dict "src" $src "from" "X2" "to" "X3") }}
 */ -}}
 {{- $u := .src -}}
-{{- $re := printf `/%s/([^/]*)$` .from -}}
+{{- $tail := `(\?[^#]*)?(#.*)?$` -}}
+{{- $re := printf `/%s/([^/?#]*)%s` .from $tail -}}
 {{- if findRE $re $u 1 -}}
-  {{- $u = replaceRE $re (printf "/%s/${1}" .to) $u -}}
-  {{- $u = replaceRE (printf `-%s(\.[A-Za-z0-9]+)$` .from) (printf "-%s${1}" .to) $u -}}
+  {{- $u = replaceRE $re (printf "/%s/${1}${2}${3}" .to) $u -}}
+  {{- $u = replaceRE (printf `-%s(\.[A-Za-z0-9]+)%s` .from $tail) (printf "-%s${1}${2}${3}" .to) $u -}}
 {{- end -}}
 {{- return $u -}}

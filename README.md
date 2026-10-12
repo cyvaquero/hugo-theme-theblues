@@ -68,7 +68,9 @@ How the images were made is in "Testing the theme" below.
   A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used. `wall.js`,
   `comments.js` and `gallery.js` hold the text they write (captions, comment messages, lightbox labels) as a Go template
   action, which Hugo fills in from the site's language when it builds them (see "Translating the theme"); a site's own
-  copy of a script is run as a template only if it contains `{{`.
+  copy of a script is run as a template only if its first line is the template comment `{{- /* theblues:template */ -}}`,
+  which renders as nothing (any other `{{` in a script is published as written, #262); a site's copy of one of these three
+  needs that line, and the build fails naming a script that calls `js-text.html` without it.
 
 ## Installation
 
@@ -294,8 +296,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   when sorting, is its position in the DOM: tiles have carried no `data-order` since 1.3.9, so a site's CSS or script
   that reads it must count the tiles itself; `#stage` carries the whole list's article and photo tile
   counts (`data-articles`, `data-photos`) for the type chips and its number of pager pages (`data-pages`), which makes the
-  caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
-- The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
+  caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption; they carry the gallery's date in `data-shown` for group headings, and a group with only a see-all tile on the page still counts as a group in the caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+- The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL. A query string or fragment after the file name is kept.
 - Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
   doesn't reflow. Hugo keeps the downloads in its `getresource` file cache (by default `:cacheDir/:project`, kept until
@@ -305,7 +307,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   URL is never requested in cleartext, where its size could be tampered with, and a browser blocks it as mixed content
   on an https site or under a CSP that allows only `https:` images, so the build warns (warning ID
   `theblues-insecure-photo`, for a gallery photo, a hero image or a Markdown image, once per URL) and the tile and
-  gallery image get no width and height; the URL is published as written, so use `https://`.
+  gallery image get no width and height; the URL is published as written, so use `https://`. A URL under the site's own `baseURL` (a local hero
+  image under `hugo server` or a build with an `http://` base) is not reported (#257).
   When a photo can't be fetched (offline, a timeout, a server error) the attributes are left out
   without a warning and the tile holds a 3:2 placeholder; when the server answers that the photo doesn't exist (HTTP 404)
   or isn't an image, the build warns (warning ID `theblues-image-size`).
@@ -339,8 +342,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
-  `tilesPerPage` and `photosPerGallery` must be 1 or more; anything else fails the build with a message naming the
-  setting. The pager shows the first and last pages and two on
+  `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more; anything else, including text that isn't a
+  number, fails the build with a message naming the setting (#256). The pager shows the first and last pages and two on
   each side of the current one.
 - Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
   guyheckman.me"), but use page 1's canonical URL and have no `rel=prev/next` in the head. The pager links carry
@@ -382,7 +385,7 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
   (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`), `theblues-addtional-menus`
   (the deprecated legacy menu, below), `theblues-image-size` (a wall or gallery photo URL that answers 404 or isn't an
-  image), `theblues-insecure-photo` (a gallery photo, hero image or Markdown image whose URL starts with `http://`;
+  image), `theblues-insecure-photo` (a gallery photo, hero image or Markdown image whose URL starts with `http://` and isn't under the site's `baseURL`;
   see the photo size bullet under "How the wall works"), `theblues-toc-markup` (Hugo's table of contents markup
   changed, so the theme can't check or label it; better fixed than silenced) and `theblues-dark-tokens` (the two copies of the dark color
   tokens in `assets/css/main.css` differ; see Styles under Extending from a site) and `theblues-i18n` (the site's
@@ -549,7 +552,8 @@ on photos):
   focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
-  seconds, "Comments couldn't be loaded…" with the button back as "Try again".
+  seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already
+  running instead of adding a second Disqus script; after a blocked or failed request it starts a new one.
 
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.
@@ -593,8 +597,8 @@ listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-t
 `exampleSite/` is a small fixture site whose content exercises the cases the guyheckman.me content doesn't: an untitled
 post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
 `{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
-a series, a code block with line numbers, a post whose headings are all below the TOC levels, a page without a title, the legacy `params.addtional_menus` nav, a footer
-menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
+a series, a code block with line numbers, a post whose headings are all below the TOC levels, a page without a title, an article with an inline
+`gallery`, the legacy `params.addtional_menus` nav, a footer menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
 hero photos on `photos.smugmug.com`, which make the build read each photo's size and write `width`/`height`, `srcset`,
 the hero's smaller sizes and its preload (they need a network the first time; Hugo then keeps them in its cache, and
 an offline build leaves those attributes out without a warning). Hugo doesn't use it when the theme is installed in a
@@ -605,15 +609,54 @@ cd exampleSite
 hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d /tmp/theblues-after
 ```
 
+`hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
+Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
+compared. Also build it minified, as a site is deployed, and the three variants under `exampleSite/variants/`, which
+cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
+the legacy `params.addtional_menus`), a second language with a partial translation (`i18n/de.toml`, content in
+`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, and a
+Google Analytics ID, which the theme loads in production builds only:
+
+```bash
+hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
+for v in main-menu multilingual analytics; do
+  hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
+done
+```
+
+(`--printUnusedTemplates` is left out of the variants, since each one leaves some templates unused on purpose.)
+
 `--themesDir` must contain the theme as a folder (or link) named `hugo-theme-theblues`, which `../..` is in the site's
-submodule checkout. The build should finish with no warnings and no unused templates: the warnings the fixtures cause
+submodule checkout. Each build should finish with no warnings, and the first with no unused templates: the warnings the fixtures cause
 on purpose are listed in `ignoreLogs` in `exampleSite/hugo.toml`, and any other warning fails it.
+
+The same build with `-b http://127.0.0.1:8099/` (the base URL of the screenshot recipe below) must also pass
+`--panicOnWarning`: the fixture's local hero image is the site's own file, so it gets no `theblues-insecure-photo` warning
+(#257).
+
+To check that Hugo's cache hints still work with the theme, add `--templateMetrics --templateMetricsHints` to that command. It
+should finish in about a second and print the metrics table; a hang means a partial returns a resource that is still
+unbuilt (#243).
+
+The settings checks fail the build on purpose, so the fixture can't hold them. To see one, build with
+`HUGO_PARAMS_WALL_TILESPERPAGE=abc` (or `HUGO_PARAMS_WALL_PHOTOSPERGALLERY=abc`, `=0` or `=-2`): the error names the setting
+(#256).
+
+The fixture build also checks the English-fallback idiom (README, "Translating the theme"): `exampleSite/hugo.toml`
+mounts the theme's `layouts/` as assets, and the fixture's own `head-end.html` (`exampleSite/layouts/_partials/i18n-pairs.html`
+does the work) reads them. In each template file, the keys given to `T` and to `partial "t.html"` must be the same list
+in the same order, and every key must be in `i18n/en.toml`; otherwise the build warns with the ID `theblues-i18n-pair`,
+which `--panicOnWarning` turns into a failure (#263). It checks the keys, not the arguments.
 
 To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
 a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then
 compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
 footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does; anything else that differs
 is a change in output.
+
+The fixture's 4 tiles per page never leave a see-all tile alone on a page. To check the wall's grouped view for that case,
+build with `HUGO_PARAMS_WALL_TILESPERPAGE=5` and open `/page/3/`: with Group by gallery on, the one gallery's heading has
+its date and the caption ends "grouped into 1 gallery" (#252).
 
 The screenshots under `images/` (`readme-*.webp`, about 0.8 MB in all) are captured from the exampleSite, so they can be
 made again. `images/screenshot.png` and `images/tn.png` are the themes gallery's own images (1500x1000 and 900x600) and

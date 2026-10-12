@@ -8,7 +8,7 @@ Text around the gallery is styled like an article.
 
 {{< galleries >}}
 {{< gallery src="https://photos.example.org/g/X2/i-1-X2.jpg" title="First photo" >}}
-{{< gallery src="https://photos.example.org/g/X2/i-2-X2.jpg" title="A title with a } and a > inside" >}}
+{{< gallery src="https://photos.example.org/g/X2/i-2-X2.jpg?v=1&w=2#top" title="A title with a } and a > inside" >}}
 {{< gallery src=`https://photos.example.org/g/X2/i-3-X2.jpg` title="Backquoted src" >}}
 {{< gallery "https://photos.example.org/g/X2/i-4-X2.jpg" >}}
 {{</* gallery src="https://photos.example.org/g/X2/i-commented-X2.jpg" title="Commented out inside galleries" */>}}

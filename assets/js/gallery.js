@@ -1,3 +1,4 @@
+{{- /* theblues:template */ -}}
 // Native <dialog> lightbox for the masonry galleries (.gal) on photo posts (decision D7).
 // Previous/next buttons, arrow, Home and End keys, swipe, counter, Esc to close, focus returns to the photo that was
 // opened. Each link points at the large image (X3); the thumbnail in the page stays X2. The counter and alt text change
