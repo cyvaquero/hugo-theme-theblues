@@ -3,6 +3,27 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.19] - 2026-10-12
+
+### Fixed
+- The "Part N of M" chip and the series box no longer slow the build down as a series grows. A post's place in its
+  series was worked out by sorting and scanning the whole series again for every post, so the work grew with the
+  square of the series length (a 500-post series took about 860 µs per call, against about 100 µs now). The ordered
+  list and each post's position are now worked out once per series and kept through `memo.html`, so a rebuild under
+  `hugo server` still picks up an added, moved or removed post. The pages are unchanged (#244).
+- Photo tiles are no longer rendered again on every wall once a site has a few hundred photo posts. Hugo's partial
+  cache holds only about a thousand entries and the tiles evicted each other; on a generated site of 750 photo posts
+  (3,000 tiles, each on up to five walls) the tile markup was rendered 11,730 times, and is now rendered 3,287 times,
+  and the build takes 1.3 s instead of 2.0 s. Tiles are now kept through `memo.html`, as the photo lists already
+  were, and the pages are unchanged (#247).
+
+### Changed
+- `wall.js` no longer takes the wall's tiles out and puts them back on every page view. The settings start at the
+  defaults, and when the server's order is already the default one (newest first, as the theme renders it), the tiles
+  stay where they are and only the caption and the controls are filled in, so lazy-loaded images are not re-attached.
+  Filter, highlight, sort, grouping, Clear and Reset behave as before, and a wall rendered in another order is still
+  rebuilt on load (#245).
+
 ## [1.4.18] - 2026-10-12
 
 ### Fixed

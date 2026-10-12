@@ -249,8 +249,11 @@
   document.addEventListener('pointerout', pvOff);
 
   // The first render fills the live caption; keep it out of the live region so it isn't announced on page load (#13).
+  // The settings start at the defaults and are not kept between visits. When the server's order is already the default
+  // order (it is, unless a custom wall.html sorts otherwise), the tiles stay where they are: only the caption and the
+  // controls are filled in, so the page doesn't rebuild the wall and re-attach its lazy-loaded images on every view (#245).
   cap.removeAttribute('aria-live');
-  render();
+  if (items.slice().sort(sorter()).every(function (it, i) { return it.ord === i; })) paint(); else render();
   ctl.hidden = false;
   setTimeout(function () { cap.setAttribute('aria-live', 'polite'); }, 0);
 })();

@@ -3,18 +3,28 @@
   (1-based), total and pages, empty when the page is not in a series. Pages are in Hugo's weight order: posts with a
   weight (negative ones included) first, lowest first, then the rest; oldest first within each (#6). series-box.html renders every
   entry; the "Part N of M" chip on wall tiles (tile-article.html) shows the first.
+  The ordered list and each post's position in it are worked out once per series, not once per post, and kept in the
+  series term's Store by memo.html (#244, #164), so the work for a series of N posts grows with N, not N squared.
   Usage: {{ $series := partialCached "series-info.html" $page $page.Path }}
 */ -}}
 {{- $page := . -}}
 {{- $out := slice -}}
-{{- range .GetTerms "series" -}}
-  {{- $byDate := .RegularPages.ByDate -}}
-  {{- /* "ne 0", not "gt 0": Hugo accepts negative weights and sorts them first, and a "gt 0" / "eq 0" pair drops them from the series (#161). */ -}}
-  {{- $pages := (sort (where $byDate "Weight" "ne" 0) "Weight") | append (where $byDate "Weight" 0) -}}
-  {{- $part := 0 -}}
-  {{- range $i, $p := $pages -}}{{- if eq $p.RelPermalink $page.RelPermalink -}}{{- $part = add $i 1 -}}{{- end -}}{{- end -}}
-  {{- if $part -}}
-    {{- $out = $out | append (dict "name" .LinkTitle "url" .RelPermalink "part" $part "total" (len $pages) "pages" $pages) -}}
+{{- range $term := .GetTerms "series" -}}
+  {{- $key := "theblues-series-order" -}}
+  {{- $o := dict -}}
+  {{- $m := partial "memo.html" (dict "page" $term "key" $key) -}}
+  {{- if $m }}{{ $o = $m.val }}{{ else -}}
+    {{- $byDate := $term.RegularPages.ByDate -}}
+    {{- /* "ne 0", not "gt 0": Hugo accepts negative weights and sorts them first, and a "gt 0" / "eq 0" pair drops them from the series (#161). */ -}}
+    {{- $pages := (sort (where $byDate "Weight" "ne" 0) "Weight") | append (where $byDate "Weight" 0) -}}
+    {{- /* Each page's part by its address; a Scratch adds a key in constant time, where merge would copy the map. */ -}}
+    {{- $s := newScratch -}}
+    {{- range $i, $p := $pages }}{{ $s.SetInMap "pos" $p.RelPermalink (add $i 1) }}{{ end -}}
+    {{- $o = dict "pages" $pages "pos" ($s.Get "pos" | default dict) -}}
+    {{- $_ := partial "memo.html" (dict "page" $term "key" $key "val" $o) -}}
+  {{- end -}}
+  {{- with index $o.pos $page.RelPermalink -}}
+    {{- $out = $out | append (dict "name" $term.LinkTitle "url" $term.RelPermalink "part" . "total" (len $o.pages) "pages" $o.pages) -}}
   {{- end -}}
 {{- end -}}
 {{- return $out -}}
