@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.7] - 2026-10-11
+
+### Fixed
+- A hero image given as a local path (`header_image`, a page `image`, `image_404`) no longer warns
+  `theblues-insecure-photo` when the site's `baseURL` is `http://`, as under `hugo server` or the README's screenshot
+  build; with `--panicOnWarning` that warning failed the build (#257). The check skips URLs under the site's own
+  `baseURL`. A photo whose URL names another host over `http://`, or the site's own host over `http://` when the
+  `baseURL` is `https://`, still warns. Built pages are unchanged.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security
