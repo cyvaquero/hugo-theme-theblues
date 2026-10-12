@@ -6,9 +6,8 @@
 */ -}}
 {{ define "header" }}
 {{ $photo := and (partialCached "is-photo.html" . .Path) (partialCached "photos.html" . .Path) }}
-{{ $cover := partialCached "cover.html" . .Path }}{{ $hs := dict }}{{ with $cover }}{{ $hs = partialCached "hero-sizes.html" (dict "src" . "h" 416) . 416 }}{{ end }}
-{{- with $cover }}{{ $.Store.Set "theblues-hero" . }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end }}
-<header class="phero"{{ with $cover }} style="--hi:url('{{ . }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
+{{ $cover := partialCached "cover.html" . .Path }}{{ $hero := partial "hero-style.html" (dict "page" $ "src" $cover "h" 416) }}
+<header class="phero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <div class="in">
     <div class="ptype">
       {{- if $photo }}<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>{{ (or (T "photoGallery") (partial "t.html" "photoGallery")) }}

@@ -1,0 +1,12 @@
+{{- /*
+  Build-time check of the theme's English-fallback idiom (#263), for the fixture build only: this file is the
+  exampleSite's own head-end.html (README, "Extending from a site"), which a site that installs the theme doesn't get.
+  Every piece of theme text is read as (or (T "key" ARG) (partial "t.html" (slice "key" ARG))) so that a language
+  without the entry falls back to the theme's English (layouts/_partials/t.html). The two calls must name the same key,
+  and a mismatch would show the wrong English text only when a translation is missing, which no build notices. The
+  fixture's hugo.toml mounts the theme's layouts as assets/theblues-layouts, and this reads them: in each file, the keys
+  given to T and to t.html must be the same list, in the same order, and every key must be in i18n/en.toml. A mismatch
+  warns with the ID theblues-i18n-pair, which fails the README's --panicOnWarning build. It runs once (partialCached)
+  and prints nothing.
+*/ -}}
+{{- $_ := partialCached "i18n-pairs.html" "pairs" "pairs" -}}

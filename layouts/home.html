@@ -10,8 +10,8 @@
 {{ $punct := index $m 2 }}
 {{ $head := delimit (first (sub $count 1) $words) " " }}
 {{ $tagline := site.Params.tagline | default site.Params.description }}
-{{ $hs := dict }}{{ with site.Params.header_image }}{{ $hs = partialCached "hero-sizes.html" (dict "src" (. | absURL) "h" 240) (. | absURL) 240 }}{{ $.Store.Set "theblues-hero" (. | absURL) }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end -}}
-<header class="hero"{{ with site.Params.header_image }} style="--hi:url('{{ . | absURL }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
+{{ $src := "" }}{{ with site.Params.header_image }}{{ $src = . | absURL }}{{ end }}{{ $hero := partial "hero-style.html" (dict "page" $ "src" $src "h" 240) -}}
+<header class="hero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <p class="k">{{ site.Title }}</p>
   <h1>{{ with $head }}{{ . }} {{ end }}{{ if $core }}<span class="u">{{ $core }}<svg viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M1 5 C6 0 11 0 15 4 S25 8 30 4 S42 0 46 4 S55 7 59 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span>{{ $punct }}{{ else }}{{ $last }}{{ end }}</h1>
   {{ with $tagline }}<p class="sub">{{ . }}</p>{{ end }}

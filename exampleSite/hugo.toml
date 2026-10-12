@@ -50,3 +50,31 @@ ignoreLogs = ["theblues-gallery-no-title", "theblues-undated", "theblues-addtion
 [[menus.footer]]
   name = "Privacy"
   url = "/about/#privacy"
+
+# Hugo's default mounts, which listing any mount turns off, plus the theme's layouts as assets, for the pair check in
+# layouts/_partials/head-end.html (#263).
+[module]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"

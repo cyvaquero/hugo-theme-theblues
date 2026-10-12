@@ -1,0 +1,49 @@
+# Test variant (README, "Testing the theme"): two languages, with German (a partial translation, i18n/de.toml) as the
+# default, so the entries it lacks fall back to the theme's English (layouts/_partials/t.html), and one script per
+# language (js/wall.en.js). Build with: --config hugo.toml,variants/multilingual.toml
+defaultContentLanguage = "de"
+
+[languages.de]
+  weight = 1
+  label = "Deutsch"
+  locale = "de-DE"
+  title = "Die Blues-Fixtures"
+[languages.en]
+  weight = 2
+  label = "English"
+  locale = "en-US"
+
+# Each language has its own content folder. Listing a mount turns off Hugo's default mounts, so they are listed here too.
+[module]
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["en"]
+  [[module.mounts]]
+    source = "content-de"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["de"]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  # The theme's layouts as assets, as in hugo.toml, so the English-fallback pair check runs in this build too (#263).
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"
