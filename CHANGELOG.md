@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.13] - 2026-10-12
+
+### Added
+- The theme writes `dir="rtl"` on `<html>` for a right-to-left language (`[languages.ar] direction = "rtl"`), read with
+  Hugo's `site.Language.Direction`, so browsers and screen readers get the text direction (#266). Left-to-right sites
+  are unchanged: no `dir` attribute is written and their pages are identical. The layout is not mirrored yet, because
+  `main.css` uses physical `left` and `right` properties; the README says so, and mirroring it with CSS logical
+  properties is tracked in #296. The test fixture has an `rtl` variant (Arabic next to English) for it; the README's
+  "Testing the theme" lists it.
+
 ## [1.4.12] - 2026-10-11
 
 ### Added
