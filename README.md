@@ -625,6 +625,10 @@ done
 submodule checkout. Each build should finish with no warnings, and the first with no unused templates: the warnings the fixtures cause
 on purpose are listed in `ignoreLogs` in `exampleSite/hugo.toml`, and any other warning fails it.
 
+To check that Hugo's cache hints still work with the theme, add `--templateMetrics --templateMetricsHints` to that command. It
+should finish in about a second and print the metrics table; a hang means a partial returns a resource that is still
+unbuilt (#243).
+
 To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
 a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then
 compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
