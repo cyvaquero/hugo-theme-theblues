@@ -24,4 +24,8 @@
 {{- if and $r (not hugo.IsDevelopment) -}}
   {{- $r = $r | minify | fingerprint -}}
 {{- end -}}
+{{- /* Reading .Content here runs the template, minify and fingerprint steps now, while this partial runs. Left lazy, they
+  would first run when Hugo hashes the returned resource inside --templateMetricsHints, which holds the metrics lock
+  while the template's own partial calls wait for it, and the build hangs (#243). */ -}}
+{{- with $r }}{{ $_ := .Content }}{{ end -}}
 {{- return $r -}}
