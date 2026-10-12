@@ -2,7 +2,9 @@
 // until this runs; nothing from Disqus (or the trackers it brings) is requested before the reader clicks it.
 // After the click, focus moves to the "Comments" heading and a polite status says what is happening: loading, loaded, or
 // "couldn't be loaded" with the button back as "Try again" (#162). Disqus gives no error event for a blocked or failed
-// embed.js except the script's own error, so a load that never reports ready is treated as failed after TIMEOUT.
+// embed.js except the script's own error, so a load that never reports ready is treated as failed after TIMEOUT. A script
+// that merely timed out is kept, since its request is still running: "Try again" waits for it, and adds a second one only
+// after an error (#254).
 // The text it writes is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
 // js-text.html), from i18n/en.toml or the site's own file.
 (function () {
@@ -15,9 +17,11 @@
 
   function say(text) { if (st) st.textContent = text; }
 
-  function fail() {
+  // drop: the script's request failed, so remove it and let the next try add a new one. After a timeout it stays, because
+  // its request may still finish (embed.js would run twice if a second script were added next to it, #254).
+  function fail(drop) {
     clearTimeout(timer);
-    if (script) { script.onerror = null; script.remove(); script = null; }
+    if (drop && script) { script.onerror = null; script.remove(); script = null; }
     say(TX.failed);
     b.textContent = TX.tryAgain;
     b.hidden = false;
@@ -41,16 +45,17 @@
     b.hidden = true;
     say(TX.loading);
     clearTimeout(timer);
-    timer = setTimeout(fail, TIMEOUT);
+    timer = setTimeout(function () { fail(false); }, TIMEOUT);
     if (window.DISQUS) {  // an earlier try loaded embed.js but never reported ready: reload instead of adding it twice
-      try { window.DISQUS.reset({ reload: true, config: window.disqus_config }); } catch (e) { fail(); }
+      try { window.DISQUS.reset({ reload: true, config: window.disqus_config }); } catch (e) { fail(false); }
       return;
     }
+    if (script) return;  // the first request is still pending (it timed out but didn't fail): wait for it with a new timer
     script = document.createElement('script');
     script.async = true;
     script.src = 'https://' + d.shortname.replace(/^\/+/, '') + '.disqus.com/embed.js';  // tolerates a leading slash
     script.setAttribute('data-timestamp', String(+new Date()));
-    script.onerror = fail;
+    script.onerror = function () { fail(true); };
     (document.head || document.body).appendChild(script);
   });
 })();
