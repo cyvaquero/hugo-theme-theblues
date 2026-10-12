@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.4] - 2026-10-11
+
+### Fixed
+- A SmugMug photo URL with a query string or fragment, such as `…/X2/i-1-X2.jpg?foo=1`, now gets the right large-size
+  link (`…/X3/i-1-X3.jpg?foo=1`) in the lightbox, the full-size link and the feed; before, the file name kept its `X2`
+  and the link pointed at a photo that doesn't exist (#253). URLs without a query string are unchanged, so
+  guyheckman.me's pages are too. The exampleSite's "A photo gallery" post now has a query string on its second photo,
+  which covers this case.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security
