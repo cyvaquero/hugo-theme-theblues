@@ -302,17 +302,18 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   fetches them all. Only photos on `https://photos.smugmug.com/` are fetched, so a build never requests another host
   that a post names (a photo on any other host gets no width and height, without a request or a warning). An `http://`
   URL is never requested in cleartext, where its size could be tampered with, and a browser blocks it as mixed content
-  on an https site or under a CSP that allows only `https:` images, so the build warns (warning ID `theblues-insecure-photo`, for a gallery photo, a hero image or a
-  Markdown image, once per URL) and the tile and gallery image get no width and height; the URL is published as
-  written, so use `https://`.
+  on an https site or under a CSP that allows only `https:` images, so the build warns (warning ID
+  `theblues-insecure-photo`, for a gallery photo, a hero image or a Markdown image, once per URL) and the tile and
+  gallery image get no width and height; the URL is published as written, so use `https://`.
   When a photo can't be fetched (offline, a timeout, a server error) the attributes are left out
   without a warning and the tile holds a 3:2 placeholder; when the server answers that the photo doesn't exist (HTTP 404)
   or isn't an image, the build warns (warning ID `theblues-image-size`).
   A build host can also restrict what Hugo may fetch, whatever the theme asks for, with Hugo's
   [`security.http.urls`](https://gohugo.io/configuration/security/) allowlist, for example
   `[security.http]` `urls = ['^https://photos\.smugmug\.com/']` in the site's `hugo.toml`, or
-  `HUGO_SECURITY_HTTP_URLS='^https://photos\.smugmug\.com/'` in the environment. A URL outside the list fails the
-  build. Overriding `urls` also turns off Hugo's default check that rejects hosts resolving to private addresses.
+  `HUGO_SECURITY_HTTP_URLS='^https://photos\.smugmug\.com/'` in the environment. The theme treats a photo outside the
+  list like one it can't fetch: no request, no warning, and no width and height. Overriding `urls` also turns off
+  Hugo's default check that rejects hosts resolving to private addresses.
 - When the size is known and the photo is a SmugMug `X2` URL on `photos.smugmug.com`, tiles and gallery images also get
   a `srcset` of SmugMug's M, L and XL sizes plus X2, with `sizes` matching the masonry columns, so phones and one-x
   screens load a smaller file (`layouts/_partials/smug-srcset.html`). SmugMug names each size in the URL's path segment
