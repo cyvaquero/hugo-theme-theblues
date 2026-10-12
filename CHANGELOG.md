@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.5] - 2026-10-11
+
+### Fixed
+- "Try again" after a Disqus timeout no longer loads Disqus's `embed.js` a second time (#254). When Disqus is slow
+  rather than blocked, the 15-second timeout used to remove the script tag while its request kept running, and a click
+  on "Try again" added another, so the embed could run twice. The first script now stays after a timeout and the retry
+  waits for it; a blocked or failed request still gets a fresh script on retry.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security
