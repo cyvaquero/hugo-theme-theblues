@@ -14,6 +14,14 @@ All notable changes to this theme are documented here. The format follows
   now also builds the fixture minified and each variant, all with `--panicOnWarning`. Only the test fixture changes:
   the theme's templates, styles and scripts are untouched, and guyheckman.me's pages are identical.
 
+## [1.4.3] - 2026-10-11
+
+### Fixed
+- On a wall page whose only tile from a gallery is its "see all" tile, Group by gallery now shows the gallery's date in
+  the heading and counts the gallery in the caption ("grouped into 1 gallery"), as on other pages (#252). The see-all
+  tile carries the gallery's date in a new `data-shown` attribute, so the built wall pages change by that attribute and
+  the `wall.js` file name; no tile moves or changes otherwise.
+
 ## [1.4.2] - 2026-10-11
 
 ### Fixed
