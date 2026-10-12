@@ -153,8 +153,9 @@ The templates assume this layout; other structures are not supported yet.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A link to a page or a page resource resolves to its permalink, as with Hugo's built-in hooks; an image source
-  resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, with visually
-  hidden "(opens in a new tab)" text for screen readers. A titled image is a `<figure>` with a caption only when it
+  resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, and say so to
+  screen readers as their description (`aria-describedby`, pointing at one hidden element, `id="tb-newtab"`, that every
+  page holds), so a heading with such a link keeps a plain name in the heading list and the table of contents. A titled image is a `<figure>` with a caption only when it
   stands alone and the site sets `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title
   is the tooltip.
 
@@ -189,7 +190,7 @@ A site can add its own page types without overriding theme files:
   for no consent before it loads analytics (see `[services.googleAnalytics] id` under "Site settings it reads").
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
-  `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
+  `--line` (decorative rules), `--ctl-line` (borders of controls: chips, the mode switch, selects, tag pills and pager links), `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
   `--scrim` (the navy scrim over photos, as RGB channels: `rgb(var(--scrim) / .8)`), `--serif`, `--sans`, `--wide` and
   `--measure`. Their names are kept stable; a rename or removal is called out in the CHANGELOG.
   A site's own dark-mode colors should use the theme's two dark selectors, so they follow the switch as well as the
@@ -479,7 +480,7 @@ on photos):
   without moving either, and it comes back once the pointer and focus have left the tile and returned (WCAG 1.4.13).
   On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
-  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe); Escape or Close returns
+  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
   focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
@@ -493,11 +494,12 @@ of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a vi
 pages after the first have their own title. With Group by gallery on, each group title ("Articles · 5 articles") is an
 h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
 box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s.
-Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, end
-their name with a visually hidden "(opens in a new tab)".
+Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, are
+described as "(opens in a new tab)" by a hidden element on the page (`id="tb-newtab"`), not named by it: the notice is
+read after the link's name, and a heading that contains such a link is named by its text alone.
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
-system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). In forced-colors mode (Windows high
+system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). The borders of controls (type chips, the View options mode switch and selects, and pager links) are at least 3:1 against the page and the popover (WCAG 1.4.11), in both modes; the tag pills in a post's hero are sand on the navy hero, 6.6:1 or more. Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high
 contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
 off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling. On touch
 screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover

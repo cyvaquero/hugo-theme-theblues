@@ -3,6 +3,24 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.20] - 2026-10-12
+
+### Fixed
+- A heading that contains a link to another host is no longer announced with "(opens in a new tab)" in its name. The
+  notice used to sit inside the link, so heading navigation read, for example, "Hugo (opens in a new tab)". Every page
+  now holds one hidden copy of the notice (`id="tb-newtab"`, in the page's language), and links to other hosts, in post
+  text and the footer's LinkedIn and GitHub links, point at it with `aria-describedby`: a screen reader still says the
+  link opens in a new tab, after the link's name. Feed readers no longer get the notice in a post's text (#260).
+- The borders of the type chips, the View options mode switch and selects (Sort and the others) and pager links are now
+  3:1 or more against the page and the popover, in light and dark mode (they were 1.6 to 2.4:1), so low vision readers
+  can see where the controls end (WCAG 1.4.11). They use a new color, `--ctl-line`, which a site can override like the
+  other tokens; the lines that only decorate (the series box, tables, the table of contents, rules) keep `--line`.
+  The tag pills in a post's hero already had a sand border on the navy hero and are unchanged (#258).
+- Pinching the photo in the lightbox now zooms it on touch screens (the photo no longer blocks pinch-zoom), and a pinch
+  never changes the photo. A swipe with one finger still goes to the next or previous photo (#261).
+- Body text is sized in `rem` instead of `px`, so it grows with the reader's default font size like the nav, meta and
+  tile text did already. At the default size nothing changes (17px, as before) (#259).
+
 ## [1.4.19] - 2026-10-12
 
 ### Fixed
