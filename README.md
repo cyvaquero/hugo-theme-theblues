@@ -338,8 +338,8 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
-  `tilesPerPage` and `photosPerGallery` must be 1 or more; anything else fails the build with a message naming the
-  setting. The pager shows the first and last pages and two on
+  `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more; anything else, including text that isn't a
+  number, fails the build with a message naming the setting (#256). The pager shows the first and last pages and two on
   each side of the current one.
 - Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
   guyheckman.me"), but use page 1's canonical URL and have no `rel=prev/next` in the head. The pager links carry
@@ -607,6 +607,10 @@ hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../
 `--themesDir` must contain the theme as a folder (or link) named `hugo-theme-theblues`, which `../..` is in the site's
 submodule checkout. The build should finish with no warnings and no unused templates: the warnings the fixtures cause
 on purpose are listed in `ignoreLogs` in `exampleSite/hugo.toml`, and any other warning fails it.
+
+The settings checks fail the build on purpose, so the fixture can't hold them. To see one, build with
+`HUGO_PARAMS_WALL_TILESPERPAGE=abc` (or `HUGO_PARAMS_WALL_PHOTOSPERGALLERY=abc`, `=0` or `=-2`): the error names the setting
+(#256).
 
 To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
 a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then

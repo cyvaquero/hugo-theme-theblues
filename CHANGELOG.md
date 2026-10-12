@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.6] - 2026-10-11
+
+### Fixed
+- A `tilesPerPage` or `photosPerGallery` that isn't a number, such as `"abc"`, now fails the build with a message that
+  names the setting (`params.wall.tilesPerPage must be a whole number, 1 or more (got "abc")`), as the README promises.
+  Before, Hugo's generic `unable to cast` error pointed into a theme partial (#256). Valid values and the messages for 0
+  and negative values are unchanged, and so are the built pages.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security
