@@ -389,7 +389,7 @@ dialog.lb { border: 0; padding: 0; background: transparent; width: 100%; height:
 html:has(dialog.lb[open]) { overflow: hidden; }  /* no page scrolling behind the lightbox */
 dialog.lb::backdrop { background: rgb(0 0 0 / .9); }
 dialog.lb .in { height: 100%; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 1rem; color: var(--bt); }
-dialog.lb img { max-width: 100%; max-height: 80vh; max-height: 80dvh; object-fit: contain; touch-action: pan-y; }
+dialog.lb img { max-width: 100%; max-height: 80vh; max-height: 80dvh; object-fit: contain; touch-action: pan-y pinch-zoom; }
 dialog.lb .bb { display: flex; gap: .8rem; align-items: center; padding-top: .5rem; flex-wrap: wrap; justify-content: center; }
 dialog.lb button { background: none; color: var(--bt); border: 1px solid var(--hv); border-radius: 6px; padding: .4rem .9rem; font: inherit; cursor: pointer; min-height: 44px; }
 dialog.lb button:hover { color: var(--hv); }

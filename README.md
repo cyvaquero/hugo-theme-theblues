@@ -479,7 +479,7 @@ on photos):
   without moving either, and it comes back once the pointer and focus have left the tile and returned (WCAG 1.4.13).
   On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
-  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe); Escape or Close returns
+  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
   focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
