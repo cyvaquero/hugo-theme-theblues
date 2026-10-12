@@ -1,4 +1,4 @@
-# Fixture site for The Blues: content that exercises the theme's edge cases (README, "Testing the theme"). Not used by
+# Fixture site for The Blues: content that exercises the theme's edge cases (docs/testing.md). Not used by
 # sites that install the theme. Build from this folder with the theme checkout two levels up:
 #   hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d <output dir>
 baseURL = "https://example.org/"

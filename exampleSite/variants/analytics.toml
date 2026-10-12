@@ -1,4 +1,4 @@
-# Test variant (README, "Testing the theme"): a Google Analytics ID, which the theme loads in production builds only
+# Test variant (docs/testing.md): a Google Analytics ID, which the theme loads in production builds only
 # (analytics-on.html). Build with: --config hugo.toml,variants/analytics.toml
 [services.googleAnalytics]
   id = "G-TEST000000"

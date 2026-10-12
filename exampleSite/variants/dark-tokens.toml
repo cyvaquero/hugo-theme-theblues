@@ -1,4 +1,4 @@
-# Test variant (README, "Testing the theme"): the build uses a stand-in assets/css/main.css whose two dark-token blocks
+# Test variant (docs/testing.md): the build uses a stand-in assets/css/main.css whose two dark-token blocks
 # differ, so dark-tokens-check.html must warn (theblues-dark-tokens). This build is meant to produce that warning, so
 # it is run without --panicOnWarning. Build with: --config hugo.toml,variants/dark-tokens.toml
 [module]

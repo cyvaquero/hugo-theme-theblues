@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.17] - 2026-10-12
+
+### Changed
+- The README is now the user manual only, 735 lines down to 539. Its internals moved, word for word, under `docs/`:
+  the file layout and "How the wall works" to `docs/layout.md`, "Testing the theme" (the fixture, its variants and
+  checks, and the screenshot recipe) to `docs/testing.md`, and "Design decisions" to `docs/README.md`, which indexes
+  them. "Known limits" stays in the README as its own section, and a short "Working on the theme" section points to the
+  new files. The references in `CLAUDE.md`, the fixture's config comments and `t.html` follow the move. Documentation
+  only; the theme's output is unchanged.
+
 ## [1.4.16] - 2026-10-12
 
 ### Fixed
