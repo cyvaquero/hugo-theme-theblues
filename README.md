@@ -174,7 +174,8 @@ A site can add its own page types without overriding theme files:
   and menu script still come from the theme. The theme's heroes (home, About-style, 404, posts, and tag, category and
   series pages) preload their photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`, one per
   hero size with its `media` query when the hero has smaller SmugMug sizes). A `header` block of the site's own gets no preload unless
-  it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`.
+  it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`. The theme's heroes all set
+  theirs up through `layouts/_partials/hero-style.html` (#264).
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
   `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
 - **Analytics:** `layouts/_partials/analytics-on.html` returns `true` when the page includes the theme's Google
@@ -269,7 +270,7 @@ layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery)
 layouts/search/section.html  search page (placeholder until the engine is chosen)
 layouts/404.html
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
-layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-sizes, controls, wall, tile-photo, tile-photo-body,
+layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,

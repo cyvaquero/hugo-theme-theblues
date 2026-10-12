@@ -14,6 +14,14 @@ All notable changes to this theme are documented here. The format follows
   now also builds the fixture minified and each variant, all with `--panicOnWarning`. Only the test fixture changes:
   the theme's templates, styles and scripts are untouched, and guyheckman.me's pages are identical.
 
+## [1.4.10] - 2026-10-11
+
+### Changed
+- The hero's photo setup (its smaller SmugMug sizes, and the two Store keys `head.html` reads for the preload) now lives
+  in one partial, `hero-style.html`, instead of being copied into `home.html`, `term.html`, `404.html`, `post/page.html`
+  and `hero.html` (#264). A change to the hero's preload or size data is one edit. The built pages are unchanged, byte
+  for byte, on guyheckman.me and the exampleSite.
+
 ## [1.4.9] - 2026-10-11
 
 ### Changed
