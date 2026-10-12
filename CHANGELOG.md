@@ -10,8 +10,8 @@ All notable changes to this theme are documented here. The format follows
   renders as nothing), no longer whenever the file contains `{{` (#262). `wall.js`, `comments.js` and `gallery.js` carry
   the comment, so the built scripts are unchanged. A `{{` in a comment or string of any other script, such as `menu.js`,
   is now published as written instead of being executed. A site that overrides `wall.js`, `comments.js` or `gallery.js`
-  with its own copy needs the same first line in it, or the build now fails naming the script (before, a copy without the template action was fine, and one with it was
-  expanded). The README says how.
+  with its own copy needs the same first line in it; a script that calls `js-text.html` without it fails the build with
+  a message naming the script, instead of being published with the call unexpanded. The README says how.
 
 ## [1.4.1] - 2026-10-11
 
