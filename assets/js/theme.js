@@ -4,8 +4,11 @@
 // storage is blocked the switch still works for the current page.
 (function () {
   var KEY = 'theme', root = document.documentElement;
+  // Marks the page as running JavaScript, so main.css keeps the space of the controls that scripts show later (the theme
+  // switch, the wall controls); without JavaScript there is no mark and they collapse (#274).
+  root.classList.add('js');
   var scheme = document.querySelector('meta[name="color-scheme"]');
-  var colors = [].slice.call(document.querySelectorAll('meta[name="theme-color"]'));
+  var colors = document.querySelectorAll('meta[name="theme-color"]');
   // The browser-UI color for each mode, from the media-query metas in head.html.
   var tc = {};
   colors.forEach(function (m) {
@@ -23,7 +26,7 @@
     if (scheme) scheme.content = mode === 'system' ? 'light dark' : mode;
     // A picked mode sets both theme-color metas to its color; System puts back each meta's own.
     colors.forEach(function (m) { m.content = mode === 'system' ? m.getAttribute('data-c') : (tc[mode] || m.getAttribute('data-c')); });
-    [].forEach.call(document.querySelectorAll('.thm button'), function (b) {
+    document.querySelectorAll('.thm button').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === mode));
     });
   }

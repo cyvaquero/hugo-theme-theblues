@@ -8,7 +8,7 @@ How the theme's files are organized and how the wall is built, for working on th
 ```
 assets/css/main.css        tokens (palette) and all styles
 assets/css/nojs.css        loaded in <noscript>: shows the nav links at 820 px and narrower, where the menu needs JavaScript
-assets/js/theme.js         color theme switch (System, Light, Dark): sets data-theme on <html> before the first paint
+assets/js/theme.js         color theme switch (System, Light, Dark): sets data-theme and the js class on <html> before the first paint
 assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; without JavaScript, assets/css/nojs.css shows the links)
 assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery

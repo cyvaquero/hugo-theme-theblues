@@ -1,8 +1,8 @@
 {{- /*
   An iframe embed, meant for SmugMug gallery embeds. Positional: URL, width, height and an optional title
   (default "Embedded content"; Hugo does not allow mixing positional and named arguments). The URL must be https and on
-  another host than the site: the sandbox grants allow-scripts and allow-same-origin, which together let a same-origin
-  page lift its own sandbox, so it only restricts cross-origin frames (no top navigation, forms or modals; #37). The
+  another host than the site, both written in ASCII: the sandbox grants allow-scripts and allow-same-origin, which
+  together let a same-origin page lift its own sandbox, so it only restricts cross-origin frames (no top navigation, forms or modals; #37). The
   frame sends no referrer beyond the origin.
 */ -}}
 {{- $src := .Get 0 -}}
@@ -12,11 +12,15 @@
 {{- if not (strings.HasPrefix $src "https://") }}{{ errorf "embed: the URL must start with https:// (%s)" .Position }}{{ end -}}
 {{- /* Browsers and Go's URL parser disagree on some forms: https:///host/ has an empty host for Go but "host" for a
   browser, and a backslash counts as a slash for browsers. So the host must follow https:// directly, without userinfo,
-  backslashes or spaces, and both hosts must be known before they are compared (#70). */ -}}
+  backslashes or spaces, and both hosts must be known before they are compared (#70). Hosts are compared as strings,
+  and an internationalized name has two spellings (Unicode and punycode) that a browser treats as one host, so both
+  hosts must be plain ASCII: a Unicode host could otherwise pass as another host, or as the site's own (#272). */ -}}
 {{- if not (findRE `^https://[^/\\?#@\s]+(/|$)` $src 1) }}{{ errorf "embed: the URL must be https://host/... with no user name, backslash or space before the path (%s)" .Position }}{{ end -}}
 {{- $host := lower (urls.Parse $src).Hostname -}}
 {{- $own := lower (urls.Parse site.BaseURL).Hostname -}}
 {{- if not $host }}{{ errorf "embed: the URL has no host (%s)" .Position }}{{ end -}}
 {{- if not $own }}{{ errorf "embed: the site's baseURL has no host, so the URL can't be checked against it; set baseURL to a full URL (%s)" .Position }}{{ end -}}
+{{- if not (findRE `^[a-z0-9._:-]+$` $host 1) }}{{ errorf "embed: the URL's host must be plain ASCII letters, digits, dots and hyphens; write an internationalized name in its punycode form, xn--... (%s)" .Position }}{{ end -}}
+{{- if not (findRE `^[a-z0-9._:-]+$` $own 1) }}{{ errorf "embed: the site's baseURL host must be plain ASCII so it can be compared with the URL's; write an internationalized name in its punycode form, xn--... (%s)" .Position }}{{ end -}}
 {{- if eq $host $own }}{{ errorf "embed: the URL is on this site's own host, where the sandbox gives no protection (%s)" .Position }}{{ end -}}
 <iframe class="embed smugmug-gallery" src="{{ $src }}" width="{{ $w }}" height="{{ $h }}" loading="lazy" title="{{ .Get 3 | default ((or (T "embeddedContent") (partial "t.html" "embeddedContent"))) }}" sandbox="allow-scripts allow-same-origin allow-popups" referrerpolicy="strict-origin-when-cross-origin"></iframe>

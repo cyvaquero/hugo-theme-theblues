@@ -3,6 +3,23 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.18] - 2026-10-12
+
+### Fixed
+- The `embed` shortcode compares the URL's host with the site's only when both are plain ASCII, so an internationalized
+  host written as Unicode can no longer pass as another host, or as the site's own, and get the `allow-same-origin`
+  sandbox. A Unicode host in the embed URL, or in the site's `baseURL`, now fails the build with a message to write it
+  in its punycode form (`xn--...`). Embeds on ASCII hosts behave as before (#272).
+- One rule decides the no-JavaScript state of the wall controls and the theme switch. `main.css` keeps their space
+  while they are hidden only on a page whose `<html>` has the `js` class that `theme.js` sets; `nojs.css` no longer
+  repeats them with its own `!important` rules, and the two stylesheets no longer depend on their load order. They look
+  the same with and without JavaScript (#274).
+
+### Changed
+- `menu.js`, `theme.js`, `wall.js` and `gallery.js` no longer carry code for browsers below the supported ones: the
+  `matchMedia` `addListener` fallback is gone, and `[].slice.call(...)` and `[].forEach.call(...)` over query results
+  are `NodeList.forEach` or `Array.from`. Behavior is unchanged (#275).
+
 ## [1.4.17] - 2026-10-12
 
 ### Changed
