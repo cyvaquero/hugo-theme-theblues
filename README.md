@@ -153,8 +153,9 @@ The templates assume this layout; other structures are not supported yet.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A link to a page or a page resource resolves to its permalink, as with Hugo's built-in hooks; an image source
-  resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, with visually
-  hidden "(opens in a new tab)" text for screen readers. A titled image is a `<figure>` with a caption only when it
+  resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, and say so to
+  screen readers as their description (`aria-describedby`, pointing at one hidden element, `id="tb-newtab"`, that every
+  page holds), so a heading with such a link keeps a plain name in the heading list and the table of contents. A titled image is a `<figure>` with a caption only when it
   stands alone and the site sets `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title
   is the tooltip.
 
@@ -493,8 +494,9 @@ of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a vi
 pages after the first have their own title. With Group by gallery on, each group title ("Articles · 5 articles") is an
 h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
 box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s.
-Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, end
-their name with a visually hidden "(opens in a new tab)".
+Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, are
+described as "(opens in a new tab)" by a hidden element on the page (`id="tb-newtab"`), not named by it: the notice is
+read after the link's name, and a heading that contains such a link is named by its text alone.
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
 system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high

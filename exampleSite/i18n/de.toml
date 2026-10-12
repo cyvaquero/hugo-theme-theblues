@@ -15,3 +15,6 @@ other = "Seite nicht gefunden"
 other = "Ein"
 [off]
 other = "Aus"
+# The text of the one hidden new-tab notice on every page (layouts/baseof.html), which external links point at.
+[opensInNewTab]
+other = "(öffnet in einem neuen Tab)"

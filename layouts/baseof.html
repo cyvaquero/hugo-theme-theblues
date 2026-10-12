@@ -14,6 +14,11 @@
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "footer.html" . }}
+  {{- /* The one "(opens in a new tab)" notice on the page. Links to other hosts (render-link.html, the footer's social
+    links) point at it with aria-describedby, so it is their description and not part of their name, which would end
+    up in a heading's name and the table of contents. `hidden` keeps it out of browse mode; aria-describedby still reads
+    it (#260). */ -}}
+  <span id="tb-newtab" hidden>{{ (or (T "opensInNewTab") (partial "t.html" "opensInNewTab")) }}</span>
   {{ partial "script.html" (dict "path" "js/menu.js" "defer" true) }}
   {{ if .Store.Get "hasWall" }}{{ partial "script.html" (dict "path" "js/wall.js" "defer" true) }}{{ end }}
   {{ if .Store.Get "hasComments" }}{{ partial "script.html" (dict "path" "js/comments.js" "defer" true) }}{{ end }}
