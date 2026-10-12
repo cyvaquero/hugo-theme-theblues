@@ -592,8 +592,8 @@ listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-t
 `exampleSite/` is a small fixture site whose content exercises the cases the guyheckman.me content doesn't: an untitled
 post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
 `{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
-a series, a code block with line numbers, a post whose headings are all below the TOC levels, a page without a title, the legacy `params.addtional_menus` nav, a footer
-menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
+a series, a code block with line numbers, a post whose headings are all below the TOC levels, a page without a title, an article with an inline
+`gallery`, the legacy `params.addtional_menus` nav, a footer menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
 hero photos on `photos.smugmug.com`, which make the build read each photo's size and write `width`/`height`, `srcset`,
 the hero's smaller sizes and its preload (they need a network the first time; Hugo then keeps them in its cache, and
 an offline build leaves those attributes out without a warning). Hugo doesn't use it when the theme is installed in a
@@ -604,9 +604,30 @@ cd exampleSite
 hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d /tmp/theblues-after
 ```
 
+`hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
+Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
+compared. Also build it minified, as a site is deployed, and the three variants under `exampleSite/variants/`, which
+cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
+the legacy `params.addtional_menus`), a second language with a partial translation (`i18n/de.toml`, content in
+`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, and a
+Google Analytics ID, which the theme loads in production builds only:
+
+```bash
+hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
+for v in main-menu multilingual analytics; do
+  hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
+done
+```
+
+(`--printUnusedTemplates` is left out of the variants, since each one leaves some templates unused on purpose.)
+
 `--themesDir` must contain the theme as a folder (or link) named `hugo-theme-theblues`, which `../..` is in the site's
-submodule checkout. The build should finish with no warnings and no unused templates: the warnings the fixtures cause
+submodule checkout. Each build should finish with no warnings, and the first with no unused templates: the warnings the fixtures cause
 on purpose are listed in `ignoreLogs` in `exampleSite/hugo.toml`, and any other warning fails it.
+
+To check that Hugo's cache hints still work with the theme, add `--templateMetrics --templateMetricsHints` to that command. It
+should finish in about a second and print the metrics table; a hang means a partial returns a resource that is still
+unbuilt (#243).
 
 To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
 a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then
