@@ -13,8 +13,8 @@ what is specific to this repo. Where the two disagree, the account instructions 
 **The Blues**, a Hugo theme (Apache-2.0) built for guyheckman.me. The site uses it as a Git submodule pinned to a
 release tag. This repo is **public**:
 
-- No links to the private repos (the site, content and root repos) or their issues, in any file, including code
-  comments and docs. Cite this repo's issues only.
+- No links to the private repos (the site, content and root repos) or their issues in new text: code, comments and
+  docs cite this repo's issues only. Released CHANGELOG entries and the historical files keep theirs.
 - No personal email addresses, credentials, or anything from the site's private config.
 - Nothing site-specific: a site's own templates, settings and content belong in that site. The theme reads site
   settings (README, "Site settings it reads") and offers extension points (README, "Extending from a site").
