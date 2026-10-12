@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.2] - 2026-10-11
+
+### Fixed
+- `hugo --templateMetrics --templateMetricsHints` finishes with the theme instead of hanging (#243). Hugo holds its
+  metrics lock while it hashes the value a partial returns; for a stylesheet or script that was still waiting to be
+  built, the hash ran the build, whose own partial calls then waited for the same lock. `asset.html` now builds the
+  resource before it returns it. The built pages and files are unchanged.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security
