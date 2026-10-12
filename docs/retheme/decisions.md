@@ -1,5 +1,9 @@
 # Retheme decision records (site issue #4)
 
+> **Historical record.** These records cover the retheme's decisions up to theme 1.4.0 and are no longer kept up to
+> date, so some statements here no longer match the theme. How the theme works now: the [README](../../README.md),
+> [docs/layout.md](../layout.md) and the code.
+
 Started 2026-10-01 on branch `feature/retheme` in the site repo (since merged and deleted). Evidence is in
 [clean-white-inventory.md](clean-white-inventory.md); the current consolidated mockup is
 [mockups/directions/direction-c-final.html](mockups/directions/direction-c-final.html) (see [mockups/README.md](mockups/README.md)).
