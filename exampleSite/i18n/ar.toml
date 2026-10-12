@@ -1,0 +1,6 @@
+# A two-entry Arabic translation for the rtl test variant (variants/rtl.toml): the entries it lacks fall back to the
+# theme's English. It exists so the build has theme text for the language and runs without the theblues-i18n warning.
+[skipToContent]
+other = "انتقل إلى المحتوى"
+[menu]
+other = "القائمة"

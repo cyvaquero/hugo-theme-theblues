@@ -232,6 +232,11 @@ translate the theme, or reword its English, for a site:
    archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
    Hugo's locale data, except on an English site (language `en` or `en-*`), which gets US English names whatever its
    `locale`: `en-GB` writes September as "Sep", not "Sept".
+5. For a right-to-left language, set `direction = "rtl"` on it (`[languages.ar]`), and the theme writes `dir="rtl"` on `<html>`
+   (#266), so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir` attribute,
+   as before. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
+   the bars, indents, drop-downs and alignment keep their left-to-right sides. Mirroring them with CSS logical
+   properties is tracked in #296.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js` and
 `gallery.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -624,15 +629,17 @@ hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../
 
 `hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
 Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
-compared. Also build it minified, as a site is deployed, and the three variants under `exampleSite/variants/`, which
+compared. Also build it minified, as a site is deployed, and the four variants under `exampleSite/variants/`, which
 cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
 the legacy `params.addtional_menus`), a second language with a partial translation (`i18n/de.toml`, content in
-`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, and a
-Google Analytics ID, which the theme loads in production builds only:
+`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
+Google Analytics ID, which the theme loads in production builds only, and a right-to-left language (`rtl`: Arabic with
+`direction = "rtl"` next to English, #266), whose pages must start `<html lang="ar" dir="rtl">` while the English ones
+have no `dir`:
 
 ```bash
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
-for v in main-menu multilingual analytics; do
+for v in main-menu multilingual analytics rtl; do
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
 done
 ```
