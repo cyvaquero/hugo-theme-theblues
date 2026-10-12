@@ -648,6 +648,19 @@ does the work) reads them. In each template file, the keys given to `T` and to `
 in the same order, and every key must be in `i18n/en.toml`; otherwise the build warns with the ID `theblues-i18n-pair`,
 which `--panicOnWarning` turns into a failure (#263). It checks the keys, not the arguments.
 
+The dark-token check (`layouts/_partials/dark-tokens-check.html`, "Extending from a site") has a test of its own: the
+`dark-tokens` variant builds the fixture with a stand-in `assets/css/main.css` (`exampleSite/variants/dark-tokens-assets/`)
+whose two dark-token blocks differ in `--link`. That build must warn, so run it without `--panicOnWarning`:
+
+```bash
+hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d /tmp/theblues-after-dark-tokens 2>&1 | grep 'dark-token'
+```
+
+It must print `WARN  assets/css/main.css: the two dark-token blocks differ: --link (system dark #d2c1b6, picked dark
+#ffffff)…`; with `--panicOnWarning` the build fails instead. No line means the check no longer finds the blocks, for
+example after a format change in `main.css`, and its patterns need updating (#267). The theme's real stylesheet is the
+other half of the test: the base build, with `--panicOnWarning`, passes only if both blocks are found and equal.
+
 To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
 a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then
 compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
