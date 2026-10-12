@@ -14,6 +14,16 @@ All notable changes to this theme are documented here. The format follows
   now also builds the fixture minified and each variant, all with `--panicOnWarning`. Only the test fixture changes:
   the theme's templates, styles and scripts are untouched, and guyheckman.me's pages are identical.
 
+## [1.4.8] - 2026-10-11
+
+### Changed
+- A theme script is run as a Go template only when its first line is the template comment `theblues:template` (it
+  renders as nothing), no longer whenever the file contains `{{` (#262). `wall.js`, `comments.js` and `gallery.js` carry
+  the comment, so the built scripts are unchanged. A `{{` in a comment or string of any other script, such as `menu.js`,
+  is now published as written instead of being executed. A site that overrides `wall.js`, `comments.js` or `gallery.js`
+  with its own copy needs the same first line in it; a script that calls `js-text.html` without it fails the build with
+  a message naming the script, instead of being published with the call unexpanded. The README says how.
+
 ## [1.4.7] - 2026-10-11
 
 ### Fixed
