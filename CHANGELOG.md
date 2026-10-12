@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.3] - 2026-10-11
+
+### Fixed
+- On a wall page whose only tile from a gallery is its "see all" tile, Group by gallery now shows the gallery's date in
+  the heading and counts the gallery in the caption ("grouped into 1 gallery"), as on other pages (#252). The see-all
+  tile carries the gallery's date in a new `data-shown` attribute, so the built wall pages change by that attribute and
+  the `wall.js` file name; no tile moves or changes otherwise.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security

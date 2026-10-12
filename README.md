@@ -293,7 +293,7 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   when sorting, is its position in the DOM: tiles have carried no `data-order` since 1.3.9, so a site's CSS or script
   that reads it must count the tiles itself; `#stage` carries the whole list's article and photo tile
   counts (`data-articles`, `data-photos`) for the type chips and its number of pager pages (`data-pages`), which makes the
-  caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
+  caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption; they carry the gallery's date in `data-shown` for group headings, and a group with only a see-all tile on the page still counts as a group in the caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
 - Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
@@ -613,6 +613,10 @@ a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder
 compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
 footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does; anything else that differs
 is a change in output.
+
+The fixture's 4 tiles per page never leave a see-all tile alone on a page. To check the wall's grouped view for that case,
+build with `HUGO_PARAMS_WALL_TILESPERPAGE=5` and open `/page/3/`: with Group by gallery on, the one gallery's heading has
+its date and the caption ends "grouped into 1 gallery" (#252).
 
 The screenshots under `images/` (`readme-*.webp`, about 0.8 MB in all) are captured from the exampleSite, so they can be
 made again. `images/screenshot.png` and `images/tn.png` are the themes gallery's own images (1500x1000 and 900x600) and

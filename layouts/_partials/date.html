@@ -7,7 +7,7 @@
   An English site (language en or en-*) gets US English month and day names whatever its locale, as before #192 ("Sep",
   not en-GB's "Sept"); a site in another language gets its locale's names through time.Format.
   Returns a string, or HTML when time is set. assets/js/wall.js copies a gallery's date from its first tile's caption
-  for its group headings, so they follow params.dateFormat too.
+  (or, for a see-all tile, its data-shown) for its group headings, so they follow params.dateFormat too.
   Usage: {{ partial "date.html" (dict "date" .Date "time" true) }}
 */ -}}
 {{- $d := .date -}}
