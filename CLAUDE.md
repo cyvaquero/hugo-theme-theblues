@@ -39,7 +39,7 @@ What the theme is built and tested for. A request outside it is an enhancement, 
 
 ## Testing
 
-`exampleSite/` is the fixture. Every change builds it from that folder, as the README's "Testing the theme" shows:
+`exampleSite/` is the fixture. Every change builds it from that folder, as `docs/testing.md` shows:
 
 ```bash
 cd exampleSite
@@ -59,7 +59,7 @@ hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>
   the version in `data/theblues.toml` normalized. So does guyheckman.me built with the branch's theme
   (`--themesDir`); report that comparison.
 - A fix for a case the fixture doesn't exercise adds that case to the fixture (content, settings or a new variant) in
-  the same branch, and the README's testing section lists it.
+  the same branch, and `docs/testing.md` lists it.
 
 ## Conventions
 
@@ -73,8 +73,8 @@ hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>
 - Docs stay out of the published output: `docs/` and the README are not mounted. Never put docs in `static/`,
   `layouts/` or `assets/`.
 - The README is the user manual: requirements, installation, content structure, shortcodes, extending, translating,
-  site settings, CSP and accessibility. Internals (how the layout works, design rationale, testing detail) belong
-  under `docs/`; put new internal material there, not in the README.
+  known limits, site settings, CSP and accessibility. Internals live under `docs/`: `layout.md` (the files and how
+  the wall works), `testing.md` and `README.md` (the index and design decisions). New internal material goes there.
 
 ## Historical files
 

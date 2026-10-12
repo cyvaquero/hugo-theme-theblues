@@ -1,4 +1,4 @@
-# Test variant (README, "Testing the theme"): Arabic, a right-to-left language, as the default next to English. The
+# Test variant (docs/testing.md): Arabic, a right-to-left language, as the default next to English. The
 # Arabic pages must get <html lang="ar" dir="rtl"> and the English ones no dir attribute (#266). The layout itself is not
 # mirrored yet (#296). The Arabic site reuses the German fixtures' folder (content-de): the text is not the point.
 # Build with: --config hugo.toml,variants/rtl.toml

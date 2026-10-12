@@ -1,4 +1,4 @@
-# Test variant (README, "Testing the theme"): two languages, with German (a partial translation, i18n/de.toml) as the
+# Test variant (docs/testing.md): two languages, with German (a partial translation, i18n/de.toml) as the
 # default, so the entries it lacks fall back to the theme's English (layouts/_partials/t.html), and one script per
 # language (js/wall.en.js). Build with: --config hugo.toml,variants/multilingual.toml
 defaultContentLanguage = "de"

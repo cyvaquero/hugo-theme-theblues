@@ -1,4 +1,4 @@
-# Test variant (README, "Testing the theme"): the primary nav from [[menus.main]] instead of the legacy
+# Test variant (docs/testing.md): the primary nav from [[menus.main]] instead of the legacy
 # params.addtional_menus list, which the base fixture uses. Build with: --config hugo.toml,variants/main-menu.toml
 [params]
   addtional_menus = []
