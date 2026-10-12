@@ -124,7 +124,7 @@
 /* 2 Base -------------------------------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.65 var(--sans); overflow-x: hidden; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 1.0625rem/1.65 var(--sans); overflow-x: hidden; }
 img, svg, video { max-width: 100%; }
 img { display: block; }
 iframe { max-width: 100%; }

@@ -497,7 +497,7 @@ Links that open a new tab, which are links to other hosts in post text and the f
 their name with a visually hidden "(opens in a new tab)".
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
-system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). In forced-colors mode (Windows high
+system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high
 contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
 off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling. On touch
 screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover
