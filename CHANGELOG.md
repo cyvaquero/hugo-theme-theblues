@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.12] - 2026-10-11
+
+### Added
+- The dark-token check has a test of its own (#267). `exampleSite/variants/dark-tokens.toml` builds the fixture with a
+  stand-in stylesheet whose two dark-token blocks differ, and the build must warn `theblues-dark-tokens`, naming the
+  token. If a later change to `main.css` stops the check's patterns from matching, that build prints no warning, so the
+  silence is noticed. "Testing the theme" has the command. Test fixture and README only; the theme and guyheckman.me
+  are unchanged.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security

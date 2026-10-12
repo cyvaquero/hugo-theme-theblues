@@ -1,0 +1,6 @@
+/* A stand-in main.css for the dark-tokens test variant (variants/dark-tokens.toml). It replaces the theme's stylesheet,
+   and its two dark-token blocks differ on purpose (--link), so the build must warn with theblues-dark-tokens (#267). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=light]) { --bg: #101820; --text: #f9f3ef; --link: #d2c1b6; }
+}
+:root[data-theme=dark] { --bg: #101820; --text: #f9f3ef; --link: #ffffff; }
