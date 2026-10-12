@@ -3,6 +3,24 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.21] - 2026-10-12
+
+### Changed
+- The README's example Content Security Policy adds `frame-ancestors 'none'`, and a new note says to send the policy
+  as an HTTP header, since a `<meta>` tag ignores `frame-ancestors` and leaves pages open to being framed, along with
+  `Strict-Transport-Security`, `X-Content-Type-Options` and `Referrer-Policy` (#271).
+- The README has an "Upgrading Hugo" checklist for the Hugo behavior the theme relies on but Hugo doesn't document: the
+  partial cache and `.Store` across `hugo server` rebuilds, and the wall's stand-in pagination (#278).
+- The README's extra screenshots are a list of images with captions instead of a table with empty header cells, which
+  screen readers announced as a data table with blank headers (#270).
+- `docs/retheme/decisions.md` opens with a note that it is a historical record up to 1.4.0 and no longer matches the
+  theme in places; the README and `docs/layout.md` describe the theme as it is (#269).
+
+### Fixed
+- Documentation corrections (#268): `analytics-on.html` first shipped in 1.3.0, not "1.2.49"; the theme sets no
+  page-level referrer policy, but `embed` frames set `strict-origin-when-cross-origin`; the README no longer quotes one
+  site's post counts; and `docs/layout.md`'s list of partials includes `t.html`.
+
 ## [1.4.20] - 2026-10-12
 
 ### Fixed

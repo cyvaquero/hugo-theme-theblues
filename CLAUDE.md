@@ -79,7 +79,7 @@ hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>
 ## Historical files
 
 These record the retheme as it was decided. They are not kept current, are not reviewed against the code, and are
-not edited except to fix a broken link:
+not edited except to fix a broken link (`decisions.md` opens with a note saying so):
 
 - `docs/retheme/decisions.md`
 - `docs/retheme/clean-white-inventory.md`

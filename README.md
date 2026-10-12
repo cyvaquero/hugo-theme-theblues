@@ -18,16 +18,20 @@ limits" below and the [open issues](https://github.com/cyvaquero/hugo-theme-theb
 The home wall, in the mode that matches your GitHub theme (on a site it follows the reader's system, or the switch in
 the nav). More views, all from the exampleSite fixture:
 
-| | |
-| --- | --- |
-| ![A photo post: a hero over the cover photo, then a three-column masonry gallery.](images/readme-photo-post.webp) | ![The lightbox, a native dialog, open on the first photo with Previous, Next and Close buttons and a 1 / 3 counter.](images/readme-lightbox.webp) |
-| A photo post with its masonry gallery. | The `<dialog>` lightbox. |
-| ![An article with a table of contents beside the text, and the series box at the end.](images/readme-article.webp) | ![The wall's "View options" popover open, with Filter or Highlight, a Sort menu and a Group by gallery switch.](images/readme-view-options.webp) |
-| An article with the table of contents and the series box. | The wall's "View options" popover. |
-| ![A tag page: a hero with the tag name and counts, then a wall of that tag's photos.](images/readme-tag-page.webp) | ![An article page in dark mode, chosen with the System, Light, Dark switch at the right of the nav.](images/readme-theme-switch.webp) |
-| A tag page with its hero and wall. | The color theme switch, set to Dark. |
-| <img src="images/readme-mobile-menu.webp" width="260" alt="The mobile layout at phone width, with the hamburger menu open over the wall."> | |
-| The hamburger menu at phone width. | |
+- ![A photo post: a hero over the cover photo, then a three-column masonry gallery.](images/readme-photo-post.webp)<br>
+  A photo post with its masonry gallery.
+- ![The lightbox, a native dialog, open on the first photo with Previous, Next and Close buttons and a 1 / 3 counter.](images/readme-lightbox.webp)<br>
+  The `<dialog>` lightbox.
+- ![An article with a table of contents beside the text, and the series box at the end.](images/readme-article.webp)<br>
+  An article with the table of contents and the series box.
+- ![The wall's "View options" popover open, with Filter or Highlight, a Sort menu and a Group by gallery switch.](images/readme-view-options.webp)<br>
+  The wall's "View options" popover.
+- ![A tag page: a hero with the tag name and counts, then a wall of that tag's photos.](images/readme-tag-page.webp)<br>
+  A tag page with its hero and wall.
+- ![An article page in dark mode, chosen with the System, Light, Dark switch at the right of the nav.](images/readme-theme-switch.webp)<br>
+  The color theme switch, set to Dark.
+- <img src="images/readme-mobile-menu.webp" width="260" alt="The mobile layout at phone width, with the hamburger menu open over the wall."><br>
+  The hamburger menu at phone width.
 
 How the images were made is in [docs/testing.md](docs/testing.md).
 
@@ -36,7 +40,7 @@ How the images were made is in [docs/testing.md](docs/testing.md).
 - Hugo **0.163.3** or later (standard or extended). Earlier versions have published Hugo security advisories, and the theme
   uses `.Language.Locale`. Developed and tested on 0.167.0. The minimum is set in the theme's `hugo.toml`
   (`[module.hugoVersion] min`), which Hugo checks and warns about; `theme.toml`'s `min_version` only mirrors it for the
-  themes gallery.
+  themes gallery. Before relying on a newer Hugo, run the checks under "Upgrading Hugo".
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
 - **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, on desktop and mobile
   (#208). The oldest versions with everything working are Chrome and Edge 108, Firefox 121 and Safari 16.4, going by
@@ -185,7 +189,7 @@ A site can add its own page types without overriding theme files:
   `[privacy.googleAnalytics] disable` not set. It is `false` otherwise. It is decided per build, not per visitor: the
   loader still loads nothing for visitors who send Do Not Track or Global Privacy Control. `head.html` uses the same
   partial, so a site that shows an analytics notice only when analytics loads stays in step with the theme: `{{ if partial "analytics-on.html" . }}…{{ end }}`. Its name and result are kept
-  stable; a change is called out in the CHANGELOG. Theme versions before 1.2.49 don't have it; a site that must build
+  stable; a change is called out in the CHANGELOG. Theme versions before 1.3.0 don't have it; a site that must build
   with them can check `templates.Exists "_partials/analytics-on.html"` first. The theme itself shows no notice and asks
   for no consent before it loads analytics (see `[services.googleAnalytics] id` under "Site settings it reads").
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
@@ -256,8 +260,8 @@ the person building the site.
 
 - The wall is paginated **by tile**, 24 per page (`params.wall.tilesPerPage`). The type chips count the whole list, but
   filtering, the caption (which starts "This page:" when the list has more than one page), sorting and group-by work on
-  the tiles of the current page, and a gallery can be split across two pages; its "Group by gallery" heading still counts all its photos. With the current content (5 articles and 3 galleries) everything
-  fits on one page of 20 tiles. Hugo's `.Paginate` only accepts a collection of pages, so
+  the tiles of the current page, and a gallery can be split across two pages; its "Group by gallery" heading still counts all its photos.
+  Hugo's `.Paginate` only accepts a collection of pages, so
   `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
@@ -282,8 +286,9 @@ the person building the site.
   (`.Store.Get "wall"` is empty on pages that are not walls), and keeps that copy up to date through theme upgrades.
 - A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall (first with Oldest first), has no  `pubDate` in feeds, and the build warns.
 - Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
-  `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no referrer policy; browsers default to
-  `strict-origin-when-cross-origin`, which a site can also send as a header.
+  `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no page-level referrer policy (the `embed`
+  shortcode's frames set their own, `strict-origin-when-cross-origin`); browsers default to that same policy, which a
+  site can also send as a header.
 - The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
   sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
@@ -399,6 +404,7 @@ else can stay at `default-src 'none'`.
 | `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
 | `base-uri`, `form-action`, `object-src` | `'none'` | The theme uses none of them. |
+| `frame-ancestors` | `'none'` | Stops other sites from showing the pages in a frame (clickjacking). It works only in a header; see the notes below. |
 
 **Optional services**, needed only when the site uses them:
 
@@ -426,11 +432,17 @@ default-src 'none'; script-src 'self' https://www.googletagmanager.com https://g
 style-src 'self' https://c.disquscdn.com; style-src-attr 'unsafe-inline';
 img-src 'self' https://photos.smugmug.com https://www.googletagmanager.com https://*.google-analytics.com https://referrer.disqus.com https://c.disquscdn.com;
 connect-src https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://links.services.disqus.com;
-frame-src https://disqus.com https://www.youtube-nocookie.com; base-uri 'none'; form-action 'none'; object-src 'none'
+frame-src https://disqus.com https://www.youtube-nocookie.com; base-uri 'none'; form-action 'none'; object-src 'none';
+frame-ancestors 'none'
 ```
 
 Notes:
 
+- **Send the policy as an HTTP header.** A `<meta http-equiv="Content-Security-Policy">` tag ignores
+  `frame-ancestors`, `sandbox` and the reporting directives, so a policy in a `<meta>` tag leaves the pages open to
+  being framed. Send it from the host or CDN instead, with the other security headers a page can't set itself:
+  `Strict-Transport-Security`, `X-Content-Type-Options: nosniff` and, if you want a stricter one than the browser's
+  default, `Referrer-Policy`.
 - **Disqus loads more than it needs.** After "Show comments", Disqus's own script also tries a cleartext `http://cdn.viglink.com`
   pixel (VigLink) and LiveIntent (`d-code.liadm.com` script, `rp.liadm.com` requests, an `i.liadm.com` frame). The list
   above leaves them out on purpose: with the policy above they are blocked, the browser logs the violations, and the
@@ -524,6 +536,29 @@ article tile's title link, which is covered by the tile, itself one link. A prin
 
 **Known gaps.** Not yet checked with screen readers or on real touch devices. Inline-highlighted line numbers fail contrast ([#76](https://github.com/cyvaquero/hugo-theme-theblues/issues/76), documented above). Other accessibility issues are
 listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-theblues/issues?q=is%3Aopen+label%3Aaccessibility).
+
+## Upgrading Hugo
+
+Parts of the theme rely on Hugo behavior that Hugo's documentation doesn't promise, so a new Hugo version can break
+them without a build error:
+
+- `build-token.html` and `memo.html` rely on the partial cache keeping one value for a whole build and dropping it when
+  Hugo rebuilds, and on a page's `.Store` surviving a rebuild under `hugo server`.
+- `wall-pager.html` hands `.Paginate` a stand-in collection, `site.Home` repeated once per tile, to paginate the wall by
+  tile.
+
+Before moving the theme, or a site that uses it, to a newer Hugo:
+
+1. Build the `exampleSite` fixture, minified and not, and its variants with the old and the new Hugo, as
+   [docs/testing.md](docs/testing.md) describes. Each build must finish with no warnings. Compare the outputs with
+   `diff -r`: apart from the Hugo version in the footer, any difference needs explaining.
+2. Pagination: the fixture shows 4 tiles per page. Check that every wall page lists its own tiles, with none repeated
+   or missing, and that the pager's page count and links match.
+3. Rebuilds: run `hugo server` on the fixture, change a post's tags, and check that the home wall and both the old and
+   the new tag pages follow without a restart. Undo the change and check again.
+4. Build time: build a copy of the fixture with about 550 posts and compare with the figure under "Known limits". A
+   much slower build, or one that hangs, points at the partial cache; see the cache-hints check in
+   [docs/testing.md](docs/testing.md).
 
 ## Working on the theme
 
