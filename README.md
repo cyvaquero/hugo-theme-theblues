@@ -294,7 +294,7 @@ exampleSite/               fixture site for testing the theme (see Testing the t
   that reads it must count the tiles itself; `#stage` carries the whole list's article and photo tile
   counts (`data-articles`, `data-photos`) for the type chips and its number of pager pages (`data-pages`), which makes the
   caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption; they carry the gallery's date in `data-shown` for group headings, and a group with only a see-all tile on the page still counts as a group in the caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
-- The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
+- The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL. A query string or fragment after the file name is kept.
 - Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
   doesn't reflow. Hugo keeps the downloads in its `getresource` file cache (by default `:cacheDir/:project`, kept until

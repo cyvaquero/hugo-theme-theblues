@@ -14,6 +14,15 @@ All notable changes to this theme are documented here. The format follows
   now also builds the fixture minified and each variant, all with `--panicOnWarning`. Only the test fixture changes:
   the theme's templates, styles and scripts are untouched, and guyheckman.me's pages are identical.
 
+## [1.4.4] - 2026-10-11
+
+### Fixed
+- A SmugMug photo URL with a query string or fragment, such as `…/X2/i-1-X2.jpg?foo=1`, now gets the right large-size
+  link (`…/X3/i-1-X3.jpg?foo=1`) in the lightbox, the full-size link and the feed; before, the file name kept its `X2`
+  and the link pointed at a photo that doesn't exist (#253). URLs without a query string are unchanged, so
+  guyheckman.me's pages are too. The exampleSite's "A photo gallery" post now has a query string on its second photo,
+  which covers this case.
+
 ## [1.4.3] - 2026-10-11
 
 ### Fixed
