@@ -2,7 +2,7 @@
   <head> can number the page (#78). */ -}}
 {{- block "init" . }}{{ end -}}
 <!DOCTYPE html>
-<html lang="{{ site.Language.Locale }}">
+<html lang="{{ site.Language.Locale }}"{{ if eq site.Language.Direction "rtl" }} dir="rtl"{{ end }}>
 <head>
   {{ partial "head.html" . }}
 </head>
