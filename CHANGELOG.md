@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.9] - 2026-10-11
+
+### Changed
+- The theme's own test build now checks the English-fallback idiom, the `(or (T "key") (partial "t.html" "key"))` pair
+  that every piece of theme text uses (#263). In every template, the keys given to `T` and to `t.html` must be the same
+  list in the same order, and each must be in `i18n/en.toml`; a mismatch warns with the ID `theblues-i18n-pair`, which
+  fails the README's `--panicOnWarning` build. Before, a mismatch showed the wrong English text only on a site whose
+  language lacked the entry. This is in the exampleSite only (its `hugo.toml` mounts the theme's layouts as assets and
+  its own `head-end.html` reads them), so sites that install the theme, and guyheckman.me, are unchanged. The pair itself
+  stays as it is: a wrapper partial doubled the 550-post build time (#192).
+
 ## [1.4.1] - 2026-10-11
 
 ### Security

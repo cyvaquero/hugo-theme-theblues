@@ -608,6 +608,12 @@ hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../
 submodule checkout. The build should finish with no warnings and no unused templates: the warnings the fixtures cause
 on purpose are listed in `ignoreLogs` in `exampleSite/hugo.toml`, and any other warning fails it.
 
+The fixture build also checks the English-fallback idiom (README, "Translating the theme"): `exampleSite/hugo.toml`
+mounts the theme's `layouts/` as assets, and the fixture's own `head-end.html` (`exampleSite/layouts/_partials/i18n-pairs.html`
+does the work) reads them. In each template file, the keys given to `T` and to `partial "t.html"` must be the same list
+in the same order, and every key must be in `i18n/en.toml`; otherwise the build warns with the ID `theblues-i18n-pair`,
+which `--panicOnWarning` turns into a failure (#263). It checks the keys, not the arguments.
+
 To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
 a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then
 compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
