@@ -68,7 +68,9 @@ How the images were made is in "Testing the theme" below.
   A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used. `wall.js`,
   `comments.js` and `gallery.js` hold the text they write (captions, comment messages, lightbox labels) as a Go template
   action, which Hugo fills in from the site's language when it builds them (see "Translating the theme"); a site's own
-  copy of a script is run as a template only if it contains `{{`.
+  copy of a script is run as a template only if its first line is the template comment `{{- /* theblues:template */ -}}`,
+  which renders as nothing (any other `{{` in a script is published as written, #262); a site's copy of one of these three
+  needs that line, and the build fails naming a script that calls `js-text.html` without it.
 
 ## Installation
 

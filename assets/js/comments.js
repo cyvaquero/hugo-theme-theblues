@@ -1,3 +1,4 @@
+{{- /* theblues:template */ -}}
 // Click-to-load Disqus, replacing Hugo's internal template (#16). The "Show comments" button (comments.html) stays hidden
 // until this runs; nothing from Disqus (or the trackers it brings) is requested before the reader clicks it.
 // After the click, focus moves to the "Comments" heading and a polite status says what is happening: loading, loaded, or

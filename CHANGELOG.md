@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.8] - 2026-10-11
+
+### Changed
+- A theme script is run as a Go template only when its first line is the template comment `theblues:template` (it
+  renders as nothing), no longer whenever the file contains `{{` (#262). `wall.js`, `comments.js` and `gallery.js` carry
+  the comment, so the built scripts are unchanged. A `{{` in a comment or string of any other script, such as `menu.js`,
+  is now published as written instead of being executed. A site that overrides `wall.js`, `comments.js` or `gallery.js`
+  with its own copy needs the same first line in it, or the build now fails naming the script (before, a copy without the template action was fine, and one with it was
+  expanded). The README says how.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security

@@ -1,3 +1,4 @@
+{{- /* theblues:template */ -}}
 // Browse controls for the masonry wall (home, tag, category, series and section pages).
 // Progressive enhancement: the wall is complete and sorted newest first without this file; the controls markup is
 // hidden until this script runs. Behavior follows the final mockup (decision D12): type chips with counts, a
