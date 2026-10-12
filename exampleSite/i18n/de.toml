@@ -1,5 +1,6 @@
 # A partial German translation for the multilingual test variant (variants/multilingual.toml): the entries it lacks fall
-# back to the theme's English.
+# back to the theme's English. On and Off are text wall.js shows, so wall.de.js and wall.en.js differ, which shows the
+# script text follows the language.
 [skipToContent]
 other = "Zum Inhalt springen"
 [menu]
@@ -10,3 +11,7 @@ other = "Hauptnavigation"
 other = "Zurück zu allen Beiträgen"
 [pageNotFound]
 other = "Seite nicht gefunden"
+[on]
+other = "Ein"
+[off]
+other = "Aus"
