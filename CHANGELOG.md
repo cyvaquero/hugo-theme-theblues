@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.22] - 2026-10-12
+
+### Changed
+- Wall tiles, the series box and list, and the previous/next links no longer run a partial per post for the page title
+  and the tile's `data-date`: they use the page's title as it is and call `page-title.html` only for a page without
+  one, and write the day (`2006-01-02`) directly. The built pages are byte-for-byte the same. A production build of a
+  550-post, 447-page test site (minified, warm photo-size cache, median of 15) takes 0.49 s instead of 0.57 s, and 2.05 s
+  of CPU time instead of 2.19 s; the guyheckman.me site and the example site build in the same time as before. A site
+  that overrides `page-title.html` or `date.html` with its own copy no longer has it called from these places for a page
+  that has a title, or for `data-date`.
+
 ## [1.4.21] - 2026-10-12
 
 ### Changed
