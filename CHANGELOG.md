@@ -14,6 +14,14 @@ All notable changes to this theme are documented here. The format follows
   now also builds the fixture minified and each variant, all with `--panicOnWarning`. Only the test fixture changes:
   the theme's templates, styles and scripts are untouched, and guyheckman.me's pages are identical.
 
+## [1.4.6] - 2026-10-11
+
+### Fixed
+- A `tilesPerPage` or `photosPerGallery` that isn't a number, such as `"abc"`, now fails the build with a message that
+  names the setting (`params.wall.tilesPerPage must be a whole number, 1 or more (got "abc")`), as the README promises.
+  Before, Hugo's generic `unable to cast` error pointed into a theme partial (#256). Valid values and the messages for 0
+  and negative values are unchanged, and so are the built pages.
+
 ## [1.4.5] - 2026-10-11
 
 ### Fixed
