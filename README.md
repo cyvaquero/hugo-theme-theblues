@@ -190,7 +190,7 @@ A site can add its own page types without overriding theme files:
   for no consent before it loads analytics (see `[services.googleAnalytics] id` under "Site settings it reads").
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
-  `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
+  `--line` (decorative rules), `--ctl-line` (borders of controls: chips, the mode switch, selects, tag pills and pager links), `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
   `--scrim` (the navy scrim over photos, as RGB channels: `rgb(var(--scrim) / .8)`), `--serif`, `--sans`, `--wide` and
   `--measure`. Their names are kept stable; a rename or removal is called out in the CHANGELOG.
   A site's own dark-mode colors should use the theme's two dark selectors, so they follow the switch as well as the
@@ -499,7 +499,7 @@ described as "(opens in a new tab)" by a hidden element on the page (`id="tb-new
 read after the link's name, and a heading that contains such a link is named by its text alone.
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
-system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high
+system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). The borders of controls (type chips, the View options mode switch and selects, and pager links) are at least 3:1 against the page and the popover (WCAG 1.4.11), in both modes; the tag pills in a post's hero are sand on the navy hero, 6.6:1 or more. Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high
 contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
 off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling. On touch
 screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover
