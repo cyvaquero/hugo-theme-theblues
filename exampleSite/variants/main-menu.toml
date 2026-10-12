@@ -1,0 +1,22 @@
+# Test variant (README, "Testing the theme"): the primary nav from [[menus.main]] instead of the legacy
+# params.addtional_menus list, which the base fixture uses. Build with: --config hugo.toml,variants/main-menu.toml
+[params]
+  addtional_menus = []
+
+[[menus.main]]
+  name = "About"
+  pageRef = "/about"
+  weight = 10
+[[menus.main]]
+  name = "Archive"
+  pageRef = "/archive"
+  weight = 20
+[[menus.main]]
+  name = "Elsewhere"
+  url = "https://example.org/"
+  weight = 30
+# A pageRef with no page: left out of the nav.
+[[menus.main]]
+  name = "Missing"
+  pageRef = "/no-such-page"
+  weight = 40

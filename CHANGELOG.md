@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.11] - 2026-10-11
+
+### Added
+- The theme's test fixture covers more of what the theme documents (#265). `exampleSite/variants/` has three config
+  variants for the README's test builds: the primary nav from `[[menus.main]]` (including an entry whose page doesn't
+  exist, which is left out), a second language with a partial German translation as the default, which makes the English
+  fallback, the per-language script names and the `theblues-i18n` check run, and a Google Analytics ID, which production
+  builds load. The base fixture gets an article with an inline `gallery`, which had no coverage. "Testing the theme"
+  now also builds the fixture minified and each variant, all with `--panicOnWarning`. Only the test fixture changes:
+  the theme's templates, styles and scripts are untouched, and guyheckman.me's pages are identical.
+
 ## [1.4.1] - 2026-10-11
 
 ### Security
