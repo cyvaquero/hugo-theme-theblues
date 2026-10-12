@@ -548,7 +548,8 @@ on photos):
   focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
-  seconds, "Comments couldn't be loaded…" with the button back as "Try again".
+  seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already
+  running instead of adding a second Disqus script; after a blocked or failed request it starts a new one.
 
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.
