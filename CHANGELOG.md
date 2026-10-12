@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.16] - 2026-10-12
+
+### Fixed
+- The search placeholder's template comment and the README's Design decisions section no longer point at issues in a
+  private repository that readers of this public repo can't open. The search comment points at #159, where search is
+  tracked. `CLAUDE.md` says released CHANGELOG entries and the historical retheme files keep their old references. The
+  theme's output is unchanged (#273).
+
 ## [1.4.15] - 2026-10-12
 
 ### Added
