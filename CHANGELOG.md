@@ -7,8 +7,8 @@ All notable changes to this theme are documented here. The format follows
 
 ### Added
 - A `CLAUDE.md` with the rules for working on the theme: what this public repo must not contain (links to private
-  repos, personal data, site-specific code), a support statement (Hugo minimum, translatable strings with left-to-right
-  layout only, Markdown content, SmugMug photo URLs, the browser range), the test policy (the `exampleSite` builds,
+  repos, personal data, site-specific code), a support statement (Hugo minimum, translatable strings with a left-to-right
+  layout only (right-to-left languages get `dir` but no mirroring), Markdown content, SmugMug photo URLs, the browser range), the test policy (the `exampleSite` builds,
   byte-identical output for changes not meant to alter it), the conventions for the version, strings and template
   scripts, which files under `docs/retheme/` are historical, and the repository's merge and branch rules. Contributor
   documentation only; the theme's output is unchanged.
