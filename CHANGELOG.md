@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.1] - 2026-10-11
+
+### Security
+- The build reads photo sizes only from `https://photos.smugmug.com/`, as it already did for hero images (#255). A
+  `gallery` shortcode or wall photo on any other https host is no longer requested at build time, so a post can't make
+  the build server fetch an internal address or a large file. Such a photo gets no width and height, like an `http://`
+  photo, and no warning. Photos on SmugMug keep their sizes, so guyheckman.me's pages are unchanged. The README notes
+  Hugo's `security.http.urls` allowlist for CI builders (#255).
+
 ## [1.4.0] - 2026-10-11
 
 ### Added
