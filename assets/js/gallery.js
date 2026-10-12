@@ -68,7 +68,7 @@
       if (!a || !g.contains(a)) return;
       if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // keep open-in-new-tab working
       e.preventDefault();
-      list = [].slice.call(g.querySelectorAll('a'));
+      list = Array.from(g.querySelectorAll('a'));
       opener = a;
       prev.hidden = next.hidden = list.length < 2;
       img.removeAttribute('src'); img.alt = ''; count.textContent = ''; say.textContent = '';

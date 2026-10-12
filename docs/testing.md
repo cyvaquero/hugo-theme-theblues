@@ -50,6 +50,16 @@ The settings checks fail the build on purpose, so the fixture can't hold them. T
 `HUGO_PARAMS_WALL_TILESPERPAGE=abc` (or `HUGO_PARAMS_WALL_PHOTOSPERGALLERY=abc`, `=0` or `=-2`): the error names the setting
 (#256).
 
+The `embed` shortcode compares its URL's host with the site's as strings, so both must be plain ASCII (#272); like the
+settings checks, this fails the build and the fixture can't hold it. Building the fixture with
+`-b 'https://exämple.org/'` must fail with "the site's baseURL host must be plain ASCII" (its own embed is the
+trigger), and `-b https://xn--exmple-cua.org/` must build as usual. With that punycode base URL, a copy of the fixture
+whose embed URL is `https://exämple.org/x` must fail with "the URL's host must be plain ASCII".
+
+Without JavaScript the wall controls and the theme switch must collapse instead of keeping their space: open the home
+page in a browser with JavaScript off (in Chrome's DevTools, Command menu, "Disable JavaScript"), and the wall's first
+row should sit directly under the hero, with no gap where the controls would be (#274).
+
 The fixture build also checks the English-fallback idiom (README, "Translating the theme"): `exampleSite/hugo.toml`
 mounts the theme's `layouts/` as assets, and the fixture's own `head-end.html` (`exampleSite/layouts/_partials/i18n-pairs.html`
 does the work) reads them. In each template file, the keys given to `T` and to `partial "t.html"` must be the same list

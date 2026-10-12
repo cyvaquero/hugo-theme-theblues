@@ -142,8 +142,9 @@ The templates assume this layout; other structures are not supported yet.
   `<meta name="theme-color">` is navy `#1B3C53` in light mode and `#0F2332` in dark, the nav band's colors (`--band`;
   a palette change updates both `main.css` and `head.html`, which point at each other).
 - **Color theme switch:** the last item of the nav, inline from 821px and inside the hamburger menu below that. Three
-  buttons, System (the default), Light and Dark, with `aria-pressed` on the current one. `theme.js` sets
-  `data-theme="light"` or `"dark"` on `<html>`, keeps the choice in `localStorage` under `theme` (System removes it),
+  buttons, System (the default), Light and Dark, with `aria-pressed` on the current one. `theme.js` puts the
+  class `js` on `<html>` (which `main.css` uses to keep the space of the controls that scripts show later: this switch and
+  the wall controls), sets `data-theme="light"` or `"dark"` on `<html>`, keeps the choice in `localStorage` under `theme` (System removes it),
   updates `<meta name="color-scheme">` and both `theme-color` metas, keeps other open tabs in step, and reloads loaded
   Disqus comments so they match. Without JavaScript the switch is hidden and the mode follows the system.
 - **Share image (`og:image`):** a page's own `image`, or the first photo the page shows from a `gallery` shortcode
@@ -163,7 +164,7 @@ The templates assume this layout; other structures are not supported yet.
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing, and its photos are not shown on walls or used as covers. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. The positional form takes only `src`: Hugo doesn't allow adding `title=` to it, and a second positional argument is ignored, so such a photo gets the "Photo N" alt text. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns (warning ID `theblues-gallery-no-title`). |
-| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection), or the site's `baseURL` has no host to compare with. |
+| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
 
 ## Extending from a site
 

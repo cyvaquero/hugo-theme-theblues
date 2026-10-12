@@ -26,7 +26,7 @@
 
   // Collect the tiles the server rendered; ord is a tile's position in the server's order (newest first).
   var items = [], galleries = {}, galleryList = [];
-  [].slice.call(stage.querySelectorAll('.tile')).forEach(function (el, idx) {
+  stage.querySelectorAll('.tile').forEach(function (el, idx) {
     var d = el.dataset, it = {
       t: d.type === 'article' ? 'a' : 'p', date: d.date || '', ord: idx,
       key: d.gallery || '', name: d.galleryTitle || '', el: el,
@@ -60,7 +60,7 @@
   var S = { f: DEF.f, m: DEF.m, s: DEF.s, g: DEF.g };
   var openGroups = {};
 
-  function qa(sel) { return [].slice.call(ctl.querySelectorAll(sel)); }
+  function qa(sel) { return ctl.querySelectorAll(sel); }
   var vb = document.getElementById('vb'), pop = document.getElementById('pop'), cap = ctl.querySelector('.cap');
 
   // Sorting: newest/oldest by date; "Galleries first" and "Articles first" group by type. data-date holds only the day, so
@@ -92,7 +92,7 @@
       if (!e.hidden && it.more < 0) vis[it.t]++;
       if (!e.hidden && it.t === 'p' && !vg[it.key]) { vg[it.key] = 1; ng++; }  // a see-all tile counts its gallery (#252)
     });
-    [].slice.call(stage.querySelectorAll('details.grp')).forEach(function (d) {
+    stage.querySelectorAll('details.grp').forEach(function (d) {
       d.hidden = !d.querySelector('.tile:not([hidden])');
     });
     var s;
@@ -227,7 +227,7 @@
   // An Escape that closes the View options popover (handled above, with preventDefault) does only that.
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape' || e.defaultPrevented) return;
-    [].slice.call(stage.querySelectorAll('.tile.photo:hover, .tile.photo:focus-within')).forEach(function (t) { t.classList.add('cx'); });
+    stage.querySelectorAll('.tile.photo:hover, .tile.photo:focus-within').forEach(function (t) { t.classList.add('cx'); });
   });
   function capBack(e) {
     var t = e.target.closest && e.target.closest('.tile.photo.cx');
