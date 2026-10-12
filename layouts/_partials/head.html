@@ -17,6 +17,7 @@
 <title>{{ $title }}</title>
 {{ with $desc }}<meta name="description" content="{{ . }}">{{ end }}
 {{ with site.Params.keyword }}<meta name="keywords" content="{{ . }}">{{ end }}
+{{- /* Pager pages (/page/2/) keep page 1's canonical URL and og:url on purpose; the reason is in the README (#251). */}}
 <link rel="canonical" href="{{ .Permalink }}">
 {{- /* Hero image preload (#7): the hero's photo is a CSS background, which the browser finds only after main.css has
   loaded and the hero is laid out. Every theme hero (home, 404, hero.html, posts and term pages) records its photo in

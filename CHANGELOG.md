@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.14] - 2026-10-12
+
+### Changed
+- The README now says why wall pages after the first (`/page/2/`, …) keep page 1's canonical URL and `og:url` (#251): the
+  wall paginates by tile, so a later page is a slice that shifts as posts are added, page 1 is the stable entry point, and
+  every post stays reachable and indexable through its permalink, the sitemap and the archive. It notes that this departs
+  from Google's current guidance and what a site would change to give each page its own canonical. Documentation only (and
+  a comment in `head.html`): the theme's output and guyheckman.me's pages are unchanged.
+
 ## [1.4.13] - 2026-10-12
 
 ### Added
