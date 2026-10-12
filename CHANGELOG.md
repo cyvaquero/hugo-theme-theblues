@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.11] - 2026-10-11
+
+### Added
+- The theme's test fixture covers more of what the theme documents (#265). `exampleSite/variants/` has three config
+  variants for the README's test builds: the primary nav from `[[menus.main]]` (including an entry whose page doesn't
+  exist, which is left out), a second language with a partial German translation as the default, which makes the English
+  fallback, the per-language script names and the `theblues-i18n` check run, and a Google Analytics ID, which production
+  builds load. The base fixture gets an article with an inline `gallery`, which had no coverage. "Testing the theme"
+  now also builds the fixture minified and each variant, all with `--panicOnWarning`. Only the test fixture changes:
+  the theme's templates, styles and scripts are untouched, and guyheckman.me's pages are identical.
+
 ## [1.4.5] - 2026-10-11
 
 ### Fixed
@@ -10,6 +21,32 @@ All notable changes to this theme are documented here. The format follows
   rather than blocked, the 15-second timeout used to remove the script tag while its request kept running, and a click
   on "Try again" added another, so the embed could run twice. The first script now stays after a timeout and the retry
   waits for it; a blocked or failed request still gets a fresh script on retry.
+
+## [1.4.4] - 2026-10-11
+
+### Fixed
+- A SmugMug photo URL with a query string or fragment, such as `…/X2/i-1-X2.jpg?foo=1`, now gets the right large-size
+  link (`…/X3/i-1-X3.jpg?foo=1`) in the lightbox, the full-size link and the feed; before, the file name kept its `X2`
+  and the link pointed at a photo that doesn't exist (#253). URLs without a query string are unchanged, so
+  guyheckman.me's pages are too. The exampleSite's "A photo gallery" post now has a query string on its second photo,
+  which covers this case.
+
+## [1.4.3] - 2026-10-11
+
+### Fixed
+- On a wall page whose only tile from a gallery is its "see all" tile, Group by gallery now shows the gallery's date in
+  the heading and counts the gallery in the caption ("grouped into 1 gallery"), as on other pages (#252). The see-all
+  tile carries the gallery's date in a new `data-shown` attribute, so the built wall pages change by that attribute and
+  the `wall.js` file name; no tile moves or changes otherwise.
+
+## [1.4.2] - 2026-10-11
+
+### Fixed
+- `hugo --templateMetrics --templateMetricsHints` finishes with the theme instead of hanging (#243). Hugo holds its
+  metrics lock while it hashes the value a partial returns; for a stylesheet or script that was still waiting to be
+  built, the hash ran the build, whose own partial calls then waited for the same lock. `asset.html` now builds the
+  resource before it returns it. The built pages and files are unchanged. The README's "Testing the theme" says how to
+  run that check (#243).
 
 ## [1.4.1] - 2026-10-11
 
