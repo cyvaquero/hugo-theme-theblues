@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.15] - 2026-10-12
+
+### Added
+- A `CLAUDE.md` with the rules for working on the theme: what this public repo must not contain (links to private
+  repos, personal data, site-specific code), a support statement (Hugo minimum, translatable strings with a left-to-right
+  layout only (right-to-left languages get `dir` but no mirroring), Markdown content, SmugMug photo URLs, the browser range), the test policy (the `exampleSite` builds,
+  byte-identical output for changes not meant to alter it), the conventions for the version, strings and template
+  scripts, which files under `docs/retheme/` are historical, and the repository's merge and branch rules. Contributor
+  documentation only; the theme's output is unchanged.
+
 ## [1.4.14] - 2026-10-12
 
 ### Changed
