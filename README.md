@@ -42,8 +42,8 @@ How the images were made is in [docs/testing.md](docs/testing.md).
   (`[module.hugoVersion] min`), which Hugo checks and warns about; `theme.toml`'s `min_version` only mirrors it for the
   themes gallery. Before relying on a newer Hugo, run the checks under "Upgrading Hugo".
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
-- **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, on desktop and mobile
-  (#208). The oldest versions with everything working are Chrome and Edge 108, Firefox 121 and Safari 16.4, going by
+- **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, on desktop and mobile.
+  The oldest versions with everything working are Chrome and Edge 108, Firefox 121 and Safari 16.4, going by
   the CSS features the theme uses (`:has()`, range media queries, `dvh` units); they are not tested in those
   versions. Below them
   the pages still work, with less polish:
@@ -73,7 +73,7 @@ How the images were made is in [docs/testing.md](docs/testing.md).
   `comments.js` and `gallery.js` hold the text they write (captions, comment messages, lightbox labels) as a Go template
   action, which Hugo fills in from the site's language when it builds them (see "Translating the theme"); a site's own
   copy of a script is run as a template only if its first line is the template comment `{{- /* theblues:template */ -}}`,
-  which renders as nothing (any other `{{` in a script is published as written, #262); a site's copy of one of these three
+  which renders as nothing (any other `{{` in a script is published as written); a site's copy of one of these three
   needs that line, and the build fails naming a script that calls `js-text.html` without it.
 
 ## Installation
@@ -181,7 +181,7 @@ A site can add its own page types without overriding theme files:
   series pages) preload their photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`, one per
   hero size with its `media` query when the hero has smaller SmugMug sizes). A `header` block of the site's own gets no preload unless
   it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`. The theme's heroes all set
-  theirs up through `layouts/_partials/hero-style.html` (#264).
+  theirs up through `layouts/_partials/hero-style.html`.
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
   `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
 - **Analytics:** `layouts/_partials/analytics-on.html` returns `true` when the page includes the theme's Google
@@ -203,10 +203,10 @@ A site can add its own page types without overriding theme files:
   the same declarations (`layouts/_partials/dark-tokens-check.html`, once per build): if they differ, or only one is
   found, it warns with the ID `theblues-dark-tokens` naming the tokens, and `--panicOnWarning` fails the build. It reads
   the `assets/css/main.css` the build uses, so a site that overrides the file with an edited copy is checked too; a
-  stylesheet with neither block gets no warning. CSS `light-dark()` could replace the two copies (#196). The
+  stylesheet with neither block gets no warning. CSS `light-dark()` could replace the two copies. The
   current and previous major versions of every supported browser have it, but the oldest versions listed under
   Requirements don't (it needs Chrome and Edge 123, Firefox 120 and Safari 17.5).
-- **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings (#6):
+- **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings:
   - 560px: masonry walls and `galleries` blocks go from one column to two;
   - 700px: the View options popover becomes a 20rem panel at the right instead of spanning the controls, and the wall
     caption moves from the left to the right;
@@ -238,11 +238,12 @@ translate the theme, or reword its English, for a site:
    archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
    Hugo's locale data, except on an English site (language `en` or `en-*`), which gets US English names whatever its
    `locale`: `en-GB` writes September as "Sep", not "Sept".
-5. For a right-to-left language, set `direction = "rtl"` on it (`[languages.ar]`), and the theme writes `dir="rtl"` on `<html>`
-   (#266), so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir` attribute,
-   as before. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
+5. For a right-to-left language, set `direction = "rtl"` on it (`[languages.ar]`), and the theme writes `dir="rtl"` on `<html>`,
+   so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir`
+   attribute. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
    the bars, indents, drop-downs and alignment keep their left-to-right sides. Mirroring them with CSS logical
-   properties is tracked in #296.
+   properties is tracked in
+   [#296](https://github.com/cyvaquero/hugo-theme-theblues/issues/296).
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js` and
 `gallery.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -266,11 +267,11 @@ the person building the site.
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
   `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more; anything else, including text that isn't a
-  number, fails the build with a message naming the setting (#256). The pager shows the first and last pages and two on
+  number, fails the build with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
 - Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
   guyheckman.me"), but use page 1's canonical URL (`<link rel="canonical">` and `og:url`) and have no `rel=prev/next` in the
-  head. The pager links carry `rel=prev` and `rel=next`. This is deliberate (#251). The wall paginates by tile, newest
+  head. The pager links carry `rel=prev` and `rel=next`. This is deliberate. The wall paginates by tile, newest
   first, so a later page is a shifting slice of one feed: adding a post moves every tile down a slot and tiles cross
   from page to page, so `/page/2/` shows different tiles from one build to the next. Page 1 is the stable entry point, and
   nothing is hidden behind the pager: every post is reachable, and indexable, at its own permalink, which the sitemap lists
@@ -334,7 +335,7 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
   From 821px the links are one row; when the menu, the site title and the theme switch don't fit (many items, or a
-  large text size or zoom), the row wraps onto a second line, so every link and the switch stay reachable (#171).
+  large text size or zoom), the row wraps onto a second line, so every link and the switch stay reachable.
   Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
 - `[[menus.footer]]` (optional): links shown in the footer under the social links, in a navigation landmark named
   "Footer", for example a privacy note (`url = "/about/#privacy"`) or a page (`pageRef`).
@@ -534,7 +535,7 @@ article tile's title link, which is covered by the tile, itself one link. A prin
 - Give Hugo's `youtube` shortcode a `title` (`{{< youtube id="…" title="…" >}}`); without one every video frame
   is named "YouTube video".
 
-**Known gaps.** Not yet checked with screen readers or on real touch devices. Inline-highlighted line numbers fail contrast ([#76](https://github.com/cyvaquero/hugo-theme-theblues/issues/76), documented above). Other accessibility issues are
+**Known gaps.** Not yet checked with screen readers or on real touch devices. Inline-highlighted line numbers fail contrast (documented above). Other accessibility issues are
 listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-theblues/issues?q=is%3Aopen+label%3Aaccessibility).
 
 ## Upgrading Hugo
@@ -550,8 +551,8 @@ them without a build error:
 Before moving the theme, or a site that uses it, to a newer Hugo:
 
 1. Build the `exampleSite` fixture, minified and not, and its variants with the old and the new Hugo, as
-   [docs/testing.md](docs/testing.md) describes. Each build must finish with no warnings. Compare the outputs with
-   `diff -r`: apart from the Hugo version in the footer, any difference needs explaining.
+   [docs/testing.md](docs/testing.md) describes. Each build must finish with no warnings, except the `dark-tokens`
+   variant, which must warn. Compare the outputs with `diff -r`: apart from the Hugo version in the footer, any difference needs explaining.
 2. Pagination: the fixture shows 4 tiles per page. Check that every wall page lists its own tiles, with none repeated
    or missing, and that the pager's page count and links match.
 3. Rebuilds: run `hugo server` on the fixture, change a post's tags, and check that the home wall and both the old and

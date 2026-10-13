@@ -3,246 +3,94 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.4.22] - 2026-10-12
-
-### Changed
-- Wall tiles, the series box and list, and the previous/next links no longer run a partial per post for the page title
-  and the tile's `data-date`: they use the page's title as it is and call `page-title.html` only for a page without
-  one, and write the day (`2006-01-02`) directly. The built pages are byte-for-byte the same. A production build of a
-  550-post, 447-page test site (minified, warm photo-size cache, median of 15) takes 0.49 s instead of 0.57 s, and 2.05 s
-  of CPU time instead of 2.19 s; the guyheckman.me site and the example site build in the same time as before. A site
-  that overrides `page-title.html` or `date.html` with its own copy no longer has it called from these places for a page
-  that has a title, or for `data-date`.
-
-## [1.4.21] - 2026-10-12
-
-### Changed
-- The README's example Content Security Policy adds `frame-ancestors 'none'`, and a new note says to send the policy
-  as an HTTP header, since a `<meta>` tag ignores `frame-ancestors` and leaves pages open to being framed, along with
-  `Strict-Transport-Security`, `X-Content-Type-Options` and `Referrer-Policy` (#271).
-- The README has an "Upgrading Hugo" checklist for the Hugo behavior the theme relies on but Hugo doesn't document: the
-  partial cache and `.Store` across `hugo server` rebuilds, and the wall's stand-in pagination (#278).
-- The README's extra screenshots are a list of images with captions instead of a table with empty header cells, which
-  screen readers announced as a data table with blank headers (#270).
-- `docs/retheme/decisions.md` opens with a note that it is a historical record up to 1.4.0 and no longer matches the
-  theme in places; the README and `docs/layout.md` describe the theme as it is (#269).
-
-### Fixed
-- Documentation corrections (#268): `analytics-on.html` first shipped in 1.3.0, not "1.2.49"; the theme sets no
-  page-level referrer policy, but `embed` frames set `strict-origin-when-cross-origin`; the README no longer quotes one
-  site's post counts; and `docs/layout.md`'s list of partials includes `t.html`.
-
-## [1.4.20] - 2026-10-12
-
-### Fixed
-- A heading that contains a link to another host is no longer announced with "(opens in a new tab)" in its name. The
-  notice used to sit inside the link, so heading navigation read, for example, "Hugo (opens in a new tab)". Every page
-  now holds one hidden copy of the notice (`id="tb-newtab"`, in the page's language), and links to other hosts, in post
-  text and the footer's LinkedIn and GitHub links, point at it with `aria-describedby`: a screen reader still says the
-  link opens in a new tab, after the link's name. Feed readers no longer get the notice in a post's text (#260).
-- The borders of the type chips, the View options mode switch and selects (Sort and the others) and pager links are now
-  3:1 or more against the page and the popover, in light and dark mode (they were 1.6 to 2.4:1), so low vision readers
-  can see where the controls end (WCAG 1.4.11). They use a new color, `--ctl-line`, which a site can override like the
-  other tokens; the lines that only decorate (the series box, tables, the table of contents, rules) keep `--line`.
-  The tag pills in a post's hero already had a sand border on the navy hero and are unchanged (#258).
-- Pinching the photo in the lightbox now zooms it on touch screens (the photo no longer blocks pinch-zoom), and a pinch
-  never changes the photo. A swipe with one finger still goes to the next or previous photo (#261).
-- Body text is sized in `rem` instead of `px`, so it grows with the reader's default font size like the nav, meta and
-  tile text did already. At the default size nothing changes (17px, as before) (#259).
-
-## [1.4.19] - 2026-10-12
-
-### Fixed
-- The "Part N of M" chip and the series box no longer slow the build down as a series grows. A post's place in its
-  series was worked out by sorting and scanning the whole series again for every post, so the work grew with the
-  square of the series length (a 500-post series took about 860 µs per call, against about 100 µs now). The ordered
-  list and each post's position are now worked out once per series and kept through `memo.html`, so a rebuild under
-  `hugo server` still picks up an added, moved or removed post. The pages are unchanged (#244).
-- Photo tiles are no longer rendered again on every wall once a site has a few hundred photo posts. Hugo's partial
-  cache holds only about a thousand entries and the tiles evicted each other; on a generated site of 750 photo posts
-  (3,000 tiles, each on up to five walls) the tile markup was rendered 11,730 times, and is now rendered 3,287 times,
-  and the build takes 1.3 s instead of 2.0 s. Tiles are now kept through `memo.html`, as the photo lists already
-  were, and the pages are unchanged (#247).
-
-### Changed
-- `wall.js` no longer takes the wall's tiles out and puts them back on every page view. The settings start at the
-  defaults, and when the server's order is already the default one (newest first, as the theme renders it), the tiles
-  stay where they are and only the caption and the controls are filled in, so lazy-loaded images are not re-attached.
-  Filter, highlight, sort, grouping, Clear and Reset behave as before, and a wall rendered in another order is still
-  rebuilt on load (#245).
-
-## [1.4.18] - 2026-10-12
-
-### Fixed
-- The `embed` shortcode compares the URL's host with the site's only when both are plain ASCII, so an internationalized
-  host written as Unicode can no longer pass as another host, or as the site's own, and get the `allow-same-origin`
-  sandbox. A Unicode host in the embed URL, or in the site's `baseURL`, now fails the build with a message to write it
-  in its punycode form (`xn--...`). Embeds on ASCII hosts behave as before (#272).
-- One rule decides the no-JavaScript state of the wall controls and the theme switch. `main.css` keeps their space
-  while they are hidden only on a page whose `<html>` has the `js` class that `theme.js` sets; `nojs.css` no longer
-  repeats them with its own `!important` rules, and the two stylesheets no longer depend on their load order. They look
-  the same with and without JavaScript (#274).
-
-### Changed
-- `menu.js`, `theme.js`, `wall.js` and `gallery.js` no longer carry code for browsers below the supported ones: the
-  `matchMedia` `addListener` fallback is gone, and `[].slice.call(...)` and `[].forEach.call(...)` over query results
-  are `NodeList.forEach` or `Array.from`. Behavior is unchanged (#275).
-
-## [1.4.17] - 2026-10-12
-
-### Changed
-- The README is now the user manual only, 735 lines down to 539. Its internals moved, word for word, under `docs/`:
-  the file layout and "How the wall works" to `docs/layout.md`, "Testing the theme" (the fixture, its variants and
-  checks, and the screenshot recipe) to `docs/testing.md`, and "Design decisions" to `docs/README.md`, which indexes
-  them. "Known limits" stays in the README as its own section, and a short "Working on the theme" section points to the
-  new files. The references in `CLAUDE.md`, the fixture's config comments and `t.html` follow the move. Documentation
-  only; the theme's output is unchanged.
-
-## [1.4.16] - 2026-10-12
-
-### Fixed
-- The search placeholder's template comment and the README's Design decisions section no longer point at issues in a
-  private repository that readers of this public repo can't open. The search comment points at #159, where search is
-  tracked. `CLAUDE.md` says released CHANGELOG entries and the historical retheme files keep their old references. The
-  theme's output is unchanged (#273).
-
-## [1.4.15] - 2026-10-12
-
-### Added
-- A `CLAUDE.md` with the rules for working on the theme: what this public repo must not contain (links to private
-  repos, personal data, site-specific code), a support statement (Hugo minimum, translatable strings with a left-to-right
-  layout only (right-to-left languages get `dir` but no mirroring), Markdown content, SmugMug photo URLs, the browser range), the test policy (the `exampleSite` builds,
-  byte-identical output for changes not meant to alter it), the conventions for the version, strings and template
-  scripts, which files under `docs/retheme/` are historical, and the repository's merge and branch rules. Contributor
-  documentation only; the theme's output is unchanged.
-
-## [1.4.14] - 2026-10-12
-
-### Changed
-- The README now says why wall pages after the first (`/page/2/`, …) keep page 1's canonical URL and `og:url` (#251): the
-  wall paginates by tile, so a later page is a slice that shifts as posts are added, page 1 is the stable entry point, and
-  every post stays reachable and indexable through its permalink, the sitemap and the archive. It notes that this departs
-  from Google's current guidance and what a site would change to give each page its own canonical. Documentation only (and
-  a comment in `head.html`): the theme's output and guyheckman.me's pages are unchanged.
-
-## [1.4.13] - 2026-10-12
+## [1.5.0] - 2026-10-12
 
 ### Added
 - The theme writes `dir="rtl"` on `<html>` for a right-to-left language (`[languages.ar] direction = "rtl"`), read with
   Hugo's `site.Language.Direction`, so browsers and screen readers get the text direction (#266). Left-to-right sites
-  are unchanged: no `dir` attribute is written and their pages are identical. The layout is not mirrored yet, because
-  `main.css` uses physical `left` and `right` properties; the README says so, and mirroring it with CSS logical
-  properties is tracked in #296. The test fixture has an `rtl` variant (Arabic next to English) for it; the README's
-  "Testing the theme" lists it.
-
-## [1.4.12] - 2026-10-11
-
-### Added
-- The dark-token check has a test of its own (#267). `exampleSite/variants/dark-tokens.toml` builds the fixture with a
-  stand-in stylesheet whose two dark-token blocks differ, and the build must warn `theblues-dark-tokens`, naming the
-  token. If a later change to `main.css` stops the check's patterns from matching, that build prints no warning, so the
-  silence is noticed. "Testing the theme" has the command. Test fixture and README only; the theme and guyheckman.me
-  are unchanged.
-
-## [1.4.11] - 2026-10-11
-
-### Added
-- The theme's test fixture covers more of what the theme documents (#265). `exampleSite/variants/` has three config
-  variants for the README's test builds: the primary nav from `[[menus.main]]` (including an entry whose page doesn't
-  exist, which is left out), a second language with a partial German translation as the default, which makes the English
-  fallback, the per-language script names and the `theblues-i18n` check run, and a Google Analytics ID, which production
-  builds load. The base fixture gets an article with an inline `gallery`, which had no coverage. "Testing the theme"
-  now also builds the fixture minified and each variant, all with `--panicOnWarning`. Only the test fixture changes:
-  the theme's templates, styles and scripts are untouched, and guyheckman.me's pages are identical.
-
-## [1.4.10] - 2026-10-11
+  get no `dir` attribute and their pages are unchanged. The layout is not mirrored yet, because `main.css` uses
+  physical `left` and `right` properties; the README says so, and mirroring is tracked in #296.
+- The README has an "Upgrading Hugo" checklist for the Hugo behavior the theme relies on but Hugo doesn't document: the
+  partial cache and `.Store` across `hugo server` rebuilds, and the wall's stand-in pagination (#278).
+- The README's example Content Security Policy adds `frame-ancestors 'none'`, and a note says to send the policy as an
+  HTTP header, since a `<meta>` tag ignores `frame-ancestors` and leaves pages open to being framed, along with
+  `Strict-Transport-Security`, `X-Content-Type-Options` and `Referrer-Policy` (#271).
+- The README says why wall pages after the first (`/page/2/`, …) keep page 1's canonical URL and `og:url`: the wall
+  paginates by tile, so a later page is a slice that shifts as posts are added, while every post stays reachable
+  through its permalink, the sitemap and the archive. It notes that this departs from Google's current guidance and
+  what a site would change to give each page its own canonical (#251).
 
 ### Changed
-- The hero's photo setup (its smaller SmugMug sizes, and the two Store keys `head.html` reads for the preload) now lives
-  in one partial, `hero-style.html`, instead of being copied into `home.html`, `term.html`, `404.html`, `post/page.html`
-  and `hero.html` (#264). A change to the hero's preload or size data is one edit. The built pages are unchanged, byte
-  for byte, on guyheckman.me and the exampleSite.
-
-## [1.4.9] - 2026-10-11
-
-### Changed
-- The theme's own test build now checks the English-fallback idiom, the `(or (T "key") (partial "t.html" "key"))` pair
-  that every piece of theme text uses (#263). In every template, the keys given to `T` and to `t.html` must be the same
-  list in the same order, and each must be in `i18n/en.toml`; a mismatch warns with the ID `theblues-i18n-pair`, which
-  fails the README's `--panicOnWarning` build. Before, a mismatch showed the wrong English text only on a site whose
-  language lacked the entry. This is in the exampleSite only (its `hugo.toml` mounts the theme's layouts as assets and
-  its own `head-end.html` reads them), so sites that install the theme, and guyheckman.me, are unchanged. The pair itself
-  stays as it is: a wrapper partial doubled the 550-post build time (#192).
-
-## [1.4.8] - 2026-10-11
-
-### Changed
-- A theme script is run as a Go template only when its first line is the template comment `theblues:template` (it
-  renders as nothing), no longer whenever the file contains `{{` (#262). `wall.js`, `comments.js` and `gallery.js` carry
-  the comment, so the built scripts are unchanged. A `{{` in a comment or string of any other script, such as `menu.js`,
-  is now published as written instead of being executed. A site that overrides `wall.js`, `comments.js` or `gallery.js`
-  with its own copy needs the same first line in it; a script that calls `js-text.html` without it fails the build with
-  a message naming the script, instead of being published with the call unexpanded. The README says how.
-
-## [1.4.7] - 2026-10-11
-
-### Fixed
-- A hero image given as a local path (`header_image`, a page `image`, `image_404`) no longer warns
-  `theblues-insecure-photo` when the site's `baseURL` is `http://`, as under `hugo server` or the README's screenshot
-  build; with `--panicOnWarning` that warning failed the build (#257). The check skips URLs under the site's own
-  `baseURL`. A photo whose URL names another host over `http://`, or the site's own host over `http://` when the
-  `baseURL` is `https://`, still warns. Built pages are unchanged.
-
-## [1.4.6] - 2026-10-11
+- A theme script is run as a Go template only when its first line is the template comment `theblues:template`, no
+  longer whenever the file contains `{{` (#262). `wall.js`, `comments.js` and `gallery.js` carry it, so the built
+  scripts are unchanged, and a `{{` in any other script is published as written. A site that overrides one of those
+  three with its own copy needs the same first line; a script that calls `js-text.html` without it fails the build
+  with a message naming the script.
+- The hero's photo setup (its smaller SmugMug sizes and the Store keys `head.html` reads for the preload) lives in one
+  partial, `hero-style.html`, instead of five templates (#264). The built pages are unchanged.
+- `wall.js` no longer takes the wall's tiles out and puts them back on every page view: when the server's order is
+  already the default (newest first), the tiles stay where they are and only the caption and the controls are filled
+  in, so lazy-loaded images are not re-attached. The controls behave as before (#245).
+- Wall tiles, the series box and list, and the previous/next links use a page's title as it is and call
+  `page-title.html` only for a page without one, and write the tile's `data-date` directly. The built pages are
+  byte-for-byte the same; a 550-post, 447-page test site builds in 0.49 s instead of 0.57 s. A site that overrides
+  `page-title.html` or `date.html` no longer has it called from these places for a titled page, or for `data-date`
+  (#307).
+- The scripts no longer carry code for browsers below the supported ones (the `matchMedia` `addListener` fallback,
+  `[].slice.call` and `[].forEach.call`). Behavior is unchanged (#275).
+- The theme's test fixture covers more of what the theme documents: variants for the `[[menus.main]]` nav, a second
+  language with a partial translation, Google Analytics, a right-to-left language and a mismatched dark-token
+  stylesheet, an article with an inline `gallery`, minified builds, and a check that every template's English-fallback
+  pair (`T` and `t.html`) uses the same keys, each in `i18n/en.toml` (the pair itself stays, since a wrapper partial
+  doubled build time, #192). Sites that install the theme are unchanged (#263, #265, #267).
+- The README is the user manual; the file layout, "How the wall works", the testing guide and the design decisions moved
+  to `docs/layout.md`, `docs/testing.md` and `docs/README.md`. Documentation corrections: the first release with
+  `analytics-on.html`, the referrer policy of `embed` frames, the screenshots as a captioned list instead of a table
+  with empty headers, a historical-record note on `docs/retheme/decisions.md`, no links to issues in private
+  repositories (search is tracked in #159), and no issue numbers for past changes in the README (#268, #269, #270,
+  #273, #307).
 
 ### Fixed
-- A `tilesPerPage` or `photosPerGallery` that isn't a number, such as `"abc"`, now fails the build with a message that
-  names the setting (`params.wall.tilesPerPage must be a whole number, 1 or more (got "abc")`), as the README promises.
-  Before, Hugo's generic `unable to cast` error pointed into a theme partial (#256). Valid values and the messages for 0
-  and negative values are unchanged, and so are the built pages.
-
-## [1.4.5] - 2026-10-11
-
-### Fixed
-- "Try again" after a Disqus timeout no longer loads Disqus's `embed.js` a second time (#254). When Disqus is slow
-  rather than blocked, the 15-second timeout used to remove the script tag while its request kept running, and a click
-  on "Try again" added another, so the embed could run twice. The first script now stays after a timeout and the retry
-  waits for it; a blocked or failed request still gets a fresh script on retry.
-
-## [1.4.4] - 2026-10-11
-
-### Fixed
-- A SmugMug photo URL with a query string or fragment, such as `…/X2/i-1-X2.jpg?foo=1`, now gets the right large-size
-  link (`…/X3/i-1-X3.jpg?foo=1`) in the lightbox, the full-size link and the feed; before, the file name kept its `X2`
-  and the link pointed at a photo that doesn't exist (#253). URLs without a query string are unchanged, so
-  guyheckman.me's pages are too. The exampleSite's "A photo gallery" post now has a query string on its second photo,
-  which covers this case.
-
-## [1.4.3] - 2026-10-11
-
-### Fixed
-- On a wall page whose only tile from a gallery is its "see all" tile, Group by gallery now shows the gallery's date in
-  the heading and counts the gallery in the caption ("grouped into 1 gallery"), as on other pages (#252). The see-all
-  tile carries the gallery's date in a new `data-shown` attribute, so the built wall pages change by that attribute and
-  the `wall.js` file name; no tile moves or changes otherwise.
-
-## [1.4.2] - 2026-10-11
-
-### Fixed
-- `hugo --templateMetrics --templateMetricsHints` finishes with the theme instead of hanging (#243). Hugo holds its
-  metrics lock while it hashes the value a partial returns; for a stylesheet or script that was still waiting to be
-  built, the hash ran the build, whose own partial calls then waited for the same lock. `asset.html` now builds the
-  resource before it returns it. The built pages and files are unchanged. The README's "Testing the theme" says how to
-  run that check (#243).
-
-## [1.4.1] - 2026-10-11
+- A heading that contains a link to another host is no longer announced with "(opens in a new tab)" in its name. Every
+  page holds one hidden copy of the notice (`id="tb-newtab"`, in the page's language), and links to other hosts, in
+  post text and the footer, point at it with `aria-describedby`, so a screen reader still says the link opens in a new
+  tab, after its name (#260).
+- The borders of the type chips, the View options mode switch and selects, and pager links are 3:1 or more against the
+  page and the popover, in light and dark mode (they were 1.6 to 2.4:1; WCAG 1.4.11). They use a new token,
+  `--ctl-line`, which a site can override; decorative lines keep `--line` (#258).
+- Pinching the photo in the lightbox zooms it on touch screens and never changes the photo; a one-finger swipe still
+  goes to the next or previous photo (#261).
+- Body text is sized in `rem`, so it grows with the reader's default font size like the rest of the page; at the
+  default size it is 17px, as before (#259).
+- The "Part N of M" chip and the series box no longer slow the build as a series grows: each series' order is worked
+  out once and kept through `memo.html` (a 500-post series took about 860 µs per call, now about 100 µs) (#244).
+- Photo tiles are no longer rendered again on every wall once a site has a few hundred photo posts, when Hugo's
+  partial cache (about a thousand entries) evicted them: on 750 photo posts (3,000 tiles) the tile markup was rendered
+  11,730 times and now 3,287 times, and the build takes 1.3 s instead of 2.0 s (#247).
+- One rule decides the no-JavaScript state of the wall controls and the theme switch: `main.css` keeps their space only
+  when `<html>` has the `js` class that `theme.js` sets, and `nojs.css` no longer repeats them with `!important` rules
+  that depended on load order (#274).
+- A hero image given as a local path no longer warns `theblues-insecure-photo` when the site's `baseURL` is `http://`,
+  as under `hugo server`, which failed `--panicOnWarning` builds. A photo on another host over `http://` still warns
+  (#257).
+- A `tilesPerPage` or `photosPerGallery` that isn't a number, such as `"abc"`, fails the build with a message naming
+  the setting, instead of Hugo's generic cast error (#256).
+- "Try again" after a Disqus timeout no longer loads `embed.js` a second time when Disqus is slow rather than blocked
+  (#254).
+- A SmugMug photo URL with a query string or fragment gets the right large-size link in the lightbox, the full-size
+  link and the feed (#253).
+- On a wall page whose only tile from a gallery is its "see all" tile, Group by gallery shows the gallery's date and
+  counts it in the caption; the see-all tile carries the date in a new `data-shown` attribute (#252).
+- `hugo --templateMetrics --templateMetricsHints` finishes with the theme instead of hanging: `asset.html` builds a
+  resource before returning it (#243).
 
 ### Security
-- The build reads photo sizes only from `https://photos.smugmug.com/`, as it already did for hero images (#255). A
-  `gallery` shortcode or wall photo on any other https host is no longer requested at build time, so a post can't make
-  the build server fetch an internal address or a large file. Such a photo gets no width and height, like an `http://`
-  photo, and no warning. Photos on SmugMug keep their sizes, so guyheckman.me's pages are unchanged. The README notes
-  Hugo's `security.http.urls` allowlist for CI builders (#255).
+- The build reads photo sizes only from `https://photos.smugmug.com/`, as it already did for hero images, so a post
+  can't make the build server fetch an internal address or a large file from another host. Such a photo gets no width
+  and height, and no warning. The README notes Hugo's `security.http.urls` allowlist for CI builders (#255).
+- The `embed` shortcode compares the URL's host with the site's only when both are plain ASCII, so an internationalized
+  host written as Unicode can't pass as another host, or as the site's own, and get the `allow-same-origin` sandbox. A
+  Unicode host in the embed URL or the site's `baseURL` fails the build with a message to use its punycode form (#272).
 
 ## [1.4.0] - 2026-10-11
 
