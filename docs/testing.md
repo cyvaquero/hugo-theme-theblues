@@ -72,6 +72,22 @@ its title, description, tags and text) and `unlisted.md` (`search: false`, one r
   button, then the first result; a long query reflows at 320px with no horizontal scroll; `mark` is 8:1 in light and dark
   (system and picked), and uses `Mark`/`MarkText` with `forced-colors: active`.
 
+The 404 page (`/404.html`, README, "Search") lists the latest five posts and, with the index, searches the missing address.
+`python3 -m http.server` can't answer a missing address with the 404 page and its status, so a script that drives headless
+Chrome answers it: with the DevTools `Fetch` domain, fulfill a request for a missing address with status 404 and the body of
+`<out>/404.html`, and the page runs as it would on a host that serves its 404 page at the address. Check:
+
+- `/post/20260104-smug/` (`post` and the number are dropped) puts `smug` in the field, lists "SmugMug photos with sizes" and
+  "An article with a SmugMug hero" under "Were you looking for…" with the matches in `<mark>`, hides the latest posts, says
+  "2 results" and leaves focus on the page; `/post/2026/gallry-photos/` (one typo) lists the gallery posts; `/accnts/` finds
+  the accents page; Enter in the field goes to `/search/?q=smug`;
+- `/2017/05/` (only numbers), `/zzzqxv/` and `/2017/05/awx-on-centos/` (no page has them; the two-letter `on` is not used
+  alone) show the empty field and the latest five posts, and no result list;
+- `/%3Cimg%20src=x%20onerror=alert(1)%3E/` and `/%E0%A4%A/` (a malformed escape) put nothing of the address on the page as
+  markup, run no script, open no dialog and cause no console error besides the 404 response itself;
+- with JavaScript off, and in a copy of the fixture whose search section leaves out `searchindex`, the 404 page is the hero,
+  the home link and the latest five posts, with no field and no search script.
+
 Setting `HUGO_PARAMS_SEARCH_TEXTLIMIT=abc` (or `=-1`) fails the build naming the setting, `=0` keeps each page's whole text,
 and a site whose index is over 1 MB warns with `theblues-search-size` (try `HUGO_PARAMS_SEARCH_TEXTLIMIT=0` on a copy whose
 posts are long). A copy of the fixture without `searchindex` in the search section's outputs builds with no `index.json`,

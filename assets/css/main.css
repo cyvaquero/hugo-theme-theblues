@@ -506,6 +506,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
 .sres li { border-bottom: 1px solid var(--line); padding: .8rem 0; }
 .sres li a { font: 700 1.2rem / 1.3 var(--serif); overflow-wrap: anywhere; }
 .sres li p { margin: .15rem 0 0; }
+.sres + form { margin-top: 1.5rem; }  /* on the 404 page the results come before the form */
 .sres mark { background: var(--mark-bg); color: var(--mark-fg); font-weight: 600; border-radius: 2px; }
 
 /* 13 Touch targets: 44px on coarse pointers --------------------------------------------------------------- */

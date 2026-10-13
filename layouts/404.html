@@ -6,5 +6,24 @@
 </header>
 {{ end }}
 {{ define "main" }}
-<div class="pb"><p><a href="{{ site.Home.RelPermalink }}">{{ (or (T "backToHome") (partial "t.html" "backToHome")) }}</a></p></div>
+{{- /* The latest posts are in the HTML, so the page is useful without JavaScript. When the site publishes the search index
+  (search-index.html, #159), assets/js/search.js searches the words of the missing address and, if anything matches, shows up
+  to five results above the search form in place of this list; with no match the list stays. The page keeps its 404 status:
+  nothing redirects (#151). */ -}}
+<div class="pb">
+  <p><a href="{{ site.Home.RelPermalink }}">{{ (or (T "backToHome") (partial "t.html" "backToHome")) }}</a></p>
+  {{- with partial "search-index.html" }}
+  {{ partial "search-box.html" (dict "page" $ "index" . "kind" "404" "heading" ((or (T "notFoundLooking") (partial "t.html" "notFoundLooking"))) "action" (site.GetPage "/search").RelPermalink) }}
+  {{- end }}
+  {{- with first 5 (where site.RegularPages "Section" "in" site.MainSections).ByDate.Reverse }}
+  <section id="latest">
+    <h2>{{ (or (T "latestPosts") (partial "t.html" "latestPosts")) }}</h2>
+    <ul class="atl">
+      {{- range . }}
+      <li><a href="{{ .RelPermalink }}"><span class="nm">{{ or .Title (partial "page-title.html" .) }}</span><span class="c">{{ partial "date.html" (dict "date" .Date "time" true) }}</span></a></li>
+      {{- end }}
+    </ul>
+  </section>
+  {{- end }}
+</div>
 {{ end }}

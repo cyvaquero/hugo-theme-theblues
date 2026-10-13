@@ -57,6 +57,11 @@ other = "Loading the search index…"
 other = "The search couldn’t be loaded. Try again later."
 [searchCapped]
 other = "Showing the first {{ .n }}. Add a word to narrow the search."
+# The 404 page: the heading over the pages that match the address, and over the latest posts.
+[notFoundLooking]
+other = "Were you looking for…"
+[latestPosts]
+other = "Latest posts"
 
 # Go layouts for dates (Go reference time Mon Jan 2 2006; month and day names follow the site's language). A site's
 # params.dateFormat replaces the first.

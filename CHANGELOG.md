@@ -3,6 +3,22 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.3] - 2026-10-13
+
+### Added
+- The 404 page lists the latest five posts, so it is useful without JavaScript (the new `latestPosts` string), and, on a
+  site that publishes the search index, searches for the words of the missing address (#151). `search.js` reads the
+  address, drops the site's base path, numbers, one-letter words and common URL words (`post`, `page`, `tag`,
+  `category`, `index`, `html`, `php` and the like), and keeps at most 8 words of 40 letters. If they match, up to five
+  results replace the latest-posts list under a "Were you looking for…" heading (the new `notFoundLooking` string), the
+  words are in the search field so the visitor can edit them and press Enter to search the whole site, and a polite status
+  says the count; focus doesn't move. The last search pass (any word) uses only words of three letters or more and takes only
+  pages with one in the title, tags or description. With no words, no match, no index or no JavaScript the page shows the latest posts (and the empty
+  field, when there is an index). The address is only ever inserted as text, and nothing redirects, so the page keeps
+  its 404 status. A site that doesn't publish the index gets the latest posts and no script.
+- A site's Content Security Policy needs `form-action 'self'` for the 404 page's search field when it publishes the index
+  (the README's example has it).
+
 ## [1.5.2] - 2026-10-13
 
 ### Added
