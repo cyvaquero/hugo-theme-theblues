@@ -1,0 +1,11 @@
+{{- /*
+  The address of the site's search index (/search/index.json, search/section.searchindex.json), or an empty string when
+  the site doesn't publish one: the search section is missing or its outputs don't include the searchindex format (the
+  site turns the index on there, see that template). Returns the RelPermalink, which carries a sub-path baseURL and the
+  language. The search page and the 404 page both ask, so a site that hasn't turned the index on gets no search script
+  and no change to those pages (#159, #151).
+  Usage: {{ with partial "search-index.html" }}…{{ end }}
+*/ -}}
+{{- $url := "" -}}
+{{- with site.GetPage "/search" }}{{ with .OutputFormats.Get "searchindex" }}{{ $url = .RelPermalink }}{{ end }}{{ end -}}
+{{- return $url -}}

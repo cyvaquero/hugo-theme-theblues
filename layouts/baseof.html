@@ -23,5 +23,6 @@
   {{ if .Store.Get "hasWall" }}{{ partial "script.html" (dict "path" "js/wall.js" "defer" true) }}{{ end }}
   {{ if .Store.Get "hasComments" }}{{ partial "script.html" (dict "path" "js/comments.js" "defer" true) }}{{ end }}
   {{ if .Store.Get "hasGallery" }}{{ partial "script.html" (dict "path" "js/gallery.js" "defer" true) }}{{ end }}
+  {{ if .Store.Get "hasSearch" }}{{ partial "script.html" (dict "path" "js/search.js" "defer" true) }}{{ end }}
 </body>
 </html>

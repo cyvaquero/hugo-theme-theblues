@@ -61,19 +61,21 @@ How the images were made is in [docs/testing.md](docs/testing.md).
   (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
   stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
   same rule.
-- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is six small files:
+- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is seven small files:
   - `theme.js` (in `<head>`, not deferred, so a picked mode applies before the first paint) and `menu.js`, on every
     page;
-  - `wall.js` and `gallery.js`, only where needed;
+  - `wall.js`, `gallery.js` and `search.js`, only where needed (`search.js` on the search page, and only when the site
+    publishes the search index; see "Search");
   - `analytics.js`, only when the site sets a GA ID, and only in production builds. It has no consent step (see
     `[services.googleAnalytics] id` under "Site settings it reads");
   - `comments.js`, on posts when the site sets a Disqus shortname.
 
   A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used. `wall.js`,
-  `comments.js` and `gallery.js` hold the text they write (captions, comment messages, lightbox labels) as a Go template
+  `comments.js`, `gallery.js` and `search.js` hold the text they write (captions, comment messages, lightbox labels, result
+  counts) as a Go template
   action, which Hugo fills in from the site's language when it builds them (see "Translating the theme"); a site's own
   copy of a script is run as a template only if its first line is the template comment `{{- /* theblues:template */ -}}`,
-  which renders as nothing (any other `{{` in a script is published as written); a site's copy of one of these three
+  which renders as nothing (any other `{{` in a script is published as written); a site's copy of one of these four
   needs that line, and the build fails naming a script that calls `js-text.html` without it.
 
 ## Installation
@@ -125,9 +127,9 @@ The templates assume this layout; other structures are not supported yet.
 
 - **Archive:** a page with `layout: archive` in its front matter (for example `content/archive/index.md`) lists every post by
   year.
-- **Search:** `content/search/_index.md` uses `layouts/search/section.html`. Search is not implemented yet: the page is
-  published (and listed in the sitemap) with the text "Search is not available yet." The nav link appears only when
-  `params.search_enabled` is set.
+- **Search:** `content/search/_index.md` uses `layouts/search/section.html`. It searches the site once the site
+  publishes the search index (see "Search"); until then the page is published (and listed in the sitemap) with the text
+  "Search is not available yet." The nav link appears only when `params.search_enabled` is set.
 - **Syntax highlighting:** set `[markup.highlight] noClasses = false`. Hugo then marks code with Chroma classes, and the
   theme colors them from its `--sx-*` tokens: the modus-operandi colors in light mode and modus-vivendi in dark, on the
   theme's code background, all 4.8:1 or more. The `style` setting is then unused. With Hugo's default inline highlighting
@@ -171,6 +173,61 @@ The templates assume this layout; other structures are not supported yet.
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. The positional form takes only `src`: Hugo doesn't allow adding `title=` to it, and a second positional argument is ignored, so such a photo gets the "Photo N" alt text. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns (warning ID `theblues-gallery-no-title`). |
 | `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
 
+## Search
+
+Search runs in the visitor's browser over one JSON file that the normal build writes. There is no search service, no key,
+no step after the build and no dependency, and nothing a visitor types leaves the page.
+
+**Turning it on.** The theme defines an output format, `searchindex`, and a template for the search section. A site
+publishes the index by listing the format in that section's outputs. Hugo doesn't merge a theme's `outputs` with the
+site's, so the list names every format the section needs (an HTML page, and no feed):
+
+```yaml
+# content/search/_index.md
+---
+title: "Search"
+outputs: [html, searchindex]
+---
+```
+
+The same `outputs` can come from a `cascade` in the site config that targets `/search`. Set `params.search_enabled` to
+show the SEARCH link in the nav. The build then writes `/search/index.json` (`/<language>/search/index.json` for a
+language that has its own search section), at that address and not fingerprinted, so a site can cache or purge it by
+name. A site that doesn't list the format gets no index and no script, and its search page keeps "Search is not
+available yet."
+
+**What is indexed.** Every regular page of the language except those with `search: false` in their front matter. Drafts
+and future or expired pages are left out by Hugo's own rules. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
+`[title, url, date, section, tags, categories, series, description, photoTitles, text]`. `date` is `YYYY-MM-DD` (empty
+for an undated page), `section` is the title of the page's top-level section (empty for a page in the site root),
+`photoTitles` are the titles of its `gallery` photos, and `text` is the page's plain text with white space collapsed.
+The text is cut to `params.search.textLimit` characters (default 5000; `0` keeps all of it). The `v` number is the
+format's version: the script ignores an index whose version it doesn't know.
+
+**Size.** Every visitor who searches downloads the whole file once. A build whose index is over 1 MB (1,048,576 bytes)
+warns with the ID `theblues-search-size`, and `--panicOnWarning` stops it. Lower `textLimit`, or set `search: false` on
+pages that need no search. Serve the file compressed (gzip or Brotli), as hosts do for other JSON, and the download is
+a fraction of that.
+
+**How it matches.** The query and the pages are folded to lower case without accents (`cafe` finds "Café"). Every word of
+the query must match a word of the page, exactly or as its start (`bost` finds "Boston"). Pages are ranked by where the
+words are: title 10, tags, categories and series 6, description 4, photo titles 3, text 1, newest first on a tie. If no
+page has every word, the search allows one typo (an extra, missing, wrong or swapped letter) in words of four letters
+or more, and if that finds nothing it lists the pages that have any of the words, the most words first. Words are split
+at anything that isn't a letter or a digit, so a language written without spaces (Chinese, Japanese, Thai) is matched
+by the start of each run of characters only. There is no stemming, no phrase search and no stop words.
+
+**The page.** A labeled search field with a Search button; Enter submits it. Results appear as the visitor types, in a list
+of links (title, date and section, and a snippet with the matching words in `<mark>`), and the count is said once in a
+polite status when typing pauses ("3 results", or "No results for …"). The query is kept in the address as `?q=`, so a
+result list can be shared or come back to with Back, and a page opened with `?q=` runs it at once. The index is fetched
+the first time the field gets focus or a query is run, from the address in `data-index`, and only when that address is on
+the site's own origin. Up to 50 results are shown. Without JavaScript the page keeps "Search is not available yet." The
+results are built with `createElement` and `textContent`, never `innerHTML`.
+
+**Colors.** Matches use the tokens `--mark-bg` and `--mark-fg`, 8.2:1 in light mode and 8.1:1 in dark, and are bold as
+well, so a match isn't shown by color alone. In forced-colors mode they use the system `Mark` and `MarkText` colors.
+
 ## Extending from a site
 
 A site can add its own page types without overriding theme files:
@@ -195,7 +252,7 @@ A site can add its own page types without overriding theme files:
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
   `--line` (decorative rules), `--ctl-line` (borders of controls: chips, the mode switch, selects, tag pills and pager links), `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
-  `--scrim` (the navy scrim over photos, as RGB channels: `rgb(var(--scrim) / .8)`), `--serif`, `--sans`, `--wide` and
+  `--mark-bg` and `--mark-fg` (the search matches), `--scrim` (the navy scrim over photos, as RGB channels: `rgb(var(--scrim) / .8)`), `--serif`, `--sans`, `--wide` and
   `--measure`. Their names are kept stable; a rename or removal is called out in the CHANGELOG.
   A site's own dark-mode colors should use the theme's two dark selectors, so they follow the switch as well as the
   system: `@media (prefers-color-scheme: dark) { :root:not([data-theme=light]) … }` and `:root[data-theme=dark] …`.
@@ -245,8 +302,8 @@ translate the theme, or reword its English, for a site:
    properties is tracked in
    [#296](https://github.com/cyvaquero/hugo-theme-theblues/issues/296).
 
-The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js` and
-`gallery.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
+The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
+`gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
 than one language gets a script per language (`js/wall.de.js`). The wall's group headings take their dates from the tile
 captions the server wrote, so they are localized too. A count in a script uses the `one` and `other` forms and the
 browser's plural rules (`Intl.PluralRules`), so a language that needs more forms gets `other` for those.
@@ -295,13 +352,18 @@ the person building the site.
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
 - The theme's feed template (`layouts/rss.xml`, used for the home, section and term feeds) lists only pages in the main
   sections on the home feed (`mainSections`, see Content structure). The `search` section still gets its own empty
-  feed; a site can turn it off with `outputs: [html]` in `content/search/_index.md`.
+  feed unless its `outputs` leave RSS out: `outputs: [html]`, or `outputs: [html, searchindex]` once the site publishes the
+  search index (see Search), in `content/search/_index.md`.
 - Feed links: every page with its own feed names it in `<head>`, and the footer links the home feed (`params.social.rss`).
   A "Subscribe via RSS" link (the `subscribeFeed` string) to the page's own feed is also in the header of each term
   page (tag, category, series) after the post and photo counts, in the header of each section page other than `search`,
   and in a post's series box under "Part N of M", for that series' feed. Home, the taxonomy indexes (`/tags/` and so
   on), About, Archive, Search and 404 have no such link. A page whose RSS output is turned off gets no link. The link
   opens the feed as it is; the theme has no feed stylesheet.
+- Search is a static file, so after a deploy a visitor whose browser or CDN kept the old `/search/index.json` searches
+  the old pages until the copy expires; a host that sends `Cache-Control: no-cache` (or a short `max-age`) for that one
+  file avoids it. The index holds one language's pages, so the search page of a language finds that language's pages
+  only. See Search for how words are matched and what it leaves out.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
 - With Hugo's default inline highlighting, `.highlight` code blocks keep the style's own colors in dark mode; set
   `noClasses = false` to have them follow it (see Syntax highlighting).
@@ -320,8 +382,10 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`, from the `searchLabel` entry of `i18n/en.toml`), `dateFormat` (a Go layout for
   dates on posts, tiles and wall headings, default `Jan 2, 2006`, from the `dateFormat` entry; the archive's `Jan 2` and
   the series box's `Jan 2006` are the `dateFormatDay` and `dateFormatMonth` entries), `showtoc` (site-wide default for
-  the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), and the optional
-  `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more
+  the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), the optional
+  `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more, and the optional
+  `[params.search]` table: `textLimit` (default 5000; the most characters of a page's text in the search index, `0` for
+  all of it; a whole number, or the build fails naming the setting)
 - Defaults for the hero and 404 texts: `slogan` is the site `title` when unset; `tagline` is `params.description` when
   unset; `title_404` is the theme's "Page not found" (the `pageNotFound` entry of `i18n/en.toml`, so it is translated
   with the rest). A post's front matter `subtitle` shows only in a post's own hero, where it falls back to the post's
@@ -406,10 +470,11 @@ else can stay at `default-src 'none'`.
 
 | Directive | Value | Why |
 |---|---|---|
-| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
+| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `search.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
 | `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
 | `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
+| `connect-src` | `'self'` | The search index, which `search.js` fetches (`/search/index.json`), when the site publishes it. |
 | `base-uri`, `form-action`, `object-src` | `'none'` | The theme uses none of them. |
 | `frame-ancestors` | `'none'` | Stops other sites from showing the pages in a frame (clickjacking). It works only in a header; see the notes below. |
 
@@ -438,7 +503,7 @@ An example for a site with SmugMug photos, Google Analytics and Disqus (`guyheck
 default-src 'none'; script-src 'self' https://www.googletagmanager.com https://guyheckman-me.disqus.com https://c.disquscdn.com;
 style-src 'self' https://c.disquscdn.com; style-src-attr 'unsafe-inline';
 img-src 'self' https://photos.smugmug.com https://www.googletagmanager.com https://*.google-analytics.com https://referrer.disqus.com https://c.disquscdn.com;
-connect-src https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://links.services.disqus.com;
+connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://links.services.disqus.com;
 frame-src https://disqus.com https://www.youtube-nocookie.com; base-uri 'none'; form-action 'none'; object-src 'none';
 frame-ancestors 'none'
 ```
@@ -505,6 +570,12 @@ on photos):
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
   seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already
   running instead of adding a second Disqus script; after a blocked or failed request it starts a new one.
+
+**Search.** The field has a visible label, "Search this site", and Enter submits. The result count ("3 results", "No
+results for …") is a polite `role="status"` that is on the page from the start and is said once typing pauses, not on
+every key. Focus is never moved: not on load, not when results appear. Results are a list of links named by the page title,
+with the date, section and snippet after the link, and matches are in `<mark>` (bold as well as colored). The field and the
+button are at least 44px tall, and on touch screens (`pointer: coarse`) so are the result links; the page reflows to 320px.
 
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.

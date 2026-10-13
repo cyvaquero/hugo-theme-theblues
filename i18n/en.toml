@@ -1,5 +1,5 @@
-# The text The Blues shows, in English: templates read it with T, and assets/js/wall.js, comments.js and gallery.js get
-# theirs through layouts/_partials/js-text.html. A site translates the theme by adding its own i18n/<language>.toml with
+# The text The Blues shows, in English: templates read it with T, and assets/js/wall.js, comments.js, gallery.js and
+# search.js get theirs through layouts/_partials/js-text.html. A site translates the theme by adding its own i18n/<language>.toml with
 # the entries below (README, "Translating the theme"); an entry the site's file lacks, in any language, is shown in
 # English from this file (layouts/_partials/t.html).
 #
@@ -38,6 +38,25 @@ other = "Embedded content"
 other = "SEARCH"
 [searchUnavailable]
 other = "Search is not available yet."
+# The search page; assets/js/search.js gets the count, no-results, loading, failed and capped entries through
+# js-text.html. The count has one and other forms.
+[searchInput]
+other = "Search this site"
+[searchSubmit]
+other = "Search"
+[searchResultsHeading]
+other = "Search results"
+[searchResultCount]
+one = "{{ .Count }} result"
+other = "{{ .Count }} results"
+[searchNoResults]
+other = "No results for “{{ .query }}”."
+[searchLoading]
+other = "Loading the search index…"
+[searchFailed]
+other = "The search couldn’t be loaded. Try again later."
+[searchCapped]
+other = "Showing the first {{ .n }}. Add a word to narrow the search."
 
 # Go layouts for dates (Go reference time Mon Jan 2 2006; month and day names follow the site's language). A site's
 # params.dateFormat replaces the first.

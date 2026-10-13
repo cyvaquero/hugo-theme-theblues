@@ -1,0 +1,21 @@
+{{- /*
+  The search form, its status line and its results list, for the search page (search.html). assets/js/search.js fills
+  them in. Until it runs they are hidden and the page shows its "not available" text instead, so a page without
+  JavaScript has no form that does nothing; the script unhides the form once it is running. The script is added to the
+  page through the page's Store (baseof.html). Context: a map with
+    page    the page being built,
+    index   the address of the index (search-index.html),
+    action  where the form goes: the search page, which reads ?q=,
+    heading the results list's heading.
+*/ -}}
+{{- .page.Store.Set "hasSearch" true -}}
+<div id="search" data-index="{{ .index }}">
+  <p class="soff">{{ (or (T "searchUnavailable") (partial "t.html" "searchUnavailable")) }}</p>
+  <div class="sui" hidden>
+    {{ partial "search-form.html" .action }}
+    <div class="sres" hidden>
+      <h2 id="search-h" class="vh">{{ .heading }}</h2>
+      <ol aria-labelledby="search-h"></ol>
+    </div>
+  </div>
+</div>

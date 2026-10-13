@@ -1,11 +1,11 @@
 {{- /*
   The text a theme script shows, from the site's language (i18n/en.toml, or the site's own i18n/<language>.toml), as a map
-  for the script to read. Context: the script's name, "wall", "comments" or "gallery". Returns the map, or an empty one
+  for the script to read. Context: the script's name, "wall", "comments", "gallery" or "search". Returns the map, or an empty one
   for any other name. A script gets it through {{ partial "js-text.html" "wall" | jsonify }} in its own source, which
   asset.html runs as a template (#192) because its first line is the template comment "theblues:template" (#262); the HTML stays the
   same for every language, so the text is not in data attributes. A count has the one and other forms, with %d where the number goes (the script picks the form with
   Intl.PluralRules), and a sentence with names in it has {name} marks for the script to fill in.
-  Usage: assets/js/wall.js, comments.js and gallery.js.
+  Usage: assets/js/wall.js, comments.js, gallery.js and search.js.
 */ -}}
 {{- $out := dict -}}
 {{- if eq . "wall" -}}
@@ -40,5 +40,17 @@
     "viewer" ((or (T "photoViewer") (partial "t.html" "photoViewer"))) "previousPhoto" ((or (T "previousPhoto") (partial "t.html" "previousPhoto"))) "previous" ((or (T "previous") (partial "t.html" "previous"))) "nextPhoto" ((or (T "nextPhoto") (partial "t.html" "nextPhoto")))
     "next" ((or (T "next") (partial "t.html" "next"))) "closeViewer" ((or (T "closeViewer") (partial "t.html" "closeViewer"))) "close" ((or (T "close") (partial "t.html" "close")))
     "photoOf" ((or (T "photoOf" (dict "i" "{i}" "n" "{n}")) (partial "t.html" (slice "photoOf" (dict "i" "{i}" "n" "{n}"))))) -}}
+{{- else if eq . "search" -}}
+  {{- /* The result count as {one, other} with %d for the number, made the way the wall's counts are (#249); the other
+    sentences keep {query} and {n} for the script to fill in, as photoOf does. */ -}}
+  {{- $forms := dict -}}
+  {{- range $form, $n := dict "one" 1 "other" 2 -}}
+    {{- $text := or (T "searchResultCount" $n) (partial "t.html" (slice "searchResultCount" $n)) -}}
+    {{- $forms = merge $forms (dict $form (replaceRE (printf `\b%d\b` $n) "%d" $text 1)) -}}
+  {{- end -}}
+  {{- $out = dict "count" $forms
+    "noResults" ((or (T "searchNoResults" (dict "query" "{query}")) (partial "t.html" (slice "searchNoResults" (dict "query" "{query}")))))
+    "loading" ((or (T "searchLoading") (partial "t.html" "searchLoading"))) "failed" ((or (T "searchFailed") (partial "t.html" "searchFailed")))
+    "capped" ((or (T "searchCapped" (dict "n" "{n}")) (partial "t.html" (slice "searchCapped" (dict "n" "{n}"))))) -}}
 {{- end -}}
 {{- return $out -}}
