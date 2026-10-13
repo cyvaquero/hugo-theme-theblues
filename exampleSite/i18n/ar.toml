@@ -1,6 +1,45 @@
-# A two-entry Arabic translation for the rtl test variant (variants/rtl.toml): the entries it lacks fall back to the
-# theme's English. It exists so the build has theme text for the language and runs without the theblues-i18n warning.
+# A partial Arabic translation for the rtl test variant (variants/rtl.toml): the entries it lacks fall back to the
+# theme's English. It exists so the build has theme text for the language and runs without the theblues-i18n warning, and
+# for two cases of its own: Hugo has no abbreviated month name for Arabic, so the date layouts spell the month out (the
+# dates must show it), and the counts have all six plural forms (zero, one, two, few, many, other), which the scripts must
+# pick from by the browser's plural rules (docs/testing.md).
 [skipToContent]
 other = "انتقل إلى المحتوى"
 [menu]
 other = "القائمة"
+
+[dateFormat]
+other = "2 January 2006"
+[dateFormatDay]
+other = "2 January"
+[dateFormatMonth]
+other = "January 2006"
+
+[articleCount]
+zero = "لا مقالات"
+one = "مقالة واحدة"
+two = "مقالتان"
+few = "{{ .Count }} مقالات"
+many = "{{ .Count }} مقالة"
+other = "{{ .Count }} مقالة"
+[photoCount]
+zero = "لا صور"
+one = "صورة واحدة"
+two = "صورتان"
+few = "{{ .Count }} صور"
+many = "{{ .Count }} صورة"
+other = "{{ .Count }} صورة"
+[grouped]
+zero = "مجمعة في 0 معرض"
+one = "مجمعة في معرض واحد"
+two = "مجمعة في معرضين"
+few = "مجمعة في {{ .Count }} معارض"
+many = "مجمعة في {{ .Count }} معرضًا"
+other = "مجمعة في {{ .Count }} معرض"
+[searchResultCount]
+zero = "لا نتائج"
+one = "نتيجة واحدة"
+two = "نتيجتان"
+few = "{{ .Count }} نتائج"
+many = "{{ .Count }} نتيجة"
+other = "{{ .Count }} نتيجة"

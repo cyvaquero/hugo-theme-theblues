@@ -3,7 +3,7 @@
 `exampleSite/` is a small fixture site whose content exercises the cases the guyheckman.me content doesn't: an untitled
 post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
 `{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
-a series, a code block with line numbers, a post whose headings are all below the TOC levels, a post whose heading holds an external link, with the table of contents on (its names must not include "(opens in a new tab)"; the link's description must), a page without a title, an article with an inline
+a series, a code block with line numbers, a post whose headings are all below the TOC levels, a post whose heading holds an external link, with the table of contents on (its names must not include "(opens in a new tab)"; the link's description must), the same post's links with Markdown titles (an external one, whose `title` and description are "Hugo & friends (opens in a new tab)" with no `aria-describedby`, and an internal one, whose title is its description; the feeds' copies of the post's links carry no `aria-describedby`), a page without a title, an article with an inline
 `gallery`, the legacy `params.addtional_menus` nav, a footer menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
 hero photos on `photos.smugmug.com`, which make the build read each photo's size and write `width`/`height`, `srcset`,
 the hero's smaller sizes and its preload (they need a network the first time; Hugo then keeps them in its cache, and
@@ -23,7 +23,9 @@ the legacy `params.addtional_menus`), a second language with a partial translati
 `content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
 Google Analytics ID, which the theme loads in production builds only, and a right-to-left language (`rtl`: Arabic with
 `direction = "rtl"` next to English, #266), whose pages must start `<html lang="ar" dir="rtl">` while the English ones
-have no `dir`:
+have no `dir`. Its `exampleSite/i18n/ar.toml` also holds the cases that need a language other than English and German:
+Hugo has no abbreviated Arabic month name, so the dates (`<time>`, tile and series `aria-label`s, the archive) must show
+the month ("12 يناير 2026"), and the counts have all six plural forms (see "Plural forms" below):
 
 ```bash
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
@@ -48,7 +50,12 @@ unbuilt (#243).
 
 The settings checks fail the build on purpose, so the fixture can't hold them. To see one, build with
 `HUGO_PARAMS_WALL_TILESPERPAGE=abc` (or `HUGO_PARAMS_WALL_PHOTOSPERGALLERY=abc`, `=0` or `=-2`): the error names the setting
-(#256).
+(#256). A boolean or a fractional or huge number can't come from an environment variable (Hugo turns `2.9` into 2 before
+the theme sees it), so put it in a config file and add it to the build:
+`printf '[params.wall]\n  tilesPerPage = 2.9\n' > <scratch>/bad.toml`, then `hugo --config hugo.toml,<scratch>/bad.toml
+--themesDir ../.. -d <scratch>`. Each of `true`, `2.9`, `1e30`, `"2.9"` and `"abc"`, for `tilesPerPage` and for
+`photosPerGallery`, must fail with "params.wall.tilesPerPage must be a whole number, 1 or more (got …)"; `0` and `-2`
+fail with "must be 1 or more"; `5`, `4.0` and `"7"` build.
 
 The `embed` shortcode compares its URL's host with the site's as strings, so both must be plain ASCII (#272); like the
 settings checks, this fails the build and the fixture can't hold it. Building the fixture with
@@ -92,6 +99,23 @@ Setting `HUGO_PARAMS_SEARCH_TEXTLIMIT=abc` (or `=-1`) fails the build naming the
 and a site whose index is over 1 MB warns with `theblues-search-size` (try `HUGO_PARAMS_SEARCH_TEXTLIMIT=0` on a copy whose
 posts are long). A copy of the fixture without `searchindex` in the search section's outputs builds with no `index.json`,
 no `search.js` on the search page and the "not available" text.
+
+The English fallback is marked as English (README, "Translating the theme"): in the `multilingual` and `rtl` builds, the
+theme's English text that is the content of an element (a button, a label, a heading, a link name) is inside
+`<span lang=en>…</span>`, and none is inside an attribute, a `<title>` or an `<option>`:
+`find <out>/multilingual -name '*.html' | xargs grep -hoE '(aria-label|title|alt|content)="[^"]*lang='` finds nothing, and
+`grep -o '<span lang=en>[^<]*</span>' <out>/multilingual/index.html` lists labels such as "View options" and "Sort". An
+English build has no such span (T finds the text, so `t-en.html` isn't used). With the spans taken out, a `multilingual`
+page equals the same page built without `t-en.html`: the markup is the only difference.
+
+Plural forms: the `rtl` build's `js/wall.ar.min.<hash>.js` has `p:[0,1,2,3,…]` and `t:[…]` in each count, and the
+English and German scripts have only `one` and `other`. To see the six forms pick, copy `<out>/rtl` to a scratch folder,
+make pages from its `index.html` with the article tile (`<article class="tile article">…</article>`) repeated A times and a
+photo tile (`<figure class="tile photo">…</figure>`, from an English page) P times in `<div class=mas>`, with
+`data-articles=A data-photos=P` on `#stage`, serve the folder, and read the wall's caption (`.cap`) in headless Chrome. With
+(A, P) = (0, 1), (2, 3), (5, 11), (12, 100), (21, 22), (101, 102), (103, 6) and (1, 2) the counts must read the forms the
+Arabic rules (CLDR) give: 0 zero; 1 one; 2 two; 3 to 10 few; 11 to 99 many; 100 to 102 other; 103 few. The search page's
+result count (`searchResultCount`) takes the same path.
 
 Without JavaScript the wall controls and the theme switch must collapse instead of keeping their space: open the home
 page in a browser with JavaScript off (in Chrome's DevTools, Command menu, "Disable JavaScript"), and the wall's first

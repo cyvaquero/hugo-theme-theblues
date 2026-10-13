@@ -13,7 +13,7 @@
 {{- .page.Store.Set "hasSearch" true -}}
 <div id="search" data-index="{{ .index }}"{{ if eq .kind "404" }} data-kind="404" data-base="{{ site.Home.RelPermalink }}"{{ end }}>
   {{- if ne .kind "404" }}
-  <p class="soff">{{ (or (T "searchUnavailable") (partial "t.html" "searchUnavailable")) }}</p>
+  <p class="soff">{{ (or (T "searchUnavailable") (partial "t-en.html" "searchUnavailable")) }}</p>
   {{- end }}
   <div class="sui" hidden>
     {{- if ne .kind "404" }}

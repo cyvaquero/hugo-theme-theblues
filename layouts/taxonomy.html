@@ -6,7 +6,7 @@
 */ -}}
 {{ $isTag := eq .Data.Singular "tag" }}
 <div class="atw">
-  <p class="meta">{{ (or (T "taxonomyIntro" (dict "singular" .Data.Singular)) (partial "t.html" (slice "taxonomyIntro" (dict "singular" .Data.Singular)))) }}</p>
+  <p class="meta">{{ (or (T "taxonomyIntro" (dict "singular" .Data.Singular)) (partial "t-en.html" (slice "taxonomyIntro" (dict "singular" .Data.Singular)))) }}</p>
   {{ with .Content }}{{ . }}{{ end }}
   {{- /* Sorted by the term page's title, which is what's listed and grouped by (a term's _index.md can retitle it, #18).
     The locale collation can put an accented term among the plain ones (U, Ü, U), so the letters are collected first, in
@@ -26,7 +26,7 @@
     {{- range where $terms "letter" $letter }}
     {{- $n := .n }}
     {{- $name := .term.Page.Title }}
-    <li><a href="{{ .term.Page.RelPermalink }}" aria-label="{{ $name }}, {{ (or (T "postCount" $n) (partial "t.html" (slice "postCount" $n))) }}"><span class="nm">{{ if $isTag }}#{{ end }}{{ $name }}</span><span class="c">{{ (or (T "postCount" $n) (partial "t.html" (slice "postCount" $n))) }}</span></a></li>
+    <li><a href="{{ .term.Page.RelPermalink }}" aria-label="{{ $name }}, {{ (or (T "postCount" $n) (partial "t.html" (slice "postCount" $n))) }}"><span class="nm">{{ if $isTag }}#{{ end }}{{ $name }}</span><span class="c">{{ (or (T "postCount" $n) (partial "t-en.html" (slice "postCount" $n))) }}</span></a></li>
     {{- end }}{{ if eq (add $i 1) (len $letters) }}
   {{ end }}</ul>
   {{- end }}

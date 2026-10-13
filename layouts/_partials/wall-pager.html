@@ -15,10 +15,8 @@
 */ -}}
 {{- $wall := dict "posts" .posts -}}
 {{- if .posts }}
-{{- $size := 24 -}}
-{{- /* A value that isn't a number fails the build naming the setting, as one below 1 does (#256). */ -}}
-{{- with site.Params.wall }}{{ $v := .tilesPerPage }}{{ if ne $v nil }}{{ with try (int $v) }}{{ if .Err }}{{ errorf "params.wall.tilesPerPage must be a whole number, 1 or more (got %q)" (printf "%v" $v) }}{{ else }}{{ $size = .Value }}{{ end }}{{ end }}{{ end }}{{ end -}}
-{{- if lt $size 1 }}{{ errorf "params.wall.tilesPerPage must be 1 or more (got %d)" $size }}{{ end -}}
+{{- /* A value that isn't a whole number of 1 or more (not a number, a boolean, 2.9, 0) fails the build naming the setting (#256). */ -}}
+{{- $size := partial "setting-int.html" (dict "name" "params.wall.tilesPerPage" "value" ((site.Params.wall | default (dict)).tilesPerPage) "default" 24) -}}
 {{- $built := dict -}}
 {{- $m := partial "memo.html" (dict "page" .page "key" "theblues-wall-tiles") -}}
 {{- if $m }}{{ $built = $m.val }}{{ else -}}

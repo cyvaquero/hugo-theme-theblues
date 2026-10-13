@@ -43,6 +43,14 @@
   try { plural = new Intl.PluralRules(lang); } catch (e) {}
   try { dates = new Intl.DateTimeFormat(lang, { dateStyle: 'medium', timeZone: 'UTC' }); } catch (e) {}
 
+  // The result count's text: TX.count holds its one and other forms with %d for the number, and, for a language with more
+  // plural forms, p (sample numbers) and t (the text for each): the text of the first sample number in the same plural
+  // category as n is used, else one for a one category and other for the rest.
+  function countText(n) {
+    var f = TX.count, c = plural ? plural.select(n) : n === 1 ? 'one' : 'other', s = c === 'one' ? f.one : f.other;
+    if (plural && f.p) for (var i = 0; i < f.p.length; i++) if (plural.select(f.p[i]) === c) { s = f.t[i]; break; }
+    return s.replace('%d', n);
+  }
   function fold(s) { return s.toLowerCase().normalize('NFD').replace(/\p{M}+/gu, ''); }
   function str(x) { return typeof x === 'string' ? x : ''; }
   function strs(x) { return Array.isArray(x) ? x.filter(function (v) { return typeof v === 'string'; }) : []; }
@@ -230,7 +238,7 @@
   function summary() {
     var n = last.r.hits.length, q = input.value.trim();
     if (!n) return TX.noResults.replace('{query}', function () { return q; });
-    var text = TX.count[plural && plural.select(n) === 'one' ? 'one' : 'other'].replace('%d', n);
+    var text = countText(n);
     return n > MAX ? text + ' ' + TX.capped.replace('{n}', MAX) : text;
   }
 

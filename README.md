@@ -161,7 +161,10 @@ The templates assume this layout; other structures are not supported yet.
   no `src`. A link to a page or a page resource resolves to its permalink, as with Hugo's built-in hooks; an image source
   resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, and say so to
   screen readers as their description (`aria-describedby`, pointing at one hidden element, `id="tb-newtab"`, that every
-  page holds), so a heading with such a link keeps a plain name in the heading list and the table of contents. A titled image is a `<figure>` with a caption only when it
+  page holds), so a heading with such a link keeps a plain name in the heading list and the table of contents. A reference
+  would replace a link's Markdown title as its description, so a titled link has no reference: its `title` ends with the
+  same notice ("Title (opens in a new tab)"), which is then the one description, and also the tooltip. The feeds drop the
+  reference from the items' links, since the hidden element is on the site's pages only. A titled image is a `<figure>` with a caption only when it
   stands alone and the site sets `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title
   is the tooltip.
 
@@ -289,7 +292,10 @@ A site can add its own page types without overriding theme files:
 The text the theme writes is in `i18n/en.toml`, and templates read it with Hugo's `T`: labels, headings, the wall's
 caption and counts, the feed link, the comment and lightbox messages, the page-number text, and the three date layouts. English is the
 default: text a site's language has no entry for is shown in English. Month and day names in dates follow the site's
-language (the theme formats dates with `time.Format`), except that every English site gets US English names. To
+language (the theme formats dates with `time.Format`), except that every English site gets US English names. Hugo has no
+abbreviated month or weekday name for some locales (in Hugo 0.167.0, Arabic, Japanese and Korean: `Jan` and `Mon` come out
+empty), so for them the theme writes the full name where a layout asks for `Jan` or `Mon`; a translation can also set its
+own layouts (`exampleSite/i18n/ar.toml` does). To
 translate the theme, or reword its English, for a site:
 
 1. Copy the theme's `i18n/en.toml` to `i18n/<language>.toml` in the site, where `<language>` is the site's language code
@@ -302,7 +308,12 @@ translate the theme, or reword its English, for a site:
    the theme's English (`layouts/_partials/t.html`), so a partial translation still has every label.
    `hugo --printI18nWarnings` lists the missing entries. A language with no file at all uses the default language's
    file; when the default language is not English and has no file, the labels are all English and the build warns
-   (`theblues-i18n`).
+   (`theblues-i18n`). Where the English text becomes the content of an element (a label, a heading, a button, a link
+   name), the theme wraps it in `<span lang="en">`, so a screen reader reads it with an English voice (WCAG 3.1.2). Where
+   it would become an attribute value (`aria-label`, `title`, `alt`), the page `<title>`, an `<option>`, a feed, a date
+   layout or the "Undated" text, or text a script writes (captions, counts, the lightbox and comment messages), no
+   markup can carry the language, so a reader hears it in the page's language. Translate those entries for a complete
+   experience.
 4. Set the site's `locale` (for example `de-DE`), which also sets `<html lang>`. The three date entries are Go layouts
    (`dateFormat` for dates on posts, tiles and wall headings unless `params.dateFormat` is set, `dateFormatDay` for the
    archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
@@ -318,8 +329,10 @@ translate the theme, or reword its English, for a site:
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
 `gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
 than one language gets a script per language (`js/wall.de.js`). The wall's group headings take their dates from the tile
-captions the server wrote, so they are localized too. A count in a script uses the `one` and `other` forms and the
-browser's plural rules (`Intl.PluralRules`), so a language that needs more forms gets `other` for those.
+captions the server wrote, so they are localized too. A count in a script has every plural form the language's entry
+defines (`zero`, `one`, `two`, `few`, `many`, `other`, whichever the language's rules use): the script file holds the
+entry's text for a list of sample numbers, and the browser's plural rules (`Intl.PluralRules`) pick the sample that has
+the count's plural category, falling back to `other`. A language with just `one` and `other` gets the two texts as before.
 
 What the theme leaves as it is: text that comes from the site (menu names, `slogan`, `tagline`, `title_404`,
 `search_label`, content, and the titles of the tag, category and series index pages, which Hugo takes from the taxonomy
@@ -337,7 +350,8 @@ the person building the site.
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
   `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more; anything else, including text that isn't a
-  number, fails the build with a message naming the setting. The pager shows the first and last pages and two on
+  number, `true` or `false`, and a number with a fraction (`2.9`) or too big for a whole number (`1e30`), fails the build
+  with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
 - Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
   guyheckman.me"), but use page 1's canonical URL (`<link rel="canonical">` and `og:url`) and have no `rel=prev/next` in the
@@ -596,6 +610,11 @@ button are at least 44px tall, and on touch screens (`pointer: coarse`) so are t
 On the 404 page the matches are a list of links under a heading ("Were you looking for…"), the count is said once in the polite
 status, and focus is not moved; the prefilled field is labeled like the search page's.
 
+**Language of parts.** A site in another language that lacks a translation shows the theme's English text. Where that
+text is the content of an element, it is marked `lang="en"` (WCAG 3.1.2, Section 508 E205.4). English text in an
+attribute, the page `<title>`, a feed, an `<option>`, a date layout or a script's captions can't be marked and is read
+in the page's language: translate those entries (see "Translating the theme").
+
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.
 Photo tiles have names that start with their visible text ("Monterrey, Mexico Gallery, 9 photos, Feb 13, 2025. Photo 1
@@ -604,7 +623,8 @@ pages after the first have their own title. With Group by gallery on, each group
 h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
 box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s.
 Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, are
-described as "(opens in a new tab)" by a hidden element on the page (`id="tb-newtab"`), not named by it: the notice is
+described as "(opens in a new tab)" by a hidden element on the page (`id="tb-newtab"`), not named by it (a link with a
+Markdown title is described by the title followed by the notice instead): the notice is
 read after the link's name, and a heading that contains such a link is named by its text alone.
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the

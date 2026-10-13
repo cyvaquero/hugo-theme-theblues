@@ -1,0 +1,29 @@
+{{- /*
+  The forms of one count text, for a script that writes a count (wall.js, search.js). Context: the i18n key of the count
+  ("photoCount", "searchResultCount"). Returns a map with "one" and "other", the text for a count of 1 and of 2 with %d
+  where the number goes (T gets one plain number, 1 or 2, because a map with two count keys ("count" and "Count") makes
+  Hugo choose the plural from either of them, at random, and the string one reads as "other", #249; the number is then
+  swapped for %d, the first whole number in the text, and \b keeps 2 from matching inside 12 or 2025; an entry without
+  the number, like "ein Artikel", is left as it is). A language whose entry has more than two forms (zero, two, few,
+  many: Arabic, Polish, Russian, Welsh) also gets "p", a list of sample numbers, and "t", the text for each ("other" is then
+  the text for 100, the closest to a general case), so the script
+  can pick the form its own Intl.PluralRules gives for a count: it takes the text of the first sample number that has the
+  same plural category. T picks by the language's CLDR rules, so every form the entry defines is in "t". The samples cover
+  the categories of whole numbers in CLDR (0, 1, 2, 3 to 7, 11, 12, 21, 22, 100 to 103); a language whose forms are just
+  one and other (or one form) gets no "p" and "t", and the map is the same as it was before.
+*/ -}}
+{{- $key := . -}}
+{{- $one := "" -}}{{- $other := "" -}}{{- $hundred := "" -}}
+{{- $p := slice -}}{{- $t := slice -}}{{- $distinct := slice -}}
+{{- range $n := slice 0 1 2 3 4 5 6 7 11 12 21 22 100 101 102 103 -}}
+  {{- $text := or (T $key $n) (partial "t.html" (slice $key $n)) -}}
+  {{- $text = replaceRE (printf `\b%d\b` $n) "%d" $text 1 -}}
+  {{- if eq $n 1 }}{{ $one = $text }}{{ end -}}
+  {{- if eq $n 2 }}{{ $other = $text }}{{ end -}}
+  {{- if eq $n 100 }}{{ $hundred = $text }}{{ end -}}
+  {{- $p = $p | append $n -}}{{- $t = $t | append $text -}}
+  {{- if not (in $distinct $text) }}{{ $distinct = $distinct | append $text }}{{ end -}}
+{{- end -}}
+{{- $out := dict "one" $one "other" $other -}}
+{{- if gt (len $distinct) 2 }}{{ $out = merge $out (dict "other" $hundred "p" $p "t" $t) }}{{ end -}}
+{{- return $out -}}
