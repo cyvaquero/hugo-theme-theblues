@@ -17,6 +17,7 @@
     <div class="ptype">{{ $kind }}</div>
     <h1>{{ $label }}: {{ .Title }}</h1>
     <div class="meta">{{ (or (T "postCount" (len $posts)) (partial "t.html" (slice "postCount" (len $posts)))) }}{{ if $photos }} &middot; {{ (or (T "photoCount" $photos) (partial "t.html" (slice "photoCount" $photos))) }}{{ end }}</div>
+    {{ partial "feed-link.html" . }}
     {{ with .Description }}<p class="sub">{{ . }}</p>{{ end }}
   </div>
 </header>

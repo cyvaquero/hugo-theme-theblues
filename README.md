@@ -217,7 +217,7 @@ A site can add its own page types without overriding theme files:
 ## Translating the theme
 
 The text the theme writes is in `i18n/en.toml`, and templates read it with Hugo's `T`: labels, headings, the wall's
-caption and counts, the comment and lightbox messages, the page-number text, and the three date layouts. English is the
+caption and counts, the feed link, the comment and lightbox messages, the page-number text, and the three date layouts. English is the
 default: text a site's language has no entry for is shown in English. Month and day names in dates follow the site's
 language (the theme formats dates with `time.Format`), except that every English site gets US English names. To
 translate the theme, or reword its English, for a site:
@@ -296,6 +296,12 @@ the person building the site.
 - The theme's feed template (`layouts/rss.xml`, used for the home, section and term feeds) lists only pages in the main
   sections on the home feed (`mainSections`, see Content structure). The `search` section still gets its own empty
   feed; a site can turn it off with `outputs: [html]` in `content/search/_index.md`.
+- Feed links: every page with its own feed names it in `<head>`, and the footer links the home feed (`params.social.rss`).
+  A "Subscribe via RSS" link (the `subscribeFeed` string) to the page's own feed is also in the header of each term
+  page (tag, category, series) after the post and photo counts, in the header of each section page other than `search`,
+  and in a post's series box under "Part N of M", for that series' feed. Home, the taxonomy indexes (`/tags/` and so
+  on), About, Archive, Search and 404 have no such link. A page whose RSS output is turned off gets no link. The link
+  opens the feed as it is; the theme has no feed stylesheet.
 - `photosPerGallery` applies per post: a post with several `galleries` blocks counts as one gallery.
 - With Hugo's default inline highlighting, `.highlight` code blocks keep the style's own colors in dark mode; set
   `noClasses = false` to have them follow it (see Syntax highlighting).
@@ -517,7 +523,7 @@ contrast) pressed chips, the current page, the theme switch and the Group switch
 off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling. On touch
 screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover
 (switch and selects), the Menu button, the color theme switch, the nav links and brand, tag links (hero, tiles, lists),
-the footer links, pagination, the table of contents entries, the series box's list and previous/next links, post
+the footer links, the "Subscribe via RSS" links, pagination, the table of contents entries, the series box's list and previous/next links, post
 navigation and the category link in a post's hero. Only the height is set, so a short link stays narrow. Not enlarged:
 links inside running text (post bodies, the comments note), the series name link in the series box title, and an
 article tile's title link, which is covered by the tile, itself one link. A print stylesheet prints black on white.

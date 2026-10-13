@@ -105,6 +105,8 @@ other = "Series"
 other = "Every {{ .singular }} on the site, A to Z, with post counts."
 [feedTitle]
 other = "{{ .title }} on {{ .site }}"
+[subscribeFeed]
+other = "Subscribe via RSS"
 [feedDescription]
 other = "Recent content on {{ .site }}"
 [feedDescriptionIn]

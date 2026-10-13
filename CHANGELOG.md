@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.1] - 2026-10-13
+
+### Added
+- Term pages (tag, category and series) and section pages other than `search` have a "Subscribe via RSS" link to the
+  page's own feed: in the term header after the post and photo counts, and in the section header below the title and
+  description. A post in a series has the same link in its series box, under "Part N of M", for that series' feed. The
+  link is the RSS icon and the text (the new `subscribeFeed` string in `i18n/en.toml`), so its accessible name is its
+  visible text; it is at least 44px tall, takes the header's link colors or the series box's, has the theme's focus ring,
+  and is left out of print. Home, the taxonomy indexes, About, Archive, Search and 404 are unchanged, and a page with no
+  RSS output gets no link (#313).
+
 ## [1.5.0] - 2026-10-12
 
 ### Added
