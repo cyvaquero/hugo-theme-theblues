@@ -92,14 +92,19 @@
   function paint() {
     var vis = { a: 0, p: 0 }, vg = {}, ng = 0;
     items.forEach(function (it) {
-      var m = matches(it), e = it.el;
-      if (S.m === 'filter') { e.hidden = !m; e.classList.remove('dim', 'hl'); }
-      else { e.hidden = false; e.classList.toggle('dim', S.f !== 'all' && !m); e.classList.toggle('hl', S.f !== 'all' && m); }
-      if (!e.hidden && it.more < 0) vis[it.t]++;
-      if (!e.hidden && it.t === 'p' && !vg[it.key]) { vg[it.key] = 1; ng++; }  // a see-all tile counts its gallery (#252)
+      var m = matches(it), e = it.el, st;
+      // The tile's state: hidden (x), dimmed (d), highlighted (h) or plain. It is written only when it changed.
+      if (S.m === 'filter') st = m ? '' : 'x'; else st = S.f === 'all' ? '' : m ? 'h' : 'd';
+      if (it.st !== st) {
+        it.st = st;
+        e.hidden = st === 'x'; e.classList.toggle('dim', st === 'd'); e.classList.toggle('hl', st === 'h');
+      }
+      if (st !== 'x' && it.more < 0) vis[it.t]++;
+      if (st !== 'x' && it.t === 'p' && !vg[it.key]) { vg[it.key] = 1; ng++; }  // a see-all tile counts its gallery (#252)
     });
     stage.querySelectorAll('details.grp').forEach(function (d) {
-      d.hidden = !d.querySelector('.tile:not([hidden])');
+      var h = !d.querySelector('.tile:not([hidden])');
+      if (d.hidden !== h) d.hidden = h;
     });
     var s;
     if (S.m === 'filter') s = fill(paged ? TX.showingPage : TX.showing, plural(vis.a, TX.articleCount), plural(vis.p, TX.photoCount));
@@ -168,7 +173,12 @@
   }
 
   // Reflect state in the chips, popover widgets, badge and Clear/Reset visibility.
+  var synced = null;
   function sync() {
+    // Nothing to write when the state is the one already shown (the badge's nodes are rebuilt on every write).
+    var k = [S.f, S.m, S.s, S.g].join('|');
+    if (k === synced) return;
+    synced = k;
     qa('[data-f]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.f === S.f); });
     qa('[data-m2]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.m2 === S.m); });
     qa('[data-role=sort]').forEach(function (x) { x.value = S.s; });
@@ -251,8 +261,9 @@
     if (b && ctl.contains(b) && b.dataset.f !== 'all' && b.dataset.f !== S.f) stage.dataset.pv = b.dataset.f;
   }
   function pvOff(e) { if (e.target.closest && e.target.closest('[data-f]')) stage.dataset.pv = 'all'; }
-  document.addEventListener('pointerover', pvOn);
-  document.addEventListener('pointerout', pvOff);
+  // Bound on the controls, where the chips are, so they don't run for every pointer move over the rest of the page.
+  ctl.addEventListener('pointerover', pvOn);
+  ctl.addEventListener('pointerout', pvOff);
 
   // The first render fills the live caption; keep it out of the live region so it isn't announced on page load (#13).
   // The settings start at the defaults and are not kept between visits. When the server's order is already the default

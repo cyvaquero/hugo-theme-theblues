@@ -1,9 +1,9 @@
 {{- /* theblues:template */ -}}
 // Native <dialog> lightbox for the masonry galleries (.gal) on photo posts (decision D7).
 // Previous/next buttons, arrow, Home and End keys, swipe, counter, Esc to close, focus returns to the photo that was
-// opened. Each link points at the large image (X3); the thumbnail in the page stays X2. The counter and alt text change
-// only when the new image has loaded (or both it and the thumbnail have failed), so they always describe the photo on
-// screen (#3, #168); neighbors are preloaded.
+// opened. The dialog is built at the first click, not at load. Each link points at the large image (X3); the thumbnail
+// in the page stays X2. The counter and alt text change only when the new image has loaded (or both it and the thumbnail
+// have failed), so they always describe the photo on screen (#3, #168); neighbors are preloaded.
 // The text it shows is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
 // js-text.html), from i18n/en.toml or the site's own file.
 (function () {
@@ -11,9 +11,12 @@
   if (!galleries.length || typeof HTMLDialogElement === 'undefined') return;
 
   var TX = {{ partial "js-text.html" "gallery" | jsonify }};
-  var dlg = document.createElement('dialog');
-  dlg.className = 'lb';
-  dlg.setAttribute('aria-label', TX.viewer);
+  var dlg = null;
+  var img, count, say, prev, next;
+  var list = [], idx = 0, opener = null, seq = 0;
+  // Swipe state, see below.
+  var sx = null, sy = null, down = 0;
+
   // Built with DOM calls, not innerHTML, so it works under a Trusted Types CSP (#16).
   function el(tag, attrs, text) {
     var e = document.createElement(tag);
@@ -21,22 +24,62 @@
     if (text) e.textContent = text;
     return e;
   }
-  var inner = el('div', { 'class': 'in' }), bar = el('div', { 'class': 'bb' });
-  inner.appendChild(el('img', { alt: '' }));
-  bar.appendChild(el('button', { type: 'button', 'data-a': 'p', 'aria-label': TX.previousPhoto }, TX.previous));
-  // The visible counter ("4 / 18") is hidden from screen readers; a visually hidden live region announces the position
-  // and the photo's alt text instead ("Photo 4 of 18: La Huasteca", #38).
-  bar.appendChild(el('span', { 'class': 'count', 'aria-hidden': 'true' }));
-  bar.appendChild(el('span', { 'class': 'vh', 'aria-live': 'polite' }));
-  bar.appendChild(el('button', { type: 'button', 'data-a': 'n', 'aria-label': TX.nextPhoto }, TX.next));
-  bar.appendChild(el('button', { type: 'button', 'data-a': 'c', 'aria-label': TX.closeViewer }, TX.close));
-  inner.appendChild(bar);
-  dlg.appendChild(inner);
-  document.body.appendChild(dlg);
+  // The dialog is built when a photo is first opened, not at load: most visits to a photo post never open it.
+  function build() {
+    dlg = document.createElement('dialog');
+    dlg.className = 'lb';
+    dlg.setAttribute('aria-label', TX.viewer);
+    var inner = el('div', { 'class': 'in' }), bar = el('div', { 'class': 'bb' });
+    inner.appendChild(el('img', { alt: '' }));
+    bar.appendChild(el('button', { type: 'button', 'data-a': 'p', 'aria-label': TX.previousPhoto }, TX.previous));
+    // The visible counter ("4 / 18") is hidden from screen readers; a visually hidden live region announces the position
+    // and the photo's alt text instead ("Photo 4 of 18: La Huasteca", #38).
+    bar.appendChild(el('span', { 'class': 'count', 'aria-hidden': 'true' }));
+    bar.appendChild(el('span', { 'class': 'vh', 'aria-live': 'polite' }));
+    bar.appendChild(el('button', { type: 'button', 'data-a': 'n', 'aria-label': TX.nextPhoto }, TX.next));
+    bar.appendChild(el('button', { type: 'button', 'data-a': 'c', 'aria-label': TX.closeViewer }, TX.close));
+    inner.appendChild(bar);
+    dlg.appendChild(inner);
+    document.body.appendChild(dlg);
 
-  var img = dlg.querySelector('img'), count = dlg.querySelector('.count'), say = dlg.querySelector('[aria-live]');
-  var prev = dlg.querySelector('[data-a="p"]'), next = dlg.querySelector('[data-a="n"]');
-  var list = [], idx = 0, opener = null, seq = 0;
+    img = dlg.querySelector('img'); count = dlg.querySelector('.count'); say = dlg.querySelector('[aria-live]');
+    prev = dlg.querySelector('[data-a="p"]'); next = dlg.querySelector('[data-a="n"]');
+
+    dlg.addEventListener('close', function () { if (opener) opener.focus(); });
+    dlg.addEventListener('click', function (e) {
+      var a = e.target.dataset && e.target.dataset.a;
+      if (a === 'n') show(idx + 1);
+      else if (a === 'p') show(idx - 1);
+      else if (a === 'c' || e.target === dlg || e.target.classList.contains('in') || e.target.classList.contains('bb')) dlg.close();
+    });
+    dlg.addEventListener('keydown', function (e) {
+      if (list.length < 2) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); show(0); }
+      else if (e.key === 'End') { e.preventDefault(); show(list.length - 1); }
+    });
+    // Swipe left or right on the photo (touch or pen); a mostly horizontal move of 50px or more by one finger. A second
+    // pointer going down means a pinch, so the gesture is dropped and nothing changes until every pointer is up again.
+    img.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'mouse') return;
+      down++;
+      if (down === 1) { sx = e.clientX; sy = e.clientY; } else sx = sy = null;
+    });
+    img.addEventListener('pointerup', function (e) {
+      if (e.pointerType === 'mouse') return;
+      var x = sx, y = sy;
+      down = Math.max(0, down - 1); sx = sy = null;
+      if (x === null) return;
+      var dx = e.clientX - x, dy = e.clientY - y;
+      if (list.length > 1 && Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) show(idx + (dx < 0 ? 1 : -1));
+    });
+    // The browser fires pointercancel when it takes a gesture over (a pinch or a pan), and that
+    // ends the pointer without a pointerup.
+    img.addEventListener('pointercancel', function (e) {
+      if (e.pointerType !== 'mouse') { down = Math.max(0, down - 1); sx = sy = null; }
+    });
+  }
 
   function preload(n) { if (list.length > 1) new Image().src = list[(n + list.length) % list.length].href; }
 
@@ -68,6 +111,7 @@
       if (!a || !g.contains(a)) return;
       if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // keep open-in-new-tab working
       e.preventDefault();
+      if (!dlg) build();
       list = Array.from(g.querySelectorAll('a'));
       opener = a;
       prev.hidden = next.hidden = list.length < 2;
@@ -76,41 +120,5 @@
       dlg.showModal();
       dlg.querySelector('[data-a="c"]').focus();
     });
-  });
-
-  dlg.addEventListener('close', function () { if (opener) opener.focus(); });
-  dlg.addEventListener('click', function (e) {
-    var a = e.target.dataset && e.target.dataset.a;
-    if (a === 'n') show(idx + 1);
-    else if (a === 'p') show(idx - 1);
-    else if (a === 'c' || e.target === dlg || e.target.classList.contains('in') || e.target.classList.contains('bb')) dlg.close();
-  });
-  dlg.addEventListener('keydown', function (e) {
-    if (list.length < 2) return;
-    if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
-    else if (e.key === 'Home') { e.preventDefault(); show(0); }
-    else if (e.key === 'End') { e.preventDefault(); show(list.length - 1); }
-  });
-  // Swipe left or right on the photo (touch or pen); a mostly horizontal move of 50px or more by one finger. A second
-  // pointer going down means a pinch, so the gesture is dropped and nothing changes until every pointer is up again.
-  var sx = null, sy = null, down = 0;
-  img.addEventListener('pointerdown', function (e) {
-    if (e.pointerType === 'mouse') return;
-    down++;
-    if (down === 1) { sx = e.clientX; sy = e.clientY; } else sx = sy = null;
-  });
-  img.addEventListener('pointerup', function (e) {
-    if (e.pointerType === 'mouse') return;
-    var x = sx, y = sy;
-    down = Math.max(0, down - 1); sx = sy = null;
-    if (x === null) return;
-    var dx = e.clientX - x, dy = e.clientY - y;
-    if (list.length > 1 && Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) show(idx + (dx < 0 ? 1 : -1));
-  });
-  // The browser fires pointercancel when it takes a gesture over (a pinch or a pan), and that
-  // ends the pointer without a pointerup.
-  img.addEventListener('pointercancel', function (e) {
-    if (e.pointerType !== 'mouse') { down = Math.max(0, down - 1); sx = sy = null; }
   });
 })();

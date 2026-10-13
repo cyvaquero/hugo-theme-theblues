@@ -1,7 +1,8 @@
 {{- /*
   A stylesheet <link> for a theme stylesheet in assets/, with its Subresource Integrity hash in production builds (see
   asset.html). Context: the path, for example "css/main.css". A missing file fails the build (#83). One place for the
-  markup of every theme stylesheet (#88).
+  markup of every theme stylesheet (#88). The theme's own pages call it with partialCached, keyed by the path
+  (`partialCached "stylesheet.html" "css/main.css" "css/main.css"`), so the tag is built once per build.
 */ -}}
 {{- with partialCached "asset.html" . . -}}
 <link rel="stylesheet" href="{{ .RelPermalink }}"{{ with .Data.Integrity }} integrity="{{ . }}"{{ end }}>

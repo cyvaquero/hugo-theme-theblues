@@ -2,7 +2,9 @@
   A <script> tag for a theme script in assets/, with its Subresource Integrity hash in production builds (see asset.html).
   Context: a map with "path" (for example "js/menu.js"), and optionally "defer" (true) and "data" (a map of data-*
   attributes, for example dict "id" "G-XXXX" for data-id). A missing file fails the build (#83). One place for the
-  markup of every theme script (#88).
+  markup of every theme script (#88). The theme's own pages call it with partialCached, keyed by the path, defer and any
+  data value (for example `partialCached "script.html" (dict "path" "js/menu.js" "defer" true) "js/menu.js" true`), so a
+  site that passes different data for the same path still gets its own tag, and the tag is built once per build.
 */ -}}
 {{- $path := .path -}}
 {{- with partialCached "asset.html" $path $path -}}

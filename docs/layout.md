@@ -41,6 +41,24 @@ static/                    favicon.svg, favicon.ico, apple-touch-icon.png
 exampleSite/               fixture site for testing the theme (see testing.md); not used by sites
 ```
 
+## Build cost
+
+Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--minify --templateMetrics
+--templateMetricsHints`). What the theme caches, so a page costs a lookup instead of the work:
+
+- **Asset tags.** `head.html` and `baseof.html` call `script.html` and `stylesheet.html` with `partialCached`, keyed by the
+  path, defer and any data value, so each tag is built once per build. A site that passes different data for the same
+  path gets its own tag. `analytics-on.html` is cached too, since it ignores its context; a site's own copy must not
+  depend on the page. `footer.html` and `nav.html` stay uncached, so a site's override can read the page.
+- **Hero sizes.** `hero-style.html` hands `hero-sizes.html` its own context, so a cache hit builds no key dictionary.
+- **Post navigation.** `post-nav.html` keeps, with `memo.html`, the sorted posts and a map from each post's address to its
+  place in the list, and finds the neighbors by place. Hugo's `Pages.Next` and `Pages.Prev` scan the list for every post.
+  The saving is not measurable below several thousand posts.
+- **Scripts.** `wall.js` binds the chip-hover preview to the controls (`#ctl`), not to the document, and writes a tile's
+  state, the group sections and the controls only when they changed. `gallery.js` builds its `<dialog>` at the first
+  click. `theme.js` sets the page's colors once at load (before the first paint) and marks the switch's buttons once the
+  page is parsed.
+
 ## How search works
 
 - **Index.** `hugo.toml` defines the output format `searchindex` (JSON, base name `index`, so `/search/index.json`).
