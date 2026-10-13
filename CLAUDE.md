@@ -67,8 +67,8 @@ hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>
   Tags are the bare version (`1.4.0`).
 - The theme's strings use the English-fallback idiom `(or (T "key") (partial "t.html" "key"))`, with the same keys
   in both calls and every key in `i18n/en.toml`. The fixture build checks the pairs.
-- Scripts in `assets/js` are published as written, except those run as Hugo templates: `wall.js`, `comments.js` and
-  `gallery.js`. A script is a template only if its first line is `{{- /* theblues:template */ -}}`.
+- Scripts in `assets/js` are published as written, except those run as Hugo templates: `wall.js`, `comments.js`,
+  `gallery.js` and `search.js`. A script is a template only if its first line is `{{- /* theblues:template */ -}}`.
 - Theme assets go through `layouts/_partials/asset.html` (minify and fingerprint in production).
 - Docs stay out of the published output: `docs/` and the README are not mounted. Never put docs in `static/`,
   `layouts/` or `assets/`.

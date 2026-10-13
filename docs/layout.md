@@ -14,6 +14,7 @@ assets/js/wall.js          wall controls: type chips, filter or highlight, sort,
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
+assets/js/search.js        client-side search: fetches /search/index.json on first use, matches in the browser, builds the results with textContent; only on the search page, and only when the index is published
 data/theblues.toml         the theme version shown in the footer
 i18n/en.toml               the text the theme writes, in English; a site translates it with its own i18n/<language>.toml (see the README, "Translating the theme")
 archetypes/post.md         front matter for `hugo new content post/<name>.md`: title from the file name without a leading YYYYMMDD-, commented showtoc and series lines
@@ -25,19 +26,39 @@ layouts/taxonomy.html      /tags/, /categories/, /series/ (A-Z list with counts)
 layouts/page.html          generic pages (About)
 layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
-layouts/search/section.html  search page (placeholder until the engine is chosen)
+layouts/search/section.html  search page: the search slot (partials/search.html)
+layouts/search/section.searchindex.json  the search index, /search/index.json (the searchindex output format, defined in hugo.toml)
 layouts/404.html
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
-                           comments, social, rss-icon, feed-link, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
+                           comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, t, https-check
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
 exampleSite/               fixture site for testing the theme (see testing.md); not used by sites
 ```
+
+## How search works
+
+- **Index.** `hugo.toml` defines the output format `searchindex` (JSON, base name `index`, so `/search/index.json`).
+  `layouts/search/section.searchindex.json` writes `{"v":1,"p":[row, …]}`, one list per regular page of the language
+  (README, "Search", has the row format). Hugo does not merge a theme's `outputs`, so a site turns the index on by
+  listing the format in the search section's outputs. Each row is made into JSON on its own and the rows are joined,
+  because Hugo's `append` would flatten a slice of slices. A page is left out with `search: false`; its text is cut to
+  `params.search.textLimit`. The template warns (`theblues-search-size`) over 1 MB.
+- **Slot.** `search.html` (the slot `search/section.html` includes) asks `search-index.html` for the index address,
+  which is empty unless the search section lists the format. With an address it writes `search-box.html`: the form
+  (`search-form.html`), a status line and an empty, hidden results list, and sets `hasSearch` in the page's Store,
+  which makes `baseof.html` load `search.js`. Without an address the page keeps its "not available" paragraph and loads
+  no script. `search.js` hides that paragraph and shows the form once it runs.
+- **Script.** `search.js` is a Hugo template (first-line marker) for its text (`js-text.html`, "search"). It fetches the
+  address in `data-index` on first focus or at once for `?q=`, refuses another origin and any `v` other than 1, then
+  builds in memory a map from each folded word to the pages it is in, with the best field weight. A query tries three
+  passes (every word, as a start or exactly; the same with one typo; any word) and stops at the first that finds pages.
+  Results and highlights are built with `createElement`, `createTextNode` and `textContent`.
 
 ## How the wall works
 

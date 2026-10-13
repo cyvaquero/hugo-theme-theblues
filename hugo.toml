@@ -29,3 +29,11 @@
   [[module.mounts]]
     source = "i18n/en.toml"
     target = "data/theblues_i18n_en.toml"
+
+# The search index (#159): one JSON file at /search/index.json, made by layouts/search/section.searchindex.json. A site
+# turns it on by adding the format to the search section's outputs (README, "Search"); sites that don't get no file.
+[outputFormats.searchindex]
+  mediaType = "application/json"
+  baseName = "index"
+  isPlainText = true
+  notAlternative = true

@@ -3,6 +3,31 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.2] - 2026-10-13
+
+### Added
+- Search, in the browser (#159). The theme has an output format, `searchindex`, and a template that write the whole
+  site's search index as one JSON file, `/search/index.json`, in the normal build: no service, key, extra build step or
+  dependency. A site turns it on by listing the format in the search section's outputs (`outputs: [html, searchindex]`
+  in `content/search/_index.md`, since Hugo doesn't merge a theme's `outputs`). Every regular page is indexed except
+  those with `search: false` in their front matter; its title, address, date, section, tags, categories, series,
+  description, gallery photo titles and plain text go in. The text is cut to the new `params.search.textLimit`
+  (default 5000 characters; `0` keeps it all), and a build whose index is over 1 MB warns with the ID
+  `theblues-search-size`. A new `assets/js/search.js` fills the search page: a labeled field, Enter or the Search button,
+  results as you type with the matching words in `<mark>`, a polite "3 results" status said once typing pauses, and the
+  query kept in the address as `?q=`. It folds case and accents, matches the start of words, allows one typo when no
+  page has every word, then falls back to pages that have any of the words, and ranks title, then tags, categories and
+  series, description, photo titles and text. The new color tokens `--mark-bg` and `--mark-fg` (8:1 in light and dark;
+  system colors in forced-colors mode) style the matches; the new strings are in `i18n/en.toml`. The script sends nothing
+  anywhere (its only request is for the index) and builds the results with `textContent`, never `innerHTML`; the query is
+  in the address as `?q=`, so analytics that record addresses record it, which the README says.
+- A site's Content Security Policy needs `connect-src 'self'` for the index (the README's example has it).
+
+### Changed
+- A site that doesn't list `searchindex` in its search section's outputs is unchanged: its search page still says
+  "Search is not available yet.", loads no search script and gets no index. The fixture now publishes the index, with a
+  page that has accented words and one with `search: false`.
+
 ## [1.5.1] - 2026-10-13
 
 ### Added

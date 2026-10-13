@@ -56,6 +56,27 @@ settings checks, this fails the build and the fixture can't hold it. Building th
 trigger), and `-b https://xn--exmple-cua.org/` must build as usual. With that punycode base URL, a copy of the fixture
 whose embed URL is `https://exämple.org/x` must fail with "the URL's host must be plain ASCII".
 
+The search fixture (README, "Search"): `exampleSite/content/search/_index.md` lists `searchindex` in its outputs, so the
+build publishes `/search/index.json`, and the search page loads `search.js`. The root pages `accents.md` (accented words in
+its title, description, tags and text) and `unlisted.md` (`search: false`, one rare word) are part of it. Check the build, in
+`<out>/search/`: `index.json` exists, has `"v":1` and no row for the unlisted page, and `index.xml` doesn't exist. Then serve
+`<out>` (`python3 -m http.server`) and, in a browser (headless Chrome over the DevTools protocol works), on `/search/`:
+
+- `gallery` lists the gallery posts, with the matches in `<mark>`; `code` finds the post tagged `code`; `cafe creme`,
+  `Café Crème`, `naive resume`, `MUNSTER` and `brulee` all find the accents page (case and accents folded);
+- `smug` finds the SmugMug posts (start of a word); `galery` finds the gallery posts (one typo);
+- `zzzqx` and `zebrafish` (the unlisted page's word) find nothing and the status says "No results for …";
+- `/search/?q=Café` runs on load, leaves focus on the page and keeps other parameters and the hash in the address;
+- with JavaScript off, the page says "Search is not available yet." and shows no form;
+- the status is a `role="status"` that is said once after typing pauses; Enter runs the search; Tab reaches the field, the
+  button, then the first result; a long query reflows at 320px with no horizontal scroll; `mark` is 8:1 in light and dark
+  (system and picked), and uses `Mark`/`MarkText` with `forced-colors: active`.
+
+Setting `HUGO_PARAMS_SEARCH_TEXTLIMIT=abc` (or `=-1`) fails the build naming the setting, `=0` keeps each page's whole text,
+and a site whose index is over 1 MB warns with `theblues-search-size` (try `HUGO_PARAMS_SEARCH_TEXTLIMIT=0` on a copy whose
+posts are long). A copy of the fixture without `searchindex` in the search section's outputs builds with no `index.json`,
+no `search.js` on the search page and the "not available" text.
+
 Without JavaScript the wall controls and the theme switch must collapse instead of keeping their space: open the home
 page in a browser with JavaScript off (in Chrome's DevTools, Command menu, "Disable JavaScript"), and the wall's first
 row should sit directly under the hero, with no gap where the controls would be (#274).
