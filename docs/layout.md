@@ -14,7 +14,7 @@ assets/js/wall.js          wall controls: type chips, filter or highlight, sort,
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
-assets/js/search.js        client-side search: fetches /search/index.json on first use, matches in the browser, builds the results with textContent; only on the search page, and only when the index is published
+assets/js/search.js        client-side search: fetches /search/index.json on first use, matches in the browser, builds the results with textContent; only on the search page and the 404 page, and only when the index is published
 data/theblues.toml         the theme version shown in the footer
 i18n/en.toml               the text the theme writes, in English; a site translates it with its own i18n/<language>.toml (see the README, "Translating the theme")
 archetypes/post.md         front matter for `hugo new content post/<name>.md`: title from the file name without a leading YYYYMMDD-, commented showtoc and series lines
@@ -28,7 +28,7 @@ layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
 layouts/search/section.html  search page: the search slot (partials/search.html)
 layouts/search/section.searchindex.json  the search index, /search/index.json (the searchindex output format, defined in hugo.toml)
-layouts/404.html
+layouts/404.html           hero, the latest five posts and, with the search index, the search of the missing address
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
@@ -54,6 +54,12 @@ exampleSite/               fixture site for testing the theme (see testing.md); 
   (`search-form.html`), a status line and an empty, hidden results list, and sets `hasSearch` in the page's Store,
   which makes `baseof.html` load `search.js`. Without an address the page keeps its "not available" paragraph and loads
   no script. `search.js` hides that paragraph and shows the form once it runs.
+- **404.** `404.html` lists the latest five posts in `<section id="latest">` and, when `search-index.html` has an address,
+  writes `search-box.html` with `kind` "404" (`data-kind="404"`, `data-base`, the heading, and a form that goes to the search
+  page). `search.js` then does not wire the form: it takes the words of `location.pathname` (`pathWords`), searches them
+  (pass 3 only for words of 3 letters or more and pages scoring 3.2 or more, so a stray word doesn't list pages that merely
+  mention it), and with a match
+  fills the list, puts the words in the field, hides `#latest` and says the count; otherwise it only shows the form.
 - **Script.** `search.js` is a Hugo template (first-line marker) for its text (`js-text.html`, "search"). It fetches the
   address in `data-index` on first focus or at once for `?q=`, refuses another origin and any `v` other than 1, then
   builds in memory a map from each folded word to the pages it is in, with the best field weight. A query tries three

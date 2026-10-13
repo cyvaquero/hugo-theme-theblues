@@ -64,8 +64,8 @@ How the images were made is in [docs/testing.md](docs/testing.md).
 - No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is seven small files:
   - `theme.js` (in `<head>`, not deferred, so a picked mode applies before the first paint) and `menu.js`, on every
     page;
-  - `wall.js`, `gallery.js` and `search.js`, only where needed (`search.js` on the search page, and only when the site
-    publishes the search index; see "Search");
+  - `wall.js`, `gallery.js` and `search.js`, only where needed (`search.js` on the search page and the 404 page, and only when
+    the site publishes the search index; see "Search");
   - `analytics.js`, only when the site sets a GA ID, and only in production builds. It has no consent step (see
     `[services.googleAnalytics] id` under "Site settings it reads");
   - `comments.js`, on posts when the site sets a Disqus shortname.
@@ -227,6 +227,17 @@ the first time the field gets focus or a query is run, from the address in `data
 the site's own origin. Up to 50 results are shown. Without JavaScript the page keeps "Search is not available yet." The
 results are built with `createElement` and `textContent`, never `innerHTML`.
 
+**The 404 page.** It lists the latest five posts in its HTML, so it is useful without JavaScript. When the site publishes
+the index, `search.js` also searches the words of the missing address and, if anything matches, shows up to five results
+under "Were you looking for…" in place of that list, with the words in the search field (so the visitor can edit them and
+press Enter, which goes to the search page with `?q=`) and the count in the polite status. It reads
+`location.pathname`, drops the site's base path, numbers, one-letter words and common URL words (`post`, `page`, `tag`,
+`category`, `index`, `html`, `php` and the like), keeps at most 8 words of 40 letters, and matches them as above, except that
+the last pass, any word, uses only words of three letters or more and keeps only pages with one in the title, the tags or the
+description. With no words left, no match
+or no index, the page shows the empty search field (when the index is there) and the latest posts. The page keeps its 404
+status: nothing redirects. A site that doesn't publish the index gets the latest posts and no script.
+
 **Colors.** Matches use the tokens `--mark-bg` and `--mark-fg`, 8.2:1 in light mode and 8.1:1 in dark, and are bold as
 well, so a match isn't shown by color alone. In forced-colors mode they use the system `Mark` and `MarkText` colors.
 
@@ -349,6 +360,8 @@ the person building the site.
   `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no page-level referrer policy (the `embed`
   shortcode's frames set their own, `strict-origin-when-cross-origin`); browsers default to that same policy, which a
   site can also send as a header.
+- The 404 page lists the latest five posts (the main sections). Its search of the missing address runs in the browser, so
+  the server's response is the usual 404 with that list; the matches replace it only for visitors with JavaScript.
 - The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
   sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
@@ -477,7 +490,8 @@ else can stay at `default-src 'none'`.
 | `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
 | `connect-src` | `'self'` | The search index, which `search.js` fetches (`/search/index.json`), when the site publishes it. |
-| `base-uri`, `form-action`, `object-src` | `'none'` | The theme uses none of them. |
+| `form-action` | `'self'` | The 404 page's search form, which goes to the search page, when the site publishes the search index. The search page itself runs its form in the browser, so `'none'` is enough for a site without the index. |
+| `base-uri`, `object-src` | `'none'` | The theme uses neither. |
 | `frame-ancestors` | `'none'` | Stops other sites from showing the pages in a frame (clickjacking). It works only in a header; see the notes below. |
 
 **Optional services**, needed only when the site uses them:
@@ -506,7 +520,7 @@ default-src 'none'; script-src 'self' https://www.googletagmanager.com https://g
 style-src 'self' https://c.disquscdn.com; style-src-attr 'unsafe-inline';
 img-src 'self' https://photos.smugmug.com https://www.googletagmanager.com https://*.google-analytics.com https://referrer.disqus.com https://c.disquscdn.com;
 connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://links.services.disqus.com;
-frame-src https://disqus.com https://www.youtube-nocookie.com; base-uri 'none'; form-action 'none'; object-src 'none';
+frame-src https://disqus.com https://www.youtube-nocookie.com; base-uri 'none'; form-action 'self'; object-src 'none';
 frame-ancestors 'none'
 ```
 
@@ -578,6 +592,9 @@ results for …") is a polite `role="status"` that is on the page from the start
 every key. Focus is never moved: not on load, not when results appear. Results are a list of links named by the page title,
 with the date, section and snippet after the link, and matches are in `<mark>` (bold as well as colored). The field and the
 button are at least 44px tall, and on touch screens (`pointer: coarse`) so are the result links; the page reflows to 320px.
+
+On the 404 page the matches are a list of links under a heading ("Were you looking for…"), the count is said once in the polite
+status, and focus is not moved; the prefilled field is labeled like the search page's.
 
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.

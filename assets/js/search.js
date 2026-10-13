@@ -14,6 +14,12 @@
 //   2. the same, allowing one typo (an extra, missing, wrong or swapped letter) in query words of 4 letters or more;
 //   3. any word of the query (matched as in pass 2), the pages with the most words first.
 // Results are built with createElement and textContent only: nothing from the index is ever parsed as HTML.
+// On the 404 page (data-kind="404", #151) the script searches the words of the missing address instead: it drops the
+// site's base path, numbers, one-letter words and common URL words (STOP), searches the rest, and, if anything matches,
+// shows up to five results in place of the latest-posts list, with the words in the field and the count in the status.
+// Pass 3 there keeps only words of 3 letters or more and pages that have one in the title, tags or description, so a
+// stray word of the address doesn't list pages that merely mention it. The form goes to the search page (nothing is run on the 404 page itself),
+// the page keeps its 404 status, and with no match, no index or no JavaScript the page is as the server wrote it.
 // The text it writes is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
 // js-text.html), from i18n/en.toml or the site's own file.
 (function () {
@@ -22,10 +28,13 @@
   var form = ui && ui.querySelector('form');
   if (!form || !root.getAttribute('data-index')) return;
   var input = form.elements.q, status = ui.querySelector('.sst'), box = ui.querySelector('.sres');
-  var list = box.querySelector('ol'), off = root.querySelector('.soff');
+  var list = box.querySelector('ol'), off = root.querySelector('.soff'), latest = document.getElementById('latest');
+  var is404 = root.getAttribute('data-kind') === '404';
   var TX = {{ partial "js-text.html" "search" | jsonify }};
   var WEIGHT = { title: 10, terms: 6, desc: 4, photos: 3, text: 1 };
   var MAX = 50;          // results shown; the status says when there are more
+  var MAX_404 = 5, MIN_SCORE_404 = 3.2;  // 3.2 is a start-of-word match in the description (4 x 0.8)
+  var STOP = ['post', 'posts', 'page', 'pages', 'tag', 'tags', 'category', 'categories', 'index', 'html', 'htm', 'php', 'asp', 'aspx', 'jsp', 'cgi'];
   var TOKEN = /[\p{L}\p{N}]+/gu;
   var index, pending, seq = 0, timer, stimer, statusDue = false, last = null;
   var lang = document.documentElement.lang || undefined;
@@ -137,10 +146,14 @@
     return out;
   }
 
-  function search(words) {
+  // min: set by the 404 page, whose words come from an address and are often noise. Its pass 3 then looks only at words of
+  // 3 letters or more (a start of 2 letters, like "on", matches half the site) and accepts only the pages scoring min or
+  // more; the search page's pass 3 takes any page that has any word.
+  function search(words, min) {
     for (var mode = 1; mode <= 3; mode++) {
-      var hits = pass(words, mode);
-      if (hits.length) return { hits: hits, words: words, mode: mode };
+      var w = mode === 3 && min ? words.filter(function (x) { return x.length >= 3; }) : words, hits = w.length ? pass(w, mode) : [];
+      if (mode === 3 && min) hits = hits.filter(function (h) { return h.s >= min; });
+      if (hits.length) return { hits: hits, words: w, mode: mode };
     }
     return { hits: [], words: words, mode: 3 };
   }
@@ -195,9 +208,9 @@
     return [date, d.section].filter(Boolean).join(' · ');
   }
 
-  function render(r) {
+  function render(r, limit) {
     list.textContent = '';
-    r.hits.slice(0, MAX).forEach(function (h) {
+    r.hits.slice(0, limit || MAX).forEach(function (h) {
       var d = index.docs[h.d], li = document.createElement('li'), a = document.createElement('a'), p;
       a.href = d.url;
       mark(a, d.title || d.url, r);
@@ -244,6 +257,37 @@
     }
     if (index) go();
     else load().then(go, function () { if (mine === seq) { clear(); last = null; say(TX.failed); } });
+  }
+
+  // The words of the missing address, folded, 8 at most and 40 letters each (the 404 page).
+  function pathWords() {
+    var p = location.pathname, base = root.getAttribute('data-base') || '/', seen = {}, out = [];
+    try { p = decodeURIComponent(p); } catch (e) {}
+    if (base !== '/' && p.indexOf(base) === 0) p = p.slice(base.length);
+    (fold(p).match(TOKEN) || []).forEach(function (w) {
+      w = w.slice(0, 40);
+      if (w.length < 2 || /^\p{N}+$/u.test(w) || STOP.indexOf(w) >= 0 || seen[w] || out.length >= 8) return;
+      seen[w] = true;
+      out.push(w);
+    });
+    return out;
+  }
+
+  if (is404) {
+    var words = pathWords();
+    if (!words.length) { ui.hidden = false; return; }
+    load().then(function () {
+      var r = search(words, MIN_SCORE_404);
+      ui.hidden = false;
+      if (!r.hits.length) return;  // nothing matches: the latest posts stay
+      r.hits = r.hits.slice(0, MAX_404);
+      input.value = words.join(' ');
+      render(r, MAX_404);
+      if (latest) latest.hidden = true;
+      last = { r: r };
+      say(summary());
+    }, function () {});  // no index: the page stays as the server wrote it
+    return;
   }
 
   input.addEventListener('input', function () {
