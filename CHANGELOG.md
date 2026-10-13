@@ -18,8 +18,9 @@ All notable changes to this theme are documented here. The format follows
   query kept in the address as `?q=`. It folds case and accents, matches the start of words, allows one typo when no
   page has every word, then falls back to pages that have any of the words, and ranks title, then tags, categories and
   series, description, photo titles and text. The new color tokens `--mark-bg` and `--mark-fg` (8:1 in light and dark;
-  system colors in forced-colors mode) style the matches; the new strings are in `i18n/en.toml`. Nothing typed leaves the
-  page, and the results are built with `textContent`, never `innerHTML`.
+  system colors in forced-colors mode) style the matches; the new strings are in `i18n/en.toml`. The script sends nothing
+  anywhere (its only request is for the index) and builds the results with `textContent`, never `innerHTML`; the query is
+  in the address as `?q=`, so analytics that record addresses record it, which the README says.
 - A site's Content Security Policy needs `connect-src 'self'` for the index (the README's example has it).
 
 ### Changed

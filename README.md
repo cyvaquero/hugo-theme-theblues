@@ -176,7 +176,9 @@ The templates assume this layout; other structures are not supported yet.
 ## Search
 
 Search runs in the visitor's browser over one JSON file that the normal build writes. There is no search service, no key,
-no step after the build and no dependency, and nothing a visitor types leaves the page.
+no step after the build and no dependency. The script's only request is for the index file, and it sends nothing
+anywhere; but the query is kept in the address (`?q=`), so anything that records page addresses records it too, the theme's
+optional Google Analytics loader among them (GA4's site search measurement reads `q` as the search term by default).
 
 **Turning it on.** The theme defines an output format, `searchindex`, and a template for the search section. A site
 publishes the index by listing the format in that section's outputs. Hugo doesn't merge a theme's `outputs` with the
