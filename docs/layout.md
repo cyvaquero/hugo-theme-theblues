@@ -34,7 +34,7 @@ layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, 
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
-                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, t, https-check
+                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, js-forms, t, t-en, setting-int, https-check
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
@@ -83,6 +83,25 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   builds in memory a map from each folded word to the pages it is in, with the best field weight. A query tries three
   passes (every word, as a start or exactly; the same with one typo; any word) and stops at the first that finds pages.
   Results and highlights are built with `createElement`, `createTextNode` and `textContent`.
+
+## How the theme's text and settings are read
+
+- **Text.** Every piece of theme text is `(or (T "key") (partial "t.html" "key"))`: the site's language, then the default
+  language, then the theme's English (`t.html`, from `i18n/en.toml` mounted as data). Where the text becomes the content
+  of an element, the fallback half is `partial "t-en.html"`, which returns t.html's text escaped inside
+  `<span lang="en">`, so a screen reader reads it in English on a page in another language. Attribute values, the page
+  `<title>`, `<option>` content, feeds, date layouts and the "Undated" text keep `t.html`, since no markup can carry a
+  language there. `i18n-check.html` calls `t-en.html` once so an English-only fixture build sees it used. The fixture's
+  pair check (`exampleSite/layouts/_partials/i18n-pairs.html`) counts both partials.
+- **Script text.** `js-text.html` gives a script its text; `js-forms.html` makes a count's forms. T gets the plain numbers
+  0 to 7, 11, 12, 21, 22 and 100 to 103; when they give more than two distinct texts the script gets those texts with the
+  numbers (`p`, `t`) and picks the one whose plural category (`Intl.PluralRules`) matches the count; otherwise it gets
+  `one` and `other`, as before.
+- **Whole-number settings.** `setting-int.html` reads `params.wall.tilesPerPage` and `params.wall.photosPerGallery` for
+  `wall-pager.html` and `wall-tiles.html`, and fails the build naming the setting for anything but a whole number of 1 or
+  more.
+- **Dates.** `date.html` writes the full month (or weekday) name for a layout's `Jan` (`Mon`) when the locale has no
+  abbreviated one.
 
 ## How the wall works
 

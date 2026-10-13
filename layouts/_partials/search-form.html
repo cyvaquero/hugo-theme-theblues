@@ -4,7 +4,7 @@
   region that is on the page from the start, empty, because a region added together with its text is often not announced.
 */ -}}
 <form role="search" action="{{ . }}" method="get">
-  <label for="search-q">{{ (or (T "searchInput") (partial "t.html" "searchInput")) }}</label>
-  <div class="srow"><input type="search" id="search-q" name="q" autocomplete="off" enterkeyhint="search"><button type="submit">{{ (or (T "searchSubmit") (partial "t.html" "searchSubmit")) }}</button></div>
+  <label for="search-q">{{ (or (T "searchInput") (partial "t-en.html" "searchInput")) }}</label>
+  <div class="srow"><input type="search" id="search-q" name="q" autocomplete="off" enterkeyhint="search"><button type="submit">{{ (or (T "searchSubmit") (partial "t-en.html" "searchSubmit")) }}</button></div>
 </form>
 <p class="sst" role="status"></p>

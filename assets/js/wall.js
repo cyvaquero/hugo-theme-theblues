@@ -18,9 +18,15 @@
   if (!stage || !ctl) return;
 
   var TX = {{ partial "js-text.html" "wall" | jsonify }};
-  // A count's text: TX holds its one and other forms with %d for the number, and the language's plural rule picks one.
+  // A count's text: TX holds its one and other forms with %d for the number. A language with more plural forms also has
+  // p, sample numbers, and t, the text for each; the text of the first sample number in the same plural category as the
+  // count (Intl.PluralRules) is used, else one for a one category and other for the rest.
   var PR; try { PR = new Intl.PluralRules(document.documentElement.lang || undefined); } catch (e) {}
-  function plural(n, f) { return ((PR ? PR.select(n) : n === 1 ? 'one' : 'other') === 'one' ? f.one : f.other).replace('%d', n); }
+  function plural(n, f) {
+    var c = PR ? PR.select(n) : n === 1 ? 'one' : 'other', s = c === 'one' ? f.one : f.other;
+    if (PR && f.p) for (var i = 0; i < f.p.length; i++) if (PR.select(f.p[i]) === c) { s = f.t[i]; break; }
+    return s.replace('%d', n);
+  }
   // A sentence with {articles} and {photos} marks for the two counts.
   function fill(s, a, p) { return s.replace('{articles}', a).replace('{photos}', p); }
 

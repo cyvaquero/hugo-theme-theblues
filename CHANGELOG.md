@@ -3,6 +3,31 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.5] - 2026-10-13
+
+### Fixed
+- Review notes for release 1.5.0 (#307):
+  - Feeds no longer carry `aria-describedby="tb-newtab"` on the links in their items: that reference points at a hidden
+    notice that exists only on the site's pages, so it dangled in a feed reader. The pages are unchanged.
+  - A link to another host with a Markdown title (`[text](https://… "Title")`) kept the new-tab notice as its description
+    and lost the title for assistive technology. It now has no reference, and its `title` is the title followed by the
+    notice ("Title (opens in a new tab)"), so the title and the notice are one description and the tooltip says both.
+    Links without a title are unchanged.
+  - Dates in Arabic, Japanese and Korean lost their month: Hugo 0.167.0 has no abbreviated month name for those
+    locales, so the default layout (`Jan 2, 2006`) printed " 12, 2026". `date.html` now uses the full name where a
+    layout asks for `Jan` (and `Monday` for `Mon`) when the locale has no short one. The fixture's `ar.toml` has its own
+    `dateFormat` entries, and the README says so.
+  - English fallback text (a language without a translation of an entry shows the theme's English) is now marked
+    `lang="en"` where it is the content of an element (a button, label, heading or link name), so screen readers read it in
+    English (WCAG 3.1.2). In attributes (`aria-label`, `title`), the page `<title>`, an `<option>`, feeds, date layouts and
+    the text scripts write, no markup can carry the language; the README (Translating the theme, Accessibility) says so.
+    New partial `t-en.html`; English sites are unchanged.
+  - `params.wall.tilesPerPage` and `params.wall.photosPerGallery` also fail the build, naming the setting, for `true` or
+    `false`, a number with a fraction (`2.9`, which was cut to 2) and a number too big for a whole number (`1e30`).
+  - The counts the scripts write (the wall's caption, group headings and the search result count) have every plural form
+    the language's entry defines, and the browser's plural rules pick, so Polish, Russian, Arabic or Welsh no longer get the
+    `other` form where their rule says `few`, `many`, `zero` or `two`. A language whose entry has just `one` and `other` gets
+    the same script text as before. New partials `js-forms.html` and `setting-int.html`.
 ## [1.5.4] - 2026-10-13
 
 ### Changed

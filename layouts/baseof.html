@@ -7,7 +7,7 @@
   {{ partial "head.html" . }}
 </head>
 <body>
-  <a class="skip" href="#main">{{ (or (T "skipToContent") (partial "t.html" "skipToContent")) }}</a>
+  <a class="skip" href="#main">{{ (or (T "skipToContent") (partial "t-en.html" "skipToContent")) }}</a>
   {{ partial "nav.html" . }}
   {{ block "header" . }}{{ partial "hero.html" . }}{{ end }}
   <main id="main" tabindex="-1">
@@ -18,7 +18,7 @@
     links) point at it with aria-describedby, so it is their description and not part of their name, which would end
     up in a heading's name and the table of contents. `hidden` keeps it out of browse mode; aria-describedby still reads
     it (#260). */ -}}
-  <span id="tb-newtab" hidden>{{ (or (T "opensInNewTab") (partial "t.html" "opensInNewTab")) }}</span>
+  <span id="tb-newtab" hidden>{{ (or (T "opensInNewTab") (partial "t-en.html" "opensInNewTab")) }}</span>
   {{ partialCached "script.html" (dict "path" "js/menu.js" "defer" true) "js/menu.js" true }}
   {{ if .Store.Get "hasWall" }}{{ partialCached "script.html" (dict "path" "js/wall.js" "defer" true) "js/wall.js" true }}{{ end }}
   {{ if .Store.Get "hasComments" }}{{ partialCached "script.html" (dict "path" "js/comments.js" "defer" true) "js/comments.js" true }}{{ end }}

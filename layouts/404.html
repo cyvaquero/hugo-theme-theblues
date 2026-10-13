@@ -2,7 +2,7 @@
 {{ $src := "" }}{{ with site.Params.image_404 }}{{ $src = . | absURL }}{{ end }}{{ $hero := partial "hero-style.html" (dict "page" $ "src" $src "h" 240) -}}
 <header class="hero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <h1>404</h1>
-  <p class="sub">{{ site.Params.title_404 | default ((or (T "pageNotFound") (partial "t.html" "pageNotFound"))) }}</p>
+  <p class="sub">{{ site.Params.title_404 | default ((or (T "pageNotFound") (partial "t-en.html" "pageNotFound"))) }}</p>
 </header>
 {{ end }}
 {{ define "main" }}
@@ -11,13 +11,13 @@
   to five results above the search form in place of this list; with no match the list stays. The page keeps its 404 status:
   nothing redirects (#151). */ -}}
 <div class="pb">
-  <p><a href="{{ site.Home.RelPermalink }}">{{ (or (T "backToHome") (partial "t.html" "backToHome")) }}</a></p>
+  <p><a href="{{ site.Home.RelPermalink }}">{{ (or (T "backToHome") (partial "t-en.html" "backToHome")) }}</a></p>
   {{- with partial "search-index.html" }}
-  {{ partial "search-box.html" (dict "page" $ "index" . "kind" "404" "heading" ((or (T "notFoundLooking") (partial "t.html" "notFoundLooking"))) "action" (site.GetPage "/search").RelPermalink) }}
+  {{ partial "search-box.html" (dict "page" $ "index" . "kind" "404" "heading" ((or (T "notFoundLooking") (partial "t-en.html" "notFoundLooking"))) "action" (site.GetPage "/search").RelPermalink) }}
   {{- end }}
   {{- with first 5 (where site.RegularPages "Section" "in" site.MainSections).ByDate.Reverse }}
   <section id="latest">
-    <h2>{{ (or (T "latestPosts") (partial "t.html" "latestPosts")) }}</h2>
+    <h2>{{ (or (T "latestPosts") (partial "t-en.html" "latestPosts")) }}</h2>
     <ul class="atl">
       {{- range . }}
       <li><a href="{{ .RelPermalink }}"><span class="nm">{{ or .Title (partial "page-title.html" .) }}</span><span class="c">{{ partial "date.html" (dict "date" .Date "time" true) }}</span></a></li>

@@ -4,7 +4,7 @@
   A site's own layouts/_partials/search.html replaces this file; the context is the search page.
 */ -}}
 {{- with partial "search-index.html" -}}
-  {{- partial "search-box.html" (dict "page" $ "index" . "heading" ((or (T "searchResultsHeading") (partial "t.html" "searchResultsHeading"))) "action" $.RelPermalink) -}}
+  {{- partial "search-box.html" (dict "page" $ "index" . "heading" ((or (T "searchResultsHeading") (partial "t-en.html" "searchResultsHeading"))) "action" $.RelPermalink) -}}
 {{- else }}
-<div id="search"><p>{{ (or (T "searchUnavailable") (partial "t.html" "searchUnavailable")) }}</p></div>
+<div id="search"><p>{{ (or (T "searchUnavailable") (partial "t-en.html" "searchUnavailable")) }}</p></div>
 {{ end -}}

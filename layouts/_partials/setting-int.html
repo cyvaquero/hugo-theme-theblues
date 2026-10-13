@@ -1,0 +1,22 @@
+{{- /*
+  A site setting that must be a whole number of 1 or more, read in one place for tilesPerPage (wall-pager.html) and
+  photosPerGallery (wall-tiles.html). Context: a map with "name" (the setting's name, for the message), "value" (what the
+  site set; nil for unset) and "default" (returned for unset; 0 is a value, not "unset", #69). Returns the number as an int.
+  Fails the build naming the setting when the value isn't a number, is a boolean (int would read true as 1), a float with a
+  fractional part (int would cut 2.9 to 2) or too big for a whole number (1e30), or is below 1 (#256).
+*/ -}}
+{{- $v := .value -}}
+{{- $n := .default -}}
+{{- if ne $v nil -}}
+  {{- $bad := false -}}
+  {{- $type := printf "%T" $v -}}
+  {{- if eq $type "bool" }}{{ $bad = true }}
+  {{- else if eq $type "float64" }}{{ if or (ne $v (math.Floor $v)) (gt (math.Abs $v) 1e15) }}{{ $bad = true }}{{ end }}
+  {{- else if eq $type "string" }}{{ if not (findRE `^\s*[+-]?[0-9]+\s*$` $v) }}{{ $bad = true }}{{ end }}
+  {{- end -}}
+  {{- with try (int $v) -}}
+    {{- if or $bad .Err }}{{ errorf "%s must be a whole number, 1 or more (got %q)" $.name (printf "%v" $v) }}{{ else }}{{ $n = .Value }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- if lt $n 1 }}{{ errorf "%s must be 1 or more (got %d)" .name $n }}{{ end -}}
+{{- return $n -}}
