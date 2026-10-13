@@ -51,7 +51,7 @@ exampleSite/               fixture site for testing the theme (see testing.md); 
   article layout (reading time, table of contents) on its own page.
 - Tiles carry `data-type` and `data-date` (and `data-gallery`, `data-gallery-title` and `data-n`, the
   gallery's photo count, on photos), which `wall.js` reads. A tile's server order, which `wall.js` uses to break ties
-  when sorting, is its position in the DOM: tiles have carried no `data-order` since 1.3.9, so a site's CSS or script
+  when sorting, is its position in the DOM: tiles have carried no `data-order` since 1.4.0, so a site's CSS or script
   that reads it must count the tiles itself; `#stage` carries the whole list's article and photo tile
   counts (`data-articles`, `data-photos`) for the type chips and its number of pager pages (`data-pages`), which makes the
   caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption; they carry the gallery's date in `data-shown` for group headings, and a group with only a see-all tile on the page still counts as a group in the caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden. With JavaScript, `wall.js` leaves the tiles where the server put them while the server's order is the default one (newest first, as the theme's `wall.html` renders it), and only fills in the caption and the controls; it rebuilds the wall when a reader changes the sort or grouping, presses Clear or Reset, or when a custom `wall.html` renders another order.

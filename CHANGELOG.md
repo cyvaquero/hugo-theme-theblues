@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.4.23] - 2026-10-12
+
+### Fixed
+- Documentation: the README's "Upgrading Hugo" checks and `docs/testing.md` now say the `dark-tokens` variant must
+  warn, which the other builds must not; `docs/layout.md` dates the removal of tiles' `data-order` to 1.4.0, the release
+  whose notes record it; a fixture comment points at the test builds in `docs/testing.md` instead of the README; and the
+  README no longer cites issue numbers for past changes (#307).
+
 ## [1.4.22] - 2026-10-12
 
 ### Changed
@@ -12,7 +20,7 @@ All notable changes to this theme are documented here. The format follows
   550-post, 447-page test site (minified, warm photo-size cache, median of 15) takes 0.49 s instead of 0.57 s, and 2.05 s
   of CPU time instead of 2.19 s; the guyheckman.me site and the example site build in the same time as before. A site
   that overrides `page-title.html` or `date.html` with its own copy no longer has it called from these places for a page
-  that has a title, or for `data-date`.
+  that has a title, or for `data-date` (#307).
 
 ## [1.4.21] - 2026-10-12
 

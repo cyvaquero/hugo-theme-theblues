@@ -17,8 +17,8 @@ hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../
 
 `hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
 Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
-compared. Also build it minified, as a site is deployed, and the four variants under `exampleSite/variants/`, which
-cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
+compared. Also build it minified, as a site is deployed, and the four variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
+which cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
 the legacy `params.addtional_menus`), a second language with a partial translation (`i18n/de.toml`, content in
 `content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
 Google Analytics ID, which the theme loads in production builds only, and a right-to-left language (`rtl`: Arabic with
