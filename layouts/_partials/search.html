@@ -5,6 +5,6 @@
 */ -}}
 {{- with partial "search-index.html" -}}
   {{- partial "search-box.html" (dict "page" $ "index" . "heading" ((or (T "searchResultsHeading") (partial "t.html" "searchResultsHeading"))) "action" $.RelPermalink) -}}
-{{- else -}}
+{{- else }}
 <div id="search"><p>{{ (or (T "searchUnavailable") (partial "t.html" "searchUnavailable")) }}</p></div>
-{{- end -}}
+{{ end -}}
