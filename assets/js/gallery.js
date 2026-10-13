@@ -1,3 +1,4 @@
+{{- /* theblues:template */ -}}
 // Native <dialog> lightbox for the masonry galleries (.gal) on photo posts (decision D7).
 // Previous/next buttons, arrow, Home and End keys, swipe, counter, Esc to close, focus returns to the photo that was
 // opened. Each link points at the large image (X3); the thumbnail in the page stays X2. The counter and alt text change
@@ -67,7 +68,7 @@
       if (!a || !g.contains(a)) return;
       if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // keep open-in-new-tab working
       e.preventDefault();
-      list = [].slice.call(g.querySelectorAll('a'));
+      list = Array.from(g.querySelectorAll('a'));
       opener = a;
       prev.hidden = next.hidden = list.length < 2;
       img.removeAttribute('src'); img.alt = ''; count.textContent = ''; say.textContent = '';
@@ -91,12 +92,25 @@
     else if (e.key === 'Home') { e.preventDefault(); show(0); }
     else if (e.key === 'End') { e.preventDefault(); show(list.length - 1); }
   });
-  // Swipe left or right on the photo (touch or pen); a mostly horizontal move of 50px or more.
-  var sx = null, sy = null;
-  img.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') { sx = e.clientX; sy = e.clientY; } });
+  // Swipe left or right on the photo (touch or pen); a mostly horizontal move of 50px or more by one finger. A second
+  // pointer going down means a pinch, so the gesture is dropped and nothing changes until every pointer is up again.
+  var sx = null, sy = null, down = 0;
+  img.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') return;
+    down++;
+    if (down === 1) { sx = e.clientX; sy = e.clientY; } else sx = sy = null;
+  });
   img.addEventListener('pointerup', function (e) {
-    if (sx === null) return;
-    var dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+    if (e.pointerType === 'mouse') return;
+    var x = sx, y = sy;
+    down = Math.max(0, down - 1); sx = sy = null;
+    if (x === null) return;
+    var dx = e.clientX - x, dy = e.clientY - y;
     if (list.length > 1 && Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) show(idx + (dx < 0 ? 1 : -1));
+  });
+  // The browser fires pointercancel when it takes a gesture over (a pinch or a pan), and that
+  // ends the pointer without a pointerup.
+  img.addEventListener('pointercancel', function (e) {
+    if (e.pointerType !== 'mouse') { down = Math.max(0, down - 1); sx = sy = null; }
   });
 })();

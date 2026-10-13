@@ -1,4 +1,4 @@
-# Fixture site for The Blues: content that exercises the theme's edge cases (README, "Testing the theme"). Not used by
+# Fixture site for The Blues: content that exercises the theme's edge cases (docs/testing.md). Not used by
 # sites that install the theme. Build from this folder with the theme checkout two levels up:
 #   hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d <output dir>
 baseURL = "https://example.org/"
@@ -50,3 +50,31 @@ ignoreLogs = ["theblues-gallery-no-title", "theblues-undated", "theblues-addtion
 [[menus.footer]]
   name = "Privacy"
   url = "/about/#privacy"
+
+# Hugo's default mounts, which listing any mount turns off, plus the theme's layouts as assets, for the pair check in
+# layouts/_partials/head-end.html (#263).
+[module]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"

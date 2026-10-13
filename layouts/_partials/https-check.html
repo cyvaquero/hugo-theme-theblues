@@ -6,13 +6,17 @@
   build time (img-size.html skips it; hero-sizes.html only reads https://photos.smugmug.com), and a browser blocks
   one on an https page as mixed content, or under a CSP that allows only https: images, so the page shows no
   picture where the post meant one (#184). The URL is published as written.
+  A URL under the site's own baseURL is not warned about, though it still returns true: the theme makes a hero's local
+  path absolute with absURL, so under an http baseURL (hugo server, a screenshot build) the site's own file would
+  otherwise be reported as an insecure photo, and a site that is itself served over http has no mixed content (#257).
   Callers run it once per URL and build: img-size.html, hero-sizes.html and the Markdown image render hook
   (layouts/_markup/render-image.html, #218) call it through partialCached, so a URL warns once, not once per tile or
   page.
   Usage: {{ if partial "https-check.html" (dict "url" $src "what" "gallery photo") }}…{{ end }}
 */ -}}
 {{- $insecure := findRE `(?i)^http://` .url 1 -}}
-{{- if $insecure -}}
+{{- $own := printf "%s/" (strings.TrimSuffix "/" site.BaseURL) -}}
+{{- if and $insecure (not (strings.HasPrefix (lower .url) (lower $own))) -}}
   {{- warnidf "theblues-insecure-photo" "%s %s is not an https URL, so the theme does not request it at build time (no width and height, no smaller sizes), and a browser blocks it as mixed content on an https site. Use an https:// URL (#184)." .what .url -}}
 {{- end -}}
 {{- return (gt (len $insecure) 0) -}}

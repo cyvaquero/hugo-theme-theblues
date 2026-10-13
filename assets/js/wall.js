@@ -1,3 +1,4 @@
+{{- /* theblues:template */ -}}
 // Browse controls for the masonry wall (home, tag, category, series and section pages).
 // Progressive enhancement: the wall is complete and sorted newest first without this file; the controls markup is
 // hidden until this script runs. Behavior follows the final mockup (decision D12): type chips with counts, a
@@ -7,8 +8,9 @@
 // The type chips count the whole list, from #stage's data-articles and data-photos (article and photo tiles on every pager
 // page, #7); the caption, groups and sorting work on the tiles on the current page (the wall is paginated by tile), and the
 // caption starts "This page:" instead of "Showing" when the list has tiles on other pages. The "see all" tile of a gallery (data-more) is a
-// link, not a photo: it is excluded from counts and the caption, but filters, highlights, sorts and groups like a photo
-// tile and always stays last in its gallery.
+// link, not a photo: it is excluded from the photo counts, but filters, highlights, sorts and groups like a photo
+// tile and always stays last in its gallery. It carries the gallery's date in data-shown, for a group heading on a page where
+// it is the gallery's only tile, and its group counts in the caption (#252).
 // The text this script writes (captions, counts, the Articles group, On/Off) is the site's language: Hugo fills it in
 // when it builds this file (asset.html runs it as a template, js-text.html), from i18n/en.toml or the site's own file.
 (function () {
@@ -24,7 +26,7 @@
 
   // Collect the tiles the server rendered; ord is a tile's position in the server's order (newest first).
   var items = [], galleries = {}, galleryList = [];
-  [].slice.call(stage.querySelectorAll('.tile')).forEach(function (el, idx) {
+  stage.querySelectorAll('.tile').forEach(function (el, idx) {
     var d = el.dataset, it = {
       t: d.type === 'article' ? 'a' : 'p', date: d.date || '', ord: idx,
       key: d.gallery || '', name: d.galleryTitle || '', el: el,
@@ -38,7 +40,7 @@
         // The heading counts the whole gallery from data-n, also when part of it is on another pager page (#7).
         // Group headings show a gallery's date as its tiles' captions do (date.html, which follows params.dateFormat and the
         // site's language); a custom wall without captions has no date text to show.
-        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : '', ord: it.ord, n: +d.n || 0 };
+        g = galleries[it.key] = { key: it.key, name: it.name, date: it.date, shown: cap ? cap.textContent : (d.shown || ''), ord: it.ord, n: +d.n || 0 };
         galleryList.push(g);
       }
     }
@@ -58,7 +60,7 @@
   var S = { f: DEF.f, m: DEF.m, s: DEF.s, g: DEF.g };
   var openGroups = {};
 
-  function qa(sel) { return [].slice.call(ctl.querySelectorAll(sel)); }
+  function qa(sel) { return ctl.querySelectorAll(sel); }
   var vb = document.getElementById('vb'), pop = document.getElementById('pop'), cap = ctl.querySelector('.cap');
 
   // Sorting: newest/oldest by date; "Galleries first" and "Articles first" group by type. data-date holds only the day, so
@@ -82,14 +84,15 @@
 
   // Apply filter/highlight and update the caption and control state.
   function paint() {
-    var vis = { a: 0, p: 0 };
+    var vis = { a: 0, p: 0 }, vg = {}, ng = 0;
     items.forEach(function (it) {
       var m = matches(it), e = it.el;
       if (S.m === 'filter') { e.hidden = !m; e.classList.remove('dim', 'hl'); }
       else { e.hidden = false; e.classList.toggle('dim', S.f !== 'all' && !m); e.classList.toggle('hl', S.f !== 'all' && m); }
       if (!e.hidden && it.more < 0) vis[it.t]++;
+      if (!e.hidden && it.t === 'p' && !vg[it.key]) { vg[it.key] = 1; ng++; }  // a see-all tile counts its gallery (#252)
     });
-    [].slice.call(stage.querySelectorAll('details.grp')).forEach(function (d) {
+    stage.querySelectorAll('details.grp').forEach(function (d) {
       d.hidden = !d.querySelector('.tile:not([hidden])');
     });
     var s;
@@ -97,7 +100,7 @@
     else if (S.f === 'all') s = fill(paged ? TX.pickPage : TX.pick, plural(NA, TX.articleCount), plural(NP, TX.photoCount));
     else s = fill(S.f === 'article' ? (paged ? TX.highlightArticlesPage : TX.highlightArticles) : (paged ? TX.highlightPhotosPage : TX.highlightPhotos),
                   plural(NA, TX.articleCount), plural(NP, TX.photoCount));
-    if (S.g && vis.p) s += ', ' + plural(galleryList.length, TX.grouped);
+    if (S.g && ng) s += ', ' + plural(ng, TX.grouped);
     if (cap.textContent !== s) cap.textContent = s;  // the caption is a live region: announce changes only
     sync();
   }
@@ -224,7 +227,7 @@
   // An Escape that closes the View options popover (handled above, with preventDefault) does only that.
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape' || e.defaultPrevented) return;
-    [].slice.call(stage.querySelectorAll('.tile.photo:hover, .tile.photo:focus-within')).forEach(function (t) { t.classList.add('cx'); });
+    stage.querySelectorAll('.tile.photo:hover, .tile.photo:focus-within').forEach(function (t) { t.classList.add('cx'); });
   });
   function capBack(e) {
     var t = e.target.closest && e.target.closest('.tile.photo.cx');
@@ -246,8 +249,11 @@
   document.addEventListener('pointerout', pvOff);
 
   // The first render fills the live caption; keep it out of the live region so it isn't announced on page load (#13).
+  // The settings start at the defaults and are not kept between visits. When the server's order is already the default
+  // order (it is, unless a custom wall.html sorts otherwise), the tiles stay where they are: only the caption and the
+  // controls are filled in, so the page doesn't rebuild the wall and re-attach its lazy-loaded images on every view (#245).
   cap.removeAttribute('aria-live');
-  render();
+  if (items.slice().sort(sorter()).every(function (it, i) { return it.ord === i; })) paint(); else render();
   ctl.hidden = false;
   setTimeout(function () { cap.setAttribute('aria-live', 'polite'); }, 0);
 })();

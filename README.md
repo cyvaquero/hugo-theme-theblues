@@ -18,28 +18,32 @@ limits" below and the [open issues](https://github.com/cyvaquero/hugo-theme-theb
 The home wall, in the mode that matches your GitHub theme (on a site it follows the reader's system, or the switch in
 the nav). More views, all from the exampleSite fixture:
 
-| | |
-| --- | --- |
-| ![A photo post: a hero over the cover photo, then a three-column masonry gallery.](images/readme-photo-post.webp) | ![The lightbox, a native dialog, open on the first photo with Previous, Next and Close buttons and a 1 / 3 counter.](images/readme-lightbox.webp) |
-| A photo post with its masonry gallery. | The `<dialog>` lightbox. |
-| ![An article with a table of contents beside the text, and the series box at the end.](images/readme-article.webp) | ![The wall's "View options" popover open, with Filter or Highlight, a Sort menu and a Group by gallery switch.](images/readme-view-options.webp) |
-| An article with the table of contents and the series box. | The wall's "View options" popover. |
-| ![A tag page: a hero with the tag name and counts, then a wall of that tag's photos.](images/readme-tag-page.webp) | ![An article page in dark mode, chosen with the System, Light, Dark switch at the right of the nav.](images/readme-theme-switch.webp) |
-| A tag page with its hero and wall. | The color theme switch, set to Dark. |
-| <img src="images/readme-mobile-menu.webp" width="260" alt="The mobile layout at phone width, with the hamburger menu open over the wall."> | |
-| The hamburger menu at phone width. | |
+- ![A photo post: a hero over the cover photo, then a three-column masonry gallery.](images/readme-photo-post.webp)<br>
+  A photo post with its masonry gallery.
+- ![The lightbox, a native dialog, open on the first photo with Previous, Next and Close buttons and a 1 / 3 counter.](images/readme-lightbox.webp)<br>
+  The `<dialog>` lightbox.
+- ![An article with a table of contents beside the text, and the series box at the end.](images/readme-article.webp)<br>
+  An article with the table of contents and the series box.
+- ![The wall's "View options" popover open, with Filter or Highlight, a Sort menu and a Group by gallery switch.](images/readme-view-options.webp)<br>
+  The wall's "View options" popover.
+- ![A tag page: a hero with the tag name and counts, then a wall of that tag's photos.](images/readme-tag-page.webp)<br>
+  A tag page with its hero and wall.
+- ![An article page in dark mode, chosen with the System, Light, Dark switch at the right of the nav.](images/readme-theme-switch.webp)<br>
+  The color theme switch, set to Dark.
+- <img src="images/readme-mobile-menu.webp" width="260" alt="The mobile layout at phone width, with the hamburger menu open over the wall."><br>
+  The hamburger menu at phone width.
 
-How the images were made is in "Testing the theme" below.
+How the images were made is in [docs/testing.md](docs/testing.md).
 
 ## Requirements
 
 - Hugo **0.163.3** or later (standard or extended). Earlier versions have published Hugo security advisories, and the theme
   uses `.Language.Locale`. Developed and tested on 0.167.0. The minimum is set in the theme's `hugo.toml`
   (`[module.hugoVersion] min`), which Hugo checks and warns about; `theme.toml`'s `min_version` only mirrors it for the
-  themes gallery.
+  themes gallery. Before relying on a newer Hugo, run the checks under "Upgrading Hugo".
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
-- **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, on desktop and mobile
-  (#208). The oldest versions with everything working are Chrome and Edge 108, Firefox 121 and Safari 16.4, going by
+- **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, on desktop and mobile.
+  The oldest versions with everything working are Chrome and Edge 108, Firefox 121 and Safari 16.4, going by
   the CSS features the theme uses (`:has()`, range media queries, `dvh` units); they are not tested in those
   versions. Below them
   the pages still work, with less polish:
@@ -68,7 +72,9 @@ How the images were made is in "Testing the theme" below.
   A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used. `wall.js`,
   `comments.js` and `gallery.js` hold the text they write (captions, comment messages, lightbox labels) as a Go template
   action, which Hugo fills in from the site's language when it builds them (see "Translating the theme"); a site's own
-  copy of a script is run as a template only if it contains `{{`.
+  copy of a script is run as a template only if its first line is the template comment `{{- /* theblues:template */ -}}`,
+  which renders as nothing (any other `{{` in a script is published as written); a site's copy of one of these three
+  needs that line, and the build fails naming a script that calls `js-text.html` without it.
 
 ## Installation
 
@@ -140,8 +146,9 @@ The templates assume this layout; other structures are not supported yet.
   `<meta name="theme-color">` is navy `#1B3C53` in light mode and `#0F2332` in dark, the nav band's colors (`--band`;
   a palette change updates both `main.css` and `head.html`, which point at each other).
 - **Color theme switch:** the last item of the nav, inline from 821px and inside the hamburger menu below that. Three
-  buttons, System (the default), Light and Dark, with `aria-pressed` on the current one. `theme.js` sets
-  `data-theme="light"` or `"dark"` on `<html>`, keeps the choice in `localStorage` under `theme` (System removes it),
+  buttons, System (the default), Light and Dark, with `aria-pressed` on the current one. `theme.js` puts the
+  class `js` on `<html>` (which `main.css` uses to keep the space of the controls that scripts show later: this switch and
+  the wall controls), sets `data-theme="light"` or `"dark"` on `<html>`, keeps the choice in `localStorage` under `theme` (System removes it),
   updates `<meta name="color-scheme">` and both `theme-color` metas, keeps other open tabs in step, and reloads loaded
   Disqus comments so they match. Without JavaScript the switch is hidden and the mode follows the system.
 - **Share image (`og:image`):** a page's own `image`, or the first photo the page shows from a `gallery` shortcode
@@ -150,8 +157,9 @@ The templates assume this layout; other structures are not supported yet.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A link to a page or a page resource resolves to its permalink, as with Hugo's built-in hooks; an image source
-  resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, with visually
-  hidden "(opens in a new tab)" text for screen readers. A titled image is a `<figure>` with a caption only when it
+  resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, and say so to
+  screen readers as their description (`aria-describedby`, pointing at one hidden element, `id="tb-newtab"`, that every
+  page holds), so a heading with such a link keeps a plain name in the heading list and the table of contents. A titled image is a `<figure>` with a caption only when it
   stands alone and the site sets `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title
   is the tooltip.
 
@@ -161,7 +169,7 @@ The templates assume this layout; other structures are not supported yet.
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing, and its photos are not shown on walls or used as covers. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. The positional form takes only `src`: Hugo doesn't allow adding `title=` to it, and a second positional argument is ignored, so such a photo gets the "Photo N" alt text. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns (warning ID `theblues-gallery-no-title`). |
-| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection), or the site's `baseURL` has no host to compare with. |
+| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
 
 ## Extending from a site
 
@@ -172,7 +180,8 @@ A site can add its own page types without overriding theme files:
   and menu script still come from the theme. The theme's heroes (home, About-style, 404, posts, and tag, category and
   series pages) preload their photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`, one per
   hero size with its `media` query when the hero has smaller SmugMug sizes). A `header` block of the site's own gets no preload unless
-  it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`.
+  it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`. The theme's heroes all set
+  theirs up through `layouts/_partials/hero-style.html`.
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
   `layouts/_partials/head-end.html` replaces it, for example to add a stylesheet for its own sections.
 - **Analytics:** `layouts/_partials/analytics-on.html` returns `true` when the page includes the theme's Google
@@ -180,12 +189,12 @@ A site can add its own page types without overriding theme files:
   `[privacy.googleAnalytics] disable` not set. It is `false` otherwise. It is decided per build, not per visitor: the
   loader still loads nothing for visitors who send Do Not Track or Global Privacy Control. `head.html` uses the same
   partial, so a site that shows an analytics notice only when analytics loads stays in step with the theme: `{{ if partial "analytics-on.html" . }}…{{ end }}`. Its name and result are kept
-  stable; a change is called out in the CHANGELOG. Theme versions before 1.2.49 don't have it; a site that must build
+  stable; a change is called out in the CHANGELOG. Theme versions before 1.3.0 don't have it; a site that must build
   with them can check `templates.Exists "_partials/analytics-on.html"` first. The theme itself shows no notice and asks
   for no consent before it loads analytics (see `[services.googleAnalytics] id` under "Site settings it reads").
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's
   CSS should use, so it follows light and dark mode: `--bg`, `--text`, `--muted`, `--link`, `--focus`, `--band`, `--bt`,
-  `--line`, `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
+  `--line` (decorative rules), `--ctl-line` (borders of controls: chips, the mode switch, selects, tag pills and pager links), `--surface`, `--code`, `--on-bg`, `--on-fg`, `--hv` (the sand accent for hover and focus on dark bands),
   `--scrim` (the navy scrim over photos, as RGB channels: `rgb(var(--scrim) / .8)`), `--serif`, `--sans`, `--wide` and
   `--measure`. Their names are kept stable; a rename or removal is called out in the CHANGELOG.
   A site's own dark-mode colors should use the theme's two dark selectors, so they follow the switch as well as the
@@ -194,10 +203,10 @@ A site can add its own page types without overriding theme files:
   the same declarations (`layouts/_partials/dark-tokens-check.html`, once per build): if they differ, or only one is
   found, it warns with the ID `theblues-dark-tokens` naming the tokens, and `--panicOnWarning` fails the build. It reads
   the `assets/css/main.css` the build uses, so a site that overrides the file with an edited copy is checked too; a
-  stylesheet with neither block gets no warning. CSS `light-dark()` could replace the two copies (#196). The
+  stylesheet with neither block gets no warning. CSS `light-dark()` could replace the two copies. The
   current and previous major versions of every supported browser have it, but the oldest versions listed under
   Requirements don't (it needs Chrome and Edge 123, Firefox 120 and Safari 17.5).
-- **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings (#6):
+- **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings:
   - 560px: masonry walls and `galleries` blocks go from one column to two;
   - 700px: the View options popover becomes a 20rem panel at the right instead of spanning the controls, and the wall
     caption moves from the left to the right;
@@ -229,6 +238,12 @@ translate the theme, or reword its English, for a site:
    archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
    Hugo's locale data, except on an English site (language `en` or `en-*`), which gets US English names whatever its
    `locale`: `en-GB` writes September as "Sep", not "Sept".
+5. For a right-to-left language, set `direction = "rtl"` on it (`[languages.ar]`), and the theme writes `dir="rtl"` on `<html>`,
+   so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir`
+   attribute. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
+   the bars, indents, drop-downs and alignment keep their left-to-right sides. Mirroring them with CSS logical
+   properties is tracked in
+   [#296](https://github.com/cyvaquero/hugo-theme-theblues/issues/296).
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js` and
 `gallery.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -242,105 +257,39 @@ name unless `content/tags/_index.md` and the like set a `title`); the link names
 year of the footer line when the site sets no `copyright`; and the messages of build warnings and errors, which are for
 the person building the site.
 
-## Layout
-
-```
-assets/css/main.css        tokens (palette) and all styles
-assets/css/nojs.css        loaded in <noscript>: shows the nav links at 820 px and narrower, where the menu needs JavaScript
-assets/js/theme.js         color theme switch (System, Light, Dark): sets data-theme on <html> before the first paint
-assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; without JavaScript, assets/css/nojs.css shows the links)
-assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
-assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
-assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
-assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
-data/theblues.toml         the theme version shown in the footer
-i18n/en.toml               the text the theme writes, in English; a site translates it with its own i18n/<language>.toml (see Translating the theme)
-archetypes/post.md         front matter for `hugo new content post/<name>.md`: title from the file name without a leading YYYYMMDD-, commented showtoc and series lines
-layouts/baseof.html        page shell
-layouts/home.html          landing page: hero, controls, masonry wall, pagination
-layouts/section.html       section lists such as /post/ (same wall, main-section pages only)
-layouts/term.html          tag, category, and series pages (hero plus the same wall)
-layouts/taxonomy.html      /tags/, /categories/, /series/ (A-Z list with counts)
-layouts/page.html          generic pages (About)
-layouts/archive.html       pages with layout: archive
-layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
-layouts/search/section.html  search page (placeholder until the engine is chosen)
-layouts/404.html
-layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
-layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-sizes, controls, wall, tile-photo, tile-photo-body,
-                           tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
-                           img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
-                           comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
-                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, https-check
-layouts/_shortcodes/       gallery, galleries (masonry), embed
-layouts/_markup/           render-link, render-image
-static/                    favicon.svg, favicon.ico, apple-touch-icon.png
-exampleSite/               fixture site for testing the theme (see Testing the theme); not used by sites
-```
-
-### How the wall works
-
-- A post is a **photo post** if its categories include `photos` (case-insensitive) or its raw content uses the `galleries`
-  shortcode; everything else is an **article**.
-- A photo post becomes **image tiles for its first few photos** (default 4, `params.wall.photosPerGallery`), read from its
-  `gallery` shortcodes (`src` and `title`) in source order, each linking to the post, followed by one dashed **see-all tile**
-  ("Boston Gallery, 14 more photos") that links to the gallery post when photos remain. The gallery post itself shows every
-  photo. An article becomes one text tile (ARTICLE label, serif title, excerpt, date, tag links, and a "Part N of M" chip
-  for series posts). A photo post with no parsable photos falls back to a single article tile on the wall and to the
-  article layout (reading time, table of contents) on its own page.
-- Tiles carry `data-type` and `data-date` (and `data-gallery`, `data-gallery-title` and `data-n`, the
-  gallery's photo count, on photos), which `wall.js` reads. A tile's server order, which `wall.js` uses to break ties
-  when sorting, is its position in the DOM: tiles have carried no `data-order` since 1.3.9, so a site's CSS or script
-  that reads it must count the tiles itself; `#stage` carries the whole list's article and photo tile
-  counts (`data-articles`, `data-photos`) for the type chips and its number of pager pages (`data-pages`), which makes the
-  caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden.
-- The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL.
-- Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
-  `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
-  doesn't reflow. Hugo keeps the downloads in its `getresource` file cache (by default `:cacheDir/:project`, kept until
-  cleared), so a build fetches only photos new to the cache; a build without a cache (for example on a fresh CI machine)
-  fetches them all. Only `https://` photos are fetched: an `http://` URL is never requested in cleartext, where its size
-  could be tampered with, and a browser blocks it as mixed content on an https site or under a CSP that allows only
-  `https:` images, so the build warns (warning ID `theblues-insecure-photo`, for a gallery photo, a hero image or a
-  Markdown image, once per URL) and the tile and gallery image get no width and height; the URL is published as
-  written, so use `https://`.
-  When a photo can't be fetched (offline, a timeout, a server error) the attributes are left out
-  without a warning and the tile holds a 3:2 placeholder; when the server answers that the photo doesn't exist (HTTP 404)
-  or isn't an image, the build warns (warning ID `theblues-image-size`).
-- When the size is known and the photo is a SmugMug `X2` URL on `photos.smugmug.com`, tiles and gallery images also get
-  a `srcset` of SmugMug's M, L and XL sizes plus X2, with `sizes` matching the masonry columns, so phones and one-x
-  screens load a smaller file (`layouts/_partials/smug-srcset.html`). SmugMug names each size in the URL's path segment
-  and file suffix (`/X2/i-ABC-X2.jpg`, `/L/i-ABC-L.jpg`) and scales it to fit a box: M 600×450, L 800×600, XL 1024×768,
-  X2 1280×960 (`smug-sizes.html` holds the table, `smug-size.html` the URL rewrite that this partial, `smug-full.html`
-  and `hero-sizes.html` share).
-- A hero photo on `photos.smugmug.com` whose URL names a size (M, L, XL, X2, X3, X4 or X5, such as a photo post's X3
-  cover or an `image` set to an X5 URL) also gets smaller sizes for phones and one-x screens
-  (`layouts/_partials/hero-sizes.html`): for each of five viewport tiers in `main.css` (one-x up to 480, 800, 1280 and
-  1600px wide, and up to two-x up to 640px), the smallest of M, L, XL, X2 and X3 that is smaller than the URL's own size
-  and still covers the hero box at that tier's widest viewport and highest pixel ratio. Denser and wider screens keep
-  the URL's size, and so do other hosts and photos whose size can't be read (offline build). The preload, where a page
-  has one, gives each size with the same media query, so the browser fetches the hero once. Share images (`og:image`)
-  are unchanged.
-
-### Known limits
+## Known limits
 
 - The wall is paginated **by tile**, 24 per page (`params.wall.tilesPerPage`). The type chips count the whole list, but
   filtering, the caption (which starts "This page:" when the list has more than one page), sorting and group-by work on
-  the tiles of the current page, and a gallery can be split across two pages; its "Group by gallery" heading still counts all its photos. With the current content (5 articles and 3 galleries) everything
-  fits on one page of 20 tiles. Hugo's `.Paginate` only accepts a collection of pages, so
+  the tiles of the current page, and a gallery can be split across two pages; its "Group by gallery" heading still counts all its photos.
+  Hugo's `.Paginate` only accepts a collection of pages, so
   `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
-  `tilesPerPage` and `photosPerGallery` must be 1 or more; anything else fails the build with a message naming the
-  setting. The pager shows the first and last pages and two on
+  `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more; anything else, including text that isn't a
+  number, fails the build with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
 - Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
-  guyheckman.me"), but use page 1's canonical URL and have no `rel=prev/next` in the head. The pager links carry
-  `rel=prev` and `rel=next`.
+  guyheckman.me"), but use page 1's canonical URL (`<link rel="canonical">` and `og:url`) and have no `rel=prev/next` in the
+  head. The pager links carry `rel=prev` and `rel=next`. This is deliberate. The wall paginates by tile, newest
+  first, so a later page is a shifting slice of one feed: adding a post moves every tile down a slot and tiles cross
+  from page to page, so `/page/2/` shows different tiles from one build to the next. Page 1 is the stable entry point, and
+  nothing is hidden behind the pager: every post is reachable, and indexable, at its own permalink, which the sitemap lists
+  (Hugo's sitemap holds pages, not the pager's `/page/N/` URLs), and its tile links to it. The archive page
+  (`layout: archive`, see Archive above) lists every post, with no pager, and each post links to the one before and after it.
+  This departs from Google's current guidance, that each page of a paginated list be its own canonical
+  ([pagination and incremental page loading](https://developers.google.com/search/docs/specialty/ecommerce/pagination-and-incremental-page-loading));
+  Google says it no longer uses `rel=prev/next`. The cost is that a post is found through its permalink, the sitemap or the
+  archive rather than through a later pager page. A site that wants each pager page to be its own canonical has no setting
+  for it: it replaces `layouts/_partials/head.html` with a copy in which the `.Permalink` of the `<link rel="canonical">`
+  and of `og:url` becomes the pager's URL when the page number is above 1, for example
+  `{{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}{{ .URL | absURL }}{{ end }}{{ end }}{{ end }}`
+  (`.Store.Get "wall"` is empty on pages that are not walls), and keeps that copy up to date through theme upgrades.
 - A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall (first with Oldest first), has no  `pubDate` in feeds, and the build warns.
 - Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
-  `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no referrer policy; browsers default to
-  `strict-origin-when-cross-origin`, which a site can also send as a header.
+  `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no page-level referrer policy (the `embed`
+  shortcode's frames set their own, `strict-origin-when-cross-origin`); browsers default to that same policy, which a
+  site can also send as a header.
 - The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
   sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
@@ -374,8 +323,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 - `ignoreLogs`: the theme's build warnings have IDs a site can list there to silence them: `theblues-gallery-no-title`
   (a `gallery` photo without a `title`), `theblues-undated` (a post without a `date`), `theblues-addtional-menus`
   (the deprecated legacy menu, below), `theblues-image-size` (a wall or gallery photo URL that answers 404 or isn't an
-  image), `theblues-insecure-photo` (a gallery photo, hero image or Markdown image whose URL starts with `http://`;
-  see the photo size bullet under "How the wall works"), `theblues-toc-markup` (Hugo's table of contents markup
+  image), `theblues-insecure-photo` (a gallery photo, hero image or Markdown image whose URL starts with `http://` and isn't under the site's `baseURL`;
+  see the photo size bullet under "How the wall works" in [docs/layout.md](docs/layout.md)), `theblues-toc-markup` (Hugo's table of contents markup
   changed, so the theme can't check or label it; better fixed than silenced) and `theblues-dark-tokens` (the two copies of the dark color
   tokens in `assets/css/main.css` differ; see Styles under Extending from a site) and `theblues-i18n` (the site's
   language has no theme text, so the labels are in English; see Translating the theme), for example
@@ -386,7 +335,7 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
   From 821px the links are one row; when the menu, the site title and the theme switch don't fit (many items, or a
-  large text size or zoom), the row wraps onto a second line, so every link and the switch stay reachable (#171).
+  large text size or zoom), the row wraps onto a second line, so every link and the switch stay reachable.
   Legacy `href` values that are full URLs are used as is; site paths get one trailing slash and follow a sub-path `baseURL`.
 - `[[menus.footer]]` (optional): links shown in the footer under the social links, in a navigation landmark named
   "Footer", for example a privacy note (`url = "/about/#privacy"`) or a page (`pageRef`).
@@ -456,6 +405,7 @@ else can stay at `default-src 'none'`.
 | `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
 | `base-uri`, `form-action`, `object-src` | `'none'` | The theme uses none of them. |
+| `frame-ancestors` | `'none'` | Stops other sites from showing the pages in a frame (clickjacking). It works only in a header; see the notes below. |
 
 **Optional services**, needed only when the site uses them:
 
@@ -483,11 +433,17 @@ default-src 'none'; script-src 'self' https://www.googletagmanager.com https://g
 style-src 'self' https://c.disquscdn.com; style-src-attr 'unsafe-inline';
 img-src 'self' https://photos.smugmug.com https://www.googletagmanager.com https://*.google-analytics.com https://referrer.disqus.com https://c.disquscdn.com;
 connect-src https://www.googletagmanager.com https://*.google-analytics.com https://*.google.com https://links.services.disqus.com;
-frame-src https://disqus.com https://www.youtube-nocookie.com; base-uri 'none'; form-action 'none'; object-src 'none'
+frame-src https://disqus.com https://www.youtube-nocookie.com; base-uri 'none'; form-action 'none'; object-src 'none';
+frame-ancestors 'none'
 ```
 
 Notes:
 
+- **Send the policy as an HTTP header.** A `<meta http-equiv="Content-Security-Policy">` tag ignores
+  `frame-ancestors`, `sandbox` and the reporting directives, so a policy in a `<meta>` tag leaves the pages open to
+  being framed. Send it from the host or CDN instead, with the other security headers a page can't set itself:
+  `Strict-Transport-Security`, `X-Content-Type-Options: nosniff` and, if you want a stricter one than the browser's
+  default, `Referrer-Policy`.
 - **Disqus loads more than it needs.** After "Show comments", Disqus's own script also tries a cleartext `http://cdn.viglink.com`
   pixel (VigLink) and LiveIntent (`d-code.liadm.com` script, `rp.liadm.com` requests, an `i.liadm.com` frame). The list
   above leaves them out on purpose: with the policy above they are blocked, the browser logs the violations, and the
@@ -537,11 +493,12 @@ on photos):
   without moving either, and it comes back once the pointer and focus have left the tile and returned (WCAG 1.4.13).
   On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
-  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe); Escape or Close returns
+  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
   focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
-  seconds, "Comments couldn't be loaded…" with the button back as "Try again".
+  seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already
+  running instead of adding a second Disqus script; after a blocked or failed request it starts a new one.
 
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.
@@ -550,11 +507,12 @@ of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a vi
 pages after the first have their own title. With Group by gallery on, each group title ("Articles · 5 articles") is an
 h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
 box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s.
-Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, end
-their name with a visually hidden "(opens in a new tab)".
+Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, are
+described as "(opens in a new tab)" by a hidden element on the page (`id="tb-newtab"`), not named by it: the notice is
+read after the link's name, and a heading that contains such a link is named by its text alone.
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
-system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). In forced-colors mode (Windows high
+system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). The borders of controls (type chips, the View options mode switch and selects, and pager links) are at least 3:1 against the page and the popover (WCAG 1.4.11), in both modes; the tag pills in a post's hero are sand on the navy hero, 6.6:1 or more. Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high
 contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
 off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling. On touch
 screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover
@@ -577,69 +535,37 @@ article tile's title link, which is covered by the tile, itself one link. A prin
 - Give Hugo's `youtube` shortcode a `title` (`{{< youtube id="…" title="…" >}}`); without one every video frame
   is named "YouTube video".
 
-**Known gaps.** Not yet checked with screen readers or on real touch devices. Inline-highlighted line numbers fail contrast ([#76](https://github.com/cyvaquero/hugo-theme-theblues/issues/76), documented above). Other accessibility issues are
+**Known gaps.** Not yet checked with screen readers or on real touch devices. Inline-highlighted line numbers fail contrast (documented above). Other accessibility issues are
 listed under the [accessibility label](https://github.com/cyvaquero/hugo-theme-theblues/issues?q=is%3Aopen+label%3Aaccessibility).
 
-## Testing the theme
+## Upgrading Hugo
 
-`exampleSite/` is a small fixture site whose content exercises the cases the guyheckman.me content doesn't: an untitled
-post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
-`{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
-a series, a code block with line numbers, a post whose headings are all below the TOC levels, a page without a title, the legacy `params.addtional_menus` nav, a footer
-menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
-hero photos on `photos.smugmug.com`, which make the build read each photo's size and write `width`/`height`, `srcset`,
-the hero's smaller sizes and its preload (they need a network the first time; Hugo then keeps them in its cache, and
-an offline build leaves those attributes out without a warning). Hugo doesn't use it when the theme is installed in a
-site. Build it from that folder:
+Parts of the theme rely on Hugo behavior that Hugo's documentation doesn't promise, so a new Hugo version can break
+them without a build error:
 
-```bash
-cd exampleSite
-hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d /tmp/theblues-after
-```
+- `build-token.html` and `memo.html` rely on the partial cache keeping one value for a whole build and dropping it when
+  Hugo rebuilds, and on a page's `.Store` surviving a rebuild under `hugo server`.
+- `wall-pager.html` hands `.Paginate` a stand-in collection, `site.Home` repeated once per tile, to paginate the wall by
+  tile.
 
-`--themesDir` must contain the theme as a folder (or link) named `hugo-theme-theblues`, which `../..` is in the site's
-submodule checkout. The build should finish with no warnings and no unused templates: the warnings the fixtures cause
-on purpose are listed in `ignoreLogs` in `exampleSite/hugo.toml`, and any other warning fails it.
+Before moving the theme, or a site that uses it, to a newer Hugo:
 
-To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
-a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then
-compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
-footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does; anything else that differs
-is a change in output.
+1. Build the `exampleSite` fixture, minified and not, and its variants with the old and the new Hugo, as
+   [docs/testing.md](docs/testing.md) describes. Each build must finish with no warnings, except the `dark-tokens`
+   variant, which must warn. Compare the outputs with `diff -r`: apart from the Hugo version in the footer, any difference needs explaining.
+2. Pagination: the fixture shows 4 tiles per page. Check that every wall page lists its own tiles, with none repeated
+   or missing, and that the pager's page count and links match.
+3. Rebuilds: run `hugo server` on the fixture, change a post's tags, and check that the home wall and both the old and
+   the new tag pages follow without a restart. Undo the change and check again.
+4. Build time: build a copy of the fixture with about 550 posts and compare with the figure under "Known limits". A
+   much slower build, or one that hangs, points at the partial cache; see the cache-hints check in
+   [docs/testing.md](docs/testing.md).
 
-The screenshots under `images/` (`readme-*.webp`, about 0.8 MB in all) are captured from the exampleSite, so they can be
-made again. `images/screenshot.png` and `images/tn.png` are the themes gallery's own images (1500x1000 and 900x600) and
-are not made this way. To recreate the README images:
+## Working on the theme
 
-- Build the fixture for production with a longer wall and a fixed base URL, since its own settings (4 tiles per page) are
-  made for testing pagination: from `exampleSite`, run `HUGO_PARAMS_WALL_TILESPERPAGE=24 HUGO_PARAMS_WALL_PHOTOSPERGALLERY=4
-  hugo --environment production --minify --themesDir ../.. -b http://127.0.0.1:8099/ -d <dir>`. Serve `<dir>` on port 8099
-  with any static file server.
-- Use headless Chrome (driven over the DevTools protocol by a script kept outside the repo) with device scale factor 1
-  and a 1280x800 viewport for desktop, and 390x844 at scale factor 2 with the mobile flag for the phone. Emulate
-  `prefers-color-scheme: light` (and `dark` for the dark hero), and allow network access only to `127.0.0.1` and
-  `photos.smugmug.com`. Most fixture photos are on `photos.example.org`, which doesn't exist, so the script answers those
-  requests with the three real SmugMug photos of the "SmugMug photos with sizes" post, one per photo.
-- Wait for all images to load, then save `Page.captureScreenshot` with `format: webp` and `quality: 80` (about 35 to
-  175 KB each). The pages and states:
-  - `home-light`, `home-dark`: `/`, scrolled to the top, in light and dark mode.
-  - `photo-post`: `/post/20260104-smugmug-photos/`, scrolled until the gallery is in view (its top 470 px below the
-    viewport top).
-  - `lightbox`: the same page after clicking the first gallery photo.
-  - `article`: `/post/20260105-dated-article/` at 1280x980, scrolled until the table of contents is 380 px from the top.
-  - `view-options`: `/` after clicking "View options", scrolled until the controls row is 20 px from the top.
-  - `tag-page`: `/tags/photos/` at the top.
-  - `theme-switch`: the article page after clicking the Dark button in the nav, with the system in light mode.
-  - `mobile-menu`: `/` at phone size with a clean `localStorage`, after clicking the Menu button.
-
-## Design decisions
-
-Decision records, the Clean White inventory and the layout mockups are in [docs/retheme/](docs/retheme/decisions.md)
-(Hugo does not publish this folder; this is the canonical copy). The work is tracked on issue
-cyvaquero/hugo-site-guyheckman_me#4. In short: palette B (navy, steel blue, sand, cream) with light and dark modes;
-responsive with a hamburger nav at 820 px and narrower; Disqus on posts only (click to load since 1.2.0); GA4 (Do Not Track and Global Privacy Control respected since 1.2.0); search is
-a reserved slot until the engine is chosen (cyvaquero/hugo-site-guyheckman_me#3). The featured-tags cloud (D14) is
-deferred.
+How the files are organized and how the wall is built: [docs/layout.md](docs/layout.md). Testing, with the
+`exampleSite` fixture and how the images above were made: [docs/testing.md](docs/testing.md). Design decisions:
+[docs/README.md](docs/README.md#design-decisions).
 
 ## Credits
 

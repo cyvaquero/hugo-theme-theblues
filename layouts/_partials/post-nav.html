@@ -12,7 +12,7 @@
 {{- $newer := $all.Prev . -}}
 {{- if or $older $newer }}
 <nav class="nav2" aria-label="{{ (or (T "postNavigation") (partial "t.html" "postNavigation")) }}">
-  {{ with $older }}<a href="{{ .RelPermalink }}" rel="prev">&larr; {{ partial "page-title.html" . }}</a>{{ else }}<span></span>{{ end }}
-  {{ with $newer }}<a href="{{ .RelPermalink }}" rel="next">{{ partial "page-title.html" . }} &rarr;</a>{{ end }}
+  {{ with $older }}<a href="{{ .RelPermalink }}" rel="prev">&larr; {{ or .Title (partial "page-title.html" .) }}</a>{{ else }}<span></span>{{ end }}
+  {{ with $newer }}<a href="{{ .RelPermalink }}" rel="next">{{ or .Title (partial "page-title.html" .) }} &rarr;</a>{{ end }}
 </nav>
 {{- end -}}

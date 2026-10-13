@@ -1,0 +1,51 @@
+# Test variant (docs/testing.md): Arabic, a right-to-left language, as the default next to English. The
+# Arabic pages must get <html lang="ar" dir="rtl"> and the English ones no dir attribute (#266). The layout itself is not
+# mirrored yet (#296). The Arabic site reuses the German fixtures' folder (content-de): the text is not the point.
+# Build with: --config hugo.toml,variants/rtl.toml
+defaultContentLanguage = "ar"
+
+[languages.ar]
+  direction = "rtl"
+  weight = 1
+  label = "العربية"
+  locale = "ar"
+  title = "تجارب البلوز"
+[languages.en]
+  weight = 2
+  label = "English"
+  locale = "en-US"
+
+# Each language has its own content folder. Listing a mount turns off Hugo's default mounts, so they are listed here too.
+[module]
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["en"]
+  [[module.mounts]]
+    source = "content-de"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["ar"]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  # The theme's layouts as assets, as in hugo.toml, so the English-fallback pair check runs in this build too (#263).
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"

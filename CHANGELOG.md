@@ -3,6 +3,95 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.0] - 2026-10-12
+
+### Added
+- The theme writes `dir="rtl"` on `<html>` for a right-to-left language (`[languages.ar] direction = "rtl"`), read with
+  Hugo's `site.Language.Direction`, so browsers and screen readers get the text direction (#266). Left-to-right sites
+  get no `dir` attribute and their pages are unchanged. The layout is not mirrored yet, because `main.css` uses
+  physical `left` and `right` properties; the README says so, and mirroring is tracked in #296.
+- The README has an "Upgrading Hugo" checklist for the Hugo behavior the theme relies on but Hugo doesn't document: the
+  partial cache and `.Store` across `hugo server` rebuilds, and the wall's stand-in pagination (#278).
+- The README's example Content Security Policy adds `frame-ancestors 'none'`, and a note says to send the policy as an
+  HTTP header, since a `<meta>` tag ignores `frame-ancestors` and leaves pages open to being framed, along with
+  `Strict-Transport-Security`, `X-Content-Type-Options` and `Referrer-Policy` (#271).
+- The README says why wall pages after the first (`/page/2/`, …) keep page 1's canonical URL and `og:url`: the wall
+  paginates by tile, so a later page is a slice that shifts as posts are added, while every post stays reachable
+  through its permalink, the sitemap and the archive. It notes that this departs from Google's current guidance and
+  what a site would change to give each page its own canonical (#251).
+
+### Changed
+- A theme script is run as a Go template only when its first line is the template comment `theblues:template`, no
+  longer whenever the file contains `{{` (#262). `wall.js`, `comments.js` and `gallery.js` carry it, so the built
+  scripts are unchanged, and a `{{` in any other script is published as written. A site that overrides one of those
+  three with its own copy needs the same first line; a script that calls `js-text.html` without it fails the build
+  with a message naming the script.
+- The hero's photo setup (its smaller SmugMug sizes and the Store keys `head.html` reads for the preload) lives in one
+  partial, `hero-style.html`, instead of five templates (#264). The built pages are unchanged.
+- `wall.js` no longer takes the wall's tiles out and puts them back on every page view: when the server's order is
+  already the default (newest first), the tiles stay where they are and only the caption and the controls are filled
+  in, so lazy-loaded images are not re-attached. The controls behave as before (#245).
+- Wall tiles, the series box and list, and the previous/next links use a page's title as it is and call
+  `page-title.html` only for a page without one, and write the tile's `data-date` directly. The built pages are
+  byte-for-byte the same; a 550-post, 447-page test site builds in 0.49 s instead of 0.57 s. A site that overrides
+  `page-title.html` or `date.html` no longer has it called from these places for a titled page, or for `data-date`
+  (#307).
+- The scripts no longer carry code for browsers below the supported ones (the `matchMedia` `addListener` fallback,
+  `[].slice.call` and `[].forEach.call`). Behavior is unchanged (#275).
+- The theme's test fixture covers more of what the theme documents: variants for the `[[menus.main]]` nav, a second
+  language with a partial translation, Google Analytics, a right-to-left language and a mismatched dark-token
+  stylesheet, an article with an inline `gallery`, minified builds, and a check that every template's English-fallback
+  pair (`T` and `t.html`) uses the same keys, each in `i18n/en.toml` (the pair itself stays, since a wrapper partial
+  doubled build time, #192). Sites that install the theme are unchanged (#263, #265, #267).
+- The README is the user manual; the file layout, "How the wall works", the testing guide and the design decisions moved
+  to `docs/layout.md`, `docs/testing.md` and `docs/README.md`. Documentation corrections: the first release with
+  `analytics-on.html`, the referrer policy of `embed` frames, the screenshots as a captioned list instead of a table
+  with empty headers, a historical-record note on `docs/retheme/decisions.md`, no links to issues in private
+  repositories (search is tracked in #159), and no issue numbers for past changes in the README (#268, #269, #270,
+  #273, #307).
+
+### Fixed
+- A heading that contains a link to another host is no longer announced with "(opens in a new tab)" in its name. Every
+  page holds one hidden copy of the notice (`id="tb-newtab"`, in the page's language), and links to other hosts, in
+  post text and the footer, point at it with `aria-describedby`, so a screen reader still says the link opens in a new
+  tab, after its name (#260).
+- The borders of the type chips, the View options mode switch and selects, and pager links are 3:1 or more against the
+  page and the popover, in light and dark mode (they were 1.6 to 2.4:1; WCAG 1.4.11). They use a new token,
+  `--ctl-line`, which a site can override; decorative lines keep `--line` (#258).
+- Pinching the photo in the lightbox zooms it on touch screens and never changes the photo; a one-finger swipe still
+  goes to the next or previous photo (#261).
+- Body text is sized in `rem`, so it grows with the reader's default font size like the rest of the page; at the
+  default size it is 17px, as before (#259).
+- The "Part N of M" chip and the series box no longer slow the build as a series grows: each series' order is worked
+  out once and kept through `memo.html` (a 500-post series took about 860 µs per call, now about 100 µs) (#244).
+- Photo tiles are no longer rendered again on every wall once a site has a few hundred photo posts, when Hugo's
+  partial cache (about a thousand entries) evicted them: on 750 photo posts (3,000 tiles) the tile markup was rendered
+  11,730 times and now 3,287 times, and the build takes 1.3 s instead of 2.0 s (#247).
+- One rule decides the no-JavaScript state of the wall controls and the theme switch: `main.css` keeps their space only
+  when `<html>` has the `js` class that `theme.js` sets, and `nojs.css` no longer repeats them with `!important` rules
+  that depended on load order (#274).
+- A hero image given as a local path no longer warns `theblues-insecure-photo` when the site's `baseURL` is `http://`,
+  as under `hugo server`, which failed `--panicOnWarning` builds. A photo on another host over `http://` still warns
+  (#257).
+- A `tilesPerPage` or `photosPerGallery` that isn't a number, such as `"abc"`, fails the build with a message naming
+  the setting, instead of Hugo's generic cast error (#256).
+- "Try again" after a Disqus timeout no longer loads `embed.js` a second time when Disqus is slow rather than blocked
+  (#254).
+- A SmugMug photo URL with a query string or fragment gets the right large-size link in the lightbox, the full-size
+  link and the feed (#253).
+- On a wall page whose only tile from a gallery is its "see all" tile, Group by gallery shows the gallery's date and
+  counts it in the caption; the see-all tile carries the date in a new `data-shown` attribute (#252).
+- `hugo --templateMetrics --templateMetricsHints` finishes with the theme instead of hanging: `asset.html` builds a
+  resource before returning it (#243).
+
+### Security
+- The build reads photo sizes only from `https://photos.smugmug.com/`, as it already did for hero images, so a post
+  can't make the build server fetch an internal address or a large file from another host. Such a photo gets no width
+  and height, and no warning. The README notes Hugo's `security.http.urls` allowlist for CI builders (#255).
+- The `embed` shortcode compares the URL's host with the site's only when both are plain ASCII, so an internationalized
+  host written as Unicode can't pass as another host, or as the site's own, and get the `allow-same-origin` sandbox. A
+  Unicode host in the embed URL or the site's `baseURL` fails the build with a message to use its punycode form (#272).
+
 ## [1.4.0] - 2026-10-11
 
 ### Added

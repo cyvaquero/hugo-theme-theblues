@@ -1,6 +1,15 @@
 {{- /*
   One photo tile; the markup is in tile-photo-body.html. The same photo appears on the home wall and on each of its
   tag, category and series walls, and the tile is identical on all of them, so it is rendered once per photo and the
-  cached HTML is reused. Context as tile-photo-body.html: page, photo, i, n.
+  HTML is reused. It is kept in the post's Store by memo.html, not in the partial cache: Hugo's partial cache holds
+  only about a thousand entries, and a site with a few hundred photo posts needs more for its tiles alone, so the
+  tiles evicted each other and were rendered again on every wall (#247, #7, #164). Context as tile-photo-body.html:
+  page, photo, i, n.
 */ -}}
-{{- partialCached "tile-photo-body.html" . (printf "%s|%d|%d" .page.Path .i .n) -}}
+{{- $key := printf "theblues-tile-photo|%d|%d" .i .n -}}
+{{- $m := partial "memo.html" (dict "page" .page "key" $key) -}}
+{{- if $m }}{{ $m.val }}{{ else -}}
+  {{- $html := partial "tile-photo-body.html" . -}}
+  {{- $_ := partial "memo.html" (dict "page" .page "key" $key "val" $html) -}}
+  {{- $html -}}
+{{- end -}}

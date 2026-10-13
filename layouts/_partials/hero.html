@@ -1,7 +1,6 @@
 {{- /* Default page hero (Archive, About, Search, section pages): title and description over the page or site photo. */ -}}
-{{ $img := partialCached "cover.html" . .Path }}{{ $hs := dict }}
-{{- with $img }}{{ $hs = partialCached "hero-sizes.html" (dict "src" . "h" 416) . 416 }}{{ $.Store.Set "theblues-hero" . }}{{ $.Store.Set "theblues-hero-sizes" $hs }}{{ end }}
-<header class="phero"{{ with $img }} style="--hi:url('{{ . }}'){{ with $hs.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
+{{ $img := partialCached "cover.html" . .Path }}{{ $hero := partial "hero-style.html" (dict "page" . "src" $img "h" 416) }}
+<header class="phero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <div class="in">
     <h1>{{ partial "page-title.html" . }}</h1>
     {{ with .Description }}<p class="sub">{{ . }}</p>{{ end }}

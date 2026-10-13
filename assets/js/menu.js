@@ -12,7 +12,7 @@
   // Growing past 820px shows the links inline, so drop the open state (#13).
   var wide = window.matchMedia('(min-width: 821px)');
   function onWide() { if (wide.matches && links.classList.contains('open')) set(false); }
-  if (wide.addEventListener) wide.addEventListener('change', onWide); else if (wide.addListener) wide.addListener(onWide);
+  wide.addEventListener('change', onWide);
   links.addEventListener('click', function (e) { if (e.target.closest('a')) set(false); });
   // Close when keyboard focus leaves the nav (an open menu would otherwise cover what gets focus next).
   links.addEventListener('focusout', function (e) {

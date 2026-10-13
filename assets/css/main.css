@@ -36,6 +36,7 @@
   --bt: #F9F3EF;            /* text on the band and on photo scrims */
   --scrim: 15 35 50;        /* #0F2332 as RGB channels, for rgb(var(--scrim) / alpha) over photos */
   --line: #D2C1B6;          /* borders, decorative only */
+  --ctl-line: #7D8C97;      /* borders of controls (chips, select, tags, pager): 3.2:1 on --bg, 3.5:1 on --surface */
   --surface: #FFFFFF;
   --code: #EFE6DF;
   --on-bg: #1B3C53;         /* selected chip, badge, switch (background and text on it) */
@@ -73,6 +74,7 @@
     --focus: #D2C1B6;
     --band: #0F2332;        /* also the dark theme-color meta in head.html (#91) */
     --line: #456882;
+    --ctl-line: #7D8C97;    /* 4.1:1 on --bg, 3.3:1 on --surface */
     --surface: #1B3C53;
     --code: #0F2332;
     --on-bg: #D2C1B6;
@@ -100,6 +102,7 @@
   --focus: #D2C1B6;
   --band: #0F2332;        /* also the dark theme-color meta in head.html (#91) */
   --line: #456882;
+  --ctl-line: #7D8C97;     /* 4.1:1 on --bg, 3.3:1 on --surface */
   --surface: #1B3C53;
   --code: #0F2332;
   --on-bg: #D2C1B6;
@@ -124,7 +127,7 @@
 /* 2 Base -------------------------------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.65 var(--sans); overflow-x: hidden; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 1.0625rem/1.65 var(--sans); overflow-x: hidden; }
 img, svg, video { max-width: 100%; }
 img { display: block; }
 iframe { max-width: 100%; }
@@ -163,9 +166,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 @media (min-width: 821px) {
   nav.site li.theme { padding: 0; }
   /* The switch is hidden until theme.js shows it. In the desktop row it keeps its space until then (invisible, so out
-     of the accessibility tree and the tab order), so the links don't move left when it appears. Without JavaScript
-     nojs.css collapses it again (#138). */
-  nav.site li.theme[hidden] { display: flex !important; visibility: hidden; }
+     of the accessibility tree and the tab order), so the links don't move left when it appears. Only with the js class
+     on <html> (see the wall controls below, #274); without JavaScript the global [hidden] rule collapses it (#138). */
+  html.js nav.site li.theme[hidden] { display: flex !important; visibility: hidden; }
   nav.site .menu { display: none; }
   /* The row wraps, with a smaller row gap, so a long menu or a large text size (zoom) never pushes the theme switch past
      the edge, where body's overflow-x: hidden would hide it (#171). */
@@ -212,7 +215,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 @media (resolution <= 1dppx) and (1280px < width <= 1600px) { .hero, .phero { --hs: var(--hi5); } }
 
 /* 5 Shared bits ------------------------------------------------------------------------------------------- */
-.tag { display: inline-block; border: 1px solid var(--line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem .25rem .15rem 0; text-decoration: none; }
+.tag { display: inline-block; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem .25rem .15rem 0; text-decoration: none; }
 .meta { font-size: .85rem; color: var(--muted); }
 .series { border: 1px solid var(--line); border-left: .9rem solid var(--link); border-radius: 4px; padding: 1rem; background: var(--surface); margin: 2.5rem 0; }
 /* The title is an h2 (#172): the box is a section of the post, and its title belongs in the heading list. */
@@ -246,7 +249,7 @@ footer.site .ver { font-size: .8rem; }
 /* 7 Browse controls: calm popover ------------------------------------------------------------------------- */
 .ctl { position: relative; max-width: var(--wide); margin: 0 auto; padding: .6rem 1rem .5rem; display: flex; flex-wrap: wrap; gap: .2rem .7rem; align-items: center; }
 .seg { display: inline-flex; flex-wrap: wrap; gap: .3rem; }
-.seg button { border: 1px solid var(--line); background: none; color: var(--text); border-radius: 99px; padding: .1rem .75rem; font: inherit; font-size: .85rem; font-weight: 400; cursor: pointer; min-height: 32px; }
+.seg button { border: 1px solid var(--ctl-line); background: none; color: var(--text); border-radius: 99px; padding: .1rem .75rem; font: inherit; font-size: .85rem; font-weight: 400; cursor: pointer; min-height: 32px; }
 .seg button:hover { border-color: var(--muted); }
 .seg button .n { font-variant-numeric: tabular-nums; color: var(--muted); font-size: .78rem; }
 .seg button[aria-pressed=true] { background: var(--on-bg); color: var(--on-fg); border-color: var(--on-bg); font-weight: 600; }
@@ -263,18 +266,19 @@ footer.site .ver { font-size: .8rem; }
 @media (max-width: 699px) { .cap { text-align: left; } }
 /* The controls are hidden until wall.js shows them. Until then they keep their space (invisible, so out of the
    accessibility tree and the tab order), so the wall doesn't move down when they appear; the empty caption gets its
-   line. Without JavaScript nojs.css collapses them again (#7). */
+   line. Only once theme.js has put the js class on <html> (#274): without JavaScript nothing shows the controls, so the
+   rule doesn't apply and the global [hidden] rule collapses them (#7). */
 @media screen {
-  .ctl[hidden] { display: flex !important; visibility: hidden; }
-  .ctl[hidden] .cap { min-height: 1.4em; }
+  html.js .ctl[hidden] { display: flex !important; visibility: hidden; }
+  html.js .ctl[hidden] .cap { min-height: 1.4em; }
 }
 .pop { position: absolute; z-index: 15; top: calc(100% - .2rem); left: 1rem; right: 1rem; background: var(--surface); color: var(--text); border: 1px solid var(--muted); border-radius: 12px; padding: 1rem 1rem .6rem; box-shadow: 0 10px 30px rgb(0 0 0 / .25); }
 @media (min-width: 700px) { .pop { left: auto; width: 20rem; } }
 .ps { display: block; margin: 0 0 .9rem; }
 .ps > .pl { display: block; font-size: .8rem; font-weight: 700; color: var(--muted); margin-bottom: .35rem; }
-.seg.mode { display: flex; border: 1px solid var(--line); border-radius: 99px; padding: 2px; gap: 0; }
+.seg.mode { display: flex; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 2px; gap: 0; }
 .seg.mode button { flex: 1; border: 0; min-height: 36px; font-size: .9rem; }
-.sel { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: .9rem; padding: .4rem .6rem; }
+.sel { width: 100%; min-height: 44px; border: 1px solid var(--ctl-line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: .9rem; padding: .4rem .6rem; }
 label.swt { display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 44px; font-size: .9rem; cursor: pointer; }
 label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .swt .st { font-size: .75rem; color: var(--muted); min-width: 1.3rem; text-align: right; }
@@ -356,7 +360,7 @@ details.grp > summary .meta { font: 400 .85rem var(--sans); }
 
 /* 9 Pagination and post navigation ----------------------------------------------------------------------- */
 .pg { max-width: var(--wide); margin: 1rem auto 0; padding: 1rem; display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; justify-content: center; border-top: 1px solid var(--line); }
-.pg a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; padding: 0 .8rem; }
+.pg a { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--ctl-line); border-radius: 8px; text-decoration: none; padding: 0 .8rem; }
 .pg .gap { min-width: 1.5rem; text-align: center; color: var(--muted); }
 .pg a[aria-current=page] { background: var(--on-bg); color: var(--on-fg); border-color: var(--on-bg); font-weight: 700; }
 .nav2 { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; max-width: var(--wide); margin: 2rem auto 0; padding: 1rem; border-top: 1px solid var(--line); }
@@ -388,7 +392,7 @@ dialog.lb { border: 0; padding: 0; background: transparent; width: 100%; height:
 html:has(dialog.lb[open]) { overflow: hidden; }  /* no page scrolling behind the lightbox */
 dialog.lb::backdrop { background: rgb(0 0 0 / .9); }
 dialog.lb .in { height: 100%; display: grid; grid-template-rows: 1fr auto; place-items: center; padding: 1rem; color: var(--bt); }
-dialog.lb img { max-width: 100%; max-height: 80vh; max-height: 80dvh; object-fit: contain; touch-action: pan-y; }
+dialog.lb img { max-width: 100%; max-height: 80vh; max-height: 80dvh; object-fit: contain; touch-action: pan-y pinch-zoom; }
 dialog.lb .bb { display: flex; gap: .8rem; align-items: center; padding-top: .5rem; flex-wrap: wrap; justify-content: center; }
 dialog.lb button { background: none; color: var(--bt); border: 1px solid var(--hv); border-radius: 6px; padding: .4rem .9rem; font: inherit; cursor: pointer; min-height: 44px; }
 dialog.lb button:hover { color: var(--hv); }

@@ -1,12 +1,14 @@
 {{- /*
   "See all" tile: the last tile of a gallery on the wall, linking to the gallery post. Context: page, n (photos in the gallery),
   more (photos not shown). Keeps data-type=photo with the gallery's data-gallery/-title/-n/-date; data-more marks it so
-  assets/js/wall.js excludes it from counts. Distinct by shape (dashed frame), icon, and label, not color. The accessible
+  assets/js/wall.js excludes it from counts.
+  data-shown is the gallery's date as its photo tiles' captions write it, for a group heading on a page where this
+  is the gallery's only tile (#252). Distinct by shape (dashed frame), icon, and label, not color. The accessible
   name starts with the visible text, so voice control can target it (WCAG 2.5.3, #34).
 */ -}}
 {{- $pg := .page -}}
-{{- $t := partial "page-title.html" $pg -}}{{- /* falls back to the file name for an untitled post (#65) */ -}}
-<div class="tile photo more" data-type="photo" data-more="{{ .more }}" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $t }}" data-n="{{ .n }}" data-date="{{ partial "date.html" (dict "date" $pg.Date "format" "2006-01-02" "undated" "") }}">
+{{- $t := or $pg.Title (partial "page-title.html" $pg) -}}{{- /* falls back to the file name for an untitled post (#65) */ -}}
+<div class="tile photo more" data-type="photo" data-more="{{ .more }}" data-gallery="{{ $pg.RelPermalink }}" data-gallery-title="{{ $t }}" data-n="{{ .n }}" data-shown="{{ partial "date.html" (dict "date" $pg.Date) }}" data-date="{{ if not $pg.Date.IsZero }}{{ $pg.Date.Format "2006-01-02" }}{{ end }}">
   <a class="seeall" href="{{ $pg.RelPermalink }}" aria-label="{{ $t }}, {{ (or (T "morePhotos" .more) (partial "t.html" (slice "morePhotos" .more))) }}, {{ (or (T "seeAll" (dict "n" .n)) (partial "t.html" (slice "seeAll" (dict "n" .n)))) }}">
     <svg class="ic big" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
     <span class="t">{{ $t }}</span>
