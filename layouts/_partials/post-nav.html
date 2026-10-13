@@ -11,7 +11,7 @@
   {{- $all := (where site.RegularPages "Section" "in" site.MainSections).ByDate -}}
   {{- $sc := newScratch -}}
   {{- range $i, $p := $all }}{{ $sc.SetInMap "pos" $p.RelPermalink $i }}{{ end -}}
-  {{- $nav = dict "all" $all "pos" ($sc.Get "pos" | default dict) -}}
+  {{- $nav = dict "all" $all "pos" ($sc.Get "pos" | default (dict)) -}}
   {{- $_ := partial "memo.html" (dict "page" site.Home "key" $key "val" $nav) -}}
 {{- end -}}
 {{- $older := "" -}}{{- $newer := "" -}}
