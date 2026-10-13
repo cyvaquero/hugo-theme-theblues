@@ -204,6 +204,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 /* Term hero links. */
 .thero .tl { display: inline-block; margin: 0 1.2rem .6rem 0; color: var(--bt); min-height: 44px; line-height: 44px; }
 .thero .tl:hover { color: var(--hv); }
+/* Feed link (#313) in a hero: on the scrim, like the other hero links. */
+.phero .feed { color: var(--bt); }
+.phero .feed:hover { color: var(--hv); }
 .thero .ptype { display: flex; }
 /* Hero sizes (#149): on a SmugMug photo the hero also gets --hi1 to --hi5, a smaller size for each of these viewport
    tiers (layouts/_partials/hero-sizes.html, which works them out, and whose preload links use the same media queries).
@@ -223,6 +226,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .series ol { list-style: none; margin: .5rem 0 1rem; padding: 0; }
 .series li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); padding: .35rem 0; font-size: .95rem; }
 .series li .meta { flex: none; }
+/* Feed link (#313): the RSS icon and "Subscribe via RSS", in the term and section heroes and the series box. */
+.feed { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; text-underline-offset: .15em; }
+.feed svg { width: 1.05em; height: 1.05em; fill: currentColor; flex: none; }
 .pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .comments { margin-top: 2rem; }
 /* The heading and status the script shows after "Show comments" (#162); --text is 10.5:1 on --bg in light, 12.8:1 in dark. */
@@ -529,7 +535,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
    would otherwise print cream text on white paper (#3). */
 @media print {
   body { background: #fff; color: #000; }
-  nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc { display: none !important; }
+  nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc, .feed { display: none !important; }
   .hero, .phero { background: none !important; color: #000; min-height: 0; padding-top: 1rem; }
   .phero .in { background: none !important; }
   .hero .k, .phero .sub, .phero .meta, .phero .ptype, .phero .tag, .phero a { color: #000; }

@@ -31,7 +31,7 @@ layouts/rss.xml            home, section and term feeds (main sections only on t
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
-                           comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
+                           comments, social, rss-icon, feed-link, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, t, https-check
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image

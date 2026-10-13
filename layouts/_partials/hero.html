@@ -4,5 +4,7 @@
   <div class="in">
     <h1>{{ partial "page-title.html" . }}</h1>
     {{ with .Description }}<p class="sub">{{ . }}</p>{{ end }}
+    {{- if and (eq .Kind "section") (ne .Section "search") }}{{ with partial "feed-link.html" . }}
+    {{ . }}{{ end }}{{ end }}
   </div>
 </header>

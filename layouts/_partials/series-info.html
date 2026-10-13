@@ -24,7 +24,7 @@
     {{- $_ := partial "memo.html" (dict "page" $term "key" $key "val" $o) -}}
   {{- end -}}
   {{- with index $o.pos $page.RelPermalink -}}
-    {{- $out = $out | append (dict "name" $term.LinkTitle "url" $term.RelPermalink "part" . "total" (len $o.pages) "pages" $o.pages) -}}
+    {{- $out = $out | append (dict "name" $term.LinkTitle "url" $term.RelPermalink "term" $term "part" . "total" (len $o.pages) "pages" $o.pages) -}}
   {{- end -}}
 {{- end -}}
 {{- return $out -}}
