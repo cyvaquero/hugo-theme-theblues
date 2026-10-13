@@ -259,7 +259,8 @@ A site can add its own page types without overriding theme files:
   `[privacy.googleAnalytics] disable` not set. It is `false` otherwise. It is decided per build, not per visitor: the
   loader still loads nothing for visitors who send Do Not Track or Global Privacy Control. `head.html` uses the same
   partial, so a site that shows an analytics notice only when analytics loads stays in step with the theme: `{{ if partial "analytics-on.html" . }}…{{ end }}`. Its name and result are kept
-  stable; a change is called out in the CHANGELOG. Theme versions before 1.3.0 don't have it; a site that must build
+  stable; a change is called out in the CHANGELOG. `head.html` calls it with `partialCached`, so it answers once per
+  build: a site's own copy of the partial must not depend on the page. Theme versions before 1.3.0 don't have it; a site that must build
   with them can check `templates.Exists "_partials/analytics-on.html"` first. The theme itself shows no notice and asks
   for no consent before it loads analytics (see `[services.googleAnalytics] id` under "Site settings it reads").
 - **Styles:** the custom properties at the top of `assets/css/main.css` (section 1) are the colors and fonts a site's

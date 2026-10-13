@@ -3,6 +3,19 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.4] - 2026-10-13
+
+### Changed
+- Builds do less work, with no change to the pages a build writes (the review notes in #307). The script and stylesheet
+  tags, and the answer of `analytics-on.html`, are made once per build instead of once per page; `hero-style.html` builds
+  no dictionary on a cache hit; `post-nav.html` finds a post's neighbors from a kept position map instead of scanning the
+  post list for every post. On a 550-post site the tag partials' cumulative time fell from about 290 ms to about 20 ms.
+  A site's own copy of `analytics-on.html` must not depend on the page, since `head.html` now calls it cached.
+- `wall.js` binds the chip-hover preview to the controls instead of the whole document, and writes a tile's state
+  (hidden, dimmed, highlighted), the group sections and the controls only when they changed. `gallery.js` builds its
+  lightbox `<dialog>` at the first click instead of at load. `theme.js` sets the page's colors once at load and the
+  switch's buttons once the page is parsed, instead of applying the mode twice. Behavior is unchanged.
+
 ## [1.5.3] - 2026-10-13
 
 ### Added

@@ -1,15 +1,26 @@
 {{- /* Previous (older) and next (newer) post by date, across all posts. Titles go through page-title.html, so an untitled
   post still gets link text (#65). memo.html sorts the posts once per build and keeps them in the home page's Store,
-  as photos.html does, instead of once per post (#7); a kept list is never used after a rebuild (#164). */ -}}
+  as photos.html does, instead of once per post (#7); a kept list is never used after a rebuild (#164). It keeps with
+  them a map of each post's address to its place in the list, so a post finds its neighbors by place instead of by
+  scanning the list (Pages.Next and Pages.Prev do, which costs the square of the post count). A post that isn't in the
+  list (it's not in a main section) has no neighbors, as before. */ -}}
 {{- $key := "theblues-post-nav" -}}
-{{- $all := slice -}}
+{{- $nav := dict -}}
 {{- $m := partial "memo.html" (dict "page" site.Home "key" $key) -}}
-{{- if $m }}{{ $all = $m.val }}{{ else -}}
-  {{- $all = (where site.RegularPages "Section" "in" site.MainSections).ByDate -}}
-  {{- $_ := partial "memo.html" (dict "page" site.Home "key" $key "val" $all) -}}
+{{- if $m }}{{ $nav = $m.val }}{{ else -}}
+  {{- $all := (where site.RegularPages "Section" "in" site.MainSections).ByDate -}}
+  {{- $sc := newScratch -}}
+  {{- range $i, $p := $all }}{{ $sc.SetInMap "pos" $p.RelPermalink $i }}{{ end -}}
+  {{- $nav = dict "all" $all "pos" ($sc.Get "pos" | default dict) -}}
+  {{- $_ := partial "memo.html" (dict "page" site.Home "key" $key "val" $nav) -}}
 {{- end -}}
-{{- $older := $all.Next . -}}
-{{- $newer := $all.Prev . -}}
+{{- $older := "" -}}{{- $newer := "" -}}
+{{- $rp := .RelPermalink -}}
+{{- if isset $nav.pos $rp -}}
+  {{- $i := index $nav.pos $rp -}}
+  {{- if gt $i 0 }}{{ $older = index $nav.all (sub $i 1) }}{{ end -}}
+  {{- if lt (add $i 1) (len $nav.all) }}{{ $newer = index $nav.all (add $i 1) }}{{ end -}}
+{{- end -}}
 {{- if or $older $newer }}
 <nav class="nav2" aria-label="{{ (or (T "postNavigation") (partial "t.html" "postNavigation")) }}">
   {{ with $older }}<a href="{{ .RelPermalink }}" rel="prev">&larr; {{ or .Title (partial "page-title.html" .) }}</a>{{ else }}<span></span>{{ end }}
