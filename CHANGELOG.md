@@ -3,152 +3,81 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.5.11] - 2026-10-14
-
-### Changed
-- Documentation for the release (#322):
-  - Hugo 0.168.0 is the version the theme is developed and tested on. "Upgrading Hugo" lists `layouts/rss.xml` beside
-    `layouts/sitemap.xml` as a copy of Hugo's template to compare after an upgrade, and the RSS layout's header names
-    0.168.0, whose template is unchanged.
-  - The search docs give the query limits (10 words, 64 characters a word, 200 characters from `?q=`), the 404 page's
-    score threshold, what `params.search.textLimit` accepts, and that the Arabic marks folded are the vowel marks only.
-  - The README no longer links issues from its prose; `theme.toml` lists client-side search and feed links among the
-    features; `docs/testing.md` gives the right error for the site's own address in the embed check; comments name the
-    fourth template script (`search.js`), the scripts' plural forms and the `_partials` folder.
-  - The CHANGELOG gains its missing link definitions and issue numbers.
-  Docs and comments only; output is unchanged.
-
-## [1.5.10] - 2026-10-14
-
-### Fixed
-- The sitemap no longer lists pages the build doesn't write. A page with `build: {render: link, list: always}` was in
-  `sitemap.xml` although nothing is written at its address, so the sitemap pointed at a 404. The theme now ships a
-  `sitemap.xml` layout (Hugo's own template plus a filter) that leaves out pages whose `build.render` is `never` or
-  `link`, as the search index does; everything else in the sitemap is unchanged. A site's own `layouts/sitemap.xml`
-  still takes precedence (#326).
-
-## [1.5.9] - 2026-10-14
-
-### Fixed
-- The `embed` shortcode now refuses an IP address in any spelling when the site is itself served from an IP address.
-  Before, `https://2130706433/` or `https://0x7f.1/` (other spellings of `127.0.0.1`) passed the own-host check and
-  were framed with `allow-same-origin`. A site on a domain name is not affected (#309).
-
-## [1.5.8] - 2026-10-14
-
-### Fixed
-- The search index no longer lists pages the build doesn't publish. A page with `build: {render: never, list: always}`
-  (or `render: link`) has no page at its address, but its title, section, tags, description and text were in the public
-  `/search/index.json` and came up in searches with an empty or dead link. Pages whose `build.render` is `never` or
-  `link`, or that have no address, are left out; the README says so next to `search: false` (#321).
-- The test site gains a render-never and a render-link page for this case (#321).
-
-## [1.5.7] - 2026-10-14
-
-### Fixed
-- Search no longer treats the vowel signs of Devanagari, Thai and other scripts as accents. They were folded away, so
-  distinct words matched each other ("की" listed pages that only had "कमल" or "कोई") and highlights cut words short or
-  were missing. Search now folds case and only the optional marks (the accents of Latin, Greek and Cyrillic, the Arabic
-  vowel marks and the Hebrew points), keeps every other mark in its word, and highlights whole words, including Latin
-  text saved in decomposed form ("ecole" now highlights "école" saved as `e` plus an accent) (#320).
-- The test site gains Hindi, decomposed-Latin and vocalized-Arabic pages for these cases (#320).
-
-## [1.5.6] - 2026-10-13
-
-### Changed
-- The README's known limits say that the series box lists every post of a series on each of its posts, so the build time
-  grows with the square of the series length (about a second for 150 posts), and that the theme is tested with series of
-  up to about 25 posts; `docs/testing.md` asks for build-time tests at that scale (#307). Docs only; output is unchanged.
-
-## [1.5.5] - 2026-10-13
-
-### Fixed
-- Review notes for release 1.5.0 (#307):
-  - Feeds no longer carry `aria-describedby="tb-newtab"` on the links in their items: that reference points at a hidden
-    notice that exists only on the site's pages, so it dangled in a feed reader. The pages are unchanged.
-  - A link to another host with a Markdown title (`[text](https://… "Title")`) kept the new-tab notice as its description
-    and lost the title for assistive technology. It now has no reference, and its `title` is the title followed by the
-    notice ("Title (opens in a new tab)"), so the title and the notice are one description and the tooltip says both.
-    Links without a title are unchanged.
-  - Dates in Arabic, Japanese and Korean lost their month: Hugo 0.167.0 has no abbreviated month name for those
-    locales, so the default layout (`Jan 2, 2006`) printed " 12, 2026". `date.html` now uses the full name where a
-    layout asks for `Jan` (and `Monday` for `Mon`) when the locale has no short one. The fixture's `ar.toml` has its own
-    `dateFormat` entries, and the README says so.
-  - English fallback text (a language without a translation of an entry shows the theme's English) is now marked
-    `lang="en"` where it is the content of an element (a button, label, heading or link name), so screen readers read it in
-    English (WCAG 3.1.2). In attributes (`aria-label`, `title`), the page `<title>`, an `<option>`, feeds, date layouts and
-    the text scripts write, no markup can carry the language; the README (Translating the theme, Accessibility) says so.
-    New partial `t-en.html`; English sites are unchanged.
-  - `params.wall.tilesPerPage` and `params.wall.photosPerGallery` also fail the build, naming the setting, for `true` or
-    `false`, a number with a fraction (`2.9`, which was cut to 2) and a number too big for a whole number (`1e30`).
-  - The counts the scripts write (the wall's caption, group headings and the search result count) have every plural form
-    the language's entry defines, and the browser's plural rules pick, so Polish, Russian, Arabic or Welsh no longer get the
-    `other` form where their rule says `few`, `many`, `zero` or `two`. A language whose entry has just `one` and `other` gets
-    the same script text as before. New partials `js-forms.html` and `setting-int.html`.
-## [1.5.4] - 2026-10-13
-
-### Changed
-- Builds do less work, with no change to the pages a build writes (the review notes in #307). The script and stylesheet
-  tags, and the answer of `analytics-on.html`, are made once per build instead of once per page; `hero-style.html` builds
-  no dictionary on a cache hit; `post-nav.html` finds a post's neighbors from a kept position map instead of scanning the
-  post list for every post. On a 550-post site the tag partials' cumulative time fell from about 290 ms to about 20 ms.
-  A site's own copy of `analytics-on.html` must not depend on the page, since `head.html` now calls it cached.
-- `wall.js` binds the chip-hover preview to the controls instead of the whole document, and writes a tile's state
-  (hidden, dimmed, highlighted), the group sections and the controls only when they changed. `gallery.js` builds its
-  lightbox `<dialog>` at the first click instead of at load. `theme.js` sets the page's colors once at load and the
-  switch's buttons once the page is parsed, instead of applying the mode twice. Behavior is unchanged (#307).
-
-## [1.5.3] - 2026-10-13
+## [1.6.0] - 2026-10-14
 
 ### Added
+- Search, in the browser (#159, #320). The theme has an output format, `searchindex`, and a template that write the
+  whole site's search index as one JSON file, `/search/index.json`, in the normal build: no service, key, extra build
+  step or dependency. A site turns it on by listing the format in the search section's outputs (`outputs: [html,
+  searchindex]` in `content/search/_index.md`, since Hugo doesn't merge a theme's `outputs`); a site that doesn't is
+  unchanged, and its search page still says "Search is not available yet." Every regular page the build writes is
+  indexed except those with `search: false` in their front matter; its title, address, date, section, tags,
+  categories, series, description, gallery photo titles and plain text go in. The text is cut to the new
+  `params.search.textLimit` (default 5000 characters; `0` keeps it all), and a build whose index is over 1 MB warns with
+  the ID `theblues-search-size`. A new `assets/js/search.js` fills the search page: a labeled field, Enter or the Search
+  button, results as you type with the matching words in `<mark>`, a polite "3 results" status said once typing pauses,
+  and the query kept in the address as `?q=`. It folds case and only the optional marks (the accents of Latin, Greek
+  and Cyrillic, the Arabic vowel marks and the Hebrew points), so the vowel signs of Devanagari, Thai and other scripts
+  keep words apart and whole words are highlighted, also in text saved in decomposed form. It matches the start of
+  words, allows one typo when no page has every word, then falls back to pages that have any of the words, and ranks
+  title, then tags, categories and series, description, photo titles and text. The new color tokens `--mark-bg` and
+  `--mark-fg` (8:1 in light and dark; system colors in forced-colors mode) style the matches; the new strings are in
+  `i18n/en.toml`. A site's Content Security Policy needs `connect-src 'self'` for the index (the README's example has
+  it).
 - The 404 page lists the latest five posts, so it is useful without JavaScript (the new `latestPosts` string), and, on a
-  site that publishes the search index, searches for the words of the missing address (#151). `search.js` reads the
-  address, drops the site's base path, numbers, one-letter words and common URL words (`post`, `page`, `tag`,
-  `category`, `index`, `html`, `php` and the like), and keeps at most 8 words of 40 letters. If they match, up to five
-  results replace the latest-posts list under a "Were you looking for…" heading (the new `notFoundLooking` string), the
-  words are in the search field so the visitor can edit them and press Enter to search the whole site, and a polite status
-  says the count; focus doesn't move. The last search pass (any word) uses only words of three letters or more and takes only
-  pages with one in the title, tags or description. With no words, no match, no index or no JavaScript the page shows the latest posts (and the empty
-  field, when there is an index). The address is only ever inserted as text, and nothing redirects, so the page keeps
-  its 404 status. A site that doesn't publish the index gets the latest posts and no script.
-- A site's Content Security Policy needs `form-action 'self'` for the 404 page's search field when it publishes the index
-  (the README's example has it) (#151).
-
-## [1.5.2] - 2026-10-13
-
-### Added
-- Search, in the browser (#159). The theme has an output format, `searchindex`, and a template that write the whole
-  site's search index as one JSON file, `/search/index.json`, in the normal build: no service, key, extra build step or
-  dependency. A site turns it on by listing the format in the search section's outputs (`outputs: [html, searchindex]`
-  in `content/search/_index.md`, since Hugo doesn't merge a theme's `outputs`). Every regular page is indexed except
-  those with `search: false` in their front matter; its title, address, date, section, tags, categories, series,
-  description, gallery photo titles and plain text go in. The text is cut to the new `params.search.textLimit`
-  (default 5000 characters; `0` keeps it all), and a build whose index is over 1 MB warns with the ID
-  `theblues-search-size`. A new `assets/js/search.js` fills the search page: a labeled field, Enter or the Search button,
-  results as you type with the matching words in `<mark>`, a polite "3 results" status said once typing pauses, and the
-  query kept in the address as `?q=`. It folds case and accents, matches the start of words, allows one typo when no
-  page has every word, then falls back to pages that have any of the words, and ranks title, then tags, categories and
-  series, description, photo titles and text. The new color tokens `--mark-bg` and `--mark-fg` (8:1 in light and dark;
-  system colors in forced-colors mode) style the matches; the new strings are in `i18n/en.toml`. The script sends nothing
-  anywhere (its only request is for the index) and builds the results with `textContent`, never `innerHTML`; the query is
-  in the address as `?q=`, so analytics that record addresses record it, which the README says.
-- A site's Content Security Policy needs `connect-src 'self'` for the index (the README's example has it) (#159).
-
-### Changed
-- A site that doesn't list `searchindex` in its search section's outputs is unchanged: its search page still says
-  "Search is not available yet.", loads no search script and gets no index. The fixture now publishes the index, with a
-  page that has accented words and one with `search: false` (#159).
-
-## [1.5.1] - 2026-10-13
-
-### Added
+  site that publishes the search index, searches for the words of the missing address (#151). `search.js` drops the
+  site's base path, numbers, one-letter words and common URL words, and keeps at most 8 words of 40 letters. If they
+  match, up to five results replace the latest-posts list under a "Were you looking for…" heading (the new
+  `notFoundLooking` string), the words are in the search field so the visitor can edit them and search the whole site,
+  and a polite status says the count; focus doesn't move. The page keeps its 404 status, and a site that doesn't publish
+  the index gets the latest posts and no script. A site's Content Security Policy needs `form-action 'self'` for the
+  404 page's search field when it publishes the index.
 - Term pages (tag, category and series) and section pages other than `search` have a "Subscribe via RSS" link to the
   page's own feed: in the term header after the post and photo counts, and in the section header below the title and
   description. A post in a series has the same link in its series box, under "Part N of M", for that series' feed. The
-  link is the RSS icon and the text (the new `subscribeFeed` string in `i18n/en.toml`), so its accessible name is its
-  visible text; it is at least 44px tall, takes the header's link colors or the series box's, has the theme's focus ring,
-  and is left out of print. Home, the taxonomy indexes, About, Archive, Search and 404 are unchanged, and a page with no
-  RSS output gets no link (#313).
+  link's accessible name is its visible text (the new `subscribeFeed` string), it is at least 44px tall and has the
+  theme's focus ring; a page with no RSS output gets no link (#313).
+
+### Changed
+- Builds do less work, with no change to the pages a build writes (#307). The script and stylesheet tags, and the answer
+  of `analytics-on.html`, are made once per build instead of once per page; `hero-style.html` builds no dictionary on a
+  cache hit; `post-nav.html` finds a post's neighbors from a kept position map. On a 550-post site the tag partials'
+  cumulative time fell from about 290 ms to about 20 ms. A site's own copy of `analytics-on.html` must not depend on the
+  page, since `head.html` now calls it cached. `wall.js`, `gallery.js` and `theme.js` do less work at load and on
+  hover, with no change in behavior.
+- The counts the scripts write (the wall's caption, group headings and the search result count) have every plural form
+  the language's entry defines, and the browser's plural rules pick, so Polish, Russian, Arabic or Welsh no longer get
+  the `other` form where their rule says `few`, `many`, `zero` or `two` (#307).
+- Hugo 0.168.0 is the version the theme is developed and tested on. The README's known limits give the series box's
+  build cost for long series and the series length the theme is tested with, and "Upgrading Hugo" lists the copies of
+  Hugo's `sitemap.xml` and `rss.xml` templates to compare after an upgrade (#307, #322).
+
+### Fixed
+- Feeds no longer carry `aria-describedby="tb-newtab"` on the links in their items, which pointed at a notice that
+  exists only on the site's pages (#307).
+- A link to another host with a Markdown title (`[text](https://… "Title")`) has the title followed by the new-tab
+  notice as its `title` ("Title (opens in a new tab)"), so assistive technology gets both; links without a title are
+  unchanged (#307).
+- Dates in Arabic, Japanese and Korean keep their month: Hugo has no abbreviated month name for those locales, so
+  `date.html` uses the full name where a layout asks for `Jan` (and `Monday` for `Mon`) (#307).
+- English fallback text (a language without a translation of an entry shows the theme's English) is marked `lang="en"`
+  where it is the content of an element, so screen readers read it in English (WCAG 3.1.2); English sites are unchanged
+  (#307).
+- `params.wall.tilesPerPage` and `params.wall.photosPerGallery` fail the build, naming the setting, for `true` or
+  `false`, a number with a fraction and a number too big for a whole number (#307).
+- The sitemap no longer lists pages the build doesn't write. The theme ships a `sitemap.xml` layout (Hugo's own template
+  plus a filter) that leaves out pages whose `build.render` is `never` or `link`; everything else is unchanged, and a
+  site's own `layouts/sitemap.xml` still takes precedence (#326).
+
+### Security
+- The search index leaves out pages the build doesn't write (`build.render` of `never` or `link`, or no address), so an
+  unpublished page's title, tags, description and text can't reach the public `/search/index.json` (#321).
+- The search script sends nothing anywhere (its only request is for the same-origin index), builds the results with
+  `textContent`, never `innerHTML`, and drops index rows whose address isn't on the site's origin. The query is in the
+  address as `?q=`, so analytics that record addresses record it, which the README says (#159).
+- The `embed` shortcode refuses an IP address in any spelling (decimal, hex, octal, short or IPv6) when the site is
+  itself served from an IP address, since such a spelling of the site's own address passed the own-host check and was
+  framed with `allow-same-origin` (#309).
 
 ## [1.5.0] - 2026-10-12
 
@@ -668,6 +597,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.6.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.4.0...1.5.0
 [1.4.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.3.0...1.4.0
 [1.3.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...1.3.0
