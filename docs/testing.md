@@ -67,6 +67,13 @@ settings checks, this fails the build and the fixture can't hold it. Building th
 trigger), and `-b https://xn--exmple-cua.org/` must build as usual. With that punycode base URL, a copy of the fixture
 whose embed URL is `https://exämple.org/x` must fail with "the URL's host must be plain ASCII".
 
+The same shortcode refuses a numeric spelling of the site's own IP address (#309). With the site on a bare IP, build with
+`-b https://127.0.0.1/` (and `-b 'https://[::1]/'`) and a copy of the fixture whose embed URL is, in turn, `https://2130706433/`,
+`https://0x7f.1/`, `https://0177.0.0.1/`, `https://127.1/`, `https://127.0.0.1./`, `https://127.0.0.1/x`, `https://[::1]/` and
+`https://[::ffff:127.0.0.1]/`: each must fail with "the site is served from an IP address" (the shortcode's own error, no panic), while
+`https://photos.example.org/x` and `https://www.youtube-nocookie.com/x` build. On the fixture's own base URL (a domain), the numeric
+URLs build as before.
+
 The search fixture (README, "Search"): `exampleSite/content/search/_index.md` lists `searchindex` in its outputs, so the
 build publishes `/search/index.json`, and the search page loads `search.js`. The root pages `accents.md` (accented words in
 its title, description, tags and text) and `unlisted.md` (`search: false`, one rare word) are part of it, with four pages for the marks (#320): `hindi.md` ("किताब", and
