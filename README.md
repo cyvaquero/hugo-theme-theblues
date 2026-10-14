@@ -201,8 +201,10 @@ language that has its own search section), at that address and not fingerprinted
 name. A site that doesn't list the format gets no index and no script, and its search page keeps "Search is not
 available yet."
 
-**What is indexed.** Every regular page of the language except those with `search: false` in their front matter. Drafts
-and future or expired pages are left out by Hugo's own rules. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
+**What is indexed.** Every regular page of the language except those with `search: false` in their front matter.
+Drafts, future and expired pages are left out by Hugo's own rules. So is a page the build doesn't publish: one whose
+`build.render` is `never` or `link` (it has no page at its address, or none is written there) is not indexed, even when
+`build.list` is `always`. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
 `[title, url, date, section, tags, categories, series, description, photoTitles, text]`. `date` is `YYYY-MM-DD` (empty
 for an undated page), `section` is the title of the page's top-level section (empty for a page in the site root),
 `photoTitles` are the titles of its `gallery` photos, and `text` is the page's plain text with white space collapsed.
