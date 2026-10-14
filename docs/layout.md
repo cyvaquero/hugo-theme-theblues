@@ -80,7 +80,9 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   fills the list, puts the words in the field, hides `#latest` and says the count; otherwise it only shows the form.
 - **Script.** `search.js` is a Hugo template (first-line marker) for its text (`js-text.html`, "search"). It fetches the
   address in `data-index` on first focus or at once for `?q=`, refuses another origin and any `v` other than 1, then
-  builds in memory a map from each folded word to the pages it is in, with the best field weight. A query tries three
+  builds in memory a map from each folded word to the pages it is in (words are runs of letters, digits and combining
+  marks; folding is lower case, NFD and removal of the optional marks listed in the README, "How it matches"; the index,
+  the query, the highlights, the snippet and the 404 address all use the same `fold()` and `TOKEN`), with the best field weight. A query tries three
   passes (every word, as a start or exactly; the same with one typo; any word) and stops at the first that finds pages.
   Results and highlights are built with `createElement`, `createTextNode` and `textContent`.
 

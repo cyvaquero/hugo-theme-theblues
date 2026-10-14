@@ -69,12 +69,18 @@ whose embed URL is `https://exämple.org/x` must fail with "the URL's host must 
 
 The search fixture (README, "Search"): `exampleSite/content/search/_index.md` lists `searchindex` in its outputs, so the
 build publishes `/search/index.json`, and the search page loads `search.js`. The root pages `accents.md` (accented words in
-its title, description, tags and text) and `unlisted.md` (`search: false`, one rare word) are part of it. Check the build, in
+its title, description, tags and text) and `unlisted.md` (`search: false`, one rare word) are part of it, with four pages for the marks (#320): `hindi.md` ("किताब", and
+"की" in its text) and `hindi-other.md` ("कमल", "कोई", "कुछ", "करता", "के", "को", "कि"), `decomposed.md` (Latin saved in
+NFD) and `vocalized.md` (Arabic with harakat). Check the build, in
 `<out>/search/`: `index.json` exists, has `"v":1` and no row for the unlisted page, and `index.xml` doesn't exist. Then serve
 `<out>` (`python3 -m http.server`) and, in a browser (headless Chrome over the DevTools protocol works), on `/search/`:
 
 - `gallery` lists the gallery posts, with the matches in `<mark>`; `code` finds the post tagged `code`; `cafe creme`,
   `Café Crème`, `naive resume`, `MUNSTER` and `brulee` all find the accents page (case and accents folded);
+- `की` finds only the Hindi page that has it (not "कमल", "कोई" or "कुछ"), with the whole word in `<mark>`; `किताब` finds
+  that page with the whole word marked and the snippet centered on it; `ecole` finds the decomposed page with "école"
+  marked whole; `كتاب` and `كِتَابٌ` both find the Arabic page, with the whole word marked; `/की/` on the 404 page
+  searches that word the same way;
 - `smug` finds the SmugMug posts (start of a word); `galery` finds the gallery posts (one typo);
 - `zzzqx` and `zebrafish` (the unlisted page's word) find nothing and the status says "No results for …";
 - `/search/?q=Café` runs on load, leaves focus on the page and keeps other parameters and the hash in the address;
