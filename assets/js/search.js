@@ -7,8 +7,8 @@
 // address in data-index is fetched, and an index whose "v" isn't 1 (a layout this script doesn't know) is refused.
 // Each row is [title, url, date, section, tags, categories, series, description, photoTitles, text].
 //
-// The matcher folds case and accents (Unicode NFD, marks removed), splits words at anything that isn't a letter or digit,
-// and scores a page by where the words are found: title 10, tags/categories/series 6, description 4, photo titles 3, text 1
+// The matcher folds case and accents (lower case, Unicode NFD, then only the optional marks removed, see fold()), splits
+// words at anything that isn't a letter, a digit or a combining mark, and scores a page by where the words are found: title 10, tags/categories/series 6, description 4, photo titles 3, text 1
 // (a little more for repeats in the text). It tries three passes and stops at the first that finds a page:
 //   1. every word of the query matches a word of the page, exactly or as its start ("bost" finds "Boston");
 //   2. the same, allowing one typo (an extra, missing, wrong or swapped letter) in query words of 4 letters or more;
@@ -35,7 +35,14 @@
   var MAX = 50;          // results shown; the status says when there are more
   var MAX_404 = 5, MIN_SCORE_404 = 3.2;  // 3.2 is a start-of-word match in the description (4 x 0.8)
   var STOP = ['post', 'posts', 'page', 'pages', 'tag', 'tags', 'category', 'categories', 'index', 'html', 'htm', 'php', 'asp', 'aspx', 'jsp', 'cgi'];
-  var TOKEN = /[\p{L}\p{N}]+/gu;
+  // A word is letters, digits and combining marks. The marks must stay in the word: in Devanagari, Thai and similar scripts
+  // the vowel signs are marks, and the index and the highlighting must cut a word at the same places (#320).
+  var TOKEN = /[\p{L}\p{N}\p{M}]+/gu;
+  // The marks fold() removes, after NFD: U+0300-U+036F (accents of Latin, Greek and Cyrillic), Arabic harakat and other
+  // optional vocalization (U+064B-U+065F, U+0670), and Hebrew points and cantillation (U+0591-U+05BD, U+05BF, U+05C1,
+  // U+05C2, U+05C4, U+05C5, U+05C7). Every other mark (Indic and Thai vowel signs, viramas, nuktas, tone marks) tells
+  // words apart and stays (#320).
+  var OPTIONAL = /[\u0300-\u036f\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u064b-\u065f\u0670]/g;
   var index, pending, seq = 0, timer, stimer, statusDue = false, last = null;
   var lang = document.documentElement.lang || undefined;
 
@@ -51,7 +58,7 @@
     if (plural && f.p) for (var i = 0; i < f.p.length; i++) if (plural.select(f.p[i]) === c) { s = f.t[i]; break; }
     return s.replace('%d', n);
   }
-  function fold(s) { return s.toLowerCase().normalize('NFD').replace(/\p{M}+/gu, ''); }
+  function fold(s) { return s.toLowerCase().normalize('NFD').replace(OPTIONAL, ''); }
   function str(x) { return typeof x === 'string' ? x : ''; }
   function strs(x) { return Array.isArray(x) ? x.filter(function (v) { return typeof v === 'string'; }) : []; }
 

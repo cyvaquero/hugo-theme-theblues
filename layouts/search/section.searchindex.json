@@ -5,8 +5,10 @@
   outputs: [html, searchindex] in content/search/_index.md, or "searchindex" in the outputs of a cascade for /search.
   Format (v is the version of this layout; the script ignores an index whose v isn't 1):
     {"v":1,"p":[[title, url, date, section, tags, categories, series, description, photoTitles, text], …]}
-  one row for every regular page of the site's language, except a page with `search: false` in its front matter. Drafts and
-  future or expired pages are left out by Hugo's own rules. title is the page's title (the file name when it has none),
+  one row for every regular page of the site's language, except a page with `search: false` in its front matter or a page
+  the build doesn't publish (#321): one whose build option `render` is `never` or `link` (they leave no page at its
+  address, so a result would be empty or a 404; Hugo still lists such a page when `list` is `always`) or that has no
+  address. Drafts and future or expired pages are left out by Hugo's own rules. title is the page's title (the file name when it has none),
   url its RelPermalink, date YYYY-MM-DD (empty when undated), section the title of its top-level section (empty for a page
   in the site root), tags, categories and series the term names from the front matter (lists), description the front
   matter description, photoTitles the titles of its gallery photos (a list) and text its plain text with the white space
@@ -22,7 +24,8 @@
 {{- $rows := slice -}}
 {{- range site.RegularPages -}}
   {{- $p := . -}}
-  {{- if ne (printf "%v" $p.Params.search) "false" -}}
+  {{- /* A never page has no RelPermalink; a link page has one but is not written (is-written.html says which pages are). */ -}}
+  {{- if and (ne (printf "%v" $p.Params.search) "false") $p.RelPermalink (partial "is-written.html" $p) -}}
     {{- $lists := dict -}}
     {{- range slice "tags" "categories" "series" -}}
       {{- $v := index $p.Params . -}}

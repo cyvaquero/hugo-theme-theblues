@@ -38,7 +38,7 @@ How the images were made is in [docs/testing.md](docs/testing.md).
 ## Requirements
 
 - Hugo **0.163.3** or later (standard or extended). Earlier versions have published Hugo security advisories, and the theme
-  uses `.Language.Locale`. Developed and tested on 0.167.0. The minimum is set in the theme's `hugo.toml`
+  uses `.Language.Locale`. Developed and tested on 0.168.0. The minimum is set in the theme's `hugo.toml`
   (`[module.hugoVersion] min`), which Hugo checks and warns about; `theme.toml`'s `min_version` only mirrors it for the
   themes gallery. Before relying on a newer Hugo, run the checks under "Upgrading Hugo".
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
@@ -174,7 +174,7 @@ The templates assume this layout; other structures are not supported yet.
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing, and its photos are not shown on walls or used as covers. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. The positional form takes only `src`: Hugo doesn't allow adding `title=` to it, and a second positional argument is ignored, so such a photo gets the "Photo N" alt text. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns (warning ID `theblues-gallery-no-title`). |
-| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
+| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection; when the site's `baseURL` host is an IP address, any URL whose host is an IP address in any spelling, such as `2130706433`, `0x7f.1`, `127.1` or `[::ffff:127.0.0.1]`, is refused as well), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
 
 ## Search
 
@@ -201,8 +201,10 @@ language that has its own search section), at that address and not fingerprinted
 name. A site that doesn't list the format gets no index and no script, and its search page keeps "Search is not
 available yet."
 
-**What is indexed.** Every regular page of the language except those with `search: false` in their front matter. Drafts
-and future or expired pages are left out by Hugo's own rules. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
+**What is indexed.** Every regular page of the language except those with `search: false` in their front matter.
+Drafts, future and expired pages are left out by Hugo's own rules. So is a page the build doesn't publish: one whose
+`build.render` is `never` or `link` (it has no page at its address, or none is written there) is not indexed, even when
+`build.list` is `always`. The sitemap follows the same rule. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
 `[title, url, date, section, tags, categories, series, description, photoTitles, text]`. `date` is `YYYY-MM-DD` (empty
 for an undated page), `section` is the title of the page's top-level section (empty for a page in the site root),
 `photoTitles` are the titles of its `gallery` photos, and `text` is the page's plain text with white space collapsed.
@@ -214,13 +216,19 @@ warns with the ID `theblues-search-size`, and `--panicOnWarning` stops it. Lower
 pages that need no search. Serve the file compressed (gzip or Brotli), as hosts do for other JSON, and the download is
 a fraction of that.
 
-**How it matches.** The query and the pages are folded to lower case without accents (`cafe` finds "Café"). Every word of
+**How it matches.** The query and the pages are folded to lower case and the optional marks are removed (`cafe` finds "Café", whether
+the accent is one character or a letter plus a combining mark). The marks removed are the accents of Latin, Greek and
+Cyrillic (U+0300 to U+036F), the Arabic vowel marks (U+064B to U+065F and U+0670), and the
+Hebrew points and cantillation marks (U+0591 to U+05BD, U+05BF, U+05C1, U+05C2, U+05C4, U+05C5 and U+05C7). Every other
+mark stays, because it tells words apart: the vowel signs, virama and nukta of Devanagari and other Indic scripts, and
+the vowels and tone marks of Thai, are part of the word. Every word of
 the query must match a word of the page, exactly or as its start (`bost` finds "Boston"). Pages are ranked by where the
 words are: title 10, tags, categories and series 6, description 4, photo titles 3, text 1, newest first on a tie. If no
 page has every word, the search allows one typo (an extra, missing, wrong or swapped letter) in words of four letters
 or more, and if that finds nothing it lists the pages that have any of the words, the most words first. Words are split
-at anything that isn't a letter or a digit, so a language written without spaces (Chinese, Japanese, Thai) is matched
-by the start of each run of characters only. There is no stemming, no phrase search and no stop words.
+at anything that isn't a letter, a digit or a combining mark, so a language written without spaces (Chinese, Japanese, Thai) is matched
+by the start of each run of characters only. There is no stemming, no phrase search and no stop words. A query uses its first 10 different words, each cut to 64
+characters; words over 64 characters in a page aren't indexed, and a `?q=` address is cut to 200 characters.
 
 **The page.** A labeled search field with a Search button; Enter submits it. Results appear as the visitor types, in a list
 of links (title, date and section, and a snippet with the matching words in `<mark>`), and the count is said once in a
@@ -236,8 +244,7 @@ under "Were you looking for…" in place of that list, with the words in the sea
 press Enter, which goes to the search page with `?q=`) and the count in the polite status. It reads
 `location.pathname`, drops the site's base path, numbers, one-letter words and common URL words (`post`, `page`, `tag`,
 `category`, `index`, `html`, `php` and the like), keeps at most 8 words of 40 letters, and matches them as above, except that
-the last pass, any word, uses only words of three letters or more and keeps only pages with one in the title, the tags or the
-description. With no words left, no match
+the last pass, any word, uses only words of three letters or more and keeps only pages that score 3.2 or more (a start-of-word match in the description scores 3.2). With no words left, no match
 or no index, the page shows the empty search field (when the index is there) and the latest posts. The page keeps its 404
 status: nothing redirects. A site that doesn't publish the index gets the latest posts and no script.
 
@@ -324,8 +331,7 @@ translate the theme, or reword its English, for a site:
    so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir`
    attribute. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
    the bars, indents, drop-downs and alignment keep their left-to-right sides. Mirroring them with CSS logical
-   properties is tracked in
-   [#296](https://github.com/cyvaquero/hugo-theme-theblues/issues/296).
+   properties is tracked in the project's issues.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
 `gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -381,7 +387,10 @@ the person building the site.
 - The 404 page lists the latest five posts (the main sections). Its search of the missing address runs in the browser, so
   the server's response is the usual 404 with that list; the matches replace it only for visitors with JavaScript.
 - The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
-  sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
+  sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme provides its own
+  `sitemap.xml` (`layouts/sitemap.xml`): Hugo's built-in template with one change, that a page whose `build.render` is
+  `never` or `link` is left out, as it is from the search index, because no page is written at its address. A site can
+  still replace it with its own `layouts/sitemap.xml`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
 - The theme's feed template (`layouts/rss.xml`, used for the home, section and term feeds) lists only pages in the main
   sections on the home feed (`mainSections`, see Content structure). The `search` section still gets its own empty
@@ -418,7 +427,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more, and the optional
   `[params.search]` table: `textLimit` (default 5000; the most characters of a page's text in the search index, `0` for
-  all of it; a whole number, or the build fails naming the setting)
+  all of it; text that isn't a number, or a negative number, fails the build naming the setting, and other values are
+  read as Hugo's `int` reads them, so `2.9` gives 2)
 - Defaults for the hero and 404 texts: `slogan` is the site `title` when unset; `tagline` is `params.description` when
   unset; `title_404` is the theme's "Page not found" (the `pageNotFound` entry of `i18n/en.toml`, so it is translated
   with the rest). A post's front matter `subtitle` shows only in a post's own hero, where it falls back to the post's
@@ -576,10 +586,7 @@ and Status Messages (4.1.3) are WCAG 2.1 criteria that Section 508 doesn't requi
 Section 508's software requirements (chapters 502 and 503) don't apply to web content that conforms to WCAG 2.0 AA
 (the exception in 501.1). Its documentation requirements (chapter 602) do: this section is the theme's list of
 accessibility and compatibility features (602.2), and the README, as electronic documentation, should itself conform
-to WCAG 2.0 AA (602.3).
-[#94](https://github.com/cyvaquero/hugo-theme-theblues/issues/94) (1.2.0) and
-[#197](https://github.com/cyvaquero/hugo-theme-theblues/issues/197) (1.3.0) map the review findings to both
-standards.
+to WCAG 2.0 AA (602.3). The project's accessibility issues map review findings to both standards.
 
 **Keyboard.** Everything works from the keyboard, with a 3px focus ring (steel on the page, sand on the navy band and
 on photos):
@@ -667,6 +674,9 @@ them without a build error:
   Hugo rebuilds, and on a page's `.Store` surviving a rebuild under `hugo server`.
 - `wall-pager.html` hands `.Paginate` a stand-in collection, `site.Home` repeated once per tile, to paginate the wall by
   tile.
+- `layouts/sitemap.xml` is a copy of Hugo's own sitemap template with one filter added (it leaves out pages that
+  aren't written), and `layouts/rss.xml` is a copy of Hugo's RSS template with the changes its header lists. A new Hugo
+  can change its templates, and the copies keep the old ones.
 
 Before moving the theme, or a site that uses it, to a newer Hugo:
 
@@ -677,7 +687,10 @@ Before moving the theme, or a site that uses it, to a newer Hugo:
    or missing, and that the pager's page count and links match.
 3. Rebuilds: run `hugo server` on the fixture, change a post's tags, and check that the home wall and both the old and
    the new tag pages follow without a restart. Undo the change and check again.
-4. Build time: build a copy of the fixture with about 550 posts and compare with the figure under "Known limits". A
+4. Sitemap and feeds: compare `layouts/sitemap.xml` and `layouts/rss.xml` with the `sitemap.xml` and `rss.xml`
+   templates in the new Hugo's source (`tpl/tplimpl/embedded/templates`), bring over any change apart from the theme's
+   own, and update the Hugo version their headers name.
+5. Build time: build a copy of the fixture with about 550 posts and compare with the figure under "Known limits". A
    much slower build, or one that hangs, points at the partial cache; see the cache-hints check in
    [docs/testing.md](docs/testing.md).
 

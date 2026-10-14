@@ -26,15 +26,16 @@ layouts/taxonomy.html      /tags/, /categories/, /series/ (A-Z list with counts)
 layouts/page.html          generic pages (About)
 layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
-layouts/search/section.html  search page: the search slot (partials/search.html)
+layouts/search/section.html  search page: the search slot (_partials/search.html)
 layouts/search/section.searchindex.json  the search index, /search/index.json (the searchindex output format, defined in hugo.toml)
 layouts/404.html           hero, the latest five posts and, with the search index, the search of the missing address
+layouts/sitemap.xml        sitemap: Hugo's embedded template plus a filter for pages that aren't written (_partials/is-written.html)
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
-                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, js-forms, t, t-en, setting-int, https-check
+                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, js-forms, t, t-en, setting-int, https-check, is-written
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
@@ -65,7 +66,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   `layouts/search/section.searchindex.json` writes `{"v":1,"p":[row, …]}`, one list per regular page of the language
   (README, "Search", has the row format). Hugo does not merge a theme's `outputs`, so a site turns the index on by
   listing the format in the search section's outputs. Each row is made into JSON on its own and the rows are joined,
-  because Hugo's `append` would flatten a slice of slices. A page is left out with `search: false`; its text is cut to
+  because Hugo's `append` would flatten a slice of slices. A page is left out with `search: false`, or when it isn't published (`is-written.html`: `build.render` is `never` or `link`; or it has no address); its text is cut to
   `params.search.textLimit`. The template warns (`theblues-search-size`) over 1 MB.
 - **Slot.** `search.html` (the slot `search/section.html` includes) asks `search-index.html` for the index address,
   which is empty unless the search section lists the format. With an address it writes `search-box.html`: the form
@@ -80,7 +81,9 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   fills the list, puts the words in the field, hides `#latest` and says the count; otherwise it only shows the form.
 - **Script.** `search.js` is a Hugo template (first-line marker) for its text (`js-text.html`, "search"). It fetches the
   address in `data-index` on first focus or at once for `?q=`, refuses another origin and any `v` other than 1, then
-  builds in memory a map from each folded word to the pages it is in, with the best field weight. A query tries three
+  builds in memory a map from each folded word to the pages it is in (words are runs of letters, digits and combining
+  marks; folding is lower case, NFD and removal of the optional marks listed in the README, "How it matches"; the index,
+  the query, the highlights, the snippet and the 404 address all use the same `fold()` and `TOKEN`), with the best field weight. A query tries three
   passes (every word, as a start or exactly; the same with one typo; any word) and stops at the first that finds pages.
   Results and highlights are built with `createElement`, `createTextNode` and `textContent`.
 

@@ -1,0 +1,9 @@
+{{- /*
+  Whether the build writes a page at the page's address (#326, #321). Context: a page. Returns false for a page whose build
+  option `render` is `never` or `link` and true for any other page. Hugo has no .Build on a page; the build options are in
+  .Params.build (cascades included), and a value other than never or link (even a different case) is treated as always.
+  Used by the search index and the sitemap, which both leave out a page that isn't written.
+*/ -}}
+{{- $render := "" -}}
+{{- with .Params.build }}{{ $render = printf "%v" .render }}{{ end -}}
+{{- return (not (in (slice "never" "link") $render)) -}}
