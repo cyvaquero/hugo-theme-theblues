@@ -38,7 +38,7 @@ How the images were made is in [docs/testing.md](docs/testing.md).
 ## Requirements
 
 - Hugo **0.163.3** or later (standard or extended). Earlier versions have published Hugo security advisories, and the theme
-  uses `.Language.Locale`. Developed and tested on 0.167.0. The minimum is set in the theme's `hugo.toml`
+  uses `.Language.Locale`. Developed and tested on 0.168.0. The minimum is set in the theme's `hugo.toml`
   (`[module.hugoVersion] min`), which Hugo checks and warns about; `theme.toml`'s `min_version` only mirrors it for the
   themes gallery. Before relying on a newer Hugo, run the checks under "Upgrading Hugo".
 - No Node, no Sass: CSS and JS go through Hugo Pipes (minify and fingerprint).
@@ -218,7 +218,7 @@ a fraction of that.
 
 **How it matches.** The query and the pages are folded to lower case and the optional marks are removed (`cafe` finds "Café", whether
 the accent is one character or a letter plus a combining mark). The marks removed are the accents of Latin, Greek and
-Cyrillic (U+0300 to U+036F), the Arabic vowel marks and Quranic annotation (U+064B to U+065F and U+0670), and the
+Cyrillic (U+0300 to U+036F), the Arabic vowel marks (U+064B to U+065F and U+0670), and the
 Hebrew points and cantillation marks (U+0591 to U+05BD, U+05BF, U+05C1, U+05C2, U+05C4, U+05C5 and U+05C7). Every other
 mark stays, because it tells words apart: the vowel signs, virama and nukta of Devanagari and other Indic scripts, and
 the vowels and tone marks of Thai, are part of the word. Every word of
@@ -227,7 +227,8 @@ words are: title 10, tags, categories and series 6, description 4, photo titles 
 page has every word, the search allows one typo (an extra, missing, wrong or swapped letter) in words of four letters
 or more, and if that finds nothing it lists the pages that have any of the words, the most words first. Words are split
 at anything that isn't a letter, a digit or a combining mark, so a language written without spaces (Chinese, Japanese, Thai) is matched
-by the start of each run of characters only. There is no stemming, no phrase search and no stop words.
+by the start of each run of characters only. There is no stemming, no phrase search and no stop words. A query uses its first 10 different words, each cut to 64
+characters; words over 64 characters in a page aren't indexed, and a `?q=` address is cut to 200 characters.
 
 **The page.** A labeled search field with a Search button; Enter submits it. Results appear as the visitor types, in a list
 of links (title, date and section, and a snippet with the matching words in `<mark>`), and the count is said once in a
@@ -243,8 +244,7 @@ under "Were you looking for…" in place of that list, with the words in the sea
 press Enter, which goes to the search page with `?q=`) and the count in the polite status. It reads
 `location.pathname`, drops the site's base path, numbers, one-letter words and common URL words (`post`, `page`, `tag`,
 `category`, `index`, `html`, `php` and the like), keeps at most 8 words of 40 letters, and matches them as above, except that
-the last pass, any word, uses only words of three letters or more and keeps only pages with one in the title, the tags or the
-description. With no words left, no match
+the last pass, any word, uses only words of three letters or more and keeps only pages that score 3.2 or more (a start-of-word match in the description scores 3.2). With no words left, no match
 or no index, the page shows the empty search field (when the index is there) and the latest posts. The page keeps its 404
 status: nothing redirects. A site that doesn't publish the index gets the latest posts and no script.
 
@@ -331,8 +331,7 @@ translate the theme, or reword its English, for a site:
    so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir`
    attribute. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
    the bars, indents, drop-downs and alignment keep their left-to-right sides. Mirroring them with CSS logical
-   properties is tracked in
-   [#296](https://github.com/cyvaquero/hugo-theme-theblues/issues/296).
+   properties is tracked in the project's issues.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
 `gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -428,7 +427,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more, and the optional
   `[params.search]` table: `textLimit` (default 5000; the most characters of a page's text in the search index, `0` for
-  all of it; a whole number, or the build fails naming the setting)
+  all of it; text that isn't a number, or a negative number, fails the build naming the setting, and other values are
+  read as Hugo's `int` reads them, so `2.9` gives 2)
 - Defaults for the hero and 404 texts: `slogan` is the site `title` when unset; `tagline` is `params.description` when
   unset; `title_404` is the theme's "Page not found" (the `pageNotFound` entry of `i18n/en.toml`, so it is translated
   with the rest). A post's front matter `subtitle` shows only in a post's own hero, where it falls back to the post's
@@ -586,10 +586,7 @@ and Status Messages (4.1.3) are WCAG 2.1 criteria that Section 508 doesn't requi
 Section 508's software requirements (chapters 502 and 503) don't apply to web content that conforms to WCAG 2.0 AA
 (the exception in 501.1). Its documentation requirements (chapter 602) do: this section is the theme's list of
 accessibility and compatibility features (602.2), and the README, as electronic documentation, should itself conform
-to WCAG 2.0 AA (602.3).
-[#94](https://github.com/cyvaquero/hugo-theme-theblues/issues/94) (1.2.0) and
-[#197](https://github.com/cyvaquero/hugo-theme-theblues/issues/197) (1.3.0) map the review findings to both
-standards.
+to WCAG 2.0 AA (602.3). The project's accessibility issues map review findings to both standards.
 
 **Keyboard.** Everything works from the keyboard, with a 3px focus ring (steel on the page, sand on the navy band and
 on photos):
@@ -678,7 +675,8 @@ them without a build error:
 - `wall-pager.html` hands `.Paginate` a stand-in collection, `site.Home` repeated once per tile, to paginate the wall by
   tile.
 - `layouts/sitemap.xml` is a copy of Hugo's own sitemap template with one filter added (it leaves out pages that
-  aren't written). A new Hugo can change its template, and the copy keeps the old one.
+  aren't written), and `layouts/rss.xml` is a copy of Hugo's RSS template with the changes its header lists. A new Hugo
+  can change its templates, and the copies keep the old ones.
 
 Before moving the theme, or a site that uses it, to a newer Hugo:
 
@@ -689,8 +687,9 @@ Before moving the theme, or a site that uses it, to a newer Hugo:
    or missing, and that the pager's page count and links match.
 3. Rebuilds: run `hugo server` on the fixture, change a post's tags, and check that the home wall and both the old and
    the new tag pages follow without a restart. Undo the change and check again.
-4. Sitemap: compare `layouts/sitemap.xml` with the `sitemap.xml` template in the new Hugo's source
-   (`tpl/tplimpl/embedded/templates`), and bring over any change apart from the filter.
+4. Sitemap and feeds: compare `layouts/sitemap.xml` and `layouts/rss.xml` with the `sitemap.xml` and `rss.xml`
+   templates in the new Hugo's source (`tpl/tplimpl/embedded/templates`), bring over any change apart from the theme's
+   own, and update the Hugo version their headers name.
 5. Build time: build a copy of the fixture with about 550 posts and compare with the figure under "Known limits". A
    much slower build, or one that hangs, points at the partial cache; see the cache-hints check in
    [docs/testing.md](docs/testing.md).

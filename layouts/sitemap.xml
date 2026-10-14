@@ -1,7 +1,7 @@
 {{- /*
   The sitemap (#326). This is Hugo 0.168.0's embedded sitemap template (tpl/tplimpl/embedded/templates/sitemap.xml,
   Apache-2.0) with one change: a page that the build doesn't write (build option `render` of `never` or `link`, see
-  partials/is-written.html) is left out, and so is its entry among another page's translation alternates. Hugo lists such
+  _partials/is-written.html) is left out, and so is its entry among another page's translation alternates. Hugo lists such
   a page when `list` is `always`, which points the sitemap at a 404. Everything else is Hugo's: sitemap.disable, lastmod,
   changefreq, priority and the xhtml:link alternates. Recheck this file against Hugo's when the Hugo version changes
   (docs/testing.md). The sitemap index (sitemapindex.xml) lists only the per-language sitemaps and is Hugo's.

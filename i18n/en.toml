@@ -6,7 +6,7 @@
 # Every entry is a table with its text under other (Hugo does not allow plain keys next to one and other). Values are
 # plain text, which the templates escape and the scripts insert as text, so write no markup or character references
 # except in commentsHosted, which is HTML. Counts have one and other forms, and {{ .Count }} is the number; the scripts, which
-# count in the browser, use only the one and other forms of articleCount, photoCount and grouped. Other entries mark where
+# count in the browser, get every plural form the language's entry defines (README, "Translating the theme"). Other entries mark where
 # the page puts a name or a number: {{ .n }}, {{ .part }} and so on.
 
 # --- Page frame ---
