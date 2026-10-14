@@ -73,9 +73,17 @@ The same shortcode refuses a numeric spelling of the site's own IP address (#309
 `https://0x7f.1/`, `https://0177.0.0.1/`, `https://127.1/`, `https://127.0.0.1./`, `https://127.0.0.1/x`, `https://[::1]/` and
 `https://[::ffff:127.0.0.1]/`: each must fail with the shortcode's own error, no panic: "the site is served from an IP address", except
 `https://127.0.0.1/x` (and `https://[::1]/` on the `[::1]` base), which is the site's own host spelled the same way and fails first
-with "the URL is on this site's own host". Meanwhile
+with "the URL is on this site's own host and port". Meanwhile
 `https://photos.example.org/x` and `https://www.youtube-nocookie.com/x` build. On the fixture's own base URL (a domain), the numeric
 URLs build as before.
+
+The same shortcode compares ports too (#332): the site's host on another port is another origin and is allowed, and a port
+that is the scheme's default (443 for https, 80 for http) counts as none. Build a copy of the fixture whose embed URL is, in
+turn, as follows. On `-b https://example.org/`: `https://example.org:8443/x` builds; `https://example.org/x`,
+`https://example.org:443/x` and `https://EXAMPLE.org/x` fail with "the URL is on this site's own host and port". On
+`-b https://example.org:8443/`: `https://example.org/x` builds and `https://example.org:8443/x` fails the same way. On
+`-b http://127.0.0.1:8099/`: `https://127.0.0.1:9443/x` and `https://127.0.0.1/x` fail with "the site is served from an IP
+address" (the IP rule above runs on any port). `https://photos.example.org/x` builds everywhere.
 
 The search fixture (README, "Search"): `exampleSite/content/search/_index.md` lists `searchindex` in its outputs, so the
 build publishes `/search/index.json`, and the search page loads `search.js`. The root pages `accents.md` (accented words in

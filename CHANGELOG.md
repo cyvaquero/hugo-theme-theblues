@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.2] - 2026-10-14
+
+### Fixed
+- The `embed` shortcode accepts the site's own host on another port, which is another origin, and no longer refuses it as
+  "on this site's own host" (#332). It compares host and port as Markdown links do: a port that is the scheme's default
+  (443 for https, 80 for http) counts as none. The same host and port is still refused, now with the message "the URL is
+  on this site's own host and port".
+
 ## [1.6.1] - 2026-10-14
 
 ### Fixed
