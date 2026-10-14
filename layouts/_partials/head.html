@@ -64,9 +64,9 @@
   runs after the color-scheme and theme-color metas, which it updates. External, so a CSP needs no hash for it. */}}
 {{ partialCached "script.html" (dict "path" "js/theme.js") "js/theme.js" false }}
 {{- /* The two copies of the dark color tokens in main.css must match; this warns (theblues-dark-tokens) if they don't, and
-  i18n-check.html warns (theblues-i18n) if the site's language has no theme text (#192). They print nothing, so they sit on the
-  stylesheet's line (#196). */}}
-{{ partialCached "dark-tokens-check.html" . }}{{ partialCached "i18n-check.html" . }}{{ partialCached "stylesheet.html" "css/main.css" "css/main.css" }}
+  i18n-check.html warns (theblues-i18n) if the site's language has no theme text (#192), and title-check.html warns
+  (theblues-no-title) if the site has no title (#276). They print nothing, so they sit on the stylesheet's line (#196). */}}
+{{ partialCached "dark-tokens-check.html" . }}{{ partialCached "i18n-check.html" . }}{{ partialCached "title-check.html" . }}{{ partialCached "stylesheet.html" "css/main.css" "css/main.css" }}
 {{- /* Google Analytics: production builds with a GA ID only, unless privacy.googleAnalytics.disable is set, as decided
   by analytics-on.html, which sites call too (#146); it is cached for the build, since it ignores the page. assets/js/analytics.js loads nothing for Do Not Track or Global
   Privacy Control visitors (#16). */}}

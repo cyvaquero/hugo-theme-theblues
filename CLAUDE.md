@@ -28,7 +28,7 @@ What the theme is built and tested for. A request outside it is an enhancement, 
 - **Languages:** one or more languages, with the theme's strings translatable through `i18n/` and an English
   fallback. Left-to-right layout only: a right-to-left language gets `dir="rtl"` on `<html>`, but the layout is
   not mirrored.
-- **Content:** Markdown files under `content/`, with posts in the main sections and a site `title` set. Content
+- **Content:** Markdown files under `content/`, with posts in the main sections and a site `title` set (the build warns without one). Content
   adapters are not tested.
 - **Photos:** SmugMug photo URLs (`photos.smugmug.com`) for galleries, wall tiles and heroes. Only those are read for
   sizes, `srcset` and the hero preload; other hosts work without them.

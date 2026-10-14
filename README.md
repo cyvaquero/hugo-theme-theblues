@@ -429,7 +429,7 @@ the person building the site.
 
 It keeps the parameter names the site already uses, so the site's `hugo.toml` (or `config.toml`) needs little change:
 
-- `title`, `locale` (sets `<html lang>` and the language of month names; see Translating the theme), `mainSections` (the sections that hold posts, see Content structure)
+- `title` (the site's name; the build warns with `theblues-no-title` when it is missing), `locale` (sets `<html lang>` and the language of month names; see Translating the theme), `mainSections` (the sections that hold posts, see Content structure)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
   `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`, from the `searchLabel` entry of `i18n/en.toml`), `dateFormat` (a Go layout for
   dates on posts, tiles and wall headings, default `Jan 2, 2006`, from the `dateFormat` entry; the archive's `Jan 2` and
@@ -451,7 +451,9 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   see the photo size bullet under "How the wall works" in [docs/layout.md](docs/layout.md)), `theblues-toc-markup` (Hugo's table of contents markup
   changed, so the theme can't check or label it; better fixed than silenced) and `theblues-dark-tokens` (the two copies of the dark color
   tokens in `assets/css/main.css` differ; see Styles under Extending from a site) and `theblues-i18n` (the site's
-  language has no theme text, so the labels are in English; see Translating the theme), for example
+  language has no theme text, so the labels are in English; see Translating the theme) and `theblues-no-title` (the
+  site, or a language of it, has no `title`, so the home heading, page titles, brand link and feed title are empty;
+  better fixed than silenced), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
   The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major

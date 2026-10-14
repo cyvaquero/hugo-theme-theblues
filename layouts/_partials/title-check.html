@@ -1,0 +1,9 @@
+{{- /*
+  Warns (theblues-no-title) when the site has no title: the home page's hero, the <title> of the home page, the brand
+  link, the footer's copyright and the feed's title come from it, and are empty without one. Hugo gives each language
+  its own site title, taken from the top-level `title` unless the language sets one, so the check looks at the language
+  being built. Prints nothing; head.html calls it through partialCached, so it warns once per language and build (#276).
+*/ -}}
+{{- if not site.Title -}}
+  {{- warnidf "theblues-no-title" "the site has no title (language %q): the home page's heading, the page titles, the brand link, the footer and the feed's title are empty; set `title` in the site settings (#276)." site.Language.Lang -}}
+{{- end -}}
