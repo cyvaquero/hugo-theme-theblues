@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.8] - 2026-10-14
+
+### Fixed
+- The search index no longer lists pages the build doesn't publish. A page with `build: {render: never, list: always}`
+  (or `render: link`) has no page at its address, but its title, section, tags, description and text were in the public
+  `/search/index.json` and came up in searches with an empty or dead link. Pages whose `build.render` is `never` or
+  `link`, or that have no address, are left out; the README says so next to `search: false` (#321).
+- The test site gains a render-never and a render-link page for this case (#321).
+
 ## [1.5.7] - 2026-10-14
 
 ### Fixed
