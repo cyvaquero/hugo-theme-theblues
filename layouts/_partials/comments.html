@@ -13,14 +13,14 @@
 {{- $.Store.Set "hasComments" true }}
 <div class="comments" id="disqus-comment">
   {{- if hugo.IsProduction }}
-  <h2 id="comments-h" tabindex="-1" hidden>{{ (or (T "commentsHeading") (partial "t.html" "commentsHeading")) }}</h2>
+  <h2 id="comments-h" tabindex="-1" hidden>{{ (or (T "commentsHeading") (partial "t-en.html" "commentsHeading")) }}</h2>
   <div id="comments-status" class="cstatus" role="status"></div>
-  <button type="button" class="showc" hidden data-shortname="{{ . }}"{{ with $.Params.disqus_url }} data-url="{{ . }}"{{ end }}{{ with $.Params.disqus_identifier }} data-identifier="{{ . }}"{{ end }}{{ with $.Params.disqus_title }} data-title="{{ . }}"{{ end }}>{{ (or (T "showComments") (partial "t.html" "showComments")) }}</button>
-  <noscript><p class="meta">{{ (or (T "commentsNeedJs") (partial "t.html" "commentsNeedJs")) }}</p></noscript>
+  <button type="button" class="showc" hidden data-shortname="{{ . }}"{{ with $.Params.disqus_url }} data-url="{{ . }}"{{ end }}{{ with $.Params.disqus_identifier }} data-identifier="{{ . }}"{{ end }}{{ with $.Params.disqus_title }} data-title="{{ . }}"{{ end }}>{{ (or (T "showComments") (partial "t-en.html" "showComments")) }}</button>
+  <noscript><p class="meta">{{ (or (T "commentsNeedJs") (partial "t-en.html" "commentsNeedJs")) }}</p></noscript>
   {{- else }}
-  <p class="meta">{{ (or (T "commentsNotLoaded") (partial "t.html" "commentsNotLoaded")) }}</p>
+  <p class="meta">{{ (or (T "commentsNotLoaded") (partial "t-en.html" "commentsNotLoaded")) }}</p>
   {{- end }}
   <div id="disqus_thread"></div>
-  <p class="meta">{{ (or (T "commentsHosted") (partial "t.html" "commentsHosted")) | safeHTML }}</p>
+  <p class="meta">{{ (or (T "commentsHosted") (printf `<span lang="en">%s</span>` (partial "t.html" "commentsHosted"))) | safeHTML }}</p>
 </div>
 {{ end }}{{ end }}

@@ -1,31 +1,18 @@
 {{- /*
   The text a theme script shows, from the site's language (i18n/en.toml, or the site's own i18n/<language>.toml), as a map
-  for the script to read. Context: the script's name, "wall", "comments" or "gallery". Returns the map, or an empty one
+  for the script to read. Context: the script's name, "wall", "comments", "gallery" or "search". Returns the map, or an empty one
   for any other name. A script gets it through {{ partial "js-text.html" "wall" | jsonify }} in its own source, which
   asset.html runs as a template (#192) because its first line is the template comment "theblues:template" (#262); the HTML stays the
-  same for every language, so the text is not in data attributes. A count has the one and other forms, with %d where the number goes (the script picks the form with
+  same for every language, so the text is not in data attributes. A count has its forms, with %d where the number goes (js-forms.html; the script picks the form with
   Intl.PluralRules), and a sentence with names in it has {name} marks for the script to fill in.
-  Usage: assets/js/wall.js, comments.js and gallery.js.
+  Usage: assets/js/wall.js, comments.js, gallery.js and search.js.
 */ -}}
 {{- $out := dict -}}
 {{- if eq . "wall" -}}
-  {{- /*
-    The three counts, as {one, other} with %d for the number (#249). T gets one plain number, 1 for the one form and 2
-    for the other, because a map with two count keys ("count" and "Count") makes Hugo choose the plural from either of
-    them, at random, and the string one reads as "other": a count of 1 then came out plural on some builds. The number is
-    then swapped for %d, the first whole number in the text (the entry puts it first or near it; \b keeps 2 from matching
-    inside 12 or 2025). An entry without the number, like "ein Artikel", is left as it is. The t.html fallback gets the
-    same plain number.
-  */ -}}
+  {{- /* The three counts, each as its forms (js-forms.html, #249). */ -}}
   {{- $counts := dict -}}
   {{- range slice "articleCount" "photoCount" "grouped" -}}
-    {{- $key := . -}}
-    {{- $forms := dict -}}
-    {{- range $form, $n := dict "one" 1 "other" 2 -}}
-      {{- $text := or (T $key $n) (partial "t.html" (slice $key $n)) -}}
-      {{- $forms = merge $forms (dict $form (replaceRE (printf `\b%d\b` $n) "%d" $text 1)) -}}
-    {{- end -}}
-    {{- $counts = merge $counts (dict $key $forms) -}}
+    {{- $counts = merge $counts (dict . (partial "js-forms.html" .)) -}}
   {{- end -}}
   {{- $out = merge $counts (dict
     "articles" ((or (T "articles") (partial "t.html" "articles"))) "on" ((or (T "on") (partial "t.html" "on"))) "off" ((or (T "off") (partial "t.html" "off"))) "active" ((or (T "active") (partial "t.html" "active")))
@@ -40,5 +27,11 @@
     "viewer" ((or (T "photoViewer") (partial "t.html" "photoViewer"))) "previousPhoto" ((or (T "previousPhoto") (partial "t.html" "previousPhoto"))) "previous" ((or (T "previous") (partial "t.html" "previous"))) "nextPhoto" ((or (T "nextPhoto") (partial "t.html" "nextPhoto")))
     "next" ((or (T "next") (partial "t.html" "next"))) "closeViewer" ((or (T "closeViewer") (partial "t.html" "closeViewer"))) "close" ((or (T "close") (partial "t.html" "close")))
     "photoOf" ((or (T "photoOf" (dict "i" "{i}" "n" "{n}")) (partial "t.html" (slice "photoOf" (dict "i" "{i}" "n" "{n}"))))) -}}
+{{- else if eq . "search" -}}
+  {{- /* The result count as its forms (js-forms.html, #249); the other sentences keep {query} and {n} for the script to fill in, as photoOf does. */ -}}
+  {{- $out = dict "count" (partial "js-forms.html" "searchResultCount")
+    "noResults" ((or (T "searchNoResults" (dict "query" "{query}")) (partial "t.html" (slice "searchNoResults" (dict "query" "{query}")))))
+    "loading" ((or (T "searchLoading") (partial "t.html" "searchLoading"))) "failed" ((or (T "searchFailed") (partial "t.html" "searchFailed")))
+    "capped" ((or (T "searchCapped" (dict "n" "{n}")) (partial "t.html" (slice "searchCapped" (dict "n" "{n}"))))) -}}
 {{- end -}}
 {{- return $out -}}

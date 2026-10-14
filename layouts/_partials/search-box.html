@@ -1,0 +1,30 @@
+{{- /*
+  The search form, its status line and its results list, for the search page (search.html) and the 404 page. assets/js/search.js
+  fills them in. Until it runs they are hidden, and the search page shows its "not available" text instead, so a page
+  without JavaScript has no form that does nothing; the script unhides the form once it is running. The script is added to
+  the page through the page's Store (baseof.html). Context: a map with
+    page    the page being built,
+    index   the address of the index (search-index.html),
+    action  where the form goes: the search page, which reads ?q=,
+    heading the results list's heading,
+    kind    "404" on the 404 page (optional). The script then searches the words of the address and lists up to five
+            matches above the form, which goes to the search page instead of running here (#151).
+*/ -}}
+{{- .page.Store.Set "hasSearch" true -}}
+<div id="search" data-index="{{ .index }}"{{ if eq .kind "404" }} data-kind="404" data-base="{{ site.Home.RelPermalink }}"{{ end }}>
+  {{- if ne .kind "404" }}
+  <p class="soff">{{ (or (T "searchUnavailable") (partial "t-en.html" "searchUnavailable")) }}</p>
+  {{- end }}
+  <div class="sui" hidden>
+    {{- if ne .kind "404" }}
+    {{ partial "search-form.html" .action }}
+    {{- end }}
+    <div class="sres" hidden>
+      <h2 id="search-h"{{ if ne .kind "404" }} class="vh"{{ end }}>{{ .heading }}</h2>
+      <ol aria-labelledby="search-h"></ol>
+    </div>
+    {{- if eq .kind "404" }}
+    {{ partial "search-form.html" .action }}
+    {{- end }}
+  </div>
+</div>

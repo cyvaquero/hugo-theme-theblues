@@ -13,3 +13,10 @@
 {{- if not (partial "t.html" "skipToContent") -}}
   {{- warnidf "theblues-i18n" "the theme's English text is missing from hugo.Data (theblues_i18n_en): keep the mount of the theme's i18n/en.toml in its hugo.toml, or text the site's language lacks is empty, not English (#192)." -}}
 {{- end -}}
+{{- /* t-en.html runs only when T has no text for a key, which an English site never reaches. Calling it once here checks
+  that it still marks the fallback as English, and keeps it from showing as an unused template in the fixture build. It
+  names the key through a variable so the fixture's pair check, which reads keys written out in the call, skips it. */ -}}
+{{- $key := "skipToContent" -}}
+{{- if not (strings.Contains (partial "t-en.html" $key) `<span lang="en">`) -}}
+  {{- warnidf "theblues-i18n" "t-en.html no longer marks the English fallback with lang=\"en\"." -}}
+{{- end -}}

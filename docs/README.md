@@ -12,5 +12,5 @@ Decision records, the Clean White inventory and the layout mockups are in [rethe
 not publish this folder; this is the canonical copy). Those files are historical: they record the retheme as it was
 decided and are not kept current. In short: palette B (navy, steel blue, sand, cream) with light and dark modes;
 responsive with a hamburger nav at 820 px and narrower; Disqus on posts only (click to load since 1.2.0); GA4 (Do Not
-Track and Global Privacy Control respected since 1.2.0); search is a reserved slot until the engine is chosen. The
+Track and Global Privacy Control respected since 1.2.0); search runs in the browser over one generated JSON index (docs/layout.md, "How search works"). The
 featured-tags cloud (D14) is deferred.

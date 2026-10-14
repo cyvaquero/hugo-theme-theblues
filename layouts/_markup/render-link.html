@@ -4,7 +4,11 @@
   that names a page or a page resource resolves to its permalink, like Hugo's built-in hook. Links to other hosts open
   in a new tab, and say so to screen readers: the link points aria-describedby at the one hidden notice in baseof.html
   (id tb-newtab, #260), so the notice is the link's description and not part of its name. A name built from the link's
-  text would leak into a heading's name and the table of contents, which copies the heading's HTML.
+  text would leak into a heading's name and the table of contents, which copies the heading's HTML. A reference replaces
+  the title as the description, so a link with a Markdown title gets no reference: the notice goes after the title, in
+  the title attribute ("Title (opens in a new tab)"), which is then the one description. That keeps the title for
+  assistive technology without a hidden element and id per link, whose text would also land in the page's plain text and
+  summary. rss.xml removes the reference from feed content, where the page's hidden notice doesn't exist.
 */ -}}
 {{- $href := "" -}}
 {{- $external := false -}}
@@ -29,5 +33,7 @@
     {{- end -}}
   {{- end -}}
 {{- end -}}
-<a{{ with $href }} href="{{ . | safeURL }}"{{ end }}{{ with .Title }} title="{{ . }}"{{ end }}{{ if $external }} target="_blank" rel="noopener" aria-describedby="tb-newtab"{{ end }}>{{ .Text }}</a>
+{{- $title := .Title -}}
+{{- if and $external $title }}{{ $title = printf "%s %s" $title ((or (T "opensInNewTab") (partial "t.html" "opensInNewTab"))) }}{{ end -}}
+<a{{ with $href }} href="{{ . | safeURL }}"{{ end }}{{ with $title }} title="{{ . }}"{{ end }}{{ if $external }} target="_blank" rel="noopener"{{ if not .Title }} aria-describedby="tb-newtab"{{ end }}{{ end }}>{{ .Text }}</a>
 {{- /* No trailing newline: it would add a space after every link. */ -}}

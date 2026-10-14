@@ -10,12 +10,13 @@
   The result is a map, not the finished style string, because the string would have to be marked safe, and then the URL
   would not be escaped for CSS any more.
   A hero is cached per photo and height (partialCached), as hero-sizes.html's callers always did, and the Store is
-  written again on every page. Used by home.html, term.html, 404.html, post/page.html and hero.html.
+  written again on every page. hero-sizes.html gets this partial's own context (it reads only "src" and "h"), so a cache
+  hit builds no dict. Used by home.html, term.html, 404.html, post/page.html and hero.html.
   Usage: {{ $hero := partial "hero-style.html" (dict "page" . "src" $cover "h" 416) }}
 */ -}}
 {{- $hs := dict -}}
 {{- with .src -}}
-  {{- $hs = partialCached "hero-sizes.html" (dict "src" . "h" $.h) . $.h -}}
+  {{- $hs = partialCached "hero-sizes.html" $ . $.h -}}
   {{- $.page.Store.Set "theblues-hero" . -}}
   {{- $.page.Store.Set "theblues-hero-sizes" $hs -}}
 {{- end -}}

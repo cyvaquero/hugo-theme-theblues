@@ -9,7 +9,7 @@
      2  Base                                    9  Pagination and post navigation
      3  Nav (hamburger at 820px and less)         10 Photo post and lightbox
      4  Heroes                                  11 Article, table of contents, prose
-     5  Shared bits (tags, meta, series, ...)   12 Archive, tag index, About
+     5  Shared bits (tags, meta, series, ...)   12 Archive, tag index, About, Search
      6  Footer                                  13 Touch targets (44px on coarse pointers)
      7  Browse controls (chips, popover)        14 Reduced motion
                                              15 Forced colors
@@ -45,6 +45,8 @@
   --art-fg: #F9F3EF;
   --art-sub: #D2C1B6;
   --art-line: #D2C1B6;
+  --mark-bg: #EBD9A0;       /* search matches (<mark>): background and text on it, 8.2:1 */
+  --mark-fg: #1B3C53;
   /* Code highlighting (Chroma classes, section 11): the modus-operandi colors, all 5.3:1 or more on --code and on the
      highlighted-line background --sx-hl. */
   --sx-kw: #5317ac;         /* keywords */
@@ -81,6 +83,8 @@
     --on-fg: #142E40;
     --art-bg: #1E4560;
     --art-line: #456882;
+    --mark-bg: #D2C1B6;     /* 8.1:1 */
+    --mark-fg: #142E40;
     /* modus-vivendi, 4.8:1 or more on --code and --sx-hl */
     --sx-kw: #b6a0ff;
     --sx-num: #00bcff;
@@ -109,6 +113,8 @@
   --on-fg: #142E40;
   --art-bg: #1E4560;
   --art-line: #456882;
+  --mark-bg: #D2C1B6;       /* 8.1:1 */
+  --mark-fg: #142E40;
   /* modus-vivendi, 4.8:1 or more on --code and --sx-hl */
   --sx-kw: #b6a0ff;
   --sx-num: #00bcff;
@@ -204,6 +210,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 /* Term hero links. */
 .thero .tl { display: inline-block; margin: 0 1.2rem .6rem 0; color: var(--bt); min-height: 44px; line-height: 44px; }
 .thero .tl:hover { color: var(--hv); }
+/* Feed link (#313) in a hero: on the scrim, like the other hero links. */
+.phero .feed { color: var(--bt); }
+.phero .feed:hover { color: var(--hv); }
 .thero .ptype { display: flex; }
 /* Hero sizes (#149): on a SmugMug photo the hero also gets --hi1 to --hi5, a smaller size for each of these viewport
    tiers (layouts/_partials/hero-sizes.html, which works them out, and whose preload links use the same media queries).
@@ -223,6 +232,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .series ol { list-style: none; margin: .5rem 0 1rem; padding: 0; }
 .series li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); padding: .35rem 0; font-size: .95rem; }
 .series li .meta { flex: none; }
+/* Feed link (#313): the RSS icon and "Subscribe via RSS", in the term and section heroes and the series box. */
+.feed { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; text-underline-offset: .15em; }
+.feed svg { width: 1.05em; height: 1.05em; fill: currentColor; flex: none; }
 .pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .comments { margin-top: 2rem; }
 /* The heading and status the script shows after "Show comments" (#162); --text is 10.5:1 on --bg in light, 12.8:1 in dark. */
@@ -471,7 +483,7 @@ dialog.lb button:hover { color: var(--hv); }
 .pb img { height: auto; }
 .pb pre, .pb table { max-width: 100%; overflow-x: auto; }
 
-/* 12 Archive, tag index, About ---------------------------------------------------------------------------- */
+/* 12 Archive, tag index, About, Search ---------------------------------------------------------------------- */
 .atw { max-width: var(--measure); margin: 0 auto; padding: 2rem 1rem 0; overflow-wrap: break-word; }
 .atw h2 { font: 700 1.3rem / 1.3 var(--serif); border-bottom: 2px solid var(--line); margin: 1.6rem 0 .3rem; padding-bottom: .2rem; }
 ul.atl { list-style: none; margin: 0; padding: 0; }
@@ -480,6 +492,22 @@ ul.atl a { display: flex; justify-content: space-between; gap: 1rem; align-items
 ul.atl a:hover .nm { text-decoration: underline; }
 ul.atl .c { color: var(--muted); font-size: .85rem; flex: none; }
 ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in the flex row (break-word can't, #75) */
+/* Search (#159): the form, the status line and the results (layouts/_partials/search-box.html; assets/js/search.js fills
+   them in). Matches are <mark>: --mark-bg and --mark-fg are 8.2:1 (light) and 8.1:1 (dark), and the bolder weight means
+   the match isn't shown by color alone. */
+.sui form label { display: block; font-weight: 700; margin: 0 0 .35rem; }
+.sui .srow { display: flex; flex-wrap: wrap; gap: .5rem; }
+.sui input[type=search] { flex: 1 1 14rem; min-width: 0; min-height: 44px; border: 1px solid var(--ctl-line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; padding: .4rem .75rem; }
+.sui form button { min-height: 44px; padding: .4rem 1.25rem; border: 1px solid var(--on-bg); border-radius: 8px; background: var(--on-bg); color: var(--on-fg); font: inherit; font-weight: 600; cursor: pointer; }
+.sui form button:hover { text-decoration: underline; }
+.sst { margin: .6rem 0 0; min-height: 1.65em; font-size: .95rem; color: var(--text); }
+.sres { margin-top: 1.25rem; }
+.sres ol { list-style: none; margin: 0; padding: 0; }
+.sres li { border-bottom: 1px solid var(--line); padding: .8rem 0; }
+.sres li a { font: 700 1.2rem / 1.3 var(--serif); overflow-wrap: anywhere; }
+.sres li p { margin: .15rem 0 0; }
+.sres + form { margin-top: 1.5rem; }  /* on the 404 page the results come before the form */
+.sres mark { background: var(--mark-bg); color: var(--mark-fg); font-weight: 600; border-radius: 2px; }
 
 /* 13 Touch targets: 44px on coarse pointers --------------------------------------------------------------- */
 @media (pointer: coarse) {
@@ -498,6 +526,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .series li { align-items: center; min-height: 44px; padding: 0; }
   .series li a, .series .pager a { display: inline-flex; align-items: center; min-height: 44px; }
   .nav2 a { display: inline-flex; align-items: center; min-height: 44px; }
+  .sres li a { display: inline-flex; align-items: center; min-height: 44px; }
   @media (min-width: 821px) { nav.site .links a { display: inline-flex; align-items: center; min-height: 44px; } }  /* the desktop row; the menu's links are 44px already */
 }
 
@@ -522,6 +551,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .swt input:checked::before { background: HighlightText; }
   .seg button[aria-pressed=true], .pg a[aria-current=page], .thm button[aria-pressed=true] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
   .bdg { border: 1px solid CanvasText; }
+  .sres mark { forced-color-adjust: none; background: Mark; color: MarkText; }
 }
 
 /* 16 Print ------------------------------------------------------------------------------------------------------ */
@@ -529,7 +559,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
    would otherwise print cream text on white paper (#3). */
 @media print {
   body { background: #fff; color: #000; }
-  nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc { display: none !important; }
+  nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc, .feed { display: none !important; }
   .hero, .phero { background: none !important; color: #000; min-height: 0; padding-top: 1rem; }
   .phero .in { background: none !important; }
   .hero .k, .phero .sub, .phero .meta, .phero .ptype, .phero .tag, .phero a { color: #000; }
@@ -538,5 +568,6 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .tile.photo figcaption { opacity: 1; position: static; background: none; color: #000; padding: .3rem 0; }
   .tile.photo figcaption .meta { color: #000; }
   footer.site { background: none; color: #000; }
+  .sres mark { background: none; color: #000; }
   footer.site a { color: #000; }
 }

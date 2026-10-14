@@ -1,0 +1,57 @@
+{{- /*
+  The search index (#159): one JSON file, /search/index.json, made by the normal build and read by assets/js/search.js in
+  the visitor's browser. The theme defines the output format (searchindex, in hugo.toml) and this template; a site turns
+  the index on by listing the format in the search section's outputs, which Hugo does not merge with the theme's:
+  outputs: [html, searchindex] in content/search/_index.md, or "searchindex" in the outputs of a cascade for /search.
+  Format (v is the version of this layout; the script ignores an index whose v isn't 1):
+    {"v":1,"p":[[title, url, date, section, tags, categories, series, description, photoTitles, text], …]}
+  one row for every regular page of the site's language, except a page with `search: false` in its front matter or a page
+  the build doesn't publish (#321): one whose build option `render` is `never` or `link` (they leave no page at its
+  address, so a result would be empty or a 404; Hugo still lists such a page when `list` is `always`) or that has no
+  address. Drafts and future or expired pages are left out by Hugo's own rules. title is the page's title (the file name when it has none),
+  url its RelPermalink, date YYYY-MM-DD (empty when undated), section the title of its top-level section (empty for a page
+  in the site root), tags, categories and series the term names from the front matter (lists), description the front
+  matter description, photoTitles the titles of its gallery photos (a list) and text its plain text with the white space
+  collapsed, cut to params.search.textLimit characters (default 5000; 0 keeps all of it). Each row is a list, not a map,
+  so the keys aren't repeated in every row.
+  Build-time guard: over 1 MB (1,048,576 bytes) of JSON warns with the ID theblues-search-size; a build with
+  --panicOnWarning stops.
+*/ -}}
+{{- $limit := 5000 -}}
+{{- /* Like params.wall.tilesPerPage: a value that isn't a whole number fails the build naming the setting. 0 means no cap. */ -}}
+{{- with site.Params.search }}{{ $v := .textlimit }}{{ if ne $v nil }}{{ with try (int $v) }}{{ if .Err }}{{ errorf "params.search.textLimit must be a whole number, 0 or more (got %q)" (printf "%v" $v) }}{{ else }}{{ $limit = .Value }}{{ end }}{{ end }}{{ end }}{{ end -}}
+{{- if lt $limit 0 }}{{ errorf "params.search.textLimit must be 0 or more (got %d)" $limit }}{{ end -}}
+{{- $rows := slice -}}
+{{- range site.RegularPages -}}
+  {{- $p := . -}}
+  {{- /* A never page has no RelPermalink; a link page has one but is not written (is-written.html says which pages are). */ -}}
+  {{- if and (ne (printf "%v" $p.Params.search) "false") $p.RelPermalink (partial "is-written.html" $p) -}}
+    {{- $lists := dict -}}
+    {{- range slice "tags" "categories" "series" -}}
+      {{- $v := index $p.Params . -}}
+      {{- $l := slice -}}
+      {{- if reflect.IsSlice $v }}{{ range $v }}{{ $l = $l | append (printf "%v" .) }}{{ end }}{{ else if $v }}{{ $l = slice (printf "%v" $v) }}{{ end -}}
+      {{- $lists = merge $lists (dict . $l) -}}
+    {{- end -}}
+    {{- $section := "" -}}
+    {{- with $p.Section }}{{ with $p.FirstSection }}{{ if not .IsHome }}{{ $section = partial "page-title.html" . }}{{ end }}{{ end }}{{ end -}}
+    {{- $photos := slice -}}
+    {{- range partialCached "photos.html" $p $p.Path }}{{ with .title }}{{ $photos = $photos | append . }}{{ end }}{{ end -}}
+    {{- /* .Plain keeps character references (&ldquo;); the script shows text as text, so they are decoded here. */ -}}
+    {{- $text := replaceRE `\s+` " " ($p.Plain | htmlUnescape) | strings.TrimSpace -}}
+    {{- if gt $limit 0 }}{{ $text = substr $text 0 $limit }}{{ end -}}
+    {{- /* Each row is made into JSON here and the rows are joined below: Hugo's append would flatten a slice of slices. */ -}}
+    {{- $rows = $rows | append (slice
+      (or $p.Title (partial "page-title.html" $p))
+      $p.RelPermalink
+      (cond $p.Date.IsZero "" ($p.Date.Format "2006-01-02"))
+      $section
+      (index $lists "tags") (index $lists "categories") (index $lists "series")
+      (replaceRE `\s+` " " $p.Description | strings.TrimSpace)
+      $photos
+      $text | jsonify) -}}
+  {{- end -}}
+{{- end -}}
+{{- $json := printf `{"v":1,"p":[%s]}` (delimit $rows ",") -}}
+{{- if gt (len $json) 1048576 }}{{ warnidf "theblues-search-size" "%s is %d bytes, over 1 MB, which every visitor who searches downloads; lower params.search.textLimit (now %d) or set `search: false` in the front matter of pages that need not be searched (#159)." .RelPermalink (len $json) $limit }}{{ end -}}
+{{- $json -}}

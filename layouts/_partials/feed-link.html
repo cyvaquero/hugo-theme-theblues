@@ -1,0 +1,4 @@
+{{- /* "Subscribe via RSS" link to a page's own feed: the term header, the default (section) header and the series box.
+  Context: the page whose feed it is (the term page for a series box). Writes nothing when the page has no RSS output,
+  so a site that turns a feed off gets no link. The link's name is its visible text. */ -}}
+{{ with .OutputFormats.Get "RSS" }}<a class="feed" href="{{ .RelPermalink }}" type="application/rss+xml">{{ partial "rss-icon.html" }}{{ (or (T "subscribeFeed") (partial "t-en.html" "subscribeFeed")) }}</a>{{ end -}}

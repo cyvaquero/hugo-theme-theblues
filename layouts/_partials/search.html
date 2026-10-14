@@ -1,2 +1,10 @@
-{{/* Search slot. The engine is chosen in #159; replace this partial's body when it lands. */}}
-<div id="search"><p>{{ (or (T "searchUnavailable") (partial "t.html" "searchUnavailable")) }}</p></div>
+{{- /*
+  Search slot (#159), included by search/section.html. With the index turned on (search-index.html) it writes the search
+  form and loads assets/js/search.js; without it, or without JavaScript, the page keeps "Search is not available yet."
+  A site's own layouts/_partials/search.html replaces this file; the context is the search page.
+*/ -}}
+{{- with partial "search-index.html" -}}
+  {{- partial "search-box.html" (dict "page" $ "index" . "heading" ((or (T "searchResultsHeading") (partial "t-en.html" "searchResultsHeading"))) "action" $.RelPermalink) -}}
+{{- else }}
+<div id="search"><p>{{ (or (T "searchUnavailable") (partial "t-en.html" "searchUnavailable")) }}</p></div>
+{{ end -}}

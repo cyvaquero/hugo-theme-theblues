@@ -1,11 +1,13 @@
 {{- /*
-  RSS feeds (home, sections, terms): Hugo 0.167.0's embedded rss.xml (tpl/tplimpl/embedded/templates/rss.xml) with
-  five changes: the home feed lists only pages in the site's main sections (site.MainSections, the same pages as the
+  RSS feeds (home, sections, terms): Hugo 0.168.0's embedded rss.xml (tpl/tplimpl/embedded/templates/rss.xml) with
+  six changes: the home feed lists only pages in the site's main sections (site.MainSections, the same pages as the
   walls), so About, Archive and Search stay out (#18); items use page-title.html, so an untitled post gets a title
   (#18); an item without a date has no pubDate instead of "01 Jan 0001" (#36); lastBuildDate comes from the listed
-  items only, and is left out when there are none or none is dated (#68); and items are sorted by publish date, newest
+  items only, and is left out when there are none or none is dated (#68); items are sorted by publish date, newest
   first, before the limit is applied, so a post's weight (the series order, README) can't put older posts first or push
-  newer ones out of a limited feed (#163; a taxonomy's feed of terms keeps Hugo's order). Compare with the embedded template when upgrading Hugo. The channel's title
+  newer ones out of a limited feed (#163; a taxonomy's feed of terms keeps Hugo's order); and an item's summary loses the
+  aria-describedby="tb-newtab" that render-link.html puts on links to other hosts, since the notice it points at is in
+  baseof.html's pages and not in a feed. Compare with the embedded template when upgrading Hugo. The channel's title
   and description are the site's language (i18n, #192). A site's own home.rss.xml still takes precedence for the home feed.
 */ -}}
 {{- $authorEmail := "" }}
@@ -75,7 +77,7 @@
 				{{- end }}
 				{{- with $authorEmail }}<author>{{ . }}{{ with $authorName }} ({{ . }}){{ end }}</author>{{ end }}
 				<guid>{{ .Permalink }}</guid>
-				<description>{{ .Summary | transform.XMLEscape | safeHTML }}</description>
+				<description>{{ .Summary | replaceRE ` aria-describedby="tb-newtab"` "" | transform.XMLEscape | safeHTML }}</description>
 			</item>
 		{{- end }}
 	</channel>

@@ -21,15 +21,22 @@
     try { var v = localStorage.getItem(KEY); return v === 'light' || v === 'dark' ? v : 'system'; } catch (e) { return 'system'; }
   }
 
-  function apply(mode) {
+  // The page's colors: data-theme on <html> and the two metas. Runs at once, before the first paint.
+  function setMode(mode) {
     if (mode === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', mode);
     if (scheme) scheme.content = mode === 'system' ? 'light dark' : mode;
     // A picked mode sets both theme-color metas to its color; System puts back each meta's own.
     colors.forEach(function (m) { m.content = mode === 'system' ? m.getAttribute('data-c') : (tc[mode] || m.getAttribute('data-c')); });
+  }
+
+  // The switch's buttons, which exist only once the page is parsed.
+  function press(mode) {
     document.querySelectorAll('.thm button').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === mode));
     });
   }
+
+  function apply(mode) { setMode(mode); press(mode); }
 
   // Disqus picks its light or dark look from the page colors when it loads, so reload loaded comments after a change.
   function refreshComments() {
@@ -38,12 +45,12 @@
     }
   }
 
-  apply(stored());
+  setMode(stored());
 
   function init() {
     var li = document.querySelector('nav.site li.theme');
     if (!li) return;
-    apply(stored());
+    press(stored());
     li.hidden = false;
     li.addEventListener('click', function (e) {
       var b = e.target.closest('.thm button');

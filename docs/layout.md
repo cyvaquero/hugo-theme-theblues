@@ -14,6 +14,7 @@ assets/js/wall.js          wall controls: type chips, filter or highlight, sort,
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
+assets/js/search.js        client-side search: fetches /search/index.json on first use, matches in the browser, builds the results with textContent; only on the search page and the 404 page, and only when the index is published
 data/theblues.toml         the theme version shown in the footer
 i18n/en.toml               the text the theme writes, in English; a site translates it with its own i18n/<language>.toml (see the README, "Translating the theme")
 archetypes/post.md         front matter for `hugo new content post/<name>.md`: title from the file name without a leading YYYYMMDD-, commented showtoc and series lines
@@ -25,19 +26,85 @@ layouts/taxonomy.html      /tags/, /categories/, /series/ (A-Z list with counts)
 layouts/page.html          generic pages (About)
 layouts/archive.html       pages with layout: archive
 layouts/post/page.html     blog posts: photo posts (cover hero, masonry gallery) and articles (hero, TOC, series box, comments)
-layouts/search/section.html  search page (placeholder until the engine is chosen)
-layouts/404.html
+layouts/search/section.html  search page: the search slot (_partials/search.html)
+layouts/search/section.searchindex.json  the search index, /search/index.json (the searchindex output format, defined in hugo.toml)
+layouts/404.html           hero, the latest five posts and, with the search index, the search of the missing address
+layouts/sitemap.xml        sitemap: Hugo's embedded template plus a filter for pages that aren't written (_partials/is-written.html)
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
-                           comments, social, footer, search, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
-                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, t, https-check
+                           comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
+                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, js-text, js-forms, t, t-en, setting-int, https-check, is-written
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
 exampleSite/               fixture site for testing the theme (see testing.md); not used by sites
 ```
+
+## Build cost
+
+Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--minify --templateMetrics
+--templateMetricsHints`). What the theme caches, so a page costs a lookup instead of the work:
+
+- **Asset tags.** `head.html` and `baseof.html` call `script.html` and `stylesheet.html` with `partialCached`, keyed by the
+  path, defer and any data value, so each tag is built once per build. A site that passes different data for the same
+  path gets its own tag. `analytics-on.html` is cached too, since it ignores its context; a site's own copy must not
+  depend on the page. `footer.html` and `nav.html` stay uncached, so a site's override can read the page.
+- **Hero sizes.** `hero-style.html` hands `hero-sizes.html` its own context, so a cache hit builds no key dictionary.
+- **Post navigation.** `post-nav.html` keeps, with `memo.html`, the sorted posts and a map from each post's address to its
+  place in the list, and finds the neighbors by place. Hugo's `Pages.Next` and `Pages.Prev` scan the list for every post.
+  The saving is not measurable below several thousand posts.
+- **Scripts.** `wall.js` binds the chip-hover preview to the controls (`#ctl`), not to the document, and writes a tile's
+  state, the group sections and the controls only when they changed. `gallery.js` builds its `<dialog>` at the first
+  click. `theme.js` sets the page's colors once at load (before the first paint) and marks the switch's buttons once the
+  page is parsed.
+
+## How search works
+
+- **Index.** `hugo.toml` defines the output format `searchindex` (JSON, base name `index`, so `/search/index.json`).
+  `layouts/search/section.searchindex.json` writes `{"v":1,"p":[row, …]}`, one list per regular page of the language
+  (README, "Search", has the row format). Hugo does not merge a theme's `outputs`, so a site turns the index on by
+  listing the format in the search section's outputs. Each row is made into JSON on its own and the rows are joined,
+  because Hugo's `append` would flatten a slice of slices. A page is left out with `search: false`, or when it isn't published (`is-written.html`: `build.render` is `never` or `link`; or it has no address); its text is cut to
+  `params.search.textLimit`. The template warns (`theblues-search-size`) over 1 MB.
+- **Slot.** `search.html` (the slot `search/section.html` includes) asks `search-index.html` for the index address,
+  which is empty unless the search section lists the format. With an address it writes `search-box.html`: the form
+  (`search-form.html`), a status line and an empty, hidden results list, and sets `hasSearch` in the page's Store,
+  which makes `baseof.html` load `search.js`. Without an address the page keeps its "not available" paragraph and loads
+  no script. `search.js` hides that paragraph and shows the form once it runs.
+- **404.** `404.html` lists the latest five posts in `<section id="latest">` and, when `search-index.html` has an address,
+  writes `search-box.html` with `kind` "404" (`data-kind="404"`, `data-base`, the heading, and a form that goes to the search
+  page). `search.js` then does not wire the form: it takes the words of `location.pathname` (`pathWords`), searches them
+  (pass 3 only for words of 3 letters or more and pages scoring 3.2 or more, so a stray word doesn't list pages that merely
+  mention it), and with a match
+  fills the list, puts the words in the field, hides `#latest` and says the count; otherwise it only shows the form.
+- **Script.** `search.js` is a Hugo template (first-line marker) for its text (`js-text.html`, "search"). It fetches the
+  address in `data-index` on first focus or at once for `?q=`, refuses another origin and any `v` other than 1, then
+  builds in memory a map from each folded word to the pages it is in (words are runs of letters, digits and combining
+  marks; folding is lower case, NFD and removal of the optional marks listed in the README, "How it matches"; the index,
+  the query, the highlights, the snippet and the 404 address all use the same `fold()` and `TOKEN`), with the best field weight. A query tries three
+  passes (every word, as a start or exactly; the same with one typo; any word) and stops at the first that finds pages.
+  Results and highlights are built with `createElement`, `createTextNode` and `textContent`.
+
+## How the theme's text and settings are read
+
+- **Text.** Every piece of theme text is `(or (T "key") (partial "t.html" "key"))`: the site's language, then the default
+  language, then the theme's English (`t.html`, from `i18n/en.toml` mounted as data). Where the text becomes the content
+  of an element, the fallback half is `partial "t-en.html"`, which returns t.html's text escaped inside
+  `<span lang="en">`, so a screen reader reads it in English on a page in another language. Attribute values, the page
+  `<title>`, `<option>` content, feeds, date layouts and the "Undated" text keep `t.html`, since no markup can carry a
+  language there. `i18n-check.html` calls `t-en.html` once so an English-only fixture build sees it used. The fixture's
+  pair check (`exampleSite/layouts/_partials/i18n-pairs.html`) counts both partials.
+- **Script text.** `js-text.html` gives a script its text; `js-forms.html` makes a count's forms. T gets the plain numbers
+  0 to 7, 11, 12, 21, 22 and 100 to 103; when they give more than two distinct texts the script gets those texts with the
+  numbers (`p`, `t`) and picks the one whose plural category (`Intl.PluralRules`) matches the count; otherwise it gets
+  `one` and `other`, as before.
+- **Whole-number settings.** `setting-int.html` reads `params.wall.tilesPerPage` and `params.wall.photosPerGallery` for
+  `wall-pager.html` and `wall-tiles.html`, and fails the build naming the setting for anything but a whole number of 1 or
+  more.
+- **Dates.** `date.html` writes the full month (or weekday) name for a layout's `Jan` (`Mon`) when the locale has no
+  abbreviated one.
 
 ## How the wall works
 

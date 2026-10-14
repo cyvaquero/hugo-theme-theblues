@@ -7,19 +7,19 @@
 {{- .Store.Set "hasWall" true -}}
 <div class="ctl" id="ctl" role="region" aria-label="{{ (or (T "browseControls") (partial "t.html" "browseControls")) }}" hidden>
   <div class="seg" role="group" aria-label="{{ (or (T "showType") (partial "t.html" "showType")) }}">
-    <button type="button" data-f="all" aria-pressed="true">{{ (or (T "all") (partial "t.html" "all")) }} <span class="n"></span></button>
-    <button type="button" data-f="article" aria-pressed="false">{{ (or (T "articles") (partial "t.html" "articles")) }} <span class="n"></span></button>
-    <button type="button" data-f="photo" aria-pressed="false">{{ (or (T "photos") (partial "t.html" "photos")) }} <span class="n"></span></button>
+    <button type="button" data-f="all" aria-pressed="true">{{ (or (T "all") (partial "t-en.html" "all")) }} <span class="n"></span></button>
+    <button type="button" data-f="article" aria-pressed="false">{{ (or (T "articles") (partial "t-en.html" "articles")) }} <span class="n"></span></button>
+    <button type="button" data-f="photo" aria-pressed="false">{{ (or (T "photos") (partial "t-en.html" "photos")) }} <span class="n"></span></button>
   </div>
-  <button type="button" class="vbtn" id="vb" aria-expanded="false" aria-controls="pop">{{ (or (T "viewOptions") (partial "t.html" "viewOptions")) }}<span class="bdg" data-badge="opts" hidden></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button>
+  <button type="button" class="vbtn" id="vb" aria-expanded="false" aria-controls="pop">{{ (or (T "viewOptions") (partial "t-en.html" "viewOptions")) }}<span class="bdg" data-badge="opts" hidden></span><svg class="ic chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button>
   <div class="pop" id="pop" role="group" aria-label="{{ (or (T "viewOptions") (partial "t.html" "viewOptions")) }}" hidden>
-    <div class="ps"><span class="pl">{{ (or (T "mode") (partial "t.html" "mode")) }}</span>
+    <div class="ps"><span class="pl">{{ (or (T "mode") (partial "t-en.html" "mode")) }}</span>
       <div class="seg mode" role="group" aria-label="{{ (or (T "filterMode") (partial "t.html" "filterMode")) }}">
-        <button type="button" data-m2="filter" aria-pressed="true">{{ (or (T "filter") (partial "t.html" "filter")) }}</button>
-        <button type="button" data-m2="highlight" aria-pressed="false">{{ (or (T "highlight") (partial "t.html" "highlight")) }}</button>
+        <button type="button" data-m2="filter" aria-pressed="true">{{ (or (T "filter") (partial "t-en.html" "filter")) }}</button>
+        <button type="button" data-m2="highlight" aria-pressed="false">{{ (or (T "highlight") (partial "t-en.html" "highlight")) }}</button>
       </div>
     </div>
-    <label class="ps"><span class="pl">{{ (or (T "sort") (partial "t.html" "sort")) }}</span>
+    <label class="ps"><span class="pl">{{ (or (T "sort") (partial "t-en.html" "sort")) }}</span>
       <select class="sel" data-role="sort">
         <option value="new">{{ (or (T "sortNewest") (partial "t.html" "sortNewest")) }}</option>
         <option value="old">{{ (or (T "sortOldest") (partial "t.html" "sortOldest")) }}</option>
@@ -27,9 +27,9 @@
         <option value="art">{{ (or (T "sortArticles") (partial "t.html" "sortArticles")) }}</option>
       </select>
     </label>
-    <label class="swt"><span>{{ (or (T "groupByGallery") (partial "t.html" "groupByGallery")) }}</span><span class="r"><span class="st" aria-hidden="true">{{ (or (T "off") (partial "t.html" "off")) }}</span><input type="checkbox" role="switch" data-role="grp"></span></label>
-    <button type="button" class="clr" data-role="reset" hidden>{{ (or (T "reset") (partial "t.html" "reset")) }}</button>
+    <label class="swt"><span>{{ (or (T "groupByGallery") (partial "t-en.html" "groupByGallery")) }}</span><span class="r"><span class="st" aria-hidden="true">{{ (or (T "off") (partial "t.html" "off")) }}</span><input type="checkbox" role="switch" data-role="grp"></span></label>
+    <button type="button" class="clr" data-role="reset" hidden>{{ (or (T "reset") (partial "t-en.html" "reset")) }}</button>
   </div>
-  <button type="button" class="clr" data-role="clear" hidden>{{ (or (T "clear") (partial "t.html" "clear")) }}</button>
+  <button type="button" class="clr" data-role="clear" hidden>{{ (or (T "clear") (partial "t-en.html" "clear")) }}</button>
   <p class="cap" aria-live="polite"></p>
 </div>
