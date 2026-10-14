@@ -354,6 +354,9 @@ the person building the site.
   number, `true` or `false`, and a number with a fraction (`2.9`) or too big for a whole number (`1e30`), fails the build
   with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
+- The series box lists every post of the series on each of its posts, so a series of N posts writes N x N list entries
+  and its build time grows with the square of its length: about a second for a 150-post series. The theme is built and
+  tested for series of up to about 25 posts; a much longer series still works, only the build takes longer.
 - Wall pages after the first (`/page/2/`, …) have their own title ("guyheckman.me – Page 2", "Hugo – Page 2 |
   guyheckman.me"), but use page 1's canonical URL (`<link rel="canonical">` and `og:url`) and have no `rel=prev/next` in the
   head. The pager links carry `rel=prev` and `rel=next`. This is deliberate. The wall paginates by tile, newest

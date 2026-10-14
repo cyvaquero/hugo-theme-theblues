@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.6] - 2026-10-13
+
+### Changed
+- The README's known limits say that the series box lists every post of a series on each of its posts, so the build time
+  grows with the square of the series length (about a second for 150 posts), and that the theme is tested with series of
+  up to about 25 posts; `docs/testing.md` asks for build-time tests at that scale (#307). Docs only; output is unchanged.
+
 ## [1.5.5] - 2026-10-13
 
 ### Fixed

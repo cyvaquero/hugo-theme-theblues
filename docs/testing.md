@@ -48,6 +48,10 @@ To check that Hugo's cache hints still work with the theme, add `--templateMetri
 should finish in about a second and print the metrics table; a hang means a partial returns a resource that is still
 unbuilt (#243).
 
+For build-time measurements, use a scratch copy of a site scaled to a realistic size, for example a few hundred posts,
+with series of up to about 25 posts (README, "Known limits"). The series box writes the whole series on each of its
+posts, so a longer series measures that design, which grows with the square of the series length, not a regression.
+
 The settings checks fail the build on purpose, so the fixture can't hold them. To see one, build with
 `HUGO_PARAMS_WALL_TILESPERPAGE=abc` (or `HUGO_PARAMS_WALL_PHOTOSPERGALLERY=abc`, `=0` or `=-2`): the error names the setting
 (#256). A boolean or a fractional or huge number can't come from an environment variable (Hugo turns `2.9` into 2 before
