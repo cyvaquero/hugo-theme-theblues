@@ -26,8 +26,8 @@ What the theme is built and tested for. A request outside it is an enhancement, 
 - **Hugo:** the minimum in `hugo.toml` (`[module.hugoVersion] min`), which `theme.toml`'s `min_version` mirrors; keep
   the two the same. Standard or extended edition. Developed and tested on the version the site pins.
 - **Languages:** one or more languages, with the theme's strings translatable through `i18n/` and an English
-  fallback. Left-to-right layout only: a right-to-left language gets `dir="rtl"` on `<html>`, but the layout is
-  not mirrored.
+  fallback. A right-to-left language gets `dir="rtl"` on `<html>` and a mirrored layout (CSS logical
+  properties; the `rtl` variant is the test). The previous/next arrows (`&larr;`, `&rarr;`) are not mirrored.
 - **Content:** Markdown files under `content/`, with posts in the main sections and a site `title` set. Content
   adapters are not tested.
 - **Photos:** SmugMug photo URLs (`photos.smugmug.com`) for galleries, wall tiles and heroes. Only those are read for

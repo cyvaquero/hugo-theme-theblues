@@ -297,7 +297,7 @@ A site can add its own page types without overriding theme files:
 - **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings:
   - 560px: masonry walls and `galleries` blocks go from one column to two;
   - 700px: the View options popover becomes a 20rem panel at the right instead of spanning the controls, and the wall
-    caption moves from the left to the right;
+    caption moves from the left to the right (both swap sides in a right-to-left language);
   - 821px: the full nav replaces the Menu button (`nojs.css` and `menu.js` use 820px and narrower), and articles get the
     table of contents beside the text;
   - 900px: masonry walls and `galleries` blocks get a third column.
@@ -336,9 +336,12 @@ translate the theme, or reword its English, for a site:
    `locale`: `en-GB` writes September as "Sep", not "Sept".
 5. For a right-to-left language, set `direction = "rtl"` on it (`[languages.ar]`), and the theme writes `dir="rtl"` on `<html>`,
    so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir`
-   attribute. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
-   the bars, indents, drop-downs and alignment keep their left-to-right sides. Mirroring them with CSS logical
-   properties is tracked in the project's issues.
+   attribute. The layout mirrors with the direction, since `main.css` uses CSS logical properties: the side bars of the
+   series box, article tiles, table of contents and quotes, the indents, the View options panel, the skip link, photo
+   badges, the theme switch and the alignment of the wall caption move to the other side. Code blocks stay left to right.
+   In the photo viewer the arrow keys follow the buttons' sides: in a right-to-left language Left is the next photo and
+   Right the previous one, and a swipe to the right goes to the next. The arrows (&larr; &rarr;) written into the
+   previous/next links and the pager are not mirrored.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
 `gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -618,7 +621,7 @@ on photos):
   without moving either, and it comes back once the pointer and focus have left the tile and returned (WCAG 1.4.13).
   On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
-  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
+  Right arrows (reversed in a right-to-left language), Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
   focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
