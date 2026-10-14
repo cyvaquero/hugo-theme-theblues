@@ -76,10 +76,13 @@ URLs build as before.
 
 The search fixture (README, "Search"): `exampleSite/content/search/_index.md` lists `searchindex` in its outputs, so the
 build publishes `/search/index.json`, and the search page loads `search.js`. The root pages `accents.md` (accented words in
-its title, description, tags and text) and `unlisted.md` (`search: false`, one rare word) are part of it, with four pages for the marks (#320): `hindi.md` ("किताब", and
+its title, description, tags and text) and `unlisted.md` (`search: false`, one rare word) are part of it, with two pages that are never published (#321): `unrendered.md`
+(`build: {render: never, list: always}`, the word quokkaneverrender) and `unrendered-link.md` (`render: link`, the word wombatlinkonly), which
+must have no row and whose words must find nothing (`grep -c 'Unrendered\|Link-only' <out>/search/index.json` prints 0; Hugo
+itself lists the `link` page in `sitemap.xml`, which is not the theme's), and with four pages for the marks (#320): `hindi.md` ("किताब", and
 "की" in its text) and `hindi-other.md` ("कमल", "कोई", "कुछ", "करता", "के", "को", "कि"), `decomposed.md` (Latin saved in
 NFD) and `vocalized.md` (Arabic with harakat). Check the build, in
-`<out>/search/`: `index.json` exists, has `"v":1` and no row for the unlisted page, and `index.xml` doesn't exist. Then serve
+`<out>/search/`: `index.json` exists, has `"v":1` and no row for the unlisted page or the two unpublished ones, and `index.xml` doesn't exist. Then serve
 `<out>` (`python3 -m http.server`) and, in a browser (headless Chrome over the DevTools protocol works), on `/search/`:
 
 - `gallery` lists the gallery posts, with the matches in `<mark>`; `code` finds the post tagged `code`; `cafe creme`,
