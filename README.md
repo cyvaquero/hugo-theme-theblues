@@ -204,7 +204,7 @@ available yet."
 **What is indexed.** Every regular page of the language except those with `search: false` in their front matter.
 Drafts, future and expired pages are left out by Hugo's own rules. So is a page the build doesn't publish: one whose
 `build.render` is `never` or `link` (it has no page at its address, or none is written there) is not indexed, even when
-`build.list` is `always`. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
+`build.list` is `always`. The sitemap follows the same rule. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
 `[title, url, date, section, tags, categories, series, description, photoTitles, text]`. `date` is `YYYY-MM-DD` (empty
 for an undated page), `section` is the title of the page's top-level section (empty for a page in the site root),
 `photoTitles` are the titles of its `gallery` photos, and `text` is the page's plain text with white space collapsed.
@@ -388,7 +388,10 @@ the person building the site.
 - The 404 page lists the latest five posts (the main sections). Its search of the missing address runs in the browser, so
   the server's response is the usual 404 with that list; the matches replace it only for visitors with JavaScript.
 - The 404 page and the `search` section get `<meta name="robots" content="noindex">`. To keep `/search/` out of the
-  sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme has no `robots.txt` template
+  sitemap, a site sets `sitemap: {disable: true}` in `content/search/_index.md`. The theme provides its own
+  `sitemap.xml` (`layouts/sitemap.xml`): Hugo's built-in template with one change, that a page whose `build.render` is
+  `never` or `link` is left out, as it is from the search index, because no page is written at its address. A site can
+  still replace it with its own `layouts/sitemap.xml`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
 - The theme's feed template (`layouts/rss.xml`, used for the home, section and term feeds) lists only pages in the main
   sections on the home feed (`mainSections`, see Content structure). The `search` section still gets its own empty
@@ -674,6 +677,8 @@ them without a build error:
   Hugo rebuilds, and on a page's `.Store` surviving a rebuild under `hugo server`.
 - `wall-pager.html` hands `.Paginate` a stand-in collection, `site.Home` repeated once per tile, to paginate the wall by
   tile.
+- `layouts/sitemap.xml` is a copy of Hugo's own sitemap template with one filter added (it leaves out pages that
+  aren't written). A new Hugo can change its template, and the copy keeps the old one.
 
 Before moving the theme, or a site that uses it, to a newer Hugo:
 
@@ -684,7 +689,9 @@ Before moving the theme, or a site that uses it, to a newer Hugo:
    or missing, and that the pager's page count and links match.
 3. Rebuilds: run `hugo server` on the fixture, change a post's tags, and check that the home wall and both the old and
    the new tag pages follow without a restart. Undo the change and check again.
-4. Build time: build a copy of the fixture with about 550 posts and compare with the figure under "Known limits". A
+4. Sitemap: compare `layouts/sitemap.xml` with the `sitemap.xml` template in the new Hugo's source
+   (`tpl/tplimpl/embedded/templates`), and bring over any change apart from the filter.
+5. Build time: build a copy of the fixture with about 550 posts and compare with the figure under "Known limits". A
    much slower build, or one that hangs, points at the partial cache; see the cache-hints check in
    [docs/testing.md](docs/testing.md).
 

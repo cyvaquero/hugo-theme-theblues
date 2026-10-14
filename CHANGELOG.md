@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.10] - 2026-10-14
+
+### Fixed
+- The sitemap no longer lists pages the build doesn't write. A page with `build: {render: link, list: always}` was in
+  `sitemap.xml` although nothing is written at its address, so the sitemap pointed at a 404. The theme now ships a
+  `sitemap.xml` layout (Hugo's own template plus a filter) that leaves out pages whose `build.render` is `never` or
+  `link`, as the search index does; everything else in the sitemap is unchanged. A site's own `layouts/sitemap.xml`
+  still takes precedence (#326).
+
 ## [1.5.9] - 2026-10-14
 
 ### Fixed

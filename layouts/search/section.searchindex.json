@@ -24,10 +24,8 @@
 {{- $rows := slice -}}
 {{- range site.RegularPages -}}
   {{- $p := . -}}
-  {{- /* Hugo has no .Build on a page; the build options are in .Params.build (cascades included), and a value other than
-    never or link (even a different case) is treated as always. A never page has no RelPermalink; a link page has one but is not written. */ -}}
-  {{- $render := "" -}}{{- with $p.Params.build }}{{ $render = printf "%v" .render }}{{ end -}}
-  {{- if and (ne (printf "%v" $p.Params.search) "false") $p.RelPermalink (not (in (slice "never" "link") $render)) -}}
+  {{- /* A never page has no RelPermalink; a link page has one but is not written (is-written.html says which pages are). */ -}}
+  {{- if and (ne (printf "%v" $p.Params.search) "false") $p.RelPermalink (partial "is-written.html" $p) -}}
     {{- $lists := dict -}}
     {{- range slice "tags" "categories" "series" -}}
       {{- $v := index $p.Params . -}}
