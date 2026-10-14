@@ -54,8 +54,11 @@
     });
     dlg.addEventListener('keydown', function (e) {
       if (list.length < 2) return;
-      if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1); }
+      // The arrows point where the buttons are: the next photo is on the right in a left-to-right page and on the left in
+      // a right-to-left one (#296).
+      var fwd = rtl() ? 'ArrowLeft' : 'ArrowRight', back = rtl() ? 'ArrowRight' : 'ArrowLeft';
+      if (e.key === fwd) { e.preventDefault(); show(idx + 1); }
+      else if (e.key === back) { e.preventDefault(); show(idx - 1); }
       else if (e.key === 'Home') { e.preventDefault(); show(0); }
       else if (e.key === 'End') { e.preventDefault(); show(list.length - 1); }
     });
@@ -72,7 +75,7 @@
       down = Math.max(0, down - 1); sx = sy = null;
       if (x === null) return;
       var dx = e.clientX - x, dy = e.clientY - y;
-      if (list.length > 1 && Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) show(idx + (dx < 0 ? 1 : -1));
+      if (list.length > 1 && Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) show(idx + ((dx < 0) !== rtl() ? 1 : -1));
     });
     // The browser fires pointercancel when it takes a gesture over (a pinch or a pan), and that
     // ends the pointer without a pointerup.
@@ -80,6 +83,9 @@
       if (e.pointerType !== 'mouse') { down = Math.max(0, down - 1); sx = sy = null; }
     });
   }
+
+  // The page's reading direction, read when it is needed since it can differ per page (dir on <html>).
+  function rtl() { return getComputedStyle(dlg).direction === 'rtl'; }
 
   function preload(n) { if (list.length > 1) new Image().src = list[(n + list.length) % list.length].href; }
 

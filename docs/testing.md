@@ -23,7 +23,10 @@ the legacy `params.addtional_menus`), a second language with a partial translati
 `content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
 Google Analytics ID, which the theme loads in production builds only, and a right-to-left language (`rtl`: Arabic with
 `direction = "rtl"` next to English, #266), whose pages must start `<html lang="ar" dir="rtl">` while the English ones
-have no `dir`. Its `exampleSite/i18n/ar.toml` also holds the cases that need a language other than English and German:
+have no `dir`, and whose layout mirrors (#296): the series box, article tile, table of contents and blockquote bars are on
+the right, the View options panel, skip link, photo badge and theme switch knob anchor to the other side, the lightbox
+arrow keys go the other way, and code blocks stay left to right. A change to `main.css` must leave a left-to-right page's
+computed styles and pixels as they were. Its `exampleSite/i18n/ar.toml` also holds the cases that need a language other than English and German:
 Hugo has no abbreviated Arabic month name, so the dates (`<time>`, tile and series `aria-label`s, the archive) must show
 the month ("12 يناير 2026"), and the counts have all six plural forms (see "Plural forms" below):
 
@@ -124,6 +127,8 @@ NFD) and `vocalized.md` (Arabic with harakat). Check the build, in
 - the status is a `role="status"` that is said once after typing pauses; Enter runs the search; Tab reaches the field, the
   button, then the first result; a long query reflows at 320px with no horizontal scroll; `mark` is 8:1 in light and dark
   (system and picked), and uses `Mark`/`MarkText` with `forced-colors: active`.
+
+The nav's search link (`params.search_enabled`, set in the fixture) has `aria-current="page"` on `/search/` and on no other page, with a language prefix (`/en/search/` in `multilingual`) and with a sub-path base URL (build with `-b https://example.org/sub/`: `/sub/search/`) (#333).
 
 Feeds and feed links (#322): in `<out>/tags/fixtures/index.xml` no item is the "Unlisted note" page (outside the main sections), while the
 terms used only by root pages (`/tags/münster/`, `/tags/crème-brûlée/`, `/tags/किताब/`, `/categories/food/`) have a feed with no items and no
