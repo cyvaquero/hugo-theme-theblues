@@ -70,7 +70,9 @@ whose embed URL is `https://exämple.org/x` must fail with "the URL's host must 
 The same shortcode refuses a numeric spelling of the site's own IP address (#309). With the site on a bare IP, build with
 `-b https://127.0.0.1/` (and `-b 'https://[::1]/'`) and a copy of the fixture whose embed URL is, in turn, `https://2130706433/`,
 `https://0x7f.1/`, `https://0177.0.0.1/`, `https://127.1/`, `https://127.0.0.1./`, `https://127.0.0.1/x`, `https://[::1]/` and
-`https://[::ffff:127.0.0.1]/`: each must fail with "the site is served from an IP address" (the shortcode's own error, no panic), while
+`https://[::ffff:127.0.0.1]/`: each must fail with the shortcode's own error, no panic: "the site is served from an IP address", except
+`https://127.0.0.1/x` (and `https://[::1]/` on the `[::1]` base), which is the site's own host spelled the same way and fails first
+with "the URL is on this site's own host". Meanwhile
 `https://photos.example.org/x` and `https://www.youtube-nocookie.com/x` build. On the fixture's own base URL (a domain), the numeric
 URLs build as before.
 

@@ -3,6 +3,21 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.11] - 2026-10-14
+
+### Changed
+- Documentation for the release (#322):
+  - Hugo 0.168.0 is the version the theme is developed and tested on. "Upgrading Hugo" lists `layouts/rss.xml` beside
+    `layouts/sitemap.xml` as a copy of Hugo's template to compare after an upgrade, and the RSS layout's header names
+    0.168.0, whose template is unchanged.
+  - The search docs give the query limits (10 words, 64 characters a word, 200 characters from `?q=`), the 404 page's
+    score threshold, what `params.search.textLimit` accepts, and that the Arabic marks folded are the vowel marks only.
+  - The README no longer links issues from its prose; `theme.toml` lists client-side search and feed links among the
+    features; `docs/testing.md` gives the right error for the site's own address in the embed check; comments name the
+    fourth template script (`search.js`), the scripts' plural forms and the `_partials` folder.
+  - The CHANGELOG gains its missing link definitions and issue numbers.
+  Docs and comments only; output is unchanged.
+
 ## [1.5.10] - 2026-10-14
 
 ### Fixed
@@ -81,7 +96,7 @@ All notable changes to this theme are documented here. The format follows
 - `wall.js` binds the chip-hover preview to the controls instead of the whole document, and writes a tile's state
   (hidden, dimmed, highlighted), the group sections and the controls only when they changed. `gallery.js` builds its
   lightbox `<dialog>` at the first click instead of at load. `theme.js` sets the page's colors once at load and the
-  switch's buttons once the page is parsed, instead of applying the mode twice. Behavior is unchanged.
+  switch's buttons once the page is parsed, instead of applying the mode twice. Behavior is unchanged (#307).
 
 ## [1.5.3] - 2026-10-13
 
@@ -97,7 +112,7 @@ All notable changes to this theme are documented here. The format follows
   field, when there is an index). The address is only ever inserted as text, and nothing redirects, so the page keeps
   its 404 status. A site that doesn't publish the index gets the latest posts and no script.
 - A site's Content Security Policy needs `form-action 'self'` for the 404 page's search field when it publishes the index
-  (the README's example has it).
+  (the README's example has it) (#151).
 
 ## [1.5.2] - 2026-10-13
 
@@ -117,12 +132,12 @@ All notable changes to this theme are documented here. The format follows
   system colors in forced-colors mode) style the matches; the new strings are in `i18n/en.toml`. The script sends nothing
   anywhere (its only request is for the index) and builds the results with `textContent`, never `innerHTML`; the query is
   in the address as `?q=`, so analytics that record addresses record it, which the README says.
-- A site's Content Security Policy needs `connect-src 'self'` for the index (the README's example has it).
+- A site's Content Security Policy needs `connect-src 'self'` for the index (the README's example has it) (#159).
 
 ### Changed
 - A site that doesn't list `searchindex` in its search section's outputs is unchanged: its search page still says
   "Search is not available yet.", loads no search script and gets no index. The fixture now publishes the index, with a
-  page that has accented words and one with `search: false`.
+  page that has accented words and one with `search: false` (#159).
 
 ## [1.5.1] - 2026-10-13
 
@@ -653,6 +668,8 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.5.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.4.0...1.5.0
+[1.4.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.3.0...1.4.0
 [1.3.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.0.0...1.1.0
