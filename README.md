@@ -214,12 +214,17 @@ warns with the ID `theblues-search-size`, and `--panicOnWarning` stops it. Lower
 pages that need no search. Serve the file compressed (gzip or Brotli), as hosts do for other JSON, and the download is
 a fraction of that.
 
-**How it matches.** The query and the pages are folded to lower case without accents (`cafe` finds "Café"). Every word of
+**How it matches.** The query and the pages are folded to lower case and the optional marks are removed (`cafe` finds "Café", whether
+the accent is one character or a letter plus a combining mark). The marks removed are the accents of Latin, Greek and
+Cyrillic (U+0300 to U+036F), the Arabic vowel marks and Quranic annotation (U+064B to U+065F and U+0670), and the
+Hebrew points and cantillation marks (U+0591 to U+05BD, U+05BF, U+05C1, U+05C2, U+05C4, U+05C5 and U+05C7). Every other
+mark stays, because it tells words apart: the vowel signs, virama and nukta of Devanagari and other Indic scripts, and
+the vowels and tone marks of Thai, are part of the word. Every word of
 the query must match a word of the page, exactly or as its start (`bost` finds "Boston"). Pages are ranked by where the
 words are: title 10, tags, categories and series 6, description 4, photo titles 3, text 1, newest first on a tie. If no
 page has every word, the search allows one typo (an extra, missing, wrong or swapped letter) in words of four letters
 or more, and if that finds nothing it lists the pages that have any of the words, the most words first. Words are split
-at anything that isn't a letter or a digit, so a language written without spaces (Chinese, Japanese, Thai) is matched
+at anything that isn't a letter, a digit or a combining mark, so a language written without spaces (Chinese, Japanese, Thai) is matched
 by the start of each run of characters only. There is no stemming, no phrase search and no stop words.
 
 **The page.** A labeled search field with a Search button; Enter submits it. Results appear as the visitor types, in a list

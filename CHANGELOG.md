@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.7] - 2026-10-14
+
+### Fixed
+- Search no longer treats the vowel signs of Devanagari, Thai and other scripts as accents. They were folded away, so
+  distinct words matched each other ("की" listed pages that only had "कमल" or "कोई") and highlights cut words short or
+  were missing. Search now folds case and only the optional marks (the accents of Latin, Greek and Cyrillic, the Arabic
+  vowel marks and the Hebrew points), keeps every other mark in its word, and highlights whole words, including Latin
+  text saved in decomposed form ("ecole" now highlights "école" saved as `e` plus an accent) (#320).
+- The test site gains Hindi, decomposed-Latin and vocalized-Arabic pages for these cases (#320).
+
 ## [1.5.6] - 2026-10-13
 
 ### Changed
