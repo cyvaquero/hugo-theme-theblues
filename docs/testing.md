@@ -17,7 +17,7 @@ hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../
 
 `hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
 Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
-compared. Also build it minified, as a site is deployed, and the four variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
+compared. Also build it minified, as a site is deployed, and the five variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
 which cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
 the legacy `params.addtional_menus`), a second language with a partial translation (`i18n/de.toml`, content in
 `content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
@@ -32,12 +32,18 @@ the month ("12 يناير 2026"), and the counts have all six plural forms (see 
 
 ```bash
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
-for v in main-menu multilingual analytics rtl; do
+for v in main-menu multilingual analytics rtl adapter; do
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
 done
 ```
 
 (`--printUnusedTemplates` is left out of the variants, since each one leaves some templates unused on purpose.)
+
+The `adapter` variant (#277) has a content adapter, `content-adapter/post/_content.gotmpl`, that adds three pages without a title
+and one with a title to the post section. Its untitled pages must get distinct titles from their paths ("Adapter Note",
+"Second Adapter Note", "Third Adapter Thing"; the date prefix of `20260301-adapter-note` is dropped) in the page's `<h1>`
+and `<title>`, in previous/next links and in the feed, not the adapter's folder name ("Post") for all of them, and the page with a title
+and the pages in `content/` keep theirs. It is the only content-adapter case the fixture covers.
 
 `--themesDir` must contain the theme as a folder (or link) named `hugo-theme-theblues`, which `../..` is in the site's
 submodule checkout. Each build should finish with no warnings, and the first with no unused templates: the warnings the fixtures cause

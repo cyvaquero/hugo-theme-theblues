@@ -1,0 +1,6 @@
+{{- /* Test fixture (docs/testing.md, the adapter variant): pages added by a content adapter. Three have no title, so the
+  theme derives each one's from its path (#277); one has a title and must keep it. */ -}}
+{{ range slice "20260301-adapter-note" "second-adapter-note" "third-adapter-thing" }}
+  {{ $.AddPage (dict "path" . "date" (time.AsTime "2026-03-01T00:00:00Z") "content" (dict "mediaType" "text/markdown" "value" "A page added by a content adapter, with no title.")) }}
+{{ end }}
+{{ $.AddPage (dict "path" "adapter-titled" "title" "An adapter page with a title" "date" (time.AsTime "2026-03-02T00:00:00Z") "content" (dict "mediaType" "text/markdown" "value" "A page added by a content adapter, with its own title.")) }}
