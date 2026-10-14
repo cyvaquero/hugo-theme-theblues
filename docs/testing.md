@@ -122,6 +122,8 @@ NFD) and `vocalized.md` (Arabic with harakat). Check the build, in
   button, then the first result; a long query reflows at 320px with no horizontal scroll; `mark` is 8:1 in light and dark
   (system and picked), and uses `Mark`/`MarkText` with `forced-colors: active`.
 
+The nav's search link (`params.search_enabled`, set in the fixture) has `aria-current="page"` on `/search/` and on no other page, with a language prefix (`/en/search/` in `multilingual`) and with a sub-path base URL (build with `-b https://example.org/sub/`: `/sub/search/`) (#333).
+
 Feeds and feed links (#322): in `<out>/tags/fixtures/index.xml` no item is the "Unlisted note" page (outside the main sections), while the
 terms used only by root pages (`/tags/münster/`, `/tags/crème-brûlée/`, `/tags/किताब/`, `/categories/food/`) have a feed with no items and no
 "Subscribe via RSS" link in their header (their wall is empty too); a section's feed (`/post/index.xml`) is unchanged. In the accessibility tree

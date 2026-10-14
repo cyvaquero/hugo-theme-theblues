@@ -13,6 +13,12 @@ All notable changes to this theme are documented here. The format follows
 - In the photo viewer, a right-to-left page reverses the arrow keys and the swipe so they follow the Previous and Next
   buttons (Left is the next photo, and a swipe to the right goes to the next).
 
+## [1.6.3] - 2026-10-14
+
+### Fixed
+- The search link that `params.search_enabled` adds to the nav is marked `aria-current="page"` on the search page, as the
+  menu links are on their own pages, so screen readers say it is the current page (#333).
+
 ## [1.6.2] - 2026-10-14
 
 ### Fixed
