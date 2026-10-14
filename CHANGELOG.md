@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.3] - 2026-10-14
+
+### Fixed
+- The search link that `params.search_enabled` adds to the nav is marked `aria-current="page"` on the search page, as the
+  menu links are on their own pages, so screen readers say it is the current page (#333).
+
 ## [1.6.2] - 2026-10-14
 
 ### Fixed
