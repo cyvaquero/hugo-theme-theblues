@@ -3,6 +3,35 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.1] - 2026-10-14
+
+### Fixed
+- Searching for the word "constructor" finds the pages that have it, and on the 404 page an address with that word gets
+  suggestions (#322). The search treated it as a word it had already seen.
+- "Loading the search index…" no longer stays in the status line after a slow load that ends with no query (the search page)
+  or no match (the 404 page) (#322).
+- `tilesPerPage`, `photosPerGallery` and `textLimit` given as text with a leading zero are read as decimal numbers:
+  `"010"` is 10, not 8, and `"08"` builds instead of failing (#322).
+- A term's feed (tag, category or series) lists only the pages in the main sections, the pages its own page shows, so the
+  feed of a term used only outside them (such as a tag on a root page) is empty, and that term's page no longer offers
+  a "Subscribe via RSS" link (#322). The same goes for the series box of a post outside the main sections.
+- The two "Subscribe via RSS" links in the series boxes of a post that is in two series now differ for assistive technology:
+  each name goes on after the visible text, as in "Subscribe via RSS: Series name" (#322).
+- Search matches in a result's title are bolder than the title, and not lighter, so they are marked by more than color (#322).
+- The search status line is on the page from the start, outside the part that the script shows, so the result count that
+  is written on the 404 page and when a search page is opened with `?q=` is more likely to be announced (#322).
+- A link to the site's own host on another port opens in a new tab and says so, like a link to another host; a port that
+  is the scheme's default (`https://example.org:443/`) still counts as the site's own host (#322).
+
+### Changed
+- `params.search.textLimit` is checked like the `[params.wall]` settings: it must be a whole number of 0 or more, so `true`,
+  `2.9` and `1e30` now fail the build naming the setting instead of being read as 1, 2 and a huge number (#322).
+
+### Documentation
+- The README says that a search result's date is the browser's date style and not `dateFormat`, that the search's word length
+  limits count UTF-16 code units (a combining mark counts as a letter), and lists every WCAG 2.1 criterion at levels A and AA
+  that Section 508 doesn't require; it describes the term feeds and the series box's feed links as they are now (#322).
+
 ## [1.6.0] - 2026-10-14
 
 ### Added

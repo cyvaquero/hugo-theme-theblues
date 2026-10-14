@@ -1,7 +1,8 @@
 {{- /*
   RSS feeds (home, sections, terms): Hugo 0.168.0's embedded rss.xml (tpl/tplimpl/embedded/templates/rss.xml) with
-  six changes: the home feed lists only pages in the site's main sections (site.MainSections, the same pages as the
-  walls), so About, Archive and Search stay out (#18); items use page-title.html, so an untitled post gets a title
+  seven changes: the home feed lists only pages in the site's main sections (site.MainSections, the same pages as the
+  walls), so About, Archive and Search stay out (#18), and so does a term's feed (tag, category, series; the same pages
+  as the term's wall, #322; a section's feed lists the section's own pages); items use page-title.html, so an untitled post gets a title
   (#18); an item without a date has no pubDate instead of "01 Jan 0001" (#36); lastBuildDate comes from the listed
   items only, and is left out when there are none or none is dated (#68); items are sorted by publish date, newest
   first, before the limit is applied, so a post's weight (the series order, README) can't put older posts first or push
@@ -39,6 +40,8 @@
 	{{- $pages = $pctx.Pages }}
 {{- end }}
 {{- if .IsHome }}{{ $pages = where $pages "Section" "in" site.MainSections }}{{ end }}
+{{- /* A term's feed lists the pages its wall lists (term.html): the term's pages in the main sections. */}}
+{{- if eq .Kind "term" }}{{ $pages = where .RegularPages "Section" "in" site.MainSections }}{{ end }}
 {{- /* A taxonomy's own feed lists its terms, which have no dates of their own, so it keeps Hugo's order. */}}
 {{- if ne .Kind "taxonomy" }}{{ $pages = $pages.ByPublishDate.Reverse }}{{ end }}
 {{- $limit := .Site.Config.Services.RSS.Limit }}

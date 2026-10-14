@@ -1,6 +1,6 @@
 {{- /* theblues:template */ -}}
-// Client-side search (#159). The page (layouts/_partials/search-box.html) holds the form, a status line and an empty
-// results list, all hidden. This script fetches the site's search index (/search/index.json, made by the build from
+// Client-side search (#159). The page (layouts/_partials/search-box.html) holds the form and an empty results list, both
+// hidden, and the status line, which is on the page from the start, empty (#322). This script fetches the site's search index (/search/index.json, made by the build from
 // layouts/search/section.searchindex.json), searches it in the browser and fills the list in. Nothing is sent anywhere.
 //
 // The index is fetched on first use: when the field gets focus, or at once when the address has ?q=. Only the same-origin
@@ -13,6 +13,9 @@
 //   1. every word of the query matches a word of the page, exactly or as its start ("bost" finds "Boston");
 //   2. the same, allowing one typo (an extra, missing, wrong or swapped letter) in query words of 4 letters or more;
 //   3. any word of the query (matched as in pass 2), the pages with the most words first.
+// Word lengths (64 characters in the index, 40 for the 404 page's address) and the 4-letter minimum for a typo count UTF-16
+// code units, not letters as a reader sees them: a combining mark (a Devanagari or Thai vowel sign) counts as a letter, so a
+// word of three visible letters can already get typo matching (#322).
 // Results are built with createElement and textContent only: nothing from the index is ever parsed as HTML.
 // On the 404 page (data-kind="404", #151) the script searches the words of the missing address instead: it drops the
 // site's base path, numbers, one-letter words and common URL words (STOP), searches the rest, and, if anything matches,
@@ -116,7 +119,9 @@
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     }).then(function (data) { index = build(data); return index; });
-    function done() { clearTimeout(slow); pending = null; }
+    // The "Loading…" text is cleared when the load ends, unless something else has been written since: a failure message
+    // (written after this runs) or a count. Otherwise a slow load with no query leaves it in the live region (#322).
+    function done() { clearTimeout(slow); pending = null; if (status.textContent === TX.loading) say(''); }
     pending.then(done, done);
     return pending;
   }
@@ -153,10 +158,10 @@
   }
 
   function queryWords(q) {
-    var seen = {}, out = [];
+    var seen = new Set(), out = [];  // a Set: a plain object would call "constructor" seen (#322)
     (fold(q).match(TOKEN) || []).forEach(function (w) {
       w = w.slice(0, 64);
-      if (!seen[w] && out.length < 10) { seen[w] = out.push(w); }
+      if (!seen.has(w) && out.length < 10) { seen.add(w); out.push(w); }
     });
     return out;
   }
@@ -215,6 +220,8 @@
     return around(d.desc || d.text, 0);
   }
 
+  // The date is the browser's medium date style in the page's language (Intl.DateTimeFormat), not the site's dateFormat, so
+  // it can differ from a tile's date (#322).
   function meta(d) {
     var date = '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(d.date)) {
@@ -276,13 +283,13 @@
 
   // The words of the missing address, folded, 8 at most and 40 letters each (the 404 page).
   function pathWords() {
-    var p = location.pathname, base = root.getAttribute('data-base') || '/', seen = {}, out = [];
+    var p = location.pathname, base = root.getAttribute('data-base') || '/', seen = new Set(), out = [];
     try { p = decodeURIComponent(p); } catch (e) {}
     if (base !== '/' && p.indexOf(base) === 0) p = p.slice(base.length);
     (fold(p).match(TOKEN) || []).forEach(function (w) {
       w = w.slice(0, 40);
-      if (w.length < 2 || /^\p{N}+$/u.test(w) || STOP.indexOf(w) >= 0 || seen[w] || out.length >= 8) return;
-      seen[w] = true;
+      if (w.length < 2 || /^\p{N}+$/u.test(w) || STOP.indexOf(w) >= 0 || seen.has(w) || out.length >= 8) return;
+      seen.add(w);
       out.push(w);
     });
     return out;
@@ -290,10 +297,10 @@
 
   if (is404) {
     var words = pathWords();
-    if (!words.length) { ui.hidden = false; return; }
+    if (!words.length) { form.hidden = false; return; }
     load().then(function () {
       var r = search(words, MIN_SCORE_404);
-      ui.hidden = false;
+      form.hidden = false;
       if (!r.hits.length) return;  // nothing matches: the latest posts stay
       r.hits = r.hits.slice(0, MAX_404);
       input.value = words.join(' ');
@@ -321,7 +328,7 @@
   });
 
   if (off) off.hidden = true;
-  ui.hidden = false;
+  form.hidden = false;
   var q0 = new URLSearchParams(location.search).get('q');
   if (q0 && q0.trim()) { input.value = q0.slice(0, 200); update(true); }
 })();

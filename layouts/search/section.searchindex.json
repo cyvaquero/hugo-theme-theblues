@@ -17,10 +17,8 @@
   Build-time guard: over 1 MB (1,048,576 bytes) of JSON warns with the ID theblues-search-size; a build with
   --panicOnWarning stops.
 */ -}}
-{{- $limit := 5000 -}}
-{{- /* Like params.wall.tilesPerPage: a value that isn't a whole number fails the build naming the setting. 0 means no cap. */ -}}
-{{- with site.Params.search }}{{ $v := .textlimit }}{{ if ne $v nil }}{{ with try (int $v) }}{{ if .Err }}{{ errorf "params.search.textLimit must be a whole number, 0 or more (got %q)" (printf "%v" $v) }}{{ else }}{{ $limit = .Value }}{{ end }}{{ end }}{{ end }}{{ end -}}
-{{- if lt $limit 0 }}{{ errorf "params.search.textLimit must be 0 or more (got %d)" $limit }}{{ end -}}
+{{- /* Like params.wall.tilesPerPage (setting-int.html): a value that isn't a whole number, or is below 0, fails the build naming the setting. 0 means no cap (#322). */ -}}
+{{- $limit := partial "setting-int.html" (dict "name" "params.search.textLimit" "value" ((site.Params.search | default (dict)).textlimit) "default" 5000 "min" 0) -}}
 {{- $rows := slice -}}
 {{- range site.RegularPages -}}
   {{- $p := . -}}

@@ -1,8 +1,8 @@
 {{- /*
   Markdown links. Only http, https, mailto and tel URLs and scheme-less paths are linked; anything else (javascript:,
   data:, vbscript:, or a URL that doesn't parse) renders the text without an href, as Goldmark does by default. A path
-  that names a page or a page resource resolves to its permalink, like Hugo's built-in hook. Links to other hosts open
-  in a new tab, and say so to screen readers: the link points aria-describedby at the one hidden notice in baseof.html
+  that names a page or a page resource resolves to its permalink, like Hugo's built-in hook. Links to other hosts (or to the
+  site's host on another port) open in a new tab, and say so to screen readers: the link points aria-describedby at the one hidden notice in baseof.html
   (id tb-newtab, #260), so the notice is the link's description and not part of its name. A name built from the link's
   text would leak into a heading's name and the table of contents, which copies the heading's HTML. A reference replaces
   the title as the description, so a link with a Markdown title gets no reference: the notice goes after the title, in
@@ -29,7 +29,15 @@
         {{- end -}}
       {{- end -}}
     {{- else if $u.Host -}}
-      {{- $external = ne (lower $u.Hostname) (lower (urls.Parse site.BaseURL).Hostname) -}}
+      {{- /* Another host, or the same host on another port (another origin), is external. A port that is the scheme's
+           default (443 for https, 80 for http) counts as none, so https://example.org:443/ is the site's own host; the
+           scheme itself is not compared, so http://example.org/ on an https site stays internal (#322). */ -}}
+      {{- $b := urls.Parse site.BaseURL -}}
+      {{- $port := $u.Port -}}
+      {{- if or (and (eq (lower $u.Scheme) "https") (eq $port "443")) (and (eq (lower $u.Scheme) "http") (eq $port "80")) }}{{ $port = "" }}{{ end -}}
+      {{- $bport := $b.Port -}}
+      {{- if or (and (eq (lower $b.Scheme) "https") (eq $bport "443")) (and (eq (lower $b.Scheme) "http") (eq $bport "80")) }}{{ $bport = "" }}{{ end -}}
+      {{- $external = or (ne (lower $u.Hostname) (lower $b.Hostname)) (ne $port $bport) -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}
