@@ -1,7 +1,8 @@
 {{- /*
   An iframe embed, meant for SmugMug gallery embeds. Positional: URL, width, height and an optional title
   (default "Embedded content"; Hugo does not allow mixing positional and named arguments). The URL must be https and on
-  another host than the site, both written in ASCII (and, when the site is served from an IP address, the URL's host may not be
+  another origin than the site: another host, or the site's host on another port (a port that is the scheme's default,
+  443 for https and 80 for http, counts as none, as in _markup/render-link.html; #332). Hosts are written in ASCII (and, when the site is served from an IP address, the URL's host may not be
   an IP address in any spelling, #309): the sandbox grants allow-scripts and allow-same-origin, which
   together let a same-origin page lift its own sandbox, so it only restricts cross-origin frames (no top navigation, forms or modals; #37). The
   frame sends no referrer beyond the origin.
@@ -19,11 +20,18 @@
 {{- if not (findRE `^https://[^/\\?#@\s]+(/|$)` $src 1) }}{{ errorf "embed: the URL must be https://host/... with no user name, backslash or space before the path (%s)" .Position }}{{ end -}}
 {{- $host := lower (urls.Parse $src).Hostname -}}
 {{- $own := lower (urls.Parse site.BaseURL).Hostname -}}
+{{- /* Ports, normalized as in _markup/render-link.html: the embed URL is https, so its default is 443; the site's baseURL
+  may be http or https (#332). */ -}}
+{{- $port := (urls.Parse $src).Port -}}
+{{- if eq $port "443" }}{{ $port = "" }}{{ end -}}
+{{- $b := urls.Parse site.BaseURL -}}
+{{- $ownPort := $b.Port -}}
+{{- if or (and (eq (lower $b.Scheme) "https") (eq $ownPort "443")) (and (eq (lower $b.Scheme) "http") (eq $ownPort "80")) }}{{ $ownPort = "" }}{{ end -}}
 {{- if not $host }}{{ errorf "embed: the URL has no host (%s)" .Position }}{{ end -}}
 {{- if not $own }}{{ errorf "embed: the site's baseURL has no host, so the URL can't be checked against it; set baseURL to a full URL (%s)" .Position }}{{ end -}}
 {{- if not (findRE `^[a-z0-9._:-]+$` $host 1) }}{{ errorf "embed: the URL's host must be plain ASCII letters, digits, dots and hyphens; write an internationalized name in its punycode form, xn--... (%s)" .Position }}{{ end -}}
 {{- if not (findRE `^[a-z0-9._:-]+$` $own 1) }}{{ errorf "embed: the site's baseURL host must be plain ASCII so it can be compared with the URL's; write an internationalized name in its punycode form, xn--... (%s)" .Position }}{{ end -}}
-{{- if eq $host $own }}{{ errorf "embed: the URL is on this site's own host, where the sandbox gives no protection (%s)" .Position }}{{ end -}}
+{{- if and (eq $host $own) (eq $port $ownPort) }}{{ errorf "embed: the URL is on this site's own host and port, where the sandbox gives no protection (%s)" .Position }}{{ end -}}
 {{- /* A browser reads a host whose last label is a number (decimal, octal or 0x hex, such as 2130706433, 0x7f.1, 0177.0.0.1 or
   127.1) as an IPv4 address, and an IPv6 literal (the host keeps no brackets here) can hold one (::ffff:127.0.0.1), so the
   string comparison above can't tell that such a host is the site's own. When the site is served from an IP address, no
