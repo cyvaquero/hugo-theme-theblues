@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.5.9] - 2026-10-14
+
+### Fixed
+- The `embed` shortcode now refuses an IP address in any spelling when the site is itself served from an IP address.
+  Before, `https://2130706433/` or `https://0x7f.1/` (other spellings of `127.0.0.1`) passed the own-host check and
+  were framed with `allow-same-origin`. A site on a domain name is not affected (#309).
+
 ## [1.5.8] - 2026-10-14
 
 ### Fixed
