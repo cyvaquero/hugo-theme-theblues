@@ -1,7 +1,8 @@
 {{- /*
   The search form, its status line and its results list, for the search page (search.html) and the 404 page. assets/js/search.js
-  fills them in. Until it runs they are hidden, and the search page shows its "not available" text instead, so a page
-  without JavaScript has no form that does nothing; the script unhides the form once it is running. The script is added to
+  fills them in. Until it runs the form and the results are hidden, and the search page shows its "not available" text instead, so a page
+  without JavaScript has no form that does nothing; the script unhides the form once it is running. The status line is
+  never hidden (search-form.html). The script is added to
   the page through the page's Store (baseof.html). Context: a map with
     page    the page being built,
     index   the address of the index (search-index.html),
@@ -15,7 +16,7 @@
   {{- if ne .kind "404" }}
   <p class="soff">{{ (or (T "searchUnavailable") (partial "t-en.html" "searchUnavailable")) }}</p>
   {{- end }}
-  <div class="sui" hidden>
+  <div class="sui">
     {{- if ne .kind "404" }}
     {{ partial "search-form.html" .action }}
     {{- end }}

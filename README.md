@@ -159,12 +159,13 @@ The templates assume this layout; other structures are not supported yet.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A link to a page or a page resource resolves to its permalink, as with Hugo's built-in hooks; an image source
-  resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, and say so to
+  resolves to a page resource or a file in the site's `assets/`. Links to another host, or to the site's host on another port (another origin), open in a new tab, and say so to
   screen readers as their description (`aria-describedby`, pointing at one hidden element, `id="tb-newtab"`, that every
   page holds), so a heading with such a link keeps a plain name in the heading list and the table of contents. A reference
   would replace a link's Markdown title as its description, so a titled link has no reference: its `title` ends with the
   same notice ("Title (opens in a new tab)"), which is then the one description, and also the tooltip. The feeds drop the
-  reference from the items' links, since the hidden element is on the site's pages only. A titled image is a `<figure>` with a caption only when it
+  reference from the items' links, since the hidden element is on the site's pages only. A port that is the scheme's default (443 for
+  `https`, 80 for `http`) counts as no port, so `https://example.org:443/` is the site's own host, and the scheme isn't compared. A titled image is a `<figure>` with a caption only when it
   stands alone and the site sets `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title
   is the tooltip.
 
@@ -228,7 +229,13 @@ page has every word, the search allows one typo (an extra, missing, wrong or swa
 or more, and if that finds nothing it lists the pages that have any of the words, the most words first. Words are split
 at anything that isn't a letter, a digit or a combining mark, so a language written without spaces (Chinese, Japanese, Thai) is matched
 by the start of each run of characters only. There is no stemming, no phrase search and no stop words. A query uses its first 10 different words, each cut to 64
-characters; words over 64 characters in a page aren't indexed, and a `?q=` address is cut to 200 characters.
+characters; words over 64 characters in a page aren't indexed, and a `?q=` address is cut to 200 characters. Those lengths, and the four-letter minimum for a typo, count UTF-16 code
+units, not letters as a reader sees them, so a combining mark counts as a letter: a Devanagari or Thai word of three visible letters
+can already get typo matching.
+
+**Dates in results.** A result's date is formatted by the browser (`Intl.DateTimeFormat`, medium date style, in the page's
+language), not by the site's `dateFormat`, so it can differ from the date on a tile, most for a custom `dateFormat` and for
+languages such as Arabic, Japanese and Korean. The index holds the date as `YYYY-MM-DD` only.
 
 **The page.** A labeled search field with a Search button; Enter submits it. Results appear as the visitor types, in a list
 of links (title, date and section, and a snippet with the matching words in `<mark>`), and the count is said once in a
@@ -356,7 +363,7 @@ the person building the site.
   `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
-  `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more; anything else, including text that isn't a
+  `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more (text is read as a decimal number, so `"010"` is 10); anything else, including text that isn't a
   number, `true` or `false`, and a number with a fraction (`2.9`) or too big for a whole number (`1e30`), fails the build
   with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
@@ -393,15 +400,18 @@ the person building the site.
   still replace it with its own `layouts/sitemap.xml`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
 - The theme's feed template (`layouts/rss.xml`, used for the home, section and term feeds) lists only pages in the main
-  sections on the home feed (`mainSections`, see Content structure). The `search` section still gets its own empty
+  sections on the home feed and on each term's feed (tag, category, series; `mainSections`, see Content structure), the
+  same pages as the term's wall. A section's feed lists the section's own pages. The `search` section still gets its own empty
   feed unless its `outputs` leave RSS out: `outputs: [html]`, or `outputs: [html, searchindex]` once the site publishes the
   search index (see Search), in `content/search/_index.md`.
 - Feed links: every page with its own feed names it in `<head>`, and the footer links the home feed (`params.social.rss`).
   A "Subscribe via RSS" link (the `subscribeFeed` string) to the page's own feed is also in the header of each term
   page (tag, category, series) after the post and photo counts, in the header of each section page other than `search`,
   and in a post's series box under "Part N of M", for that series' feed. Home, the taxonomy indexes (`/tags/` and so
-  on), About, Archive, Search and 404 have no such link. A page whose RSS output is turned off gets no link. The link
-  opens the feed as it is; the theme has no feed stylesheet.
+  on), About, Archive, Search and 404 have no such link. A page whose RSS output is turned off gets no link, and neither does a term
+  with no pages in the main sections (its feed would be empty). In the series box, which can hold several links to different feeds, the link's name goes on
+  after its visible text, "Subscribe via RSS: Series name", so the links of a post in two series differ for assistive
+  technology. The link opens the feed as it is; the theme has no feed stylesheet.
 - Search is a static file, so after a deploy a visitor whose browser or CDN kept the old `/search/index.json` searches
   the old pages until the copy expires; a host that sends `Cache-Control: no-cache` (or a short `max-age`) for that one
   file avoids it. The index holds one language's pages, so the search page of a language finds that language's pages
@@ -427,8 +437,9 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more, and the optional
   `[params.search]` table: `textLimit` (default 5000; the most characters of a page's text in the search index, `0` for
-  all of it; text that isn't a number, or a negative number, fails the build naming the setting, and other values are
-  read as Hugo's `int` reads them, so `2.9` gives 2)
+  all of it; it must be a whole number of 0 or more, like the `[params.wall]` settings: anything else, including text that
+  isn't a number, `true` or `false`, a fraction (`2.9`), a number too big for a whole number (`1e30`) and a negative number,
+  fails the build with a message naming the setting)
 - Defaults for the hero and 404 texts: `slogan` is the site `title` when unset; `tagline` is `params.description` when
   unset; `title_404` is the theme's "Page not found" (the `pageNotFound` entry of `i18n/en.toml`, so it is translated
   with the rest). A post's front matter `subtitle` shows only in a post's own hero, where it falls back to the post's
@@ -581,8 +592,10 @@ Notes:
 ## Accessibility
 
 The theme targets **WCAG 2.1 level AA**. That also covers the Revised Section 508 standards for web content, which
-incorporate WCAG 2.0 AA (E205.4), and asks for more: Non-text Contrast (1.4.11), Content on Hover or Focus (1.4.13)
-and Status Messages (4.1.3) are WCAG 2.1 criteria that Section 508 doesn't require, and the theme targets them too.
+incorporate WCAG 2.0 AA (E205.4), and asks for more: WCAG 2.1 adds these criteria at levels A and AA,
+which Section 508 doesn't require: Orientation (1.3.4), Identify Input Purpose (1.3.5), Reflow (1.4.10), Non-text Contrast (1.4.11),
+Text Spacing (1.4.12), Content on Hover or Focus (1.4.13), Character Key Shortcuts (2.1.4), Pointer Gestures (2.5.1), Pointer
+Cancellation (2.5.2), Label in Name (2.5.3), Motion Actuation (2.5.4) and Status Messages (4.1.3). The theme targets them too.
 Section 508's software requirements (chapters 502 and 503) don't apply to web content that conforms to WCAG 2.0 AA
 (the exception in 501.1). Its documentation requirements (chapter 602) do: this section is the theme's list of
 accessibility and compatibility features (602.2), and the README, as electronic documentation, should itself conform

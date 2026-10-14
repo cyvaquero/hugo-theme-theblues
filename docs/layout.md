@@ -70,7 +70,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   `params.search.textLimit`. The template warns (`theblues-search-size`) over 1 MB.
 - **Slot.** `search.html` (the slot `search/section.html` includes) asks `search-index.html` for the index address,
   which is empty unless the search section lists the format. With an address it writes `search-box.html`: the form
-  (`search-form.html`), a status line and an empty, hidden results list, and sets `hasSearch` in the page's Store,
+  (`search-form.html`, hidden until the script runs), a status line that is never hidden and starts empty, and an empty, hidden results list, and sets `hasSearch` in the page's Store,
   which makes `baseof.html` load `search.js`. Without an address the page keeps its "not available" paragraph and loads
   no script. `search.js` hides that paragraph and shows the form once it runs.
 - **404.** `404.html` lists the latest five posts in `<section id="latest">` and, when `search-index.html` has an address,
