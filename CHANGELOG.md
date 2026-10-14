@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.4] - 2026-10-14
+
+### Changed
+- The layout mirrors for right-to-left languages (#296). `main.css` uses CSS logical properties for the side bars of the
+  series box, article tiles, table of contents and quotes, the indents, the skip link, the nav drop-down, the View options
+  panel, photo badges, the theme switch knob and the alignment of the wall caption and switch status, so a site with
+  `direction = "rtl"` shows them on the other side. Left-to-right pages look the same. Code blocks stay left to right.
+- In the photo viewer, a right-to-left page reverses the arrow keys and the swipe so they follow the Previous and Next
+  buttons (Left is the next photo, and a swipe to the right goes to the next).
+
 ## [1.6.3] - 2026-10-14
 
 ### Fixed

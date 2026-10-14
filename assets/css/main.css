@@ -143,9 +143,9 @@ a:hover { color: var(--text); }
 /* On dark surfaces the focus ring is always sand (the skip link is one: it draws on --band, #174). */
 nav.site, footer.site, .hero, .phero, dialog.lb, .skip { --focus: var(--hv); }
 [hidden] { display: none !important; }
-.skip { position: absolute; left: -999px; top: 0; background: var(--band); color: var(--bt); padding: .5rem 1rem; z-index: 100; }
+.skip { position: absolute; inset-inline-start: -999px; top: 0; background: var(--band); color: var(--bt); padding: .5rem 1rem; z-index: 100; }
 /* Inset from the corner, so the 3px ring and its 2px offset aren't cut off by the window edge. */
-.skip:focus { left: .5rem; top: .5rem; }
+.skip:focus { inset-inline-start: .5rem; top: .5rem; }
 #main:focus { outline: none; }  /* skip-link target (tabindex=-1): no ring around the whole page */
 /* Visually hidden, still read by screen readers. clip-path is the current property; clip (deprecated) stays as the
    fallback for older browsers (#92). */
@@ -158,7 +158,7 @@ nav.site a, nav.site .menu { color: var(--bt); text-decoration: none; }
 nav.site a:hover, nav.site .menu:hover { color: var(--hv); }
 nav.site .brand { font-family: var(--serif); font-weight: 700; font-size: 1.15rem; padding: .35rem 0; }
 nav.site .menu { background: none; border: 1px solid var(--hv); border-radius: 6px; padding: .35rem .7rem; font: inherit; font-size: .9rem; cursor: pointer; min-height: 44px; }
-nav.site .links { display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 20; flex-direction: column; background: var(--band); border-top: 1px solid var(--muted); box-shadow: 0 8px 16px rgb(0 0 0 / .3); padding: .25rem 1rem .75rem; margin: 0; list-style: none; }
+nav.site .links { display: none; position: absolute; inset-inline: 0; top: 100%; z-index: 20; flex-direction: column; background: var(--band); border-top: 1px solid var(--muted); box-shadow: 0 8px 16px rgb(0 0 0 / .3); padding: .25rem 1rem .75rem; margin: 0; list-style: none; }
 nav.site .links.open { display: flex; }
 nav.site .links a { display: block; padding: .8rem 0; border-bottom: 1px solid var(--muted); font-size: .9rem; letter-spacing: .06em; }
 nav.site .links a[aria-current] { text-decoration: underline; text-underline-offset: .3em; }
@@ -192,7 +192,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .hero p.sub { margin: .8rem auto 0; max-width: 40rem; font-size: 1.1rem; }
 /* Wavy sand underline under the last word of the slogan (decorative SVG). */
 .hero .u { position: relative; display: inline-block; font-style: italic; }  /* scoped: sites use .u too (#33) */
-.hero .u svg { position: absolute; left: 0; bottom: -.12em; width: 100%; height: .25em; color: var(--hv); }
+.hero .u svg { position: absolute; inset-inline-start: 0; bottom: -.12em; width: 100%; height: .25em; color: var(--hv); }
 /* Page hero: posts, terms, About, Archive, Search. */
 /* The hero keeps a light .45 scrim over the whole photo; the darker part sits on .in, so it starts above the text however
    many lines the title takes: from clear at the top of .in to .73 at 4.5rem, just above the first line (.85 with the
@@ -208,7 +208,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .phero .tag:hover { color: var(--hv); }
 .ptype { display: inline-flex; align-items: center; gap: .4rem; font-size: .75rem; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; color: var(--muted); }
 /* Term hero links. */
-.thero .tl { display: inline-block; margin: 0 1.2rem .6rem 0; color: var(--bt); min-height: 44px; line-height: 44px; }
+.thero .tl { display: inline-block; margin: 0 0 .6rem; margin-inline-end: 1.2rem; color: var(--bt); min-height: 44px; line-height: 44px; }
 .thero .tl:hover { color: var(--hv); }
 /* Feed link (#313) in a hero: on the scrim, like the other hero links. */
 .phero .feed { color: var(--bt); }
@@ -224,9 +224,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 @media (resolution <= 1dppx) and (1280px < width <= 1600px) { .hero, .phero { --hs: var(--hi5); } }
 
 /* 5 Shared bits ------------------------------------------------------------------------------------------- */
-.tag { display: inline-block; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem .25rem .15rem 0; text-decoration: none; }
+.tag { display: inline-block; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem 0; margin-inline-end: .25rem; text-decoration: none; }
 .meta { font-size: .85rem; color: var(--muted); }
-.series { border: 1px solid var(--line); border-left: .9rem solid var(--link); border-radius: 4px; padding: 1rem; background: var(--surface); margin: 2.5rem 0; }
+.series { border: 1px solid var(--line); border-inline-start: .9rem solid var(--link); border-radius: 4px; padding: 1rem; background: var(--surface); margin: 2.5rem 0; }
 /* The title is an h2 (#172): the box is a section of the post, and its title belongs in the heading list. */
 .series .t { display: block; font: 700 1.15rem / 1.3 var(--serif); margin: 0; }
 .series ol { list-style: none; margin: .5rem 0 1rem; padding: 0; }
@@ -274,8 +274,8 @@ footer.site .ver { font-size: .8rem; }
 .bdg { background: var(--on-bg); color: var(--on-fg); border-radius: 99px; min-width: 1.1rem; height: 1.1rem; font-size: .7rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; padding: 0 .3rem; line-height: 1; }
 .clr { background: none; border: 0; color: var(--link); font: inherit; font-size: .8rem; text-decoration: underline; cursor: pointer; min-height: 32px; padding: 0 .3rem; }
 .clr:hover { color: var(--text); }
-.cap { margin: 0; font-size: .8rem; line-height: 1.4; color: var(--muted); flex: 1 1 12rem; text-align: right; }
-@media (max-width: 699px) { .cap { text-align: left; } }
+.cap { margin: 0; font-size: .8rem; line-height: 1.4; color: var(--muted); flex: 1 1 12rem; text-align: end; }
+@media (max-width: 699px) { .cap { text-align: start; } }
 /* The controls are hidden until wall.js shows them. Until then they keep their space (invisible, so out of the
    accessibility tree and the tab order), so the wall doesn't move down when they appear; the empty caption gets its
    line. Only once theme.js has put the js class on <html> (#274): without JavaScript nothing shows the controls, so the
@@ -284,8 +284,8 @@ footer.site .ver { font-size: .8rem; }
   html.js .ctl[hidden] { display: flex !important; visibility: hidden; }
   html.js .ctl[hidden] .cap { min-height: 1.4em; }
 }
-.pop { position: absolute; z-index: 15; top: calc(100% - .2rem); left: 1rem; right: 1rem; background: var(--surface); color: var(--text); border: 1px solid var(--muted); border-radius: 12px; padding: 1rem 1rem .6rem; box-shadow: 0 10px 30px rgb(0 0 0 / .25); }
-@media (min-width: 700px) { .pop { left: auto; width: 20rem; } }
+.pop { position: absolute; z-index: 15; top: calc(100% - .2rem); inset-inline: 1rem; background: var(--surface); color: var(--text); border: 1px solid var(--muted); border-radius: 12px; padding: 1rem 1rem .6rem; box-shadow: 0 10px 30px rgb(0 0 0 / .25); }
+@media (min-width: 700px) { .pop { inset-inline-start: auto; width: 20rem; } }
 .ps { display: block; margin: 0 0 .9rem; }
 .ps > .pl { display: block; font-size: .8rem; font-weight: 700; color: var(--muted); margin-bottom: .35rem; }
 .seg.mode { display: flex; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 2px; gap: 0; }
@@ -293,11 +293,11 @@ footer.site .ver { font-size: .8rem; }
 .sel { width: 100%; min-height: 44px; border: 1px solid var(--ctl-line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: .9rem; padding: .4rem .6rem; }
 label.swt { display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 44px; font-size: .9rem; cursor: pointer; }
 label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
-.swt .st { font-size: .75rem; color: var(--muted); min-width: 1.3rem; text-align: right; }
+.swt .st { font-size: .75rem; color: var(--muted); min-width: 1.3rem; text-align: end; }
 .swt input { appearance: none; -webkit-appearance: none; width: 2.4rem; height: 1.5rem; border-radius: 99px; border: 2px solid var(--muted); background: transparent; position: relative; flex: none; margin: 0; cursor: pointer; }
-.swt input::before { content: ""; position: absolute; top: 2px; left: 2px; width: 1rem; height: 1rem; border-radius: 50%; background: var(--muted); }
+.swt input::before { content: ""; position: absolute; top: 2px; inset-inline-start: 2px; width: 1rem; height: 1rem; border-radius: 50%; background: var(--muted); }
 .swt input:checked { background: var(--on-bg); border-color: var(--on-bg); }
-.swt input:checked::before { left: calc(100% - 1rem - 2px); background: var(--on-fg); }
+.swt input:checked::before { inset-inline-start: calc(100% - 1rem - 2px); background: var(--on-fg); }
 .pop .clr { font-size: .85rem; min-height: 44px; }
 
 /* 8 Masonry wall and tiles -------------------------------------------------------------------------------- */
@@ -315,7 +315,7 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
    attributes, so it is set only on images without them. Same for gallery images. */
 .tile.photo img:not([width]) { aspect-ratio: auto 3 / 2; }
 .tile.photo a.cover { display: block; }
-.tile.photo .badge { position: absolute; top: .5rem; left: .5rem; display: inline-flex; gap: .35rem; align-items: center; background: rgb(var(--scrim) / .88); color: var(--bt); border-radius: 99px; padding: .15rem .6rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+.tile.photo .badge { position: absolute; top: .5rem; inset-inline-start: .5rem; display: inline-flex; gap: .35rem; align-items: center; background: rgb(var(--scrim) / .88); color: var(--bt); border-radius: 99px; padding: .15rem .6rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
 .tile.photo figcaption { position: absolute; inset: auto 0 0 0; padding: 2.5rem .8rem .7rem; background: linear-gradient(transparent, rgb(var(--scrim) / .85) 2.5rem, rgb(var(--scrim) / .92)); color: var(--bt); font-size: .92rem; opacity: 0; pointer-events: none; }
 .tile.photo:hover figcaption, .tile.photo:focus-within figcaption { opacity: 1; }
 @media (hover: none) { .tile.photo figcaption { opacity: 1; } }
@@ -332,16 +332,16 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.photo.more .m { font-size: .9rem; font-weight: 600; color: var(--link); }
 .tile.photo.more a.seeall:hover .m { text-decoration: underline; }
 /* Article tile: text, sand left bar, ARTICLE label with a document icon, serif title. */
-.tile.article { background: var(--art-bg); color: var(--art-fg); border: 1px solid var(--art-line); border-left: 8px solid var(--hv); border-radius: 4px 10px 10px 4px; padding: 1rem 1.1rem 1rem 1rem; }
+.tile.article { background: var(--art-bg); color: var(--art-fg); border: 1px solid var(--art-line); border-inline-start: 8px solid var(--hv); border-start-start-radius: 4px; border-end-start-radius: 4px; border-start-end-radius: 10px; border-end-end-radius: 10px; padding: 1rem; padding-inline-end: 1.1rem; }
 .tile.article .lbl { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; font-size: .72rem; letter-spacing: .14em; font-weight: 700; color: var(--art-sub); text-transform: uppercase; }
-.tile.article .chip { margin-left: auto; border: 1px solid var(--art-sub); border-radius: 99px; padding: 0 .6rem; letter-spacing: .04em; text-transform: none; font-weight: 600; font-size: .76rem; }
+.tile.article .chip { margin-inline-start: auto; border: 1px solid var(--art-sub); border-radius: 99px; padding: 0 .6rem; letter-spacing: .04em; text-transform: none; font-weight: 600; font-size: .76rem; }
 .tile.article :is(h3, h4) { font: 700 1.3rem / 1.25 var(--serif); margin: .55rem 0 .4rem; overflow-wrap: anywhere; }
 .tile.article :is(h3, h4) a { color: var(--art-fg); text-decoration: none; }
 .tile.article :is(h3, h4) a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }  /* whole tile is the link */
 .tile.article :is(h3, h4) a:hover { color: var(--hv); text-decoration: underline; }
 .tile.article p { margin: 0 0 .6rem; font-size: .95rem; line-height: 1.5; color: var(--art-fg); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .tile.article .meta { color: var(--art-sub); font-size: .8rem; }
-.tile .meta a { position: relative; z-index: 1; display: inline-block; min-height: 24px; line-height: 24px; color: inherit; text-decoration: underline; text-underline-offset: .15em; margin-left: .35rem; }
+.tile .meta a { position: relative; z-index: 1; display: inline-block; min-height: 24px; line-height: 24px; color: inherit; text-decoration: underline; text-underline-offset: .15em; margin-inline-start: .35rem; }
 /* Tag links sit on the navy tile, so their focus ring is sand (6.6:1), not steel (1.96:1). */
 .tile.article .meta { --focus: var(--hv); }
 /* The whole tile shows the focus ring of its cover link, in --focus on the page (5.4:1 light, 8.1:1 dark). Only where
@@ -414,11 +414,11 @@ dialog.lb button:hover { color: var(--hv); }
 .apage { max-width: var(--wide); margin: 0 auto; padding: 2rem 1rem 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
 .apage > * { min-width: 0; }
 .apage:not(.has-toc) { max-width: var(--measure); }
-.toc { font-size: .88rem; border-left: 2px solid var(--line); padding-left: 1rem; margin-bottom: 1.5rem; }
+.toc { font-size: .88rem; border-inline-start: 2px solid var(--line); padding-inline-start: 1rem; margin-bottom: 1.5rem; }
 /* The label is an h2 (#226): the post's h1 is in the hero and the body starts at h2, so it sits first in the outline. */
 .toc h2 { display: block; margin: 0; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.toc ul { list-style: none; margin: 0; padding-left: .9rem; }
-.toc > nav > ul { padding-left: 0; }
+.toc ul { list-style: none; margin: 0; padding-inline-start: .9rem; }
+.toc > nav > ul { padding-inline-start: 0; }
 .toc a { display: block; text-decoration: none; padding: .25rem 0; }
 @media (min-width: 821px) {
   .apage.has-toc { grid-template-columns: 14rem minmax(0, 1fr); gap: 3rem; }
@@ -437,11 +437,14 @@ dialog.lb button:hover { color: var(--hv); }
 :is(.abody, .pbody) img:where(:not(.gal *)) { height: auto; border-radius: 6px; }
 :is(.abody, .pbody) figure:where(:not(.gal *)) { margin: 1.8rem 0; }
 :is(.abody, .pbody) figcaption:where(:not(.gal *)) { font: .85rem var(--sans); color: var(--muted); text-align: center; margin-top: .4rem; }
-:is(.abody, .pbody) blockquote { margin-inline: 0; padding-left: 1rem; border-left: 4px solid var(--line); color: var(--muted); }
+:is(.abody, .pbody) blockquote { margin-inline: 0; padding-inline-start: 1rem; border-inline-start: 4px solid var(--line); color: var(--muted); }
 :is(.abody, .pbody) table { border-collapse: collapse; max-width: 100%; display: block; overflow-x: auto; }
 :is(.abody, .pbody) :is(th, td) { border: 1px solid var(--line); padding: .4rem .7rem; }
 :is(.abody, .pbody) code { font-size: .9em; background: var(--code); border-radius: 4px; padding: .05em .3em; }
 :is(.abody, .pbody) pre { background: var(--code); padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; line-height: 1.5; }
+/* Code reads left to right in any language, so a right-to-left page keeps a block's line numbers, indents and scroll
+   origin on the left (#296). */
+:is(.abody, .pbody) :is(pre, .highlight) { direction: ltr; }
 :is(.abody, .pbody) pre code { background: none; padding: 0; font-size: inherit; }
 /* Hugo's highlighted blocks (<div class="highlight"><pre class="chroma">). With markup.highlight.noClasses = false the
    tokens get Chroma classes, colored below from the --sx-* tokens, so code follows light and dark mode. With Hugo's
@@ -465,7 +468,7 @@ dialog.lb button:hover { color: var(--hv); }
 .chroma .lntd { vertical-align: top; padding: 0; margin: 0; border: 0; }
 .chroma .lntable { border-spacing: 0; padding: 0; margin: 0; border: 0; }
 .chroma .line { display: flex; }
-.chroma :is(.lnt, .ln) { white-space: pre; -webkit-user-select: none; user-select: none; margin-right: .4em; padding: 0 .4em; color: var(--muted); }
+.chroma :is(.lnt, .ln) { white-space: pre; -webkit-user-select: none; user-select: none; margin-inline-end: .4em; padding: 0 .4em; color: var(--muted); }
 .chroma .hl { background-color: var(--sx-hl); }
 .chroma .hl :is(.lnt, .ln), .chroma .hl:is(.lnt, .ln) { color: var(--text); }  /* --muted is 3.9:1 on --sx-hl */
 .chroma :is(.k, .kd, .kn, .kp, .kr) { color: var(--sx-kw); }
