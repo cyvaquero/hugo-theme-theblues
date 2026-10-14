@@ -115,6 +115,9 @@ The templates assume this layout; other structures are not supported yet.
   the post template get no series box, comments, previous/next links or table of contents. Taxonomy indexes (`/tags/`
   and so on) count posts only and leave out terms used only outside the main sections; a term page with no posts says
   "No posts yet."
+- **Titles:** a page without a `title` gets one from its file name: without a leading `YYYYMMDD-`, hyphens as spaces,
+  title-cased. A page that a content adapter (`_content.gotmpl`) adds gets it from the last segment of its `path`, so the
+  adapter's pages have distinct titles. Pages with a title keep it.
 - **Taxonomies:** declare `series` next to the default ones. A series lists its posts oldest first; give posts a
   `weight` in their front matter to set the order instead (lowest first; posts without one follow, oldest first):
 

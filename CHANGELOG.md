@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.5] - 2026-10-14
+
+### Added
+- Pages that a content adapter (`_content.gotmpl`) adds without a title get distinct fallback titles from the last segment of
+  their path ("Second Adapter Note" for `second-adapter-note`), where all of them were titled "Post" (#277). Pages from
+  Markdown files get the same titles as before. The fixture has an `adapter` variant that covers it.
+
 ## [1.6.2] - 2026-10-14
 
 ### Fixed
