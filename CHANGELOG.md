@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.9] - 2026-10-15
+
+### Fixed
+- The off-screen skip link no longer makes right-to-left pages scroll sideways (#308). That was already fixed by the
+  mirrored layout in 1.6.4, which hides the link with `inset-inline-start` instead of `left`, so no stylesheet change
+  was needed. The testing guide now checks that the Arabic pages have no horizontal overflow at 320px and 1280px and that
+  the skip link shows in place on focus. Documentation only; the output is unchanged.
+
 ## [1.6.8] - 2026-10-15
 
 ### Fixed
