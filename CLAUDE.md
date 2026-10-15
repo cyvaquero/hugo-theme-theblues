@@ -27,7 +27,8 @@ What the theme is built and tested for. A request outside it is an enhancement, 
   the two the same. Standard or extended edition. Developed and tested on the version the site pins.
 - **Languages:** one or more languages, with the theme's strings translatable through `i18n/` and an English
   fallback. A right-to-left language gets `dir="rtl"` on `<html>` and a mirrored layout (CSS logical
-  properties; the `rtl` variant is the test). The previous/next arrows come from `_partials/arrow.html`, which swaps `&larr;` and `&rarr;` for a right-to-left language.
+  properties; the `rtl` variant is the test). The previous/next arrows come from `_partials/arrow.html`, which swaps
+  `&larr;` and `&rarr;` for a right-to-left language.
 - **Content:** Markdown files under `content/`, with posts in the main sections and a site `title` set (the build warns without one). Content
   adapters are tested only for the fallback title of a page without one (the `adapter` variant); the rest is not.
 - **Photos:** SmugMug photo URLs (`photos.smugmug.com`) for galleries, wall tiles and heroes. Only those are read for
