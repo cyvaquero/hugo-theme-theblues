@@ -247,6 +247,10 @@ are not made this way. To recreate the README images:
   - `photo-post`: `/post/20260104-smugmug-photos/`, scrolled until the gallery is in view (its top 470 px below the
     viewport top).
   - `lightbox`: the same page after clicking the first gallery photo.
+  The lightbox loads the `X2` photo where it has a pixel for each device pixel the photo fills, and `X3` otherwise: with
+  the network log on, open the first photo and step through them at 390x844 (pixel ratio 1 and 3) and at 1280x800 (1 and
+  2); the photo requests are `X2` at both phone ratios and at 1280x800 ratio 1, and `X3` at 1280x800 ratio 2. The link's
+  `href` is `X3` in every case.
   - `article`: `/post/20260105-dated-article/` at 1280x980, scrolled until the table of contents is 380 px from the top.
   - `view-options`: `/` after clicking "View options", scrolled until the controls row is 20 px from the top.
   - `tag-page`: `/tags/photos/` at the top.

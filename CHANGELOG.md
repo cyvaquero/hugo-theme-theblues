@@ -3,6 +3,19 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.11] - 2026-10-15
+
+### Changed
+- The lightbox loads a smaller photo where the larger one would add nothing (#345). It always loaded the SmugMug `X3`
+  size (about 1600px) for the photo on screen and for the two it preloads, even on a phone. It now loads the `X2` size
+  (about 1280px) whenever `X2` has a pixel for each device pixel the photo fills, worked out from the viewport, the
+  device pixel ratio and the photo's shape, and `X3` otherwise, so a photo is never shown at less than one photo pixel
+  per device pixel. The link's `href` stays `X3` (it is what opens without JavaScript or in a new tab). Stepping
+  through an 18-photo gallery from the first photo loads 10.4 MB before and, after, 2.7 MB on a 390x844 phone at pixel
+  ratio 3, 7.3 MB at pixel ratio 1 and on a 1280x800 screen, 9.4 MB at 1920x1080, and 10.4 MB (all `X3`, as before) at
+  1280x800 at pixel ratio 2. The page HTML is unchanged. A pinch that zooms a
+  photo past its pixels now shows it softer on a screen that got `X2`.
+
 ## [1.6.9] - 2026-10-15
 
 ### Fixed

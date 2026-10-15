@@ -1,6 +1,7 @@
 {{- /*
   Derives the lightbox (large) image URL from a SmugMug thumbnail URL by replacing size X2 with X3 in both the path
-  segment and the file suffix: /X2/i-ABC-X2.jpg becomes /X3/i-ABC-X3.jpg. Other URLs are returned unchanged. The rewrite
+  segment and the file suffix: /X2/i-ABC-X2.jpg becomes /X3/i-ABC-X3.jpg. Other URLs are returned unchanged. This is the gallery link's target, which opens without JavaScript; gallery.js shows the
+  X2 size instead where that is enough for the screen (#345). The rewrite
   is smug-size.html's (#190).
 */ -}}
 {{- return partial "smug-size.html" (dict "src" . "from" "X2" "to" "X3") -}}
