@@ -2,7 +2,8 @@
   An iframe embed, meant for SmugMug gallery embeds. Positional: URL, width, height and an optional title
   (default "Embedded content"; Hugo does not allow mixing positional and named arguments). The URL must be https and on
   another origin than the site: another host, or the site's host on another port (a port that is the scheme's default,
-  443 for https and 80 for http, counts as none, as in _markup/render-link.html; #332). Hosts are written in ASCII (and, when the site is served from an IP address, the URL's host may not be
+  443 for https and 80 for http, counts as none, as in _markup/render-link.html; #332; ports are compared as numbers, so
+  :0443 is 443, #349). Hosts are written in ASCII (and, when the site is served from an IP address, the URL's host may not be
   an IP address in any spelling, #309): the sandbox grants allow-scripts and allow-same-origin, which
   together let a same-origin page lift its own sandbox, so it only restricts cross-origin frames (no top navigation, forms or modals; #37). The
   frame sends no referrer beyond the origin.
@@ -20,13 +21,11 @@
 {{- if not (findRE `^https://[^/\\?#@\s]+(/|$)` $src 1) }}{{ errorf "embed: the URL must be https://host/... with no user name, backslash or space before the path (%s)" .Position }}{{ end -}}
 {{- $host := lower (urls.Parse $src).Hostname -}}
 {{- $own := lower (urls.Parse site.BaseURL).Hostname -}}
-{{- /* Ports, normalized as in _markup/render-link.html: the embed URL is https, so its default is 443; the site's baseURL
-  may be http or https (#332). */ -}}
-{{- $port := (urls.Parse $src).Port -}}
-{{- if eq $port "443" }}{{ $port = "" }}{{ end -}}
-{{- $b := urls.Parse site.BaseURL -}}
-{{- $ownPort := $b.Port -}}
-{{- if or (and (eq (lower $b.Scheme) "https") (eq $ownPort "443")) (and (eq (lower $b.Scheme) "http") (eq $ownPort "80")) }}{{ $ownPort = "" }}{{ end -}}
+{{- /* Ports, normalized as in _markup/render-link.html (_partials/url-port.html): the embed URL is https, so its default is
+  443; the site's baseURL may be http or https (#332). A browser reads a port as a number, so :0443 and :00443 are 443 and
+  count as none (#349). */ -}}
+{{- $port := partial "url-port.html" (urls.Parse $src) -}}
+{{- $ownPort := partial "url-port.html" (urls.Parse site.BaseURL) -}}
 {{- if not $host }}{{ errorf "embed: the URL has no host (%s)" .Position }}{{ end -}}
 {{- if not $own }}{{ errorf "embed: the site's baseURL has no host, so the URL can't be checked against it; set baseURL to a full URL (%s)" .Position }}{{ end -}}
 {{- if not (findRE `^[a-z0-9._:-]+$` $host 1) }}{{ errorf "embed: the URL's host must be plain ASCII letters, digits, dots and hyphens; write an internationalized name in its punycode form, xn--... (%s)" .Position }}{{ end -}}

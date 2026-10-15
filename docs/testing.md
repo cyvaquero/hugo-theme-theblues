@@ -101,6 +101,13 @@ turn, as follows. On `-b https://example.org/`: `https://example.org:8443/x` bui
 `-b http://127.0.0.1:8099/`: `https://127.0.0.1:9443/x` and `https://127.0.0.1/x` fail with "the site is served from an IP
 address" (the IP rule above runs on any port). `https://photos.example.org/x` builds everywhere.
 
+A browser reads a port as a number, so a zero-padded port is the same port (#349); the shortcode and the link hook both read
+ports through `_partials/url-port.html`. On `-b https://example.org/`, embed URLs `https://example.org:0443/x` and
+`https://example.org:00443/x` fail like `:443` with "the URL is on this site's own host and port", while `:8443`, `:08443`,
+`:0` (port 0, another origin) and `:000` build. On `-b https://example.org:8443/`, `:08443` fails and, on
+`-b https://example.org:08443/`, `:8443` fails. For a Markdown link, `[l](https://example.org:0443/x)` on
+`-b https://example.org/` is internal (no `target="_blank"`), as are `:00443` and `:443`, and `:08443` and `:0` are external.
+
 The search fixture (README, "Search"): `exampleSite/content/search/_index.md` lists `searchindex` in its outputs, so the
 build publishes `/search/index.json`, and the search page loads `search.js`. The root pages `accents.md` (accented words in
 its title, description, tags and text) and `unlisted.md` (`search: false`, one rare word) are part of it, with two pages that are never published (#321): `unrendered.md`
