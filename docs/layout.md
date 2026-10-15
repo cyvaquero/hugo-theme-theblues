@@ -125,7 +125,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL. The lightbox shows (and preloads, for the
   next and previous photos) the thumbnail's own `X2` URL instead when `X2` has a pixel for each device pixel the photo
   fills, worked out in `gallery.js` (`big()`) from the thumbnail's `width` and `height`, the viewport, the dialog's
-  padding and its 80% height limit, and `devicePixelRatio`; a link or thumbnail that doesn't fit the pattern uses the link as is. A query string or fragment after the file name is kept.
+  padding, its 80% height limit (less on a short screen, where the controls bar takes its row first) and `devicePixelRatio`; a link or thumbnail that doesn't fit the pattern uses the link as is. A query string or fragment after the file name is kept.
 - Wall tiles and gallery images get `width` and `height`, read at build time by fetching each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
   doesn't reflow. The fetch asks for only the first 32 KB (a `Range` header, `layouts/_partials/remote-photo.html`, which
