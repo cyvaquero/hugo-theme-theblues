@@ -1,12 +1,13 @@
 {{- /* theblues:template */ -}}
 // Native <dialog> lightbox for the masonry galleries (.gal) on photo posts (decision D7).
-// Previous/next buttons, arrow, Home and End keys, swipe, counter, Esc to close, focus returns to the photo that was
-// opened. The dialog is built at the first click, not at load. Each link points at the large image (X3), which is what
+// Previous/next buttons, arrow, Home and End keys (without Alt, Ctrl, Meta or Shift, which belong to the browser), swipe,
+// counter, Esc to close, focus returns to the photo that was opened. The dialog is built at the first click, not at load. Each link points at the large image (X3), which is what
 // opens without JavaScript; the thumbnail in the page stays X2. The lightbox shows the X2 photo instead when it already
 // has a pixel for each device pixel of the space the photo fills (width and height, from the thumbnail's attributes,
 // the viewport and devicePixelRatio, see big()), and the X3 one otherwise; the preloads use the same choice (#345). The
-// counter and alt text change only when the new image has loaded (or both it and the thumbnail have failed), so they
-// always describe the photo on screen (#3, #168); neighbors are preloaded.
+// counter and alt text change only when the new image has loaded (or both it and the thumbnail have failed, which the
+// announcement says), so they always describe the photo on screen (#3, #168); neighbors are preloaded. The choice is made
+// again when the window is resized or the device turned, for the photo on screen (refit()).
 // The text it shows is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
 // js-text.html), from i18n/en.toml or the site's own file.
 (function () {
@@ -17,6 +18,8 @@
   var dlg = null;
   var img, count, say, prev, next;
   var list = [], idx = 0, opener = null, seq = 0;
+  // The URL show() chose for the photo on screen, and the one refit() is loading in its place.
+  var chose = '', fitting = '';
   // Swipe state, see below.
   var sx = null, sy = null, down = 0;
 
@@ -48,6 +51,10 @@
     img = dlg.querySelector('img'); count = dlg.querySelector('.count'); say = dlg.querySelector('[aria-live]');
     prev = dlg.querySelector('[data-a="p"]'); next = dlg.querySelector('[data-a="n"]');
     img.addEventListener('load', keepInView);
+    // A turned phone or a resized window changes the space the photo fills, and with it the choice big() makes. Added once,
+    // here, since the dialog is built once; refit() does nothing while the dialog is closed.
+    window.addEventListener('resize', refit);
+    window.addEventListener('orientationchange', refit);
 
     dlg.addEventListener('close', function () { if (opener) opener.focus(); });
     dlg.addEventListener('click', function (e) {
@@ -57,7 +64,7 @@
       else if (a === 'c' || e.target === dlg || e.target.classList.contains('in') || e.target.classList.contains('bb')) dlg.close();
     });
     dlg.addEventListener('keydown', function (e) {
-      if (list.length < 2) return;
+      if (list.length < 2 || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;  // Alt+Left is Back, Ctrl+End is the page's end
       // The arrows point where the buttons are: the next photo is on the right in a left-to-right page and on the left in
       // a right-to-left one (#296).
       var fwd = rtl() ? 'ArrowLeft' : 'ArrowRight', back = rtl() ? 'ArrowRight' : 'ArrowLeft';
@@ -118,26 +125,45 @@
 
   function preload(n) { if (list.length > 1) new Image().src = big(list[(n + list.length) % list.length]); }
 
+  // The photo on screen at a window size that would make big() choose the other size: load that one first, and swap it in
+  // only once it has loaded, so there is no flicker, and only if the same photo is still shown. Waits for a photo being
+  // loaded (show() runs this when it finishes), and asks for a URL only once, whether or not it loads.
+  function refit() {
+    if (!dlg || !dlg.open || !list.length || dlg.hasAttribute('aria-busy')) return;
+    var want = big(list[idx]), my = seq;
+    if (want === chose || want === fitting) return;
+    fitting = want;
+    var pre = new Image();
+    pre.onload = function () {
+      if (my !== seq || want !== fitting) return;
+      img.src = chose = want;
+    };
+    pre.src = want;
+  }
+
   function show(n) {
     idx = (n + list.length) % list.length;
     var a = list[idx], thumb = a.querySelector('img'), my = ++seq, pre = new Image();
     dlg.setAttribute('aria-busy', 'true');
-    function done() {
+    fitting = '';
+    function done(failed) {
       if (my !== seq) return;  // a later photo was asked for meanwhile
       img.src = pre.src || (thumb ? thumb.src : '');
       img.alt = thumb ? thumb.alt : '';
-      count.textContent = (idx + 1) + ' / ' + list.length;
-      say.textContent = TX.photoOf.replace('{i}', idx + 1).replace('{n}', list.length) + (img.alt ? ': ' + img.alt : '');
+      var note = failed === true ? ' ' + TX.photoFailed : '';
+      count.textContent = (idx + 1) + ' / ' + list.length + note;
+      say.textContent = TX.photoOf.replace('{i}', idx + 1).replace('{n}', list.length) + (img.alt ? ': ' + img.alt : '') + note;
       dlg.removeAttribute('aria-busy');
       preload(idx + 1); preload(idx - 1);
+      refit();
     }
-    pre.onload = done;
+    pre.onload = function () { done(false); };
     // The large image failed: try the thumbnail once; if that fails too, still finish (broken image, counter and caption
-    // updated, no longer busy) instead of leaving the viewer empty and busy (#168).
+    // updated, no longer busy) instead of leaving the viewer empty and busy (#168), and say in both that it didn't load.
     pre.onerror = function () {
-      if (thumb && pre.src !== thumb.src) { pre.onerror = done; pre.src = thumb.src; } else done();
+      if (thumb && pre.src !== thumb.src) { pre.onerror = function () { done(true); }; pre.src = thumb.src; } else done(true);
     };
-    pre.src = big(a);
+    chose = pre.src = big(a);
   }
 
   galleries.forEach(function (g) {

@@ -3,6 +3,48 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.1] - 2026-10-15
+
+The low and info findings of the 1.7.0 review (#350).
+
+### Added
+- The photo viewer says when a photo could not be loaded: its counter and the announcement read "(image couldn’t be
+  loaded)" after the position when neither the large photo nor the thumbnail loads, where they announced the photo as
+  if it were on screen. The text is a new string, `photoFailed`, in `i18n/en.toml`; a site's own language file can
+  translate it.
+- The fixture's `legacy-nav` variant (`exampleSite/variants/legacy-nav.toml`) covers legacy nav links with a query or a
+  fragment, and the accents and vocalized pages have words for the new search folds.
+
+### Changed
+- The search treats more spellings as the same word. `strasse` finds "Straße", `lodz` finds "Łódź", and ø, đ, æ and œ
+  match o, d, ae and oe. The Greek capitals `ΚΟΣ` find "ΚΟΣΜΟΣ" (a capital sigma at the end of a word no longer differs
+  from σ). The zero-width joiners (U+200C, U+200D) inside a word are ignored, so "کتاب‌ها" is one word and `کتابها`,
+  typed without the joiner, finds it, and the whole word is highlighted.
+- On the 404 page, one malformed `%` sequence in the address no longer turns every non-ASCII word of it into noise
+  (`c3`, `bcnal`): each run of escapes is decoded on its own, so `/caf%C3%A9%/` still searches "cafe".
+- The previous and next arrows (← →) are hidden from screen readers, so the links read "Older", "Back to all posts"
+  and so on, not "Older leftwards arrow". The space beside the arrow is now part of it, which also keeps that space in the
+  pager and the nav where English text is used in a right-to-left language.
+- A legacy `params.addtional_menus` link with a `?query` or a `#fragment` keeps it as written, after the path's trailing
+  slash (`/about#team` is `/about/#team`, not `/about#team/`), and a link that is only a fragment or a query (`#top`) is
+  left as it is.
+- The nav's search link is shown only in a language that has a search page, so a language without one (the Arabic
+  fixture) no longer links to a missing page.
+- The disclosure triangle of a closed "Group by gallery" section points toward its heading in a right-to-left language.
+- A front-matter `image` (or `params.og_image`) that is not a valid URL fails the build with a message that names the
+  page and the setting, in place of Hugo's bare "first path segment in URL cannot contain colon".
+- The photo viewer's X2 or X3 choice is made again when the window is resized or the device turned, so a phone rotated
+  with the viewer open stops showing a slightly enlarged photo; the new size is swapped in once it has loaded.
+
+### Fixed
+- `og:locale` is written only when the site's `locale` ends in a two-letter region (`en-US`, and now `zh-Hant-TW` as
+  `zh_TW`). It no longer writes `zh_HANT`, `sr_LATN` or `es_419` for a script or a numeric region; those locales get no
+  `og:locale`, as a locale with no region always did.
+- A term (tag, category or series) with no pages in the main sections no longer has a `<link rel="alternate">` to its
+  empty feed in `<head>`; its visible "Subscribe via RSS" link was already left out.
+- The photo viewer's keys no longer take Alt, Ctrl, Meta or Shift with the arrows, Home and End, so Alt+Left (Back) and
+  Ctrl+End work while it is open.
+
 ## [1.7.0] - 2026-10-15
 
 ### Added
