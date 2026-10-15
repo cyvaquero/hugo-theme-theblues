@@ -3,7 +3,8 @@
   hero box. Context: dict "src" (the hero URL, as in --hi) "h" (the tallest the hero box gets, in CSS pixels: 416 for
   .phero, whose min-height is at most 26rem; 240 for .hero, about 225 at most). Returns dict "src", "vars" (extra
   declarations for the hero's style attribute, ";--hi1:url(…)" and so on) and "links" (slice of dict "href" "media"
-  for the preload), or an empty dict for any other URL, or when the size can't be read (offline build): the hero then
+  for the preload) and "names" (slice of the size name each of the five tiers uses, "" for a tier that keeps the src size, for the
+  rotating hero's script, #356), or an empty dict for any other URL, or when the size can't be read (offline build): the hero then
   keeps its one URL, as before.
   Tiers, the same as in main.css (section 4), by viewport width and pixel ratio:
     1: one-x, up to 480px     2: one-x, 481 to 800px     3: one-x, 801 to 1280px
@@ -54,13 +55,15 @@
     -}}
     {{- $vars := "" -}}
     {{- $urls := slice -}}
+    {{- $tierNames := slice -}}
     {{- range $i, $t := $tiers -}}
-      {{- $u := $.src -}}
+      {{- $u := $.src -}}{{- $nm := "" -}}
       {{- range $c := $cands -}}
         {{- if and (eq $u $.src) (ge (add $c.w 1) (mul $t.w $t.d)) (ge (add $c.h 1) (mul $.h $t.d)) -}}
-          {{- $u = partial "smug-size.html" (dict "src" $.src "from" $cur "to" $c.n) -}}
+          {{- $u = partial "smug-size.html" (dict "src" $.src "from" $cur "to" $c.n) -}}{{- $nm = $c.n -}}
         {{- end -}}
       {{- end -}}
+      {{- $tierNames = $tierNames | append (cond (ne $u $.src) $nm "") -}}
       {{- if ne $u $.src }}{{ $vars = printf "%s;--hi%d:url(%s)" $vars (add $i 1) $u }}{{ end -}}
       {{- $urls = $urls | append $u -}}
     {{- end -}}
@@ -74,7 +77,7 @@
         {{- if eq $u $.src }}{{ $media = $media | append "(resolution > 2dppx)" "(resolution > 1dppx) and (width > 640px)" "(width > 1600px)" }}{{ end -}}
         {{- $links = $links | append (dict "href" $u "media" (delimit $media ", ")) -}}
       {{- end -}}
-      {{- $out = dict "src" $.src "vars" . "links" $links -}}
+      {{- $out = dict "src" $.src "vars" . "links" $links "names" $tierNames -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}

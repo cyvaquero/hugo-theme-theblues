@@ -3,6 +3,32 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.2] - 2026-10-15
+
+The home and term heroes rotate through landscape photos from photo posts (#356).
+
+### Added
+- The home page's hero and the heroes of tag, category and series pages now rotate through landscape photos from the
+  site's photo posts. The pool is the gallery photos of photo posts (never images in an article's text or galleries in
+  articles, and never drafts, future or expired posts), only the ones wider than high; a term page uses the photo posts in that
+  term. The page paints the first landscape photo of the newest photo post at once, preloaded and without
+  JavaScript. In the browser, four more are picked at random and each of the five shows for 30 seconds before fading to
+  the next, loading only shortly before it shows and appearing only once it has loaded, in the SmugMug size that suits the
+  screen. There is no setting for it.
+- A pause and play button in the rotating hero (WCAG 2.2.2), added by the script, 44 by 44 pixels, keyboard operable,
+  named "Pause the photo rotation" or "Play the photo rotation". The rotation also pauses while the tab is hidden. The two
+  names are new strings, `heroPause` and `heroPlay`, in `i18n/en.toml`; a site's own language file can translate them.
+- A new script, `assets/js/hero.js`, loaded only on a page whose hero has two or more photos to rotate through. It adds no
+  inline script, no new origin and nothing to a site's CSP: the photos reach it as a `data-pool` attribute on the hero.
+- The fixture has two variants, `hero-none` (landscape photos only where no hero may use them: its output is the same as
+  before) and `hero-one` (a pool of one photo), next to the rotating base build; `docs/testing.md` lists the checks.
+
+### Changed
+- With `prefers-reduced-motion: reduce` the rotating hero shows its first photo only: no timer, no fade, no button.
+- `header_image` (on the home page) and a term's cover are now used only when the site, or the term, has no landscape photo
+  in its photo posts; a term's hero shows the first landscape photo of its newest photo post, not the post's `image` or its
+  first photo of any shape. A site with no such photo builds every page as before.
+
 ## [1.7.1] - 2026-10-15
 
 The low and info findings of the 1.7.0 review (#350).

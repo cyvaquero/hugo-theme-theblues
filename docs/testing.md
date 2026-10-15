@@ -17,7 +17,7 @@ hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../
 
 `hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
 Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
-compared. Also build it minified, as a site is deployed, and the six variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
+compared. Also build it minified, as a site is deployed, and the eight variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
 which cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
 the legacy `params.addtional_menus`), the legacy nav with hrefs that carry a query or a fragment (`legacy-nav`, below), a second language with a partial translation (`i18n/de.toml`, content in
 `content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
@@ -42,7 +42,7 @@ the month ("12 يناير 2026"), and the counts have all six plural forms (see 
 
 ```bash
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
-for v in main-menu multilingual analytics rtl adapter legacy-nav; do
+for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one; do
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
 done
 ```
@@ -54,6 +54,40 @@ nav, `/about#team` is `/about/#team`, `/search?x=1` is `/search/?x=1`, `/archive
 `/feed.xml#x` (it has an extension), and the hrefs that are only a fragment or a query, `#top` and `?page=2`, stay as written (not
 `/#top/`); with `-b https://example.org/sub/` the paths gain `/sub`, and with the `multilingual` variant added to the
 `--config` list they gain `/en` on the English pages (`/en/about/#team`).
+
+The rotating hero (#356, README, "Rotating hero") has fixtures in the base build and in two variants. Photos are on
+`photos.smugmug.com`, so a first build needs the network. In the **base build**, the newest photo post (`20260107`, on
+`photos.example.org`) has no photo whose size can be read, so the pool is the two landscape photos of `20260104-smugmug-photos`
+(its portrait photo is left out, and so is the `image` of the hero-image article, which is not a gallery photo): the home page, `/tags/photos/`,
+`/tags/fixtures/` and `/categories/photos/` (and their pager pages) have `data-pool` with two tokens (`photos/i-25Xwh4F/…|M,L,X2,X2,`),
+the first photo (`i-25Xwh4F`) in the hero's `--hi` and in the preload links, and a `<script src=/js/hero.…>`; `/tags/code/`, `/categories/tech/`
+and the pages of the other terms, and every other page, have none of that. The **`hero-none` variant** (`variants/hero-none.toml`,
+`content-hero-none/`) has landscape SmugMug photos only where no pool may take them: an article's inline gallery, `image` and Markdown image, a photo post
+that is a draft, one dated in the future and one that has expired, and a photo post with only a portrait and a photo of unknown size. Every page of its build must be
+byte for byte the same as the same variant built with the theme before the change (below), the footer version and the stylesheet's fingerprint aside, with no
+`hero.js` in the output and every hero on `header_image`. The **`hero-one` variant** adds one photo post (`20260106-single`) with one landscape
+and one portrait photo: the home page and `/tags/single/` show that photo from the build (preloaded, with its sizes) and have no `data-pool`, no button and no `hero.js`.
+Because the `hero-none` content must give the old output, compare it by building the variant with a worktree of `develop`, which needs `content-hero-none/` and
+`variants/hero-none.toml` copied into its `exampleSite/` (they don't exist there).
+
+In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me build, whose photos load), on a page with a pool of two or more:
+
+- With JavaScript off, the hero shows the first photo (the computed `background-image` is its size for the viewport), `<head>` has its preload, and the page
+  has no `.hr` and no `.hpp`. With JavaScript on, at 25 s the next photo's request starts (one request, the size the viewport uses), at 30 s the `.hr` layer fades in
+  (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. A reload picks another set of four; the first photo never comes back
+  before the cycle ends and the sixth photo shown is the first again. To see a whole cycle sooner, scale the page's timers before it loads
+  (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
+- Tab reaches the pause button (after the hero's links), its accessible name is "Pause the photo rotation" (`Accessibility.getFullAXTree`), Enter changes it to
+  "Play the photo rotation" and the rotation stops: no change and no request for as long as it is paused; Space and a click change it back. The button has no `aria-pressed`, the
+  layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is the 3px sand outline.
+  A tab reported hidden (`document.hidden` true, then a `visibilitychange` event) stops the rotation and a visible one restarts it.
+- With `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`) there is no button, the layer is never shown, the hero keeps the first photo
+  and makes no further photo request; changing the setting while the page is open starts or stops the rotation.
+- The text's computed colors and the hero's `background-image` (with the URL taken out) equal those of the same page before the change, in light and dark mode; and with the
+  layer shown over the hero with the hero's own photo (copy the hero's `--hi` to `--hi5` to the layer, `.on`, no transition) a screenshot of the hero is pixel for pixel the same as without it.
+- At 320px (and 390px) the button is inside the window, overlaps no text and the page has no horizontal scroll; in a right-to-left page it is at the left.
+- Under the site's real CSP and under the README's example policy (`style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https://photos.smugmug.com; connect-src 'self'`), sent as a header, the
+  console has no violation while the hero rotates.
 
 The nav's search link is written only for a language that has a search page (#350): in the `multilingual` and `rtl` builds the
 German and Arabic pages, whose content folder has no `search/`, have no "SEARCH" link, and the English ones keep it.

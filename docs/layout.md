@@ -12,6 +12,7 @@ assets/js/theme.js         color theme switch (System, Light, Dark): sets data-t
 assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; without JavaScript, assets/css/nojs.css shows the links)
 assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
+assets/js/hero.js          rotating hero: fades the home and term heroes through photos from the hero's data-pool, with a pause/play button; only on pages whose hero has two or more photos
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
 assets/js/search.js        client-side search: fetches /search/index.json on first use, matches in the browser, builds the results with textContent; only on the search page and the 404 page, and only when the index is published
@@ -31,7 +32,7 @@ layouts/search/section.searchindex.json  the search index, /search/index.json (t
 layouts/404.html           hero, the latest five posts and, with the search index, the search of the missing address
 layouts/sitemap.xml        sitemap: Hugo's embedded template plus a filter for pages that aren't written (_partials/is-written.html)
 layouts/rss.xml            home, section and term feeds (main sections only on the home and term feeds)
-layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
+layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, hero-pool, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, remote-photo, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
@@ -86,6 +87,38 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   the query, the highlights, the snippet and the 404 address all use the same `fold()` and `TOKEN`), with the best field weight. A query tries three
   passes (every word, as a start or exactly; the same with one typo; any word) and stops at the first that finds pages.
   Results and highlights are built with `createElement`, `createTextNode` and `textContent`.
+
+## How the rotating hero works
+
+- **Pool.** `hero-pool.html` takes the page (home or term), its pages (the main-section posts of the site, or of the term) and
+  the hero's height (240 or 416, as `hero-sizes.html` takes it). Newest post first, for each photo post (`is-photo.html`) it
+  walks the gallery photos `photos.html` returns, keeps a photo whose URL is a plain `https://photos.smugmug.com/` one and
+  that is wider than high by `img-size.html` (the wall's own ranged read, shared through `partialCached`, so a photo is
+  read once per build), asks `hero-sizes.html` for the tier size names (it now also returns `names`, the size each of the five
+  tiers uses or an empty string), and returns the first photo's URL (`src`), the count and `data`, the tokens joined by
+  spaces. A token is the URL without `https://photos.smugmug.com/`, then `|` and the five names joined by `,` when there
+  are smaller sizes. `data` is empty below two photos. `memo.html` keeps the result in the page's Store, so the home page and
+  a term build it once for all their pager pages. Hugo has already left out drafts, future and expired posts. Nothing
+  random happens at build time: the order is by date and then by position in the post.
+- **Page.** `home.html` and `term.html` use `src` as the hero's photo through `hero-style.html` in place of `header_image` or
+  the term's cover (so the hero keeps its inline `--hi` and `--hi1` to `--hi5`, and `head.html` preloads it as before), write `data-pool` on the
+  `<header>` when there are two photos or more, and set `hasHeroPool` in the page's Store, which makes `baseof.html` load
+  `hero.js`. A page with no pool writes nothing new, so its output is byte for byte what it was. The pool reaches the page as
+  an attribute and not as a JSON file so that no request, no `connect-src` entry and no failure mode are added; a file per
+  term would also be one more page to build for every tag.
+- **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, drops what isn't a
+  SmugMug path of the form the pool writes, keeps the first photo and picks four random others (a partial Fisher-Yates
+  shuffle), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
+  (`SHOW` 30 s, `LEAD` 5 s, `FADE` 1.5 s): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
+  `--hi` to `--hi5` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with
+  `Image()` and waits for `decode()`; at 30 s, if it is ready, it shows the layer and adds `.on` (the opacity transition), and
+  after the fade writes the same custom properties on the hero and hides the layer again; if it isn't ready it waits for it. A photo that
+  fails is dropped from the five. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
+  changes while the page is open) clear the timers and the pending load; a fade in progress is allowed to finish.
+- **Styles.** `.hero` and `.phero` keep their scrim in `--sc`, and `.hr` paints the same scrim over the next photo, so the layer
+  covers the hero's own background but sits under its text (`z-index: -1` in the hero's own stacking context, `isolation:
+  isolate` on `.rot`), and the contrast of the text is the scrim's, as before. The tier media queries also set `--hs` on `.hr`.
+  The script sets a tier a photo has no size for to `initial`, since the layer would inherit the hero's.
 
 ## How the theme's text and settings are read
 

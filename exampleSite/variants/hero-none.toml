@@ -1,0 +1,31 @@
+# Test variant (docs/testing.md): the content folder is content-hero-none/, whose photo posts (#356) have no landscape photo that a hero
+# may rotate through: a portrait, a photo of unknown size, a draft, a future post, an expired post, and an article with landscape
+# photos in its inline gallery, its image and its text. The build must be byte-for-byte the same as the same build with the theme before
+# the rotating hero (footer version aside), so every hero keeps header_image. Listing a mount turns
+# off Hugo's default mounts, so they are all listed here.
+# Build with: --config hugo.toml,variants/hero-none.toml
+[module]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "content-hero-none"
+    target = "content"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"

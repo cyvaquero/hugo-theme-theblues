@@ -4,7 +4,7 @@ A responsive, accessible Hugo theme for [guyheckman.me](https://guyheckman.me). 
 Palette: navy `#1B3C53`, steel blue `#456882`, sand `#D2C1B6`, cream `#F9F3EF`, with light and dark modes. The mode
 follows the system setting (`prefers-color-scheme`) unless the reader picks Light or Dark with the switch in the nav.
 
-It has a hero with a wavy-underlined slogan, a full-width masonry wall (three columns from 900 px) that mixes photo tiles and
+It has a hero with a wavy-underlined slogan that rotates through the landscape photos of the site's photo posts, a full-width masonry wall (three columns from 900 px) that mixes photo tiles and
 article tiles, a calm "View options" popover (filter or highlight by type, sort, group by gallery), photo posts with a masonry
 gallery and a `<dialog>` lightbox, articles with a table of contents and series box, tag pages, and serif headlines. It builds
 the site's real content with no Hugo warnings, and at the switch from Clean White it produced the same 30 URLs. See "Known
@@ -61,21 +61,22 @@ How the images were made is in [docs/testing.md](docs/testing.md).
   (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
   stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
   same rule.
-- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is seven small files:
+- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is eight small files:
   - `theme.js` (in `<head>`, not deferred, so a picked mode applies before the first paint) and `menu.js`, on every
     page;
-  - `wall.js`, `gallery.js` and `search.js`, only where needed (`search.js` on the search page and the 404 page, and only when
+  - `wall.js`, `gallery.js`, `hero.js` and `search.js`, only where needed (`hero.js` on a home or term page whose hero has two
+    or more photos to rotate through, see "Rotating hero"; `search.js` on the search page and the 404 page, and only when
     the site publishes the search index; see "Search");
   - `analytics.js`, only when the site sets a GA ID, and only in production builds. It has no consent step (see
     `[services.googleAnalytics] id` under "Site settings it reads");
   - `comments.js`, on posts when the site sets a Disqus shortname.
 
   A site CSP therefore needs no script hashes. Hugo's internal GA and Disqus templates are not used. `wall.js`,
-  `comments.js`, `gallery.js` and `search.js` hold the text they write (captions, comment messages, lightbox labels, result
-  counts) as a Go template
+  `comments.js`, `gallery.js`, `hero.js` and `search.js` hold the text they write (captions, comment messages, lightbox labels, the
+  hero's pause and play button, result counts) as a Go template
   action, which Hugo fills in from the site's language when it builds them (see "Translating the theme"); a site's own
   copy of a script is run as a template only if its first line is the template comment `{{- /* theblues:template */ -}}`,
-  which renders as nothing (any other `{{` in a script is published as written); a site's copy of one of these four
+  which renders as nothing (any other `{{` in a script is published as written); a site's copy of one of these five
   needs that line, and the build fails naming a script that calls `js-text.html` without it.
 
 ## Installation
@@ -157,6 +158,34 @@ The templates assume this layout; other structures are not supported yet.
   the wall controls), sets `data-theme="light"` or `"dark"` on `<html>`, keeps the choice in `localStorage` under `theme` (System removes it),
   updates `<meta name="color-scheme">` and both `theme-color` metas, keeps other open tabs in step, and reloads loaded
   Disqus comments so they match. Without JavaScript the switch is hidden and the mode follows the system.
+- **Rotating hero:** the home page's hero and the heroes of tag, category and series pages show the landscape photos of
+  the site's photo posts, one after the other. There is no setting for it.
+  - *Which photos.* The gallery photos of photo posts (category `photos`, or a `{{< galleries >}}` block), as the wall
+    reads them: never an image in an article's text, never a gallery in an article, never a post that Hugo doesn't build
+    (a draft, a future or an expired post), and only posts in the main sections. A photo counts when it is landscape
+    (wider than high; the build reads its size from SmugMug, as it does for the wall) and its URL is a plain
+    `https://photos.smugmug.com/` one; a photo whose size can't be read (another host, an offline build) is left out.
+    A term page uses the photo posts in that term only.
+  - *First photo.* The first landscape photo of the newest photo post (of the newest in the term, on a term page). It is
+    in the page, painted and preloaded like any hero photo, so it shows at once and without JavaScript, and a build is
+    the same every time. It replaces `header_image` on the home page and the term's cover on a term page.
+  - *Rotation.* In the browser, `hero.js` picks four more photos at random from the others, so each visit shows up to
+    five, and shows each for 30 seconds before fading to the next, then starts again with the first. The next
+    photo is fetched 5 seconds before it is shown, never all at once, and is faded in only when it has loaded, with the
+    SmugMug size that suits the screen, as for the first photo. A photo that fails to load is skipped. The photos are
+    CSS backgrounds under the same scrim as before, so the text keeps its contrast, and nothing is announced to
+    screen readers.
+  - *Pause.* A pause and play button in the hero's top corner (44 by 44 pixels, named "Pause the photo rotation" or
+    "Play the photo rotation") stops and starts it. Only `hero.js` adds it, so a page without JavaScript has none, and
+    it stays paused for the page view. A hidden tab pauses the rotation too, and the photo on screen gets its 30 seconds
+    again when the tab is visible.
+  - *Reduced motion.* With `prefers-reduced-motion: reduce` the hero shows the first photo only: no timer, no fade, no
+    other photo fetched and no button.
+  - *Fallback.* A site, or a term, with no such photo keeps `header_image` (or the term's cover) and its pages are
+    unchanged. With one photo there is nothing to rotate: the hero shows it and has no button and no script.
+  - The photos reach the page as a `data-pool` attribute on the hero, one short entry per photo (about 100 bytes), so
+    the cost grows with the number of landscape photos: 20 photos add about 2 KB to the home page and to each of its
+    pager pages, and the same to a term page for its own photos.
 - **Share image (`og:image`):** a page's own `image`, or the first photo the page shows from a `gallery` shortcode
   (photos Hugo doesn't render, inside an HTML comment or a `{{% galleries %}}` block, don't count). Otherwise
   `params.og_image` if set, and otherwise the cover, which is the site's `header_image`. Only an `http` or `https` URL is
@@ -357,7 +386,7 @@ translate the theme, or reword its English, for a site:
    link's accessible name is its text.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
-`gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
+`gallery.js`, `hero.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
 than one language gets a script per language (`js/wall.de.js`). The wall's group headings take their dates from the tile
 captions the server wrote, so they are localized too. A count in a script has every plural form the language's entry
 defines (`zero`, `one`, `two`, `few`, `many`, `other`, whichever the language's rules use): the script file holds the
@@ -383,6 +412,11 @@ the person building the site.
   number, `true` or `false`, and a number with a fraction (`2.9`) or too big for a whole number (`1e30`), fails the build
   with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
+- The rotating hero reads the size of every gallery photo of the site's photo posts at build time, not only those the
+  wall shows, so a first build of a site with many photos fetches the first 32 KB of each one it has not read before (Hugo
+  keeps them in its cache afterward, as for the wall). The pool is built once per home page and once per term, and its
+  list is written into each of that page's pager pages; a site with thousands of landscape photos writes about 100 bytes
+  for each into its home page, so it should expect a home page of hundreds of kilobytes.
 - The series box lists every post of the series on each of its posts, so a series of N posts writes N x N list entries
   and its build time grows with the square of its length: about a second for a 150-post series. The theme is built and
   tested for series of up to about 25 posts; a much longer series still works, only the build takes longer.
@@ -525,7 +559,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
     honored. The other `privacy.googleAnalytics` settings are for Hugo's internal template and are ignored too.
 
 `header_image`, `image` and `image_404` may be absolute URLs or paths under the site root (`img/x.jpg`); the theme turns paths
-into absolute URLs.
+into absolute URLs. On the home page and on term pages, `header_image` (and the term's cover) is the hero's photo only when the
+site has no landscape photo-post photo to show there (see "Rotating hero").
 
 Front matter: `title`, `subtitle`, `description`, `date`, `image` (the page's hero image and share image; without it the
 hero uses the first gallery photo, then the site's `header_image`, see Share image), `showtoc`, `categories` (a list,
@@ -543,10 +578,10 @@ else can stay at `default-src 'none'`.
 
 | Directive | Value | Why |
 |---|---|---|
-| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `search.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
+| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `hero.js`, `search.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
 | `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
-| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
-| `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
+| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element. `hero.js` sets CSS custom properties on the hero from the script (`element.style.setProperty`), which a CSP does not restrict, so the rotating hero needs nothing more. |
+| `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too, the rotating hero's photos included (SmugMug: below). |
 | `connect-src` | `'self'` | The search index, which `search.js` fetches (`/search/index.json`), when the site publishes it. |
 | `form-action` | `'self'` | The 404 page's search form, which goes to the search page, when the site publishes the search index. The search page itself runs its form in the browser, so `'none'` is enough for a site without the index. |
 | `base-uri`, `object-src` | `'none'` | The theme uses neither. |
@@ -556,7 +591,7 @@ else can stay at `default-src 'none'`.
 
 | Service | Directive | Origins |
 |---|---|---|
-| SmugMug photos (gallery photos, hero sizes) | `img-src` | `https://photos.smugmug.com` |
+| SmugMug photos (gallery photos, hero sizes, the rotating hero's photos) | `img-src` | `https://photos.smugmug.com` |
 | Google Analytics (`[services.googleAnalytics] id`, production builds) | `script-src` | `https://www.googletagmanager.com` (`gtag.js`) |
 | | `connect-src` | `https://*.google-analytics.com https://*.google.com https://www.googletagmanager.com` |
 | | `img-src` | `https://*.google-analytics.com https://www.googletagmanager.com` |
@@ -639,6 +674,13 @@ on photos):
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
   Right arrows (reversed in a right-to-left language), Home and End move between photos, unless Alt, Ctrl, Meta or Shift is held, so the browser's shortcuts (Alt+Left for Back) keep working (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
   focus to the photo that was opened. On a short screen (a phone held sideways, a window at 400% zoom) the photo shrinks so that Close, Previous and Next stay on screen with their focus rings (WCAG 2.4.7, 1.4.10). Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough (the choice is made again for the photo on screen when the window is resized or the device turned), and a photo that can't be loaded at all is announced as "Photo 1 of 4: Title (image couldn’t be loaded)" and counted the same way, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
+- **Rotating hero:** the pause and play button in a rotating hero (WCAG 2.2.2, Pause, Stop, Hide, level A; Section 508 E205.4)
+  is a native button, so Tab reaches it and Enter or Space press it. It is named by what it does next, "Pause the photo
+  rotation" or "Play the photo rotation" (the name changes; it has no `aria-pressed`), it is 44 by 44 pixels, and it has the
+  hero's sand focus ring. Its cream icon and ring sit on a dark disc (the scrim color at 85%), 9.1:1 or more over any
+  photo (5.7:1 for the sand of its hover state). It sits in the hero's top corner at the end of the line (the right, and the
+  left in a right-to-left language), above the hero's text at every width down to 320px, and comes after the text in the
+  reading order.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
   seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already
@@ -673,7 +715,7 @@ read after the link's name, and a heading that contains such a link is named by 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
 system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). The borders of controls (type chips, the View options mode switch and selects, and pager links) are at least 3:1 against the page and the popover (WCAG 1.4.11), in both modes; the tag pills in a post's hero are sand on the navy hero, 6.6:1 or more. Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high
 contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
-off unless `prefers-reduced-motion` allows them. Pages reflow to 320px wide with no horizontal scrolling. On touch
+off unless `prefers-reduced-motion` allows them, and a rotating hero with that setting shows its first photo only, with no timer, fade or button. Pages reflow to 320px wide with no horizontal scrolling. On touch
 screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover
 (switch and selects), the Menu button, the color theme switch, the nav links and brand, tag links (hero, tiles, lists),
 the footer links, the "Subscribe via RSS" links, pagination, the table of contents entries, the series box's list and previous/next links, post
