@@ -629,7 +629,7 @@ on photos):
   On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
   Right arrows (reversed in a right-to-left language), Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
-  focus to the photo that was opened. Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
+  focus to the photo that was opened. On a short screen (a phone held sideways, a window at 400% zoom) the photo shrinks so that Close, Previous and Next stay on screen with their focus rings (WCAG 2.4.7, 1.4.10). Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
   seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already
