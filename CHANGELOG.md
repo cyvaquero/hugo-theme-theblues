@@ -15,6 +15,18 @@ All notable changes to this theme are documented here. The format follows
   in a new tab. Pages that use no such port are unchanged. The shared reading of a port is a new partial,
   `_partials/url-port.html`.
 
+## [1.6.12] - 2026-10-15
+
+### Fixed
+- The lightbox's Close, Previous and Next buttons stay on screen on a short viewport (#348). With a photo open on a
+  screen 200 to 320 pixels high (a phone held sideways, a window at 400% zoom), the photo was sized to 80% of the
+  viewport's height whatever the controls needed, so the bar of buttons, with the focused Close button, fell below the
+  screen and nothing scrolled it back. The photo now takes the room the bar leaves, so Close (with its focus ring),
+  Previous and Next are in view at 320x200, 320x256 and 568x320, for a landscape and a portrait photo and in a
+  right-to-left page; the photo is a little smaller there (59 px high at 320x200, 236 at 568x320, where it was 256), and
+  its size is the same as before on taller screens. If the screen is too short even for the bar, the dialog scrolls the
+  focused button into view when it opens and as each photo loads. The page HTML is unchanged.
+
 ## [1.6.11] - 2026-10-15
 
 ### Changed

@@ -258,6 +258,13 @@ are not made this way. To recreate the README images:
   the network log on, open the first photo and step through them at 390x844 (pixel ratio 1 and 3) and at 1280x800 (1 and
   2); the photo requests are `X2` at both phone ratios and at 1280x800 ratio 1, and `X3` at 1280x800 ratio 2. The link's
   `href` is `X3` in every case.
+  The controls stay on screen on a short viewport (#348): with a real-photo build (the author's site, whose gallery photos
+  load) and device scale factor 1, set the viewport to 320x200, 320x256, 568x320, 320x640, 1280x1024 and 1920x1080
+  (`Emulation.setDeviceMetricsOverride`; a plain window won't go below about 500 px), open a 3:2 photo and a 2:3 photo, wait
+  until the lightbox image has loaded, and read the boxes of Close, Previous and Next. At the first three, Close (with 5 px
+  around it for its focus ring), Previous and Next lie inside the viewport and the dialog has not scrolled; at the others
+  the photo is the same size as before (80% of the height, or the width limit). Repeat with `dir="rtl"` on `<html>`. Tab
+  moves Close, Previous, Next, Close; the arrows change the photo; Escape returns focus to the thumbnail.
   - `article`: `/post/20260105-dated-article/` at 1280x980, scrolled until the table of contents is 380 px from the top.
   - `view-options`: `/` after clicking "View options", scrolled until the controls row is 20 px from the top.
   - `tag-page`: `/tags/photos/` at the top.

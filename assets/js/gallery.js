@@ -47,6 +47,7 @@
 
     img = dlg.querySelector('img'); count = dlg.querySelector('.count'); say = dlg.querySelector('[aria-live]');
     prev = dlg.querySelector('[data-a="p"]'); next = dlg.querySelector('[data-a="n"]');
+    img.addEventListener('load', keepInView);
 
     dlg.addEventListener('close', function () { if (opener) opener.focus(); });
     dlg.addEventListener('click', function (e) {
@@ -87,6 +88,14 @@
     });
   }
 
+  // The photo leaves room for the controls (main.css), but on a screen too short even for them the dialog scrolls, and
+  // focus() alone has not brought the focused button into view there. Run after the dialog opens and each time a photo
+  // has loaded, since the photo's size changes the layout (#348).
+  function keepInView() {
+    var f = document.activeElement;
+    if (dlg && dlg.open && f && dlg.contains(f) && f !== dlg) f.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+
   // The page's reading direction, read when it is needed since it can differ per page (dir on <html>).
   function rtl() { return getComputedStyle(dlg).direction === 'rtl'; }
 
@@ -96,7 +105,8 @@
   // /X3/…-X3.ext pattern or whose thumbnail has no width and height (X2's size, written at build time) to judge by. The
   // photo fills the dialog less its padding (1rem each side) and 80% of the viewport's height (main.css, dialog.lb),
   // whole and in proportion, and never more than its own pixels, so X3 is shown at the same size as X2 wherever X2 is
-  // enough. `need` is the number of device pixels per X2 pixel the photo would be shown at.
+  // enough. `need` is the number of device pixels per X2 pixel the photo would be shown at. On a screen too short for
+  // that height plus the controls bar the photo is smaller than this assumes, so the choice errs toward X3, never X2.
   function big(a) {
     var t = a.querySelector('img');
     if (!t) return a.href;
@@ -144,6 +154,7 @@
       show(list.indexOf(a));
       dlg.showModal();
       dlg.querySelector('[data-a="c"]').focus();
+      keepInView();
     });
   });
 })();
