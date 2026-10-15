@@ -31,13 +31,10 @@
     {{- else if $u.Host -}}
       {{- /* Another host, or the same host on another port (another origin), is external. A port that is the scheme's
            default (443 for https, 80 for http) counts as none, so https://example.org:443/ is the site's own host; the
-           scheme itself is not compared, so http://example.org/ on an https site stays internal (#322). */ -}}
+           scheme itself is not compared, so http://example.org/ on an https site stays internal (#322). Ports are
+           compared as numbers, so https://example.org:0443/ is the site's own host too (_partials/url-port.html, #349). */ -}}
       {{- $b := urls.Parse site.BaseURL -}}
-      {{- $port := $u.Port -}}
-      {{- if or (and (eq (lower $u.Scheme) "https") (eq $port "443")) (and (eq (lower $u.Scheme) "http") (eq $port "80")) }}{{ $port = "" }}{{ end -}}
-      {{- $bport := $b.Port -}}
-      {{- if or (and (eq (lower $b.Scheme) "https") (eq $bport "443")) (and (eq (lower $b.Scheme) "http") (eq $bport "80")) }}{{ $bport = "" }}{{ end -}}
-      {{- $external = or (ne (lower $u.Hostname) (lower $b.Hostname)) (ne $port $bport) -}}
+      {{- $external = or (ne (lower $u.Hostname) (lower $b.Hostname)) (ne (partial "url-port.html" $u) (partial "url-port.html" $b)) -}}
     {{- end -}}
   {{- end -}}
 {{- end -}}

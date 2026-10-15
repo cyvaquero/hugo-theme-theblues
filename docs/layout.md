@@ -30,12 +30,12 @@ layouts/search/section.html  search page: the search slot (_partials/search.html
 layouts/search/section.searchindex.json  the search index, /search/index.json (the searchindex output format, defined in hugo.toml)
 layouts/404.html           hero, the latest five posts and, with the search index, the search of the missing address
 layouts/sitemap.xml        sitemap: Hugo's embedded template plus a filter for pages that aren't written (_partials/is-written.html)
-layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
+layouts/rss.xml            home, section and term feeds (main sections only on the home and term feeds)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, remote-photo, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
-                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, title-check, js-text, js-forms, t, t-en, setting-int, https-check, is-written, arrow
+                           wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, title-check, js-text, js-forms, t, t-en, setting-int, https-check, is-written, arrow, url-port
 layouts/_shortcodes/       gallery, galleries (masonry), embed
 layouts/_markup/           render-link, render-image
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
@@ -125,7 +125,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL. The lightbox shows (and preloads, for the
   next and previous photos) the thumbnail's own `X2` URL instead when `X2` has a pixel for each device pixel the photo
   fills, worked out in `gallery.js` (`big()`) from the thumbnail's `width` and `height`, the viewport, the dialog's
-  padding and its 80% height limit, and `devicePixelRatio`; a link or thumbnail that doesn't fit the pattern uses the link as is. A query string or fragment after the file name is kept.
+  padding, its 80% height limit (less on a short screen, where the controls bar takes its row first) and `devicePixelRatio`; a link or thumbnail that doesn't fit the pattern uses the link as is. A query string or fragment after the file name is kept.
 - Wall tiles and gallery images get `width` and `height`, read at build time by fetching each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
   doesn't reflow. The fetch asks for only the first 32 KB (a `Range` header, `layouts/_partials/remote-photo.html`, which

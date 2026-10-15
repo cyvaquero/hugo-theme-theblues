@@ -1,0 +1,12 @@
+{{- /*
+  A URL's port as a browser compares it, for telling whether two URLs are the same origin (#349). Context: a parsed URL
+  (urls.Parse). Returns the port as digits with leading zeros removed, since a browser reads the port as a number
+  (:0443 and :00443 are 443; a lone 0 stays 0, which is another port), and "" when that port is the scheme's default
+  (443 for https, 80 for http) or there is none. Go's URL parser returns the port as written. Used by the embed shortcode
+  and the link render hook.
+*/ -}}
+{{- $port := .Port -}}
+{{- if findRE `^[0-9]+$` $port 1 }}{{ $port = replaceRE `^0+([0-9])` "$1" $port }}{{ end -}}
+{{- $scheme := lower .Scheme -}}
+{{- if or (and (eq $scheme "https") (eq $port "443")) (and (eq $scheme "http") (eq $port "80")) }}{{ $port = "" }}{{ end -}}
+{{- return $port -}}

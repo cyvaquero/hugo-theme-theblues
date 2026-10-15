@@ -168,7 +168,7 @@ The templates assume this layout; other structures are not supported yet.
   would replace a link's Markdown title as its description, so a titled link has no reference: its `title` ends with the
   same notice ("Title (opens in a new tab)"), which is then the one description, and also the tooltip. The feeds drop the
   reference from the items' links, since the hidden element is on the site's pages only. A port that is the scheme's default (443 for
-  `https`, 80 for `http`) counts as no port, so `https://example.org:443/` is the site's own host, and the scheme isn't compared. A titled image is a `<figure>` with a caption only when it
+  `https`, 80 for `http`) counts as no port, so `https://example.org:443/` is the site's own host, and the scheme isn't compared. Ports are compared as numbers, so `https://example.org:0443/` is the site's own host too. A titled image is a `<figure>` with a caption only when it
   stands alone and the site sets `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title
   is the tooltip.
 
@@ -178,7 +178,7 @@ The templates assume this layout; other structures are not supported yet.
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing, and its photos are not shown on walls or used as covers. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
 | `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link uses the `X3` size, and the lightbox shows `X2` instead where it has a pixel for each device pixel the photo fills (a phone, or a one-x laptop screen) and `X3` otherwise. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. The positional form takes only `src`: Hugo doesn't allow adding `title=` to it, and a second positional argument is ignored, so such a photo gets the "Photo N" alt text. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns (warning ID `theblues-gallery-no-title`). |
-| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host and port (the same origin, where the sandbox gives no protection; the site's host on another port is allowed, and a port that is the scheme's default counts as none; when the site's `baseURL` host is an IP address, any URL whose host is an IP address in any spelling, such as `2130706433`, `0x7f.1`, `127.1` or `[::ffff:127.0.0.1]`, is refused as well), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
+| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host and port (the same origin, where the sandbox gives no protection; the site's host on another port is allowed, and a port that is the scheme's default counts as none, with ports compared as numbers, so `:0443` is `:443`; when the site's `baseURL` host is an IP address, any URL whose host is an IP address in any spelling, such as `2130706433`, `0x7f.1`, `127.1` or `[::ffff:127.0.0.1]`, is refused as well), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
 
 ## Search
 
@@ -395,7 +395,7 @@ the person building the site.
   `{{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}{{ .URL | absURL }}{{ end }}{{ end }}{{ end }}`
   (`.Store.Get "wall"` is empty on pages that are not walls), and keeps that copy up to date through theme upgrades.
 - A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall (first with Oldest first), has no  `pubDate` in feeds, and the build warns.
-- Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
+- Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
   `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no page-level referrer policy (the `embed`
   shortcode's frames set their own, `strict-origin-when-cross-origin`); browsers default to that same policy, which a
   site can also send as a header.
@@ -536,7 +536,7 @@ else can stay at `default-src 'none'`.
 |---|---|---|
 | `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `search.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
 | `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
-| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
+| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
 | `connect-src` | `'self'` | The search index, which `search.js` fetches (`/search/index.json`), when the site publishes it. |
 | `form-action` | `'self'` | The 404 page's search form, which goes to the search page, when the site publishes the search index. The search page itself runs its form in the browser, so `'none'` is enough for a site without the index. |
@@ -629,7 +629,7 @@ on photos):
   On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
   Right arrows (reversed in a right-to-left language), Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
-  focus to the photo that was opened. Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
+  focus to the photo that was opened. On a short screen (a phone held sideways, a window at 400% zoom) the photo shrinks so that Close, Previous and Next stay on screen with their focus rings (WCAG 2.4.7, 1.4.10). Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
   seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already

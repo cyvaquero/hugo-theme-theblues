@@ -29,7 +29,7 @@ arrow keys go the other way, and code blocks stay left to right. The previous/ne
 the side their link is on: `&rarr;` before the previous link and `&larr;` after the next link, in the post navigation, the series box, the pager,
 the "back to all posts" and "all tags" links of a term page and the "more photos" tile. Extra Arabic posts in `exampleSite/content-rtl/` (three in a series
 and a photo post, mounted by `variants/rtl.toml`) give the Arabic site those links; `grep -rho '&[lr]arr;' <out>/rtl --include=index.html` finds both on its
-`/post/20260112-series-2/`, `/page/2/` and `/tags/fixtures/` pages, and the English pages of that build keep `&larr;` before the previous link. The Arabic pages must not scroll sideways: in a browser at 320px and at 1280px, `document.documentElement.scrollWidth` must be at most
+`/post/20260112-series-2/` and `/tags/fixtures/` pages and `&rarr;` on `/page/2/` (the wall's last page, with only the Newer link), and the English pages of that build keep `&larr;` before the previous link. The Arabic pages must not scroll sideways: in a browser at 320px and at 1280px, `document.documentElement.scrollWidth` must be at most
 `clientWidth` on `/`, a post page and a term page (the off-screen skip link must add no overflow in either direction), and
 after Tab from page load the skip link must show inside the window at the inline-start top corner (the right in `rtl`,
 the left on the English pages) and be off screen before that. A change to `main.css` must leave a left-to-right page's
@@ -100,6 +100,13 @@ turn, as follows. On `-b https://example.org/`: `https://example.org:8443/x` bui
 `-b https://example.org:8443/`: `https://example.org/x` builds and `https://example.org:8443/x` fails the same way. On
 `-b http://127.0.0.1:8099/`: `https://127.0.0.1:9443/x` and `https://127.0.0.1/x` fail with "the site is served from an IP
 address" (the IP rule above runs on any port). `https://photos.example.org/x` builds everywhere.
+
+A browser reads a port as a number, so a zero-padded port is the same port (#349); the shortcode and the link hook both read
+ports through `_partials/url-port.html`. On `-b https://example.org/`, embed URLs `https://example.org:0443/x` and
+`https://example.org:00443/x` fail like `:443` with "the URL is on this site's own host and port", while `:8443`, `:08443`,
+`:0` (port 0, another origin) and `:000` build. On `-b https://example.org:8443/`, `:08443` fails and, on
+`-b https://example.org:08443/`, `:8443` fails. For a Markdown link, `[l](https://example.org:0443/x)` on
+`-b https://example.org/` is internal (no `target="_blank"`), as are `:00443` and `:443`, and `:08443` and `:0` are external.
 
 The search fixture (README, "Search"): `exampleSite/content/search/_index.md` lists `searchindex` in its outputs, so the
 build publishes `/search/index.json`, and the search page loads `search.js`. The root pages `accents.md` (accented words in
@@ -251,6 +258,13 @@ are not made this way. To recreate the README images:
   the network log on, open the first photo and step through them at 390x844 (pixel ratio 1 and 3) and at 1280x800 (1 and
   2); the photo requests are `X2` at both phone ratios and at 1280x800 ratio 1, and `X3` at 1280x800 ratio 2. The link's
   `href` is `X3` in every case.
+  The controls stay on screen on a short viewport (#348): with a real-photo build (the author's site, whose gallery photos
+  load) and device scale factor 1, set the viewport to 320x200, 320x256, 568x320, 320x640, 1280x1024 and 1920x1080
+  (`Emulation.setDeviceMetricsOverride`; a plain window won't go below about 500 px), open a 3:2 photo and a 2:3 photo, wait
+  until the lightbox image has loaded, and read the boxes of Close, Previous and Next. At the first three, Close (with 5 px
+  around it for its focus ring), Previous and Next lie inside the viewport and the dialog has not scrolled; at the others
+  the photo is the same size as before (80% of the height, or the width limit). Repeat with `dir="rtl"` on `<html>`. Tab
+  moves Close, Previous, Next, Close; the arrows change the photo; Escape returns focus to the thumbnail.
   - `article`: `/post/20260105-dated-article/` at 1280x980, scrolled until the table of contents is 380 px from the top.
   - `view-options`: `/` after clicking "View options", scrolled until the controls row is 20 px from the top.
   - `tag-page`: `/tags/photos/` at the top.
