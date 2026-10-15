@@ -29,7 +29,7 @@ arrow keys go the other way, and code blocks stay left to right. The previous/ne
 the side their link is on: `&rarr;` before the previous link and `&larr;` after the next link, in the post navigation, the series box, the pager,
 the "back to all posts" and "all tags" links of a term page and the "more photos" tile. Extra Arabic posts in `exampleSite/content-rtl/` (three in a series
 and a photo post, mounted by `variants/rtl.toml`) give the Arabic site those links; `grep -rho '&[lr]arr;' <out>/rtl --include=index.html` finds both on its
-`/post/20260112-series-2/`, `/page/2/` and `/tags/fixtures/` pages, and the English pages of that build keep `&larr;` before the previous link. The Arabic pages must not scroll sideways: in a browser at 320px and at 1280px, `document.documentElement.scrollWidth` must be at most
+`/post/20260112-series-2/` and `/tags/fixtures/` pages and `&rarr;` on `/page/2/` (the wall's last page, with only the Newer link), and the English pages of that build keep `&larr;` before the previous link. The Arabic pages must not scroll sideways: in a browser at 320px and at 1280px, `document.documentElement.scrollWidth` must be at most
 `clientWidth` on `/`, a post page and a term page (the off-screen skip link must add no overflow in either direction), and
 after Tab from page load the skip link must show inside the window at the inline-start top corner (the right in `rtl`,
 the left on the English pages) and be off screen before that. A change to `main.css` must leave a left-to-right page's
