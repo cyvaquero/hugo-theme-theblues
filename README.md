@@ -208,7 +208,9 @@ available yet."
 **What is indexed.** Every regular page of the language except those with `search: false` in their front matter.
 Drafts, future and expired pages are left out by Hugo's own rules. So is a page the build doesn't publish: one whose
 `build.render` is `never` or `link` (it has no page at its address, or none is written there) is not indexed, even when
-`build.list` is `always`. The sitemap follows the same rule. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
+`build.list` is `always`. The sitemap leaves out the same unpublished pages. A page with `sitemap: {disable: true}` is
+still indexed: that setting only keeps a page out of the sitemap, so `search: false` is the switch for search. The file is
+`{"v":1,"p":[row, …]}`, and each row is a list:
 `[title, url, date, section, tags, categories, series, description, photoTitles, text]`. `date` is `YYYY-MM-DD` (empty
 for an undated page), `section` is the title of the page's top-level section (empty for a page in the site root),
 `photoTitles` are the titles of its `gallery` photos, and `text` is the page's plain text with white space collapsed.
