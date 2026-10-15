@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.13] - 2026-10-15
+
+### Security
+- The `embed` shortcode's same-origin check can no longer be bypassed with a zero-padded port (#349). A URL on the site's
+  own host written `https://example.org:0443/` or `:00443/` passed the check, because the ports were compared as text,
+  while a browser reads them as 443, the default, and loads the frame from the site's own origin, where the sandbox
+  (`allow-scripts` with `allow-same-origin`) gives no protection. Ports are now compared as numbers, so those URLs fail
+  the build like `:443`. `:8443` and other ports are still allowed, and `:0` is still its own port. The link hook reads
+  ports the same way, so `https://example.org:0443/` is a link to the site's own origin, not an external one that opens
+  in a new tab. Pages that use no such port are unchanged. The shared reading of a port is a new partial,
+  `_partials/url-port.html`.
+
 ## [1.6.11] - 2026-10-15
 
 ### Changed
