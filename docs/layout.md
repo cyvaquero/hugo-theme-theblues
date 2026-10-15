@@ -33,7 +33,7 @@ layouts/sitemap.xml        sitemap: Hugo's embedded template plus a filter for p
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
-                           img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
+                           img-size, remote-photo, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, title-check, js-text, js-forms, t, t-en, setting-int, https-check, is-written, arrow
 layouts/_shortcodes/       gallery, galleries (masonry), embed
@@ -126,10 +126,13 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   next and previous photos) the thumbnail's own `X2` URL instead when `X2` has a pixel for each device pixel the photo
   fills, worked out in `gallery.js` (`big()`) from the thumbnail's `width` and `height`, the viewport, the dialog's
   padding and its 80% height limit, and `devicePixelRatio`; a link or thumbnail that doesn't fit the pattern uses the link as is. A query string or fragment after the file name is kept.
-- Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
+- Wall tiles and gallery images get `width` and `height`, read at build time by fetching each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
-  doesn't reflow. Hugo keeps the downloads in its `getresource` file cache (by default `:cacheDir/:project`, kept until
-  cleared), so a build fetches only photos new to the cache; a build without a cache (for example on a fresh CI machine)
+  doesn't reflow. The fetch asks for only the first 32 KB (a `Range` header, `layouts/_partials/remote-photo.html`, which
+  the hero sizes use too), where a JPEG keeps its size; if that doesn't give a width and height, or the server ignores
+  the range, the whole file is fetched. Hugo keeps the downloads in its `getresource` file cache (by default
+  `:cacheDir/:project`, kept until cleared; the header is part of the cache key, so a cache filled by an earlier theme
+  version is fetched again once), so a build fetches only photos new to the cache; a build without a cache (for example on a fresh CI machine)
   fetches them all. Only photos on `https://photos.smugmug.com/` are fetched, so a build never requests another host
   that a post names (a photo on any other host gets no width and height, without a request or a warning). An `http://`
   URL is never requested in cleartext, where its size could be tampered with, and a browser blocks it as mixed content
