@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.7] - 2026-10-15
+
+### Fixed
+- The README now says that a page with `sitemap: {disable: true}` is still in the search index, and that `search: false`
+  is the setting that keeps a page out of search (#337). Documentation only; the output is unchanged.
+
 ## [1.6.6] - 2026-10-14
 
 ### Added
