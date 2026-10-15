@@ -12,6 +12,12 @@ All notable changes to this theme are documented here. The format follows
   pager, term page links and "more photos" tile use it. Left-to-right pages are unchanged. The `rtl` fixture variant
   gains extra Arabic posts (`exampleSite/content-rtl/`) so these links appear in it.
 
+## [1.6.7] - 2026-10-15
+
+### Fixed
+- The README now says that a page with `sitemap: {disable: true}` is still in the search index, and that `search: false`
+  is the setting that keeps a page out of search (#337). Documentation only; the output is unchanged.
+
 ## [1.6.6] - 2026-10-14
 
 ### Added
