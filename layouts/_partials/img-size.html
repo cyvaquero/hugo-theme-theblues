@@ -2,16 +2,15 @@
   Width and height of a remote photo, read at build time, so the wall and gallery images reserve their shape before
   they load and the masonry doesn't reflow (#7). Context: the image URL. Returns dict "w" "h", or an empty dict when the
   size isn't known; callers then leave the attributes out and the CSS 3:2 placeholder applies.
-  remote-photo.html fetches the photo with resources.GetRemote, only its first 32 KB unless that doesn't give a size (#344).
-  Hugo keeps each download in its getresource file cache (caches.getresource, by default :cacheDir/:project, kept
-  forever), so only a photo new to the cache is fetched. A fetch that fails (offline, DNS,
-  timeout, a server error or a refusal) is silent, so an offline build still passes --panicOnWarning. A server that
-  answers but has no image there (HTTP 404, or not an image) is a broken photo link, so that warns
-  (theblues-image-size); a site can silence it with ignoreLogs. Only https://photos.smugmug.com/ URLs are fetched, as
-  hero-sizes.html does, so a build never requests another host a content author names (#255); a photo on any other host
-  gets no size, with no request and no warning. An http:// one is never requested over the network in cleartext, where
-  its size could be tampered with, and warns instead (theblues-insecure-photo, https-check.html, #184); the tile and
-  gallery image get no width and height.
+  remote-photo.html fetches the photo with resources.GetRemote, only its first 32 KB unless that doesn't give a size
+  (#344). Hugo keeps each download in its getresource file cache (caches.getresource, by default :cacheDir/:project,
+  kept forever), so only a photo new to the cache is fetched. A fetch that fails (offline, DNS, timeout, a server error
+  or a refusal) is silent, so an offline build still passes --panicOnWarning. A server that answers but has no image
+  there (HTTP 404, or not an image) is a broken photo link, so that warns (theblues-image-size); a site can silence it
+  with ignoreLogs. Only https://photos.smugmug.com/ URLs are fetched, as hero-sizes.html does, so a build never requests
+  another host a content author names (#255); a photo on any other host gets no size, with no request and no warning. An
+  http:// one is never requested over the network in cleartext, where its size could be tampered with, and warns instead
+  (theblues-insecure-photo, https-check.html, #184); the tile and gallery image get no width and height.
   Usage: {{ $sz := partialCached "img-size.html" $src $src }}
 */ -}}
 {{- $out := dict -}}

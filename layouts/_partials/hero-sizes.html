@@ -10,12 +10,12 @@
     4: over one-x up to two-x, up to 640px                 5: one-x, 1281 to 1600px
   Wider or denser screens use the src size. For each tier, the hero gets the smallest of SmugMug's M, L, XL, X2 and X3
   that is smaller than src and still covers the box at the tier's widest viewport and highest pixel ratio
-  (background-size: cover needs the photo at least as wide as the viewport and as tall as the box, in device pixels;
-  1px is allowed for SmugMug's rounding, 1279 for 1280), so it is never shown at less than one photo pixel per device
-  pixel. Sizes follow smug-srcset.html: the size name replaces the one in the path segment and the file suffix
+  (background-size: cover needs the photo at least as wide as the viewport and as tall as the box, in device pixels; 1px
+  is allowed for SmugMug's rounding, 1279 for 1280), so it is never shown at less than one photo pixel per device pixel.
+  Sizes follow smug-srcset.html: the size name replaces the one in the path segment and the file suffix
   (smug-size.html), scaled to fit a box (smug-sizes.html), never enlarged, so each size's pixels are worked out from
-  X2's, read at build time as img-size.html does (remote-photo.html). Only URLs whose path is plain letters, digits and -_.~/ qualify, so the
-  declarations need no quotes or escaping.
+  X2's, read at build time as img-size.html does (remote-photo.html). Only URLs whose path is plain letters, digits and
+  -_.~/ qualify, so the declarations need no quotes or escaping.
 */ -}}
 {{- $out := dict -}}
 {{- /* An http:// hero warns (theblues-insecure-photo); it never gets smaller sizes, since only https://photos.smugmug.com is read below. */ -}}
