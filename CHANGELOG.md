@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.14] - 2026-10-15
+
+### Fixed
+- Three documentation corrections from the release review (#350): `docs/layout.md` now says term feeds, like the home
+  feed, list only the main sections; the README's Known limits and CSP table say only heroes (a photo post's cover hero
+  included) set their image through a `style` attribute, not photo tiles, which are `<img>` elements; and the testing
+  guide's right-to-left arrow check expects only `&rarr;` on `/page/2/`, the Arabic wall's last page. Documentation
+  only; the output is unchanged.
+
 ## [1.6.13] - 2026-10-15
 
 ### Security

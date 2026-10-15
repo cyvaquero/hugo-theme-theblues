@@ -395,7 +395,7 @@ the person building the site.
   `{{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}{{ .URL | absURL }}{{ end }}{{ end }}{{ end }}`
   (`.Store.Get "wall"` is empty on pages that are not walls), and keeps that copy up to date through theme upgrades.
 - A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall (first with Oldest first), has no  `pubDate` in feeds, and the build warns.
-- Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
+- Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
   `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no page-level referrer policy (the `embed`
   shortcode's frames set their own, `strict-origin-when-cross-origin`); browsers default to that same policy, which a
   site can also send as a header.
@@ -536,7 +536,7 @@ else can stay at `default-src 'none'`.
 |---|---|---|
 | `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `search.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
 | `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
-| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
+| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
 | `connect-src` | `'self'` | The search index, which `search.js` fetches (`/search/index.json`), when the site publishes it. |
 | `form-action` | `'self'` | The 404 page's search form, which goes to the search page, when the site publishes the search index. The search page itself runs its form in the browser, so `'none'` is enough for a site without the index. |
