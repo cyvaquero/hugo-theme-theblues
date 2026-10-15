@@ -10,6 +10,29 @@ All notable changes to this theme are documented here. The format follows
   home page's heading, the page titles, the brand link and the feed's title are empty and nothing said so. Output is
   otherwise unchanged. Silence it with `ignoreLogs = ['theblues-no-title']`.
 
+## [1.6.5] - 2026-10-14
+
+### Added
+- Pages that a content adapter (`_content.gotmpl`) adds without a title get distinct fallback titles from the last segment of
+  their path ("Second Adapter Note" for `second-adapter-note`), where all of them were titled "Post" (#277). Pages from
+  Markdown files get the same titles as before. The fixture has an `adapter` variant that covers it.
+
+## [1.6.4] - 2026-10-14
+
+### Changed
+- The layout mirrors for right-to-left languages (#296). `main.css` uses CSS logical properties for the side bars of the
+  series box, article tiles, table of contents and quotes, the indents, the skip link, the nav drop-down, the View options
+  panel, photo badges, the theme switch knob and the alignment of the wall caption and switch status, so a site with
+  `direction = "rtl"` shows them on the other side. Left-to-right pages look the same. Code blocks stay left to right.
+- In the photo viewer, a right-to-left page reverses the arrow keys and the swipe so they follow the Previous and Next
+  buttons (Left is the next photo, and a swipe to the right goes to the next).
+
+## [1.6.3] - 2026-10-14
+
+### Fixed
+- The search link that `params.search_enabled` adds to the nav is marked `aria-current="page"` on the search page, as the
+  menu links are on their own pages, so screen readers say it is the current page (#333).
+
 ## [1.6.2] - 2026-10-14
 
 ### Fixed

@@ -26,10 +26,10 @@ What the theme is built and tested for. A request outside it is an enhancement, 
 - **Hugo:** the minimum in `hugo.toml` (`[module.hugoVersion] min`), which `theme.toml`'s `min_version` mirrors; keep
   the two the same. Standard or extended edition. Developed and tested on the version the site pins.
 - **Languages:** one or more languages, with the theme's strings translatable through `i18n/` and an English
-  fallback. Left-to-right layout only: a right-to-left language gets `dir="rtl"` on `<html>`, but the layout is
-  not mirrored.
+  fallback. A right-to-left language gets `dir="rtl"` on `<html>` and a mirrored layout (CSS logical
+  properties; the `rtl` variant is the test). The previous/next arrows (`&larr;`, `&rarr;`) are not mirrored.
 - **Content:** Markdown files under `content/`, with posts in the main sections and a site `title` set (the build warns without one). Content
-  adapters are not tested.
+  adapters are tested only for the fallback title of a page without one (the `adapter` variant); the rest is not.
 - **Photos:** SmugMug photo URLs (`photos.smugmug.com`) for galleries, wall tiles and heroes. Only those are read for
   sizes, `srcset` and the hero preload; other hosts work without them.
 - **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, desktop and mobile. The
@@ -45,7 +45,7 @@ What the theme is built and tested for. A request outside it is an enhancement, 
 cd exampleSite
 hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d <scratch>/base
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d <scratch>/min
-for v in main-menu multilingual analytics rtl; do   # every variants/*.toml except dark-tokens
+for v in main-menu multilingual analytics rtl adapter; do   # every variants/*.toml except dark-tokens
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d <scratch>/$v
 done
 hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>/dark-tokens   # must warn
