@@ -345,8 +345,8 @@ translate the theme, or reword its English, for a site:
    series box, article tiles, table of contents and quotes, the indents, the View options panel, the skip link, photo
    badges, the theme switch and the alignment of the wall caption move to the other side. Code blocks stay left to right.
    In the photo viewer the arrow keys follow the buttons' sides: in a right-to-left language Left is the next photo and
-   Right the previous one, and a swipe to the right goes to the next. The arrows (&larr; &rarr;) written into the
-   previous/next links and the pager are not mirrored.
+   Right the previous one, and a swipe to the right goes to the next. The arrows (&larr; &rarr;) in the
+   previous/next links and the pager swap, so each points toward the side its link is on.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
 `gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more

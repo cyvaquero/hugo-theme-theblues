@@ -1,0 +1,14 @@
+{{- /*
+  The arrow for a previous/next link (#340). Context: "start" or "end", the side of the line the link sits on: the arrow
+  for a link at the inline start (the previous link, "back to") or at the inline end (the next link, "more"). It points
+  toward that side, so in a left-to-right language start is &larr; and end is &rarr;, and in a right-to-left language
+  (baseof.html writes dir="rtl" under the same test) they swap. Returns HTML (an entity), so write it with no escaping
+  step of its own: {{ partial "arrow.html" "start" }}. The arrow is decoration: where it isn't next to a link's text,
+  the caller marks it aria-hidden.
+*/ -}}
+{{- $rtl := eq site.Language.Direction "rtl" -}}
+{{- if eq . "start" -}}
+  {{- return (cond $rtl "&rarr;" "&larr;" | safeHTML) -}}
+{{- else -}}
+  {{- return (cond $rtl "&larr;" "&rarr;" | safeHTML) -}}
+{{- end -}}

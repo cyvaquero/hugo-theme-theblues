@@ -25,7 +25,11 @@ Google Analytics ID, which the theme loads in production builds only, and a righ
 `direction = "rtl"` next to English, #266), whose pages must start `<html lang="ar" dir="rtl">` while the English ones
 have no `dir`, and whose layout mirrors (#296): the series box, article tile, table of contents and blockquote bars are on
 the right, the View options panel, skip link, photo badge and theme switch knob anchor to the other side, the lightbox
-arrow keys go the other way, and code blocks stay left to right. A change to `main.css` must leave a left-to-right page's
+arrow keys go the other way, and code blocks stay left to right. The previous/next arrows (`_partials/arrow.html`, #340) point toward
+the side their link is on: `&rarr;` before the previous link and `&larr;` after the next link, in the post navigation, the series box, the pager,
+the "back to all posts" and "all tags" links of a term page and the "more photos" tile. Extra Arabic posts in `exampleSite/content-rtl/` (three in a series
+and a photo post, mounted by `variants/rtl.toml`) give the Arabic site those links; `grep -rho '&[lr]arr;' <out>/rtl --include=index.html` finds both on its
+`/post/20260112-series-2/`, `/page/2/` and `/tags/fixtures/` pages, and the English pages of that build keep `&larr;` before the previous link. A change to `main.css` must leave a left-to-right page's
 computed styles and pixels as they were. Its `exampleSite/i18n/ar.toml` also holds the cases that need a language other than English and German:
 Hugo has no abbreviated Arabic month name, so the dates (`<time>`, tile and series `aria-label`s, the archive) must show
 the month ("12 يناير 2026"), and the counts have all six plural forms (see "Plural forms" below):
