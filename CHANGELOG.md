@@ -3,28 +3,45 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.6.14] - 2026-10-15
+## [1.7.0] - 2026-10-15
 
-### Fixed
-- Three documentation corrections from the release review (#350): `docs/layout.md` now says term feeds, like the home
-  feed, list only the main sections; the README's Known limits and CSP table say only heroes (a photo post's cover hero
-  included) set their image through a `style` attribute, not photo tiles, which are `<img>` elements; and the testing
-  guide's right-to-left arrow check expects only `&rarr;` on `/page/2/`, the Arabic wall's last page. Documentation
-  only; the output is unchanged.
+### Added
+- The build warns once per language with the ID `theblues-no-title` when the site has no `title` (#276). Without one the
+  home page's heading, the page titles, the brand link and the feed's title are empty and nothing said so. Output is
+  otherwise unchanged. Silence it with `ignoreLogs = ['theblues-no-title']`.
+- Pages that a content adapter (`_content.gotmpl`) adds without a title get distinct fallback titles from the last segment of
+  their path ("Second Adapter Note" for `second-adapter-note`), where all of them were titled "Post" (#277). Pages from
+  Markdown files get the same titles as before. The fixture has an `adapter` variant that covers it.
 
-## [1.6.13] - 2026-10-15
-
-### Security
-- The `embed` shortcode's same-origin check can no longer be bypassed with a zero-padded port (#349). A URL on the site's
-  own host written `https://example.org:0443/` or `:00443/` passed the check, because the ports were compared as text,
-  while a browser reads them as 443, the default, and loads the frame from the site's own origin, where the sandbox
-  (`allow-scripts` with `allow-same-origin`) gives no protection. Ports are now compared as numbers, so those URLs fail
-  the build like `:443`. `:8443` and other ports are still allowed, and `:0` is still its own port. The link hook reads
-  ports the same way, so `https://example.org:0443/` is a link to the site's own origin, not an external one that opens
-  in a new tab. Pages that use no such port are unchanged. The shared reading of a port is a new partial,
-  `_partials/url-port.html`.
-
-## [1.6.12] - 2026-10-15
+### Changed
+- The layout mirrors for right-to-left languages (#296, #308, #340). `main.css` uses CSS logical properties for the side
+  bars of the series box, article tiles, table of contents and quotes, the indents, the skip link, the nav drop-down, the
+  View options panel, photo badges, the theme switch knob and the alignment of the wall caption and switch status, so a
+  site with `direction = "rtl"` shows them on the other side, and its pages don't scroll sideways (no horizontal overflow
+  at 320px or 1280px). The previous and next arrows come from a new partial, `_partials/arrow.html`, and point toward
+  the side their link is on in the post navigation, series box, pager, term page links and "more photos" tile. In the
+  photo viewer, the arrow keys and the swipe follow the Previous and Next buttons (Left is the next photo, and a swipe to
+  the right goes to the next). Left-to-right pages look the same. Code blocks stay left to right. The `rtl` fixture
+  variant gains extra Arabic posts (`exampleSite/content-rtl/`) so these links appear in it.
+- A build with no cached photos downloads far less (#344). To give the tiles and gallery images their `width` and
+  `height`, and to work out the hero's smaller sizes, the theme read each SmugMug photo's size by downloading the whole
+  file. It now asks for only the first 32 KB (a `Range` request), which holds the size of every photo checked, and
+  fetches the whole file only when those bytes don't give a size or the server ignores the range. On the author's site
+  (41 photos) a cold build's `getresource` cache falls from 17.9 MB to 1.4 MB and the build from 1.6 s to 0.9 s; on the
+  example site, from 1.6 MB to 0.1 MB and from 0.5 s to 0.2 s. The pages are byte-for-byte the same. Hugo includes the
+  request headers in its cache key, so a cache filled by an earlier version fetches each photo once more, 32 KB each.
+  The shared fetch is a new partial, `_partials/remote-photo.html`; the 404 and "is not an image" warnings are unchanged.
+- The lightbox loads a smaller photo where the larger one would add nothing (#345). It always loaded the SmugMug `X3`
+  size (about 1600px) for the photo on screen and for the two it preloads, even on a phone. It now loads the `X2` size
+  (about 1280px) whenever `X2` has a pixel for each device pixel the photo fills, worked out from the viewport, the
+  device pixel ratio and the photo's shape, and `X3` otherwise, so a photo is never shown at less than one photo pixel
+  per device pixel. The link's `href` stays `X3` (it is what opens without JavaScript or in a new tab). Stepping
+  through an 18-photo gallery from the first photo loads 10.4 MB before and, after, 2.7 MB on a 390x844 phone at pixel
+  ratio 3, 7.3 MB at pixel ratio 1 and on a 1280x800 screen, 9.4 MB at 1920x1080, and 10.4 MB (all `X3`, as before) at
+  1280x800 at pixel ratio 2. The page HTML is unchanged. A pinch that zooms a photo past its pixels now shows it softer
+  on a screen that got `X2`.
+- `params.search.textLimit` is checked like the `[params.wall]` settings: it must be a whole number of 0 or more, so `true`,
+  `2.9` and `1e30` now fail the build naming the setting instead of being read as 1, 2 and a huge number (#322).
 
 ### Fixed
 - The lightbox's Close, Previous and Next buttons stay on screen on a short viewport (#348). With a photo open on a
@@ -35,100 +52,20 @@ All notable changes to this theme are documented here. The format follows
   right-to-left page; the photo is a little smaller there (59 px high at 320x200, 236 at 568x320, where it was 256), and
   its size is the same as before on taller screens. If the screen is too short even for the bar, the dialog scrolls the
   focused button into view when it opens and as each photo loads. The page HTML is unchanged.
-
-## [1.6.11] - 2026-10-15
-
-### Changed
-- The lightbox loads a smaller photo where the larger one would add nothing (#345). It always loaded the SmugMug `X3`
-  size (about 1600px) for the photo on screen and for the two it preloads, even on a phone. It now loads the `X2` size
-  (about 1280px) whenever `X2` has a pixel for each device pixel the photo fills, worked out from the viewport, the
-  device pixel ratio and the photo's shape, and `X3` otherwise, so a photo is never shown at less than one photo pixel
-  per device pixel. The link's `href` stays `X3` (it is what opens without JavaScript or in a new tab). Stepping
-  through an 18-photo gallery from the first photo loads 10.4 MB before and, after, 2.7 MB on a 390x844 phone at pixel
-  ratio 3, 7.3 MB at pixel ratio 1 and on a 1280x800 screen, 9.4 MB at 1920x1080, and 10.4 MB (all `X3`, as before) at
-  1280x800 at pixel ratio 2. The page HTML is unchanged. A pinch that zooms a
-  photo past its pixels now shows it softer on a screen that got `X2`.
-
-## [1.6.10] - 2026-10-15
-
-### Changed
-- A build with no cached photos downloads far less (#344). To give the tiles and gallery images their `width` and
-  `height`, and to work out the hero's smaller sizes, the theme read each SmugMug photo's size by downloading the whole
-  file. It now asks for only the first 32 KB (a `Range` request), which holds the size of every photo checked, and
-  fetches the whole file only when those bytes don't give a size or the server ignores the range. On the author's site
-  (41 photos) a cold build's `getresource` cache falls from 17.9 MB to 1.4 MB and the build from 1.6 s to 0.9 s; on the
-  example site, from 1.6 MB to 0.1 MB and from 0.5 s to 0.2 s. The pages are byte-for-byte the same. Hugo includes the
-  request headers in its cache key, so a cache filled by an earlier version fetches each photo once more, 32 KB each.
-  The shared fetch is a new partial, `_partials/remote-photo.html`; the 404 and "is not an image" warnings are unchanged.
-
-## [1.6.9] - 2026-10-15
-
-### Fixed
-- The off-screen skip link no longer makes right-to-left pages scroll sideways (#308). That was already fixed by the
-  mirrored layout in 1.6.4, which hides the link with `inset-inline-start` instead of `left`, so no stylesheet change
-  was needed. The testing guide now checks that the Arabic pages have no horizontal overflow at 320px and 1280px and that
-  the skip link shows in place on focus. Documentation only; the output is unchanged.
-
-## [1.6.8] - 2026-10-15
-
-### Fixed
-- In a right-to-left language the previous and next arrows point the right way (#340). They were always `←` and `→`, so
-  once the layout mirrored (1.6.4) the previous link, on the right, had an arrow pointing away from it. A new partial,
-  `_partials/arrow.html`, swaps them under the same test that writes `dir="rtl"`, and the post navigation, series box,
-  pager, term page links and "more photos" tile use it. Left-to-right pages are unchanged. The `rtl` fixture variant
-  gains extra Arabic posts (`exampleSite/content-rtl/`) so these links appear in it.
-
-## [1.6.7] - 2026-10-15
-
-### Fixed
-- The README now says that a page with `sitemap: {disable: true}` is still in the search index, and that `search: false`
-  is the setting that keeps a page out of search (#337). Documentation only; the output is unchanged.
-
-## [1.6.6] - 2026-10-14
-
-### Added
-- The build warns once per language with the ID `theblues-no-title` when the site has no `title` (#276). Without one the
-  home page's heading, the page titles, the brand link and the feed's title are empty and nothing said so. Output is
-  otherwise unchanged. Silence it with `ignoreLogs = ['theblues-no-title']`.
-
-## [1.6.5] - 2026-10-14
-
-### Added
-- Pages that a content adapter (`_content.gotmpl`) adds without a title get distinct fallback titles from the last segment of
-  their path ("Second Adapter Note" for `second-adapter-note`), where all of them were titled "Post" (#277). Pages from
-  Markdown files get the same titles as before. The fixture has an `adapter` variant that covers it.
-
-## [1.6.4] - 2026-10-14
-
-### Changed
-- The layout mirrors for right-to-left languages (#296). `main.css` uses CSS logical properties for the side bars of the
-  series box, article tiles, table of contents and quotes, the indents, the skip link, the nav drop-down, the View options
-  panel, photo badges, the theme switch knob and the alignment of the wall caption and switch status, so a site with
-  `direction = "rtl"` shows them on the other side. Left-to-right pages look the same. Code blocks stay left to right.
-- In the photo viewer, a right-to-left page reverses the arrow keys and the swipe so they follow the Previous and Next
-  buttons (Left is the next photo, and a swipe to the right goes to the next).
-
-## [1.6.3] - 2026-10-14
-
-### Fixed
+- The site's own host on another port is another origin, for links and for the `embed` shortcode (#322, #332). A link to
+  it opens in a new tab and says so, like a link to another host, and `embed` accepts it, where it refused it as "on this
+  site's own host". A port that is the scheme's default (443 for https, 80 for http) counts as none, so
+  `https://example.org:443/` is still the site's own host; the same host and port is still refused by `embed`, now with
+  the message "the URL is on this site's own host and port".
 - The search link that `params.search_enabled` adds to the nav is marked `aria-current="page"` on the search page, as the
   menu links are on their own pages, so screen readers say it is the current page (#333).
-
-## [1.6.2] - 2026-10-14
-
-### Fixed
-- The `embed` shortcode accepts the site's own host on another port, which is another origin, and no longer refuses it as
-  "on this site's own host" (#332). It compares host and port as Markdown links do: a port that is the scheme's default
-  (443 for https, 80 for http) counts as none. The same host and port is still refused, now with the message "the URL is
-  on this site's own host and port".
-
-## [1.6.1] - 2026-10-14
-
-### Fixed
 - Searching for the word "constructor" finds the pages that have it, and on the 404 page an address with that word gets
   suggestions (#322). The search treated it as a word it had already seen.
 - "Loading the search index…" no longer stays in the status line after a slow load that ends with no query (the search page)
   or no match (the 404 page) (#322).
+- The search status line is on the page from the start, outside the part that the script shows, so the result count that
+  is written on the 404 page and when a search page is opened with `?q=` is more likely to be announced (#322).
+- Search matches in a result's title are bolder than the title, and not lighter, so they are marked by more than color (#322).
 - `tilesPerPage`, `photosPerGallery` and `textLimit` given as text with a leading zero are read as decimal numbers:
   `"010"` is 10, not 8, and `"08"` builds instead of failing (#322).
 - A term's feed (tag, category or series) lists only the pages in the main sections, the pages its own page shows, so the
@@ -136,20 +73,18 @@ All notable changes to this theme are documented here. The format follows
   a "Subscribe via RSS" link (#322). The same goes for the series box of a post outside the main sections.
 - The two "Subscribe via RSS" links in the series boxes of a post that is in two series now differ for assistive technology:
   each name goes on after the visible text, as in "Subscribe via RSS: Series name" (#322).
-- Search matches in a result's title are bolder than the title, and not lighter, so they are marked by more than color (#322).
-- The search status line is on the page from the start, outside the part that the script shows, so the result count that
-  is written on the 404 page and when a search page is opened with `?q=` is more likely to be announced (#322).
-- A link to the site's own host on another port opens in a new tab and says so, like a link to another host; a port that
-  is the scheme's default (`https://example.org:443/`) still counts as the site's own host (#322).
+- The README says that a page with `sitemap: {disable: true}` is still in the search index, and that `search: false`
+  is the setting that keeps a page out of search (#337).
 
-### Changed
-- `params.search.textLimit` is checked like the `[params.wall]` settings: it must be a whole number of 0 or more, so `true`,
-  `2.9` and `1e30` now fail the build naming the setting instead of being read as 1, 2 and a huge number (#322).
-
-### Documentation
-- The README says that a search result's date is the browser's date style and not `dateFormat`, that the search's word length
-  limits count UTF-16 code units (a combining mark counts as a letter), and lists every WCAG 2.1 criterion at levels A and AA
-  that Section 508 doesn't require; it describes the term feeds and the series box's feed links as they are now (#322).
+### Security
+- The `embed` shortcode's same-origin check can no longer be bypassed with a zero-padded port (#349). A URL on the site's
+  own host written `https://example.org:0443/` or `:00443/` passed the check, because the ports were compared as text,
+  while a browser reads them as 443, the default, and loads the frame from the site's own origin, where the sandbox
+  (`allow-scripts` with `allow-same-origin`) gives no protection. Ports are now compared as numbers, so those URLs fail
+  the build like `:443`. `:8443` and other ports are still allowed, and `:0` is still its own port. The link hook reads
+  ports the same way, so `https://example.org:0443/` is a link to the site's own origin, not an external one that opens
+  in a new tab. Pages that use no such port are unchanged. The shared reading of a port is a new partial,
+  `_partials/url-port.html`.
 
 ## [1.6.0] - 2026-10-14
 
