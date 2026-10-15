@@ -1,0 +1,25 @@
+# Test variant (docs/testing.md): the legacy params.addtional_menus nav with hrefs that carry a query or a fragment, or are
+# only one, which must come out as written after the path's trailing slash. Build with:
+#   --config hugo.toml,variants/legacy-nav.toml
+[params]
+  [[params.addtional_menus]]
+    title = "TEAM"
+    href = "/about#team"
+  [[params.addtional_menus]]
+    title = "QUERY"
+    href = "/search?x=1"
+  [[params.addtional_menus]]
+    title = "BOTH"
+    href = "/archive?s=a#b"
+  [[params.addtional_menus]]
+    title = "TOP"
+    href = "#top"
+  [[params.addtional_menus]]
+    title = "PAGE"
+    href = "?page=2"
+  [[params.addtional_menus]]
+    title = "FILE"
+    href = "/feed.xml#x"
+  [[params.addtional_menus]]
+    title = "PLAIN"
+    href = "/about"

@@ -26,7 +26,8 @@
   {{- $out = dict
     "viewer" ((or (T "photoViewer") (partial "t.html" "photoViewer"))) "previousPhoto" ((or (T "previousPhoto") (partial "t.html" "previousPhoto"))) "previous" ((or (T "previous") (partial "t.html" "previous"))) "nextPhoto" ((or (T "nextPhoto") (partial "t.html" "nextPhoto")))
     "next" ((or (T "next") (partial "t.html" "next"))) "closeViewer" ((or (T "closeViewer") (partial "t.html" "closeViewer"))) "close" ((or (T "close") (partial "t.html" "close")))
-    "photoOf" ((or (T "photoOf" (dict "i" "{i}" "n" "{n}")) (partial "t.html" (slice "photoOf" (dict "i" "{i}" "n" "{n}"))))) -}}
+    "photoOf" ((or (T "photoOf" (dict "i" "{i}" "n" "{n}")) (partial "t.html" (slice "photoOf" (dict "i" "{i}" "n" "{n}")))))
+    "photoFailed" ((or (T "photoFailed") (partial "t.html" "photoFailed"))) -}}
 {{- else if eq . "search" -}}
   {{- /* The result count as its forms (js-forms.html, #249); the other sentences keep {query} and {n} for the script to fill in, as photoOf does. */ -}}
   {{- $out = dict "count" (partial "js-forms.html" "searchResultCount")

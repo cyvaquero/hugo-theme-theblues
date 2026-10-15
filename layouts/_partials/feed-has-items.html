@@ -1,0 +1,7 @@
+{{- /*
+  Does a page's own feed list anything? Context: the page. Returns false for a term (a tag, category or series) with no
+  pages in the main sections, whose feed is empty (layouts/rss.xml lists the same pages as the term's wall), and true for
+  every other page. The visible "Subscribe via RSS" link (feed-link.html) and the <link rel="alternate"> in head.html
+  both ask it, so they agree.
+*/ -}}
+{{- return (or (ne .Kind "term") (where .RegularPages "Section" "in" site.MainSections) | not | not) -}}

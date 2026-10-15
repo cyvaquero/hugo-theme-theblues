@@ -132,7 +132,8 @@ The templates assume this layout; other structures are not supported yet.
   year.
 - **Search:** `content/search/_index.md` uses `layouts/search/section.html`. It searches the site once the site
   publishes the search index (see "Search"); until then the page is published (and listed in the sitemap) with the text
-  "Search is not available yet." The nav link appears only when `params.search_enabled` is set.
+  "Search is not available yet." The nav link appears only when `params.search_enabled` is set, and only in a language that
+  has a search page, so a language without `content/search/_index.md` has no link to a missing page.
 - **Syntax highlighting:** set `[markup.highlight] noClasses = false`. Hugo then marks code with Chroma classes, and the
   theme colors them from its `--sx-*` tokens: the modus-operandi colors in light mode and modus-vivendi in dark, on the
   theme's code background, all 4.8:1 or more. The `style` setting is then unused. With Hugo's default inline highlighting
@@ -158,7 +159,11 @@ The templates assume this layout; other structures are not supported yet.
   Disqus comments so they match. Without JavaScript the switch is hidden and the mode follows the system.
 - **Share image (`og:image`):** a page's own `image`, or the first photo the page shows from a `gallery` shortcode
   (photos Hugo doesn't render, inside an HTML comment or a `{{% galleries %}}` block, don't count). Otherwise
-  `params.og_image` if set, and otherwise the cover, which is the site's `header_image`.
+  `params.og_image` if set, and otherwise the cover, which is the site's `header_image`. Only an `http` or `https` URL is
+  used. A value that isn't a URL at all (`image: "1:2/x.jpg"`) fails the build with an error that names the page, rather than
+  being dropped. `og:locale` is written (`en_US`) when the site's `locale` ends in a two-letter region (`en-US`,
+  `zh-Hant-TW` gives `zh_TW`); a locale with no region, or with a script or a numeric region (`en`, `zh-Hant`, `es-419`),
+  gets none.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A link to a page or a page resource resolves to its permalink, as with Hugo's built-in hooks; an image source
@@ -223,7 +228,9 @@ pages that need no search. Serve the file compressed (gzip or Brotli), as hosts 
 a fraction of that.
 
 **How it matches.** The query and the pages are folded to lower case and the optional marks are removed (`cafe` finds "Café", whether
-the accent is one character or a letter plus a combining mark). The marks removed are the accents of Latin, Greek and
+the accent is one character or a letter plus a combining mark; `strasse` finds "Straße" and `lodz` "Łódź", since ß, ł, đ, ø,
+æ and œ are written as ss, l, d, o, ae and oe, and a capital Greek sigma at the end of a word, which lower case writes as the final sigma ς,
+is the same as σ, so `ΚΟΣ` finds "ΚΟΣΜΟΣ"; the zero-width joiners U+200C and U+200D are dropped, so `کتابها` finds "کتاب‌ها"). The marks removed are the accents of Latin, Greek and
 Cyrillic (U+0300 to U+036F), the Arabic vowel marks (U+064B to U+065F and U+0670), and the
 Hebrew points and cantillation marks (U+0591 to U+05BD, U+05BF, U+05C1, U+05C2, U+05C4, U+05C5 and U+05C7). Every other
 mark stays, because it tells words apart: the vowel signs, virama and nukta of Devanagari and other Indic scripts, and
@@ -346,7 +353,8 @@ translate the theme, or reword its English, for a site:
    badges, the theme switch and the alignment of the wall caption move to the other side. Code blocks stay left to right.
    In the photo viewer the arrow keys follow the buttons' sides: in a right-to-left language Left is the next photo and
    Right the previous one, and a swipe to the right goes to the next. The arrows (&larr; &rarr;) in the
-   previous/next links and the pager swap, so each points toward the side its link is on.
+   previous/next links and the pager swap, so each points toward the side its link is on. The arrows are `aria-hidden`, so a
+   link's accessible name is its text.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
 `gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -412,12 +420,12 @@ the person building the site.
   same pages as the term's wall. A section's feed lists the section's own pages. The `search` section still gets its own empty
   feed unless its `outputs` leave RSS out: `outputs: [html]`, or `outputs: [html, searchindex]` once the site publishes the
   search index (see Search), in `content/search/_index.md`.
-- Feed links: every page with its own feed names it in `<head>`, and the footer links the home feed (`params.social.rss`).
+- Feed links: every page with its own feed, except a term with no pages in the main sections (below), names it in `<head>`, and the footer links the home feed (`params.social.rss`).
   A "Subscribe via RSS" link (the `subscribeFeed` string) to the page's own feed is also in the header of each term
   page (tag, category, series) after the post and photo counts, in the header of each section page other than `search`,
   and in a post's series box under "Part N of M", for that series' feed. Home, the taxonomy indexes (`/tags/` and so
   on), About, Archive, Search and 404 have no such link. A page whose RSS output is turned off gets no link, and neither does a term
-  with no pages in the main sections (its feed would be empty). In the series box, which can hold several links to different feeds, the link's name goes on
+  with no pages in the main sections (its feed would be empty), in its header or in its `<head>`. In the series box, which can hold several links to different feeds, the link's name goes on
   after its visible text, "Subscribe via RSS: Series name", so the links of a post in two series differ for assistive
   technology. The link opens the feed as it is; the theme has no feed stylesheet.
 - Search is a static file, so after a deploy a visitor whose browser or CDN kept the old `/search/index.json` searches
@@ -464,7 +472,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   better fixed than silenced), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
-  The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major
+  A `?query` or `#fragment` after a path is kept as written (`/about#team` becomes `/about/#team`), and a href that is only
+  one (`#top`) is left alone. The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major
   version.
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.
@@ -628,8 +637,8 @@ on photos):
   without moving either, and it comes back once the pointer and focus have left the tile and returned (WCAG 1.4.13).
   On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
-  Right arrows (reversed in a right-to-left language), Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
-  focus to the photo that was opened. On a short screen (a phone held sideways, a window at 400% zoom) the photo shrinks so that Close, Previous and Next stay on screen with their focus rings (WCAG 2.4.7, 1.4.10). Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
+  Right arrows (reversed in a right-to-left language), Home and End move between photos, unless Alt, Ctrl, Meta or Shift is held, so the browser's shortcuts (Alt+Left for Back) keep working (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
+  focus to the photo that was opened. On a short screen (a phone held sideways, a window at 400% zoom) the photo shrinks so that Close, Previous and Next stay on screen with their focus rings (WCAG 2.4.7, 1.4.10). Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough (the choice is made again for the photo on screen when the window is resized or the device turned), and a photo that can't be loaded at all is announced as "Photo 1 of 4: Title (image couldn’t be loaded)" and counted the same way, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
   seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already

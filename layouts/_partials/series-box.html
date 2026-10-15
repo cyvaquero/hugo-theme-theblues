@@ -13,8 +13,8 @@
     {{- end }}
   </ol>
   <div class="pager">
-    {{- if gt $idx 0 }}{{ with index $pages (sub $idx 1) }}<a href="{{ .RelPermalink }}" rel="prev">{{ partial "arrow.html" "start" }} {{ or .Title (partial "page-title.html" .) }}</a>{{ end }}{{ else }}<span></span>{{ end }}
-    {{- if lt .part .total }}{{ with index $pages .part }}<a href="{{ .RelPermalink }}" rel="next">{{ or .Title (partial "page-title.html" .) }} {{ partial "arrow.html" "end" }}</a>{{ end }}{{ end }}
+    {{- if gt $idx 0 }}{{ with index $pages (sub $idx 1) }}<a href="{{ .RelPermalink }}" rel="prev">{{ partial "arrow.html" "start" }}{{ or .Title (partial "page-title.html" .) }}</a>{{ end }}{{ else }}<span></span>{{ end }}
+    {{- if lt .part .total }}{{ with index $pages .part }}<a href="{{ .RelPermalink }}" rel="next">{{ or .Title (partial "page-title.html" .) }}{{ partial "arrow.html" "end" }}</a>{{ end }}{{ end }}
   </div>
 </div>
 {{- end -}}

@@ -4,12 +4,13 @@
   entry no URL, so it would otherwise link to the current page. If no main menu is defined, the
   legacy params.addtional_menus list (Clean White's spelling, a list of title/href pairs) is used so older site configs keep
   working; it is deprecated and the build warns (theblues-addtional-menus). At 820px and narrower the links collapse behind a hamburger button (assets/js/menu.js). Search is listed only when
-  params.search_enabled is set; its label is params.search_label (default "SEARCH"). Like the menu links, it gets aria-current="page" on its own page (#333).
+  params.search_enabled is set and the language has a search page (content/search/_index.md; otherwise the link would be broken there); its label is params.search_label (default "SEARCH"). Like the menu links, it gets aria-current="page" on its own page (#333).
   The last item is the color theme switch (System, Light, Dark; #22). It stays hidden until assets/js/theme.js runs,
   since it can't work without JavaScript; the theme then follows the system setting.
   Legacy hrefs: absolute URLs (scheme or //) are used as is. Site paths drop their leading slash (so a sub-path baseURL
   applies), go through relLangURL, and get a trailing slash only when they have neither one nor a file extension, so
-  "/about" and "/about/" both become "/about/".
+  "/about" and "/about/" both become "/about/". A "?query" or "#fragment" after the path is kept as written, after the
+  slash ("/about#team" becomes "/about/#team"), and a href that is only a query or a fragment is left alone.
 */ -}}
 {{ $page := . }}
 <nav class="site" aria-label="{{ (or (T "mainNavigation") (partial "t.html" "mainNavigation")) }}">
@@ -27,13 +28,20 @@
     {{- range site.Params.addtional_menus }}
     {{- $href := .href }}
     {{- if not (findRE `^([a-zA-Z][a-zA-Z0-9+.-]*:|//)` $href 1) }}
-      {{- $href = strings.TrimPrefix "/" $href | relLangURL }}
-      {{- if not (or (strings.HasSuffix $href "/") (findRE `\.[a-zA-Z0-9]+$` $href 1)) }}{{ $href = printf "%s/" $href }}{{ end }}
+      {{- /* A "?query" or "#fragment" is set aside first and put back as it was, after the path is finished; a href that is
+        only a query or a fragment ("#top") stays as it is. */}}
+      {{- $tail := "" }}{{ with findRE `[?#].*$` $href 1 }}{{ $tail = index . 0 }}{{ end }}
+      {{- $path := strings.TrimSuffix $tail $href }}
+      {{- if or $path (not $tail) }}
+      {{- $path = strings.TrimPrefix "/" $path | relLangURL }}
+      {{- if not (or (strings.HasSuffix $path "/") (findRE `\.[a-zA-Z0-9]+$` $path 1)) }}{{ $path = printf "%s/" $path }}{{ end }}
+      {{- end }}
+      {{- $href = printf "%s%s" $path $tail }}
     {{- end }}
     <li><a href="{{ $href }}"{{ if eq $href $page.RelPermalink }} aria-current="page"{{ end }}>{{ .title }}</a></li>
     {{- end }}
     {{- end }}
-    {{- if site.Params.search_enabled }}
+    {{- if and site.Params.search_enabled (site.GetPage "/search") }}
     {{- $search := "search/" | relLangURL }}
     <li><a href="{{ $search }}"{{ if eq $search $page.RelPermalink }} aria-current="page"{{ end }}>{{ site.Params.search_label | default ((or (T "searchLabel") (partial "t-en.html" "searchLabel"))) }}</a></li>
     {{- end }}

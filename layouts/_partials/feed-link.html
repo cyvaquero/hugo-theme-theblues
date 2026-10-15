@@ -3,10 +3,10 @@
   name to add after the link's visible text for assistive technology: ": Name" in a visually hidden span, so the name
   still starts with the visible text, WCAG 2.5.3, and the several links of a post in two series differ, 2.4.4, #322).
   Writes nothing when the page has no RSS output, so a site that turns a feed off gets no link, and nothing for a term
-  with no pages in the main sections, whose feed is empty (rss.xml; the term's wall lists the same pages). Otherwise the
+  with no pages in the main sections, whose feed is empty (feed-has-items.html, which head.html asks too). Otherwise the
   link's name is its visible text. */ -}}
 {{- $page := . }}{{ $name := "" }}
 {{- if reflect.IsMap . }}{{ $page = .page }}{{ $name = .name }}{{ end -}}
-{{- if or (ne $page.Kind "term") (where $page.RegularPages "Section" "in" site.MainSections) }}
+{{- if partial "feed-has-items.html" $page }}
 {{- with $page.OutputFormats.Get "RSS" }}<a class="feed" href="{{ .RelPermalink }}" type="application/rss+xml">{{ partial "rss-icon.html" }}{{ (or (T "subscribeFeed") (partial "t-en.html" "subscribeFeed")) }}{{ with $name }}<span class="vh">: {{ . }}</span>{{ end }}</a>{{ end }}
 {{- end -}}

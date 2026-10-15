@@ -253,6 +253,8 @@ other = "Try again"
 # --- Lightbox ---
 [photoViewer]
 other = "Photo viewer"
+[photoFailed]
+other = "(image couldn’t be loaded)"
 [previousPhoto]
 other = "Previous photo"
 [previous]
