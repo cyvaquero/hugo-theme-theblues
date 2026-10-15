@@ -166,6 +166,11 @@ and a site whose index is over 1 MB warns with `theblues-search-size` (try `HUGO
 posts are long). A copy of the fixture without `searchindex` in the search section's outputs builds with no `index.json`,
 no `search.js` on the search page and the "not available" text.
 
+A copy of the fixture with `title` removed from `hugo.toml` builds with one `theblues-no-title` warning;
+`--panicOnWarning` fails it, and listing the ID in `ignoreLogs` silences it. With the `multilingual` variant the warning
+comes once for English, which takes the top-level `title`, and not for German, which sets its own; remove that one too
+and each language warns once. The fixture as it is, with the top-level `title`, never warns.
+
 The English fallback is marked as English (README, "Translating the theme"): in the `multilingual` and `rtl` builds, the
 theme's English text that is the content of an element (a button, a label, a heading, a link name) is inside
 `<span lang=en>…</span>`, and none is inside an attribute, a `<title>` or an `<option>`:

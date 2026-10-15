@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.6] - 2026-10-14
+
+### Added
+- The build warns once per language with the ID `theblues-no-title` when the site has no `title` (#276). Without one the
+  home page's heading, the page titles, the brand link and the feed's title are empty and nothing said so. Output is
+  otherwise unchanged. Silence it with `ignoreLogs = ['theblues-no-title']`.
+
 ## [1.6.5] - 2026-10-14
 
 ### Added
