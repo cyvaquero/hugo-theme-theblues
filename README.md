@@ -115,6 +115,9 @@ The templates assume this layout; other structures are not supported yet.
   the post template get no series box, comments, previous/next links or table of contents. Taxonomy indexes (`/tags/`
   and so on) count posts only and leave out terms used only outside the main sections; a term page with no posts says
   "No posts yet."
+- **Titles:** a page without a `title` gets one from its file name: without a leading `YYYYMMDD-`, hyphens as spaces,
+  title-cased. A page that a content adapter (`_content.gotmpl`) adds gets it from the last segment of its `path`, so the
+  adapter's pages have distinct titles. Pages with a title keep it.
 - **Taxonomies:** declare `series` next to the default ones. A series lists its posts oldest first; give posts a
   `weight` in their front matter to set the order instead (lowest first; posts without one follow, oldest first):
 
@@ -159,12 +162,13 @@ The templates assume this layout; other structures are not supported yet.
 - **Markdown links and images:** links and image sources are kept only for `http`, `https` and scheme-less paths (links
   also allow `mailto` and `tel`); a `javascript:`, `data:` or other URL renders the text with no link and the image with
   no `src`. A link to a page or a page resource resolves to its permalink, as with Hugo's built-in hooks; an image source
-  resolves to a page resource or a file in the site's `assets/`. Links to other hosts open in a new tab, and say so to
+  resolves to a page resource or a file in the site's `assets/`. Links to another host, or to the site's host on another port (another origin), open in a new tab, and say so to
   screen readers as their description (`aria-describedby`, pointing at one hidden element, `id="tb-newtab"`, that every
   page holds), so a heading with such a link keeps a plain name in the heading list and the table of contents. A reference
   would replace a link's Markdown title as its description, so a titled link has no reference: its `title` ends with the
   same notice ("Title (opens in a new tab)"), which is then the one description, and also the tooltip. The feeds drop the
-  reference from the items' links, since the hidden element is on the site's pages only. A titled image is a `<figure>` with a caption only when it
+  reference from the items' links, since the hidden element is on the site's pages only. A port that is the scheme's default (443 for
+  `https`, 80 for `http`) counts as no port, so `https://example.org:443/` is the site's own host, and the scheme isn't compared. Ports are compared as numbers, so `https://example.org:0443/` is the site's own host too. A titled image is a `<figure>` with a caption only when it
   stands alone and the site sets `markup.goldmark.parser.wrapStandAloneImageWithinParagraph = false`; otherwise the title
   is the tooltip.
 
@@ -173,8 +177,8 @@ The templates assume this layout; other structures are not supported yet.
 | Shortcode | Usage | Notes |
 |---|---|---|
 | `galleries` | `{{< galleries >}} … {{< /galleries >}}` | Wraps `gallery` calls in a masonry block and loads the lightbox. Use the `{{< >}}` form; the `{{% %}}` form renders nothing, and its photos are not shown on walls or used as covers. Only the `gallery` photos are output; any other text or HTML between the tags is dropped. |
-| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link and the lightbox use the `X3` size. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. The positional form takes only `src`: Hugo doesn't allow adding `title=` to it, and a second positional argument is ignored, so such a photo gets the "Photo N" alt text. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns (warning ID `theblues-gallery-no-title`). |
-| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host (where the sandbox gives no protection; when the site's `baseURL` host is an IP address, any URL whose host is an IP address in any spelling, such as `2130706433`, `0x7f.1`, `127.1` or `[::ffff:127.0.0.1]`, is refused as well), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
+| `gallery` | `{{< gallery src="…/X2/i-abc-X2.jpg" title="Caption" >}}` | One photo. `src` is a SmugMug `X2` thumbnail URL; the link uses the `X3` size, and the lightbox shows `X2` instead where it has a pixel for each device pixel the photo fills (a phone, or a one-x laptop screen) and `X3` otherwise. `src` may be named or the first positional argument, in `"…"` or `` `…` `` quotes. The positional form takes only `src`: Hugo doesn't allow adding `title=` to it, and a second positional argument is ignored, so such a photo gets the "Photo N" alt text. Photos inside an HTML comment are not counted, shown on walls or used as covers; inside a `galleries` block, comment a photo out with `{{</* gallery … */>}}` instead, because the shortcode still runs there. `title` becomes the photo's alt text (also read out on wall tiles); it isn't shown as a visible caption. Without a title the alt text is "Photo N" and the build warns (warning ID `theblues-gallery-no-title`). |
+| `embed` | `{{< embed "https://…" 800 600 "Title" >}}` | A sandboxed iframe (URL, width, height, optional title; positional only), meant for SmugMug gallery embeds. The build fails if the URL, width or height is missing, the URL is not `https://host/…` (no user name, backslash or extra slash before the host), it is on the site's own host and port (the same origin, where the sandbox gives no protection; the site's host on another port is allowed, and a port that is the scheme's default counts as none, with ports compared as numbers, so `:0443` is `:443`; when the site's `baseURL` host is an IP address, any URL whose host is an IP address in any spelling, such as `2130706433`, `0x7f.1`, `127.1` or `[::ffff:127.0.0.1]`, is refused as well), its host or the site's `baseURL` host is not plain ASCII (write an internationalized name as punycode, `xn--…`, so the two can be compared), or the site's `baseURL` has no host to compare with. |
 
 ## Search
 
@@ -204,7 +208,9 @@ available yet."
 **What is indexed.** Every regular page of the language except those with `search: false` in their front matter.
 Drafts, future and expired pages are left out by Hugo's own rules. So is a page the build doesn't publish: one whose
 `build.render` is `never` or `link` (it has no page at its address, or none is written there) is not indexed, even when
-`build.list` is `always`. The sitemap follows the same rule. The file is `{"v":1,"p":[row, …]}`, and each row is a list:
+`build.list` is `always`. The sitemap leaves out the same unpublished pages. A page with `sitemap: {disable: true}` is
+still indexed: that setting only keeps a page out of the sitemap, so `search: false` is the switch for search. The file is
+`{"v":1,"p":[row, …]}`, and each row is a list:
 `[title, url, date, section, tags, categories, series, description, photoTitles, text]`. `date` is `YYYY-MM-DD` (empty
 for an undated page), `section` is the title of the page's top-level section (empty for a page in the site root),
 `photoTitles` are the titles of its `gallery` photos, and `text` is the page's plain text with white space collapsed.
@@ -228,7 +234,13 @@ page has every word, the search allows one typo (an extra, missing, wrong or swa
 or more, and if that finds nothing it lists the pages that have any of the words, the most words first. Words are split
 at anything that isn't a letter, a digit or a combining mark, so a language written without spaces (Chinese, Japanese, Thai) is matched
 by the start of each run of characters only. There is no stemming, no phrase search and no stop words. A query uses its first 10 different words, each cut to 64
-characters; words over 64 characters in a page aren't indexed, and a `?q=` address is cut to 200 characters.
+characters; words over 64 characters in a page aren't indexed, and a `?q=` address is cut to 200 characters. Those lengths, and the four-letter minimum for a typo, count UTF-16 code
+units, not letters as a reader sees them, so a combining mark counts as a letter: a Devanagari or Thai word of three visible letters
+can already get typo matching.
+
+**Dates in results.** A result's date is formatted by the browser (`Intl.DateTimeFormat`, medium date style, in the page's
+language), not by the site's `dateFormat`, so it can differ from the date on a tile, most for a custom `dateFormat` and for
+languages such as Arabic, Japanese and Korean. The index holds the date as `YYYY-MM-DD` only.
 
 **The page.** A labeled search field with a Search button; Enter submits it. Results appear as the visitor types, in a list
 of links (title, date and section, and a snippet with the matching words in `<mark>`), and the count is said once in a
@@ -290,7 +302,7 @@ A site can add its own page types without overriding theme files:
 - **Breakpoints:** the layout changes at fixed widths, which a site's CSS can match. They are not settings:
   - 560px: masonry walls and `galleries` blocks go from one column to two;
   - 700px: the View options popover becomes a 20rem panel at the right instead of spanning the controls, and the wall
-    caption moves from the left to the right;
+    caption moves from the left to the right (both swap sides in a right-to-left language);
   - 821px: the full nav replaces the Menu button (`nojs.css` and `menu.js` use 820px and narrower), and articles get the
     table of contents beside the text;
   - 900px: masonry walls and `galleries` blocks get a third column.
@@ -329,9 +341,12 @@ translate the theme, or reword its English, for a site:
    `locale`: `en-GB` writes September as "Sep", not "Sept".
 5. For a right-to-left language, set `direction = "rtl"` on it (`[languages.ar]`), and the theme writes `dir="rtl"` on `<html>`,
    so browsers, screen readers and the text itself run right to left. Left-to-right sites get no `dir`
-   attribute. The layout is **not mirrored yet**: `main.css` still uses physical `left` and `right` properties, so
-   the bars, indents, drop-downs and alignment keep their left-to-right sides. Mirroring them with CSS logical
-   properties is tracked in the project's issues.
+   attribute. The layout mirrors with the direction, since `main.css` uses CSS logical properties: the side bars of the
+   series box, article tiles, table of contents and quotes, the indents, the View options panel, the skip link, photo
+   badges, the theme switch and the alignment of the wall caption move to the other side. Code blocks stay left to right.
+   In the photo viewer the arrow keys follow the buttons' sides: in a right-to-left language Left is the next photo and
+   Right the previous one, and a swipe to the right goes to the next. The arrows (&larr; &rarr;) in the
+   previous/next links and the pager swap, so each points toward the side its link is on.
 
 The scripts get their text the same way, through `layouts/_partials/js-text.html`: `wall.js`, `comments.js`,
 `gallery.js` and `search.js` are built from `assets/js` as templates, so the HTML is the same for every language and a site with more
@@ -356,7 +371,7 @@ the person building the site.
   `layouts/_partials/wall-pager.html` paginates a stand-in collection with one entry per tile and slices the real tile list
   with the same offsets; page counts and URLs come from Hugo's own pager. It is a workaround. `pagination.pagerSize` does not
   affect wall pages.
-  `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more; anything else, including text that isn't a
+  `tilesPerPage` and `photosPerGallery` must be whole numbers of 1 or more (text is read as a decimal number, so `"010"` is 10); anything else, including text that isn't a
   number, `true` or `false`, and a number with a fraction (`2.9`) or too big for a whole number (`1e30`), fails the build
   with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
@@ -380,7 +395,7 @@ the person building the site.
   `{{ with .Store.Get "wall" }}{{ with .pag }}{{ if gt .PageNumber 1 }}{{ .URL | absURL }}{{ end }}{{ end }}{{ end }}`
   (`.Store.Get "wall"` is empty on pages that are not walls), and keeps that copy up to date through theme upgrades.
 - A post without a `date` is shown as "Undated" (header, tiles, archive, series box), sorts last on the wall (first with Oldest first), has no  `pubDate` in feeds, and the build warns.
-- Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
+- Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute, so a site CSP still needs
   `style-src 'unsafe-inline'` (or `style-src-attr 'unsafe-inline'`); see "Content Security Policy" for the rest. The theme sets no page-level referrer policy (the `embed`
   shortcode's frames set their own, `strict-origin-when-cross-origin`); browsers default to that same policy, which a
   site can also send as a header.
@@ -393,15 +408,18 @@ the person building the site.
   still replace it with its own `layouts/sitemap.xml`. The theme has no `robots.txt` template
   (use Hugo's `enableRobotsTXT`) and no JSON-LD.
 - The theme's feed template (`layouts/rss.xml`, used for the home, section and term feeds) lists only pages in the main
-  sections on the home feed (`mainSections`, see Content structure). The `search` section still gets its own empty
+  sections on the home feed and on each term's feed (tag, category, series; `mainSections`, see Content structure), the
+  same pages as the term's wall. A section's feed lists the section's own pages. The `search` section still gets its own empty
   feed unless its `outputs` leave RSS out: `outputs: [html]`, or `outputs: [html, searchindex]` once the site publishes the
   search index (see Search), in `content/search/_index.md`.
 - Feed links: every page with its own feed names it in `<head>`, and the footer links the home feed (`params.social.rss`).
   A "Subscribe via RSS" link (the `subscribeFeed` string) to the page's own feed is also in the header of each term
   page (tag, category, series) after the post and photo counts, in the header of each section page other than `search`,
   and in a post's series box under "Part N of M", for that series' feed. Home, the taxonomy indexes (`/tags/` and so
-  on), About, Archive, Search and 404 have no such link. A page whose RSS output is turned off gets no link. The link
-  opens the feed as it is; the theme has no feed stylesheet.
+  on), About, Archive, Search and 404 have no such link. A page whose RSS output is turned off gets no link, and neither does a term
+  with no pages in the main sections (its feed would be empty). In the series box, which can hold several links to different feeds, the link's name goes on
+  after its visible text, "Subscribe via RSS: Series name", so the links of a post in two series differ for assistive
+  technology. The link opens the feed as it is; the theme has no feed stylesheet.
 - Search is a static file, so after a deploy a visitor whose browser or CDN kept the old `/search/index.json` searches
   the old pages until the copy expires; a host that sends `Cache-Control: no-cache` (or a short `max-age`) for that one
   file avoids it. The index holds one language's pages, so the search page of a language finds that language's pages
@@ -419,7 +437,7 @@ the person building the site.
 
 It keeps the parameter names the site already uses, so the site's `hugo.toml` (or `config.toml`) needs little change:
 
-- `title`, `locale` (sets `<html lang>` and the language of month names; see Translating the theme), `mainSections` (the sections that hold posts, see Content structure)
+- `title` (the site's name; the build warns with `theblues-no-title` when it is missing), `locale` (sets `<html lang>` and the language of month names; see Translating the theme), `mainSections` (the sections that hold posts, see Content structure)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
   `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`, from the `searchLabel` entry of `i18n/en.toml`), `dateFormat` (a Go layout for
   dates on posts, tiles and wall headings, default `Jan 2, 2006`, from the `dateFormat` entry; the archive's `Jan 2` and
@@ -427,8 +445,9 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), the optional
   `[params.wall]` table: `tilesPerPage` (default 24) and `photosPerGallery` (default 4), each 1 or more, and the optional
   `[params.search]` table: `textLimit` (default 5000; the most characters of a page's text in the search index, `0` for
-  all of it; text that isn't a number, or a negative number, fails the build naming the setting, and other values are
-  read as Hugo's `int` reads them, so `2.9` gives 2)
+  all of it; it must be a whole number of 0 or more, like the `[params.wall]` settings: anything else, including text that
+  isn't a number, `true` or `false`, a fraction (`2.9`), a number too big for a whole number (`1e30`) and a negative number,
+  fails the build with a message naming the setting)
 - Defaults for the hero and 404 texts: `slogan` is the site `title` when unset; `tagline` is `params.description` when
   unset; `title_404` is the theme's "Page not found" (the `pageNotFound` entry of `i18n/en.toml`, so it is translated
   with the rest). A post's front matter `subtitle` shows only in a post's own hero, where it falls back to the post's
@@ -440,7 +459,9 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   see the photo size bullet under "How the wall works" in [docs/layout.md](docs/layout.md)), `theblues-toc-markup` (Hugo's table of contents markup
   changed, so the theme can't check or label it; better fixed than silenced) and `theblues-dark-tokens` (the two copies of the dark color
   tokens in `assets/css/main.css` differ; see Styles under Extending from a site) and `theblues-i18n` (the site's
-  language has no theme text, so the labels are in English; see Translating the theme), for example
+  language has no theme text, so the labels are in English; see Translating the theme) and `theblues-no-title` (the
+  site, or a language of it, has no `title`, so the home heading, page titles, brand link and feed title are empty;
+  better fixed than silenced), for example
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
   The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major
@@ -515,7 +536,7 @@ else can stay at `default-src 'none'`.
 |---|---|---|
 | `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `search.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
 | `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
-| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes and photo tiles set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
+| `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element and its scripts set no styles. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too. |
 | `connect-src` | `'self'` | The search index, which `search.js` fetches (`/search/index.json`), when the site publishes it. |
 | `form-action` | `'self'` | The 404 page's search form, which goes to the search page, when the site publishes the search index. The search page itself runs its form in the browser, so `'none'` is enough for a site without the index. |
@@ -581,8 +602,10 @@ Notes:
 ## Accessibility
 
 The theme targets **WCAG 2.1 level AA**. That also covers the Revised Section 508 standards for web content, which
-incorporate WCAG 2.0 AA (E205.4), and asks for more: Non-text Contrast (1.4.11), Content on Hover or Focus (1.4.13)
-and Status Messages (4.1.3) are WCAG 2.1 criteria that Section 508 doesn't require, and the theme targets them too.
+incorporate WCAG 2.0 AA (E205.4), and asks for more: WCAG 2.1 adds these criteria at levels A and AA,
+which Section 508 doesn't require: Orientation (1.3.4), Identify Input Purpose (1.3.5), Reflow (1.4.10), Non-text Contrast (1.4.11),
+Text Spacing (1.4.12), Content on Hover or Focus (1.4.13), Character Key Shortcuts (2.1.4), Pointer Gestures (2.5.1), Pointer
+Cancellation (2.5.2), Label in Name (2.5.3), Motion Actuation (2.5.4) and Status Messages (4.1.3). The theme targets them too.
 Section 508's software requirements (chapters 502 and 503) don't apply to web content that conforms to WCAG 2.0 AA
 (the exception in 501.1). Its documentation requirements (chapter 602) do: this section is the theme's list of
 accessibility and compatibility features (602.2), and the README, as electronic documentation, should itself conform
@@ -605,8 +628,8 @@ on photos):
   without moving either, and it comes back once the pointer and focus have left the tile and returned (WCAG 1.4.13).
   On touch screens the captions are always shown.
 - **Lightbox:** Enter on a gallery photo opens a modal `<dialog>` named "Photo viewer" with focus on Close. Left and
-  Right arrows, Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
-  focus to the photo that was opened. Modifier clicks still open the large image in a new tab.
+  Right arrows (reversed in a right-to-left language), Home and End move between photos (also Previous and Next buttons, and swipe; a pinch zooms the photo and does not change it); Escape or Close returns
+  focus to the photo that was opened. On a short screen (a phone held sideways, a window at 400% zoom) the photo shrinks so that Close, Previous and Next stay on screen with their focus rings (WCAG 2.4.7, 1.4.10). Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
   seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already

@@ -1,0 +1,32 @@
+# Test variant (docs/testing.md): a content adapter (content-adapter/post/_content.gotmpl) adds three pages without titles
+# and one with a title to the post section. The untitled ones must get distinct titles from their paths (#277), and the
+# pages in content/ keep theirs. Listing a mount turns off Hugo's default mounts, so they are listed here too.
+# Build with: --config hugo.toml,variants/adapter.toml
+[module]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+  [[module.mounts]]
+    source = "content-adapter"
+    target = "content"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"

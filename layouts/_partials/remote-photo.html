@@ -1,0 +1,24 @@
+{{- /*
+  A remote photo for reading its width and height at build time (#344), for img-size.html and hero-sizes.html. Context:
+  the photo URL (the callers have already checked that it is https://photos.smugmug.com/). Returns what try
+  (resources.GetRemote …) returns: a .Err, and a .Value that is nil when the server answered HTTP 404.
+  The size is in a JPEG's first few KB, so this asks for only the first 32 KB (a Range request: the server answers HTTP
+  206 and Hugo reads the size from those bytes) instead of the whole file, which is several MB for the largest sizes.
+  When that answer isn't an image with a width and height (the metadata ahead of the picture is longer than 32 KB, or
+  the server refused or ignored the range) it asks again for the whole file, so the result is whatever a plain fetch
+  gives, 404 and non-image answers included. A server that ignores Range sends the whole file the first time, as before.
+  The headers are part of Hugo's getresource cache key, so a cache filled by an older version of the theme is fetched
+  again once, 32 KB a photo; the callers share one key per URL.
+*/ -}}
+{{- $r := try (resources.GetRemote . (dict "headers" (dict "Range" "bytes=0-32767"))) -}}
+{{- $ok := false -}}
+{{- if and (not $r.Err) $r.Value -}}
+  {{- with $r.Value -}}
+    {{- if reflect.IsImageResourceWithMeta . -}}
+      {{- $w := try .Width }}{{ $h := try .Height -}}
+      {{- if and (not $w.Err) (not $h.Err) (gt $w.Value 0) (gt $h.Value 0) }}{{ $ok = true }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- if not $ok }}{{ $r = try (resources.GetRemote .) }}{{ end -}}
+{{- return $r -}}
