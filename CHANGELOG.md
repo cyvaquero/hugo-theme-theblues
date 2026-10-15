@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.8] - 2026-10-15
+
+### Fixed
+- In a right-to-left language the previous and next arrows point the right way (#340). They were always `←` and `→`, so
+  once the layout mirrored (1.6.4) the previous link, on the right, had an arrow pointing away from it. A new partial,
+  `_partials/arrow.html`, swaps them under the same test that writes `dir="rtl"`, and the post navigation, series box,
+  pager, term page links and "more photos" tile use it. Left-to-right pages are unchanged. The `rtl` fixture variant
+  gains extra Arabic posts (`exampleSite/content-rtl/`) so these links appear in it.
+
 ## [1.6.6] - 2026-10-14
 
 ### Added

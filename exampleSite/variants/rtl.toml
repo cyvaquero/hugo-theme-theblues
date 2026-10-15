@@ -27,6 +27,13 @@ defaultContentLanguage = "ar"
     target = "content"
     [module.mounts.sites.matrix]
       languages = ["ar"]
+  # Extra Arabic posts that give the previous/next arrows something to point at: three in a series (so the middle one has
+  # both links, the series box and the pager on the home wall run past page 1) and a photo post with a "more" tile.
+  [[module.mounts]]
+    source = "content-rtl"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["ar"]
   [[module.mounts]]
     source = "archetypes"
     target = "archetypes"

@@ -13,7 +13,7 @@
 {{- $hero := partial "hero-style.html" (dict "page" $ "src" $cover "h" 416) }}
 <header class="phero thero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <div class="in">
-    <a class="tl" href="{{ site.Home.RelPermalink }}">&larr; {{ (or (T "backToAllPosts") (partial "t-en.html" "backToAllPosts")) }}</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">{{ (or (T "allOfTerm") (partial "t-en.html" "allOfTerm")) }} {{ .Title | lower }} &rarr;</a>{{ end }}
+    <a class="tl" href="{{ site.Home.RelPermalink }}">{{ partial "arrow.html" "start" }} {{ (or (T "backToAllPosts") (partial "t-en.html" "backToAllPosts")) }}</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">{{ (or (T "allOfTerm") (partial "t-en.html" "allOfTerm")) }} {{ .Title | lower }} {{ partial "arrow.html" "end" }}</a>{{ end }}
     <div class="ptype">{{ $kind }}</div>
     <h1>{{ $label }}: {{ .Title }}</h1>
     <div class="meta">{{ (or (T "postCount" (len $posts)) (partial "t-en.html" (slice "postCount" (len $posts)))) }}{{ if $photos }} &middot; {{ (or (T "photoCount" $photos) (partial "t-en.html" (slice "photoCount" $photos))) }}{{ end }}</div>
