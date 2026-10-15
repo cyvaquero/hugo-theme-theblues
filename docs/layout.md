@@ -33,7 +33,7 @@ layouts/sitemap.xml        sitemap: Hugo's embedded template plus a filter for p
 layouts/rss.xml            home, section and term feeds (main sections only on the home feed)
 layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
-                           img-size, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
+                           img-size, remote-photo, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, title-check, js-text, js-forms, t, t-en, setting-int, https-check, is-written, arrow
 layouts/_shortcodes/       gallery, galleries (masonry), embed
@@ -123,10 +123,13 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   counts (`data-articles`, `data-photos`) for the type chips and its number of pager pages (`data-pages`), which makes the
   caption start "This page:" on a list with more than one page. See-all tiles also carry `data-more` and are left out of the chip counts and caption; they carry the gallery's date in `data-shown` for group headings, and a group with only a see-all tile on the page still counts as a group in the caption. Without JavaScript the wall is complete and newest-first, and the controls stay hidden. With JavaScript, `wall.js` leaves the tiles where the server put them while the server's order is the default one (newest first, as the theme's `wall.html` renders it), and only fills in the caption and the controls; it rebuilds the wall when a reader changes the sort or grouping, presses Clear or Reset, or when a custom `wall.html` renders another order.
 - The lightbox link is the `X3` size derived from the SmugMug `X2` thumbnail URL. A query string or fragment after the file name is kept.
-- Wall tiles and gallery images get `width` and `height`, read at build time by downloading each photo once with
+- Wall tiles and gallery images get `width` and `height`, read at build time by fetching each photo once with
   `resources.GetRemote` (`layouts/_partials/img-size.html`), so they keep their shape while they load and the masonry
-  doesn't reflow. Hugo keeps the downloads in its `getresource` file cache (by default `:cacheDir/:project`, kept until
-  cleared), so a build fetches only photos new to the cache; a build without a cache (for example on a fresh CI machine)
+  doesn't reflow. The fetch asks for only the first 32 KB (a `Range` header, `layouts/_partials/remote-photo.html`, which
+  the hero sizes use too), where a JPEG keeps its size; if that doesn't give a width and height, or the server ignores
+  the range, the whole file is fetched. Hugo keeps the downloads in its `getresource` file cache (by default
+  `:cacheDir/:project`, kept until cleared; the header is part of the cache key, so a cache filled by an earlier theme
+  version is fetched again once), so a build fetches only photos new to the cache; a build without a cache (for example on a fresh CI machine)
   fetches them all. Only photos on `https://photos.smugmug.com/` are fetched, so a build never requests another host
   that a post names (a photo on any other host gets no width and height, without a request or a warning). An `http://`
   URL is never requested in cleartext, where its size could be tampered with, and a browser blocks it as mixed content

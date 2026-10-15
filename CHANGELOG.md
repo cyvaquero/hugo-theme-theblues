@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.6.10] - 2026-10-15
+
+### Changed
+- A build with no cached photos downloads far less (#344). To give the tiles and gallery images their `width` and
+  `height`, and to work out the hero's smaller sizes, the theme read each SmugMug photo's size by downloading the whole
+  file. It now asks for only the first 32 KB (a `Range` request), which holds the size of every photo checked, and
+  fetches the whole file only when those bytes don't give a size or the server ignores the range. On the author's site
+  (41 photos) a cold build's `getresource` cache falls from 17.9 MB to 1.4 MB and the build from 1.6 s to 0.9 s; on the
+  example site, from 1.6 MB to 0.1 MB and from 0.5 s to 0.2 s. The pages are byte-for-byte the same. Hugo includes the
+  request headers in its cache key, so a cache filled by an earlier version fetches each photo once more, 32 KB each.
+  The shared fetch is a new partial, `_partials/remote-photo.html`; the 404 and "is not an image" warnings are unchanged.
+
 ## [1.6.9] - 2026-10-15
 
 ### Fixed

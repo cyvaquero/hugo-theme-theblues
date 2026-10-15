@@ -14,7 +14,7 @@
   1px is allowed for SmugMug's rounding, 1279 for 1280), so it is never shown at less than one photo pixel per device
   pixel. Sizes follow smug-srcset.html: the size name replaces the one in the path segment and the file suffix
   (smug-size.html), scaled to fit a box (smug-sizes.html), never enlarged, so each size's pixels are worked out from
-  X2's, read at build time as img-size.html does. Only URLs whose path is plain letters, digits and -_.~/ qualify, so the
+  X2's, read at build time as img-size.html does (remote-photo.html). Only URLs whose path is plain letters, digits and -_.~/ qualify, so the
   declarations need no quotes or escaping.
 */ -}}
 {{- $out := dict -}}
@@ -30,7 +30,7 @@
     img-size.html, but a failure of any kind is silent: the hero just keeps its one URL. */ -}}
   {{- $px := dict -}}
   {{- range $n := cond (gt $rank 4) (slice "X2" "X3") (slice "X2") -}}
-    {{- $r := try (resources.GetRemote (partial "smug-size.html" (dict "src" $.src "from" $cur "to" $n))) -}}
+    {{- $r := partial "remote-photo.html" (partial "smug-size.html" (dict "src" $.src "from" $cur "to" $n)) -}}
     {{- if and (not $r.Err) $r.Value -}}{{- with $r.Value -}}{{- if reflect.IsImageResourceWithMeta . -}}
       {{- $w := try .Width }}{{ $h := try .Height -}}
       {{- if and (not $w.Err) (not $h.Err) (gt $w.Value 0) (gt $h.Value 0) }}{{ $px = merge $px (dict (lower $n) (dict "w" $w.Value "h" $h.Value)) }}{{ end -}}
