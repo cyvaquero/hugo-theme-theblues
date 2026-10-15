@@ -1,9 +1,12 @@
 {{- /* theblues:template */ -}}
 // Native <dialog> lightbox for the masonry galleries (.gal) on photo posts (decision D7).
 // Previous/next buttons, arrow, Home and End keys, swipe, counter, Esc to close, focus returns to the photo that was
-// opened. The dialog is built at the first click, not at load. Each link points at the large image (X3); the thumbnail
-// in the page stays X2. The counter and alt text change only when the new image has loaded (or both it and the thumbnail
-// have failed), so they always describe the photo on screen (#3, #168); neighbors are preloaded.
+// opened. The dialog is built at the first click, not at load. Each link points at the large image (X3), which is what
+// opens without JavaScript; the thumbnail in the page stays X2. The lightbox shows the X2 photo instead when it already
+// has a pixel for each device pixel of the space the photo fills (width and height, from the thumbnail's attributes,
+// the viewport and devicePixelRatio, see big()), and the X3 one otherwise; the preloads use the same choice (#345). The
+// counter and alt text change only when the new image has loaded (or both it and the thumbnail have failed), so they
+// always describe the photo on screen (#3, #168); neighbors are preloaded.
 // The text it shows is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
 // js-text.html), from i18n/en.toml or the site's own file.
 (function () {
@@ -87,7 +90,23 @@
   // The page's reading direction, read when it is needed since it can differ per page (dir on <html>).
   function rtl() { return getComputedStyle(dlg).direction === 'rtl'; }
 
-  function preload(n) { if (list.length > 1) new Image().src = list[(n + list.length) % list.length].href; }
+  // The URL of the large photo to load for a link: the thumbnail's own X2 URL when the thumbnail is the X2 size of the
+  // link's X3 photo and X2 has at least a pixel for each device pixel the lightbox will fill (1px to spare for
+  // rounding); the link's X3 URL otherwise, and for any link that does not follow SmugMug's /X2/…-X2.ext and
+  // /X3/…-X3.ext pattern or whose thumbnail has no width and height (X2's size, written at build time) to judge by. The
+  // photo fills the dialog less its padding (1rem each side) and 80% of the viewport's height (main.css, dialog.lb),
+  // whole and in proportion, and never more than its own pixels, so X3 is shown at the same size as X2 wherever X2 is
+  // enough. `need` is the number of device pixels per X2 pixel the photo would be shown at.
+  function big(a) {
+    var t = a.querySelector('img');
+    if (!t) return a.href;
+    var x2 = t.getAttribute('src') || '', w = +t.getAttribute('width'), h = +t.getAttribute('height');
+    if (!(w > 0 && h > 0) || x2.replace(/\/X2\/([^\/?#]*)-X2(\.[A-Za-z0-9]+)(?=[?#]|$)/, '/X3/$1-X3$2') !== a.getAttribute('href')) return a.href;
+    var need = Math.min((document.documentElement.clientWidth - 32) / w, window.innerHeight * 0.8 / h) * (window.devicePixelRatio || 1);
+    return need * w <= w + 1 && need * h <= h + 1 ? t.src : a.href;
+  }
+
+  function preload(n) { if (list.length > 1) new Image().src = big(list[(n + list.length) % list.length]); }
 
   function show(n) {
     idx = (n + list.length) % list.length;
@@ -108,7 +127,7 @@
     pre.onerror = function () {
       if (thumb && pre.src !== thumb.src) { pre.onerror = done; pre.src = thumb.src; } else done();
     };
-    pre.src = a.href;
+    pre.src = big(a);
   }
 
   galleries.forEach(function (g) {
