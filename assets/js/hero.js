@@ -99,6 +99,8 @@
     var text = paused ? TX.play : TX.pause;
     btn.setAttribute('aria-label', text);
     btn.title = text;
+    // Text the site's language lacks is the theme's English; marking it lets a screen reader speak it with an English voice (WCAG 3.1.2).
+    if (TX.en.indexOf(paused ? 'play' : 'pause') < 0) btn.removeAttribute('lang'); else btn.lang = 'en';
     shape.setAttribute('d', paused ? 'M4 2.5l9 5.5-9 5.5z' : 'M3.5 2.5h3.5v11H3.5zM9 2.5h3.5v11H9z');
   }
 
@@ -187,10 +189,23 @@
     }, FADE + 100);
   }
 
+  // Hides the button. A button that is hidden while it has focus drops focus to <body>, and a keyboard or screen reader user
+  // loses their place (WCAG 2.4.3), so focus moves first to <main> (the skip link's target, which has tabindex -1 and no ring):
+  // the button is the last stop in the hero and <main> follows it, so the next Tab goes to the first stop after the hero, where
+  // it would have gone from the button, and the hero's own links aren't visited twice. A page with no <main> gets the hero.
+  function hideButton() {
+    if (document.activeElement === btn) {
+      var to = document.getElementById('main') || hero;
+      if (to === hero) hero.setAttribute('tabindex', '-1');
+      to.focus({ preventScroll: true });
+    }
+    btn.hidden = true;
+  }
+
   // Fewer than two photos can be shown: no rotation, no button.
   function finish() {
     clear();
-    btn.hidden = true;
+    hideButton();
   }
 
   btn.addEventListener('click', function () {
@@ -200,7 +215,7 @@
   });
   document.addEventListener('visibilitychange', begin);
   function motion() {
-    btn.hidden = reduce.matches || seq.length < 2;
+    if (reduce.matches || seq.length < 2) hideButton(); else btn.hidden = false;
     begin();
   }
   if (reduce.addEventListener) reduce.addEventListener('change', motion); else if (reduce.addListener) reduce.addListener(motion);

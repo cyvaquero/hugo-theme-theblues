@@ -30,6 +30,13 @@
     if (text) e.textContent = text;
     return e;
   }
+  // A button's attributes with lang="en" added when its name (TX[key]) is the theme's English for a site language that has no text
+  // for it (js-text.html), so a screen reader speaks the name with an English voice (WCAG 3.1.2). TX.en lists those keys.
+  function named(attrs, key) {
+    attrs['aria-label'] = TX[key];
+    if (TX.en.indexOf(key) >= 0) attrs.lang = 'en';
+    return attrs;
+  }
   // The dialog is built when a photo is first opened, not at load: most visits to a photo post never open it.
   function build() {
     dlg = document.createElement('dialog');
@@ -37,13 +44,13 @@
     dlg.setAttribute('aria-label', TX.viewer);
     var inner = el('div', { 'class': 'in' }), bar = el('div', { 'class': 'bb' });
     inner.appendChild(el('img', { alt: '' }));
-    bar.appendChild(el('button', { type: 'button', 'data-a': 'p', 'aria-label': TX.previousPhoto }, TX.previous));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'p' }, 'previousPhoto'), TX.previous));
     // The visible counter ("4 / 18") is hidden from screen readers; a visually hidden live region announces the position
     // and the photo's alt text instead ("Photo 4 of 18: La Huasteca", #38).
     bar.appendChild(el('span', { 'class': 'count', 'aria-hidden': 'true' }));
     bar.appendChild(el('span', { 'class': 'vh', 'aria-live': 'polite' }));
-    bar.appendChild(el('button', { type: 'button', 'data-a': 'n', 'aria-label': TX.nextPhoto }, TX.next));
-    bar.appendChild(el('button', { type: 'button', 'data-a': 'c', 'aria-label': TX.closeViewer }, TX.close));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'n' }, 'nextPhoto'), TX.next));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'c' }, 'closeViewer'), TX.close));
     inner.appendChild(bar);
     dlg.appendChild(inner);
     document.body.appendChild(dlg);

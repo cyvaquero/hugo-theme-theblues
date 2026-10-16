@@ -4,7 +4,9 @@
   for any other name. A script gets it through {{ partial "js-text.html" "wall" | jsonify }} in its own source, which
   asset.html runs as a template (#192) because its first line is the template comment "theblues:template" (#262); the HTML stays the
   same for every language, so the text is not in data attributes. A count has its forms, with %d where the number goes (js-forms.html; the script picks the form with
-  Intl.PluralRules), and a sentence with names in it has {name} marks for the script to fill in.
+  Intl.PluralRules), and a sentence with names in it has {name} marks for the script to fill in. The "hero" and "gallery" maps
+  also have "en", the list of names of the buttons whose text fell back to the theme's English (T had no text for the key), so the script
+  can mark that button lang="en", as the templates do with t-en.html; the other scripts' text can't be marked and is read in the page's language.
   Usage: assets/js/wall.js, comments.js, gallery.js, hero.js and search.js.
 */ -}}
 {{- $out := dict -}}
@@ -23,13 +25,28 @@
 {{- else if eq . "comments" -}}
   {{- $out = dict "loading" ((or (T "commentsLoading") (partial "t.html" "commentsLoading"))) "loaded" ((or (T "commentsLoaded") (partial "t.html" "commentsLoaded"))) "failed" ((or (T "commentsFailed") (partial "t.html" "commentsFailed"))) "tryAgain" ((or (T "tryAgain") (partial "t.html" "tryAgain"))) -}}
 {{- else if eq . "gallery" -}}
-  {{- $out = dict
-    "viewer" ((or (T "photoViewer") (partial "t.html" "photoViewer"))) "previousPhoto" ((or (T "previousPhoto") (partial "t.html" "previousPhoto"))) "previous" ((or (T "previous") (partial "t.html" "previous"))) "nextPhoto" ((or (T "nextPhoto") (partial "t.html" "nextPhoto")))
-    "next" ((or (T "next") (partial "t.html" "next"))) "closeViewer" ((or (T "closeViewer") (partial "t.html" "closeViewer"))) "close" ((or (T "close") (partial "t.html" "close")))
+  {{- /* The three button names are the accessible names of the lightbox buttons, so "en" lists those that fell back to the theme's English
+         (T had no text), for the script to mark with lang="en" (WCAG 3.1.2). Each T is followed by its t.html, as the fixture's pair check needs. */ -}}
+  {{- $en := slice -}}
+  {{- $previousPhoto := (T "previousPhoto") -}}
+  {{- if not $previousPhoto }}{{ $en = $en | append "previousPhoto" }}{{ $previousPhoto = partial "t.html" "previousPhoto" }}{{ end -}}
+  {{- $nextPhoto := (T "nextPhoto") -}}
+  {{- if not $nextPhoto }}{{ $en = $en | append "nextPhoto" }}{{ $nextPhoto = partial "t.html" "nextPhoto" }}{{ end -}}
+  {{- $closeViewer := (T "closeViewer") -}}
+  {{- if not $closeViewer }}{{ $en = $en | append "closeViewer" }}{{ $closeViewer = partial "t.html" "closeViewer" }}{{ end -}}
+  {{- $out = dict "en" $en
+    "viewer" ((or (T "photoViewer") (partial "t.html" "photoViewer"))) "previousPhoto" $previousPhoto "previous" ((or (T "previous") (partial "t.html" "previous"))) "nextPhoto" $nextPhoto
+    "next" ((or (T "next") (partial "t.html" "next"))) "closeViewer" $closeViewer "close" ((or (T "close") (partial "t.html" "close")))
     "photoOf" ((or (T "photoOf" (dict "i" "{i}" "n" "{n}")) (partial "t.html" (slice "photoOf" (dict "i" "{i}" "n" "{n}")))))
     "photoFailed" ((or (T "photoFailed") (partial "t.html" "photoFailed"))) -}}
 {{- else if eq . "hero" -}}
-  {{- $out = dict "pause" ((or (T "heroPause") (partial "t.html" "heroPause"))) "play" ((or (T "heroPlay") (partial "t.html" "heroPlay"))) -}}
+  {{- /* "en" lists the names that fell back to the theme's English (T had no text), for the script to mark with lang="en" (WCAG 3.1.2). */ -}}
+  {{- $en := slice -}}
+  {{- $pause := (T "heroPause") -}}
+  {{- if not $pause }}{{ $en = $en | append "pause" }}{{ $pause = partial "t.html" "heroPause" }}{{ end -}}
+  {{- $play := (T "heroPlay") -}}
+  {{- if not $play }}{{ $en = $en | append "play" }}{{ $play = partial "t.html" "heroPlay" }}{{ end -}}
+  {{- $out = dict "pause" $pause "play" $play "en" $en -}}
 {{- else if eq . "search" -}}
   {{- /* The result count as its forms (js-forms.html, #249); the other sentences keep {query} and {n} for the script to fill in, as photoOf does. */ -}}
   {{- $out = dict "count" (partial "js-forms.html" "searchResultCount")

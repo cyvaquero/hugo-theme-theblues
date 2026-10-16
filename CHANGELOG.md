@@ -3,6 +3,22 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.9] - 2026-10-15
+
+Three accessibility notes from the 1.8.0 review (#369, lines 4, 5 and 6).
+
+### Fixed
+- The rotating hero's pause and play button had a single sand focus ring, which over a white photo under a term hero's scrim
+  was only 1.6:1 against the photo. The ring is now two-tone, a cream outline around a 2px dark halo, so it shows over any
+  photo (the dark ring has 14.6:1 against the cream on both sides). In Windows high contrast it uses `ButtonText` and `ButtonFace`.
+- When the pause button was hidden while it had focus (reduced motion switched on while the page was open, or the rotation ending
+  because photos failed to load), focus fell to the page body. It now moves to the main content first, so the next Tab goes to
+  the first stop after the hero.
+- On a site whose language has no theme text, the hero's pause and play button and the lightbox's previous, next and close
+  buttons were read in the page language's voice although their text is the theme's English. They now carry `lang="en"` when
+  their text is the English fallback; a language with theme text gets no `lang`, and the buttons' names are the same. The
+  `multilingual` test variant has a German photo post for it.
+
 ## [1.7.8] - 2026-10-15
 
 The photo-post and term hero comments and docs say what their 416px stands for (#367).

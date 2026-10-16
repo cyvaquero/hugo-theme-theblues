@@ -20,7 +20,7 @@ Integrity hashes and fingerprinted names. The fixture builds that way, but not m
 compared. Also build it minified, as a site is deployed, and the eight variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
 which cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
 the legacy `params.addtional_menus`), the legacy nav with hrefs that carry a query or a fragment (`legacy-nav`, below), a second language with a partial translation (`i18n/de.toml`, content in
-`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
+`content-de/`, and one German photo post in `content-de-photos/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
 Google Analytics ID, which the theme loads in production builds only, and a right-to-left language (`rtl`: Arabic with
 `direction = "rtl"` next to English, #266), whose pages must start `<html lang="ar" dir="rtl">` while the English ones
 have no `dir`, and whose layout mirrors (#296): the series box, article tile, table of contents and blockquote bars are on
@@ -89,8 +89,13 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
   script keeps only the build's entries (and parses the long path in well under a millisecond), and the hero still rotates.
 - Tab reaches the pause button (after the hero's links), its accessible name is "Pause the photo rotation" (`Accessibility.getFullAXTree`), Enter changes it to
   "Play the photo rotation" and the rotation stops: no change and no request for as long as it is paused; Space and a click change it back. The button has no `aria-pressed`, the
-  layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is the 3px sand outline.
+  layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is a 3px cream outline around a 2px dark halo (`box-shadow`, the scrim color), also with `forced-colors: active`
+  (`Emulation.setEmulatedMedia`). Over a white photo (serve a built term page with the hero's `--hi` and `--hi1` to `--hi6` pointed at a local white image) and a black
+  one, Tab to the button (a real Tab key event) and screenshot it: the dark ring shows against the cream border and outline in both, and the outline shows against the black one.
   A tab reported hidden (`document.hidden` true, then a `visibilitychange` event) stops the rotation and a visible one restarts it.
+- Focus is not lost when the button goes away: Tab to the pause button (a real Tab key event), then turn on `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`),
+  and separately make every photo request fail (`Fetch.failRequest`, holding the requests until the button has focus), so the rotation ends. In both,
+  `document.activeElement` is `main#main` (not `body`), the button is `hidden`, and the next Tab goes to the first stop after the hero.
 - With `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`) there is no button, the layer is never shown, the hero keeps the build's photo
   (no random start) and makes no further photo request; changing the setting while the page is open starts or stops the rotation.
 - The text's computed colors and the hero's `background-image` (with the URL taken out) equal those of the same page before the change, in light and dark mode; and with the
@@ -263,6 +268,13 @@ theme's English text that is the content of an element (a button, a label, a hea
 `grep -o '<span lang=en>[^<]*</span>' <out>/multilingual/index.html` lists labels such as "View options" and "Sort". An
 English build has no such span (T finds the text, so `t-en.html` isn't used). With the spans taken out, a `multilingual`
 page equals the same page built without `t-en.html`: the markup is the only difference.
+
+The scripts' English fallback is marked too: `multilingual` has a German photo post (`content-de-photos/`) whose two landscape
+SmugMug photos give the German home page a rotating hero and the post a lightbox, and `i18n/de.toml` has no text for either. In
+Chrome, on `/` and `/post/20260113-fotos/`, the hero's `.hpp` button and, once a photo is opened, the lightbox's Previous, Next and
+Close buttons have `lang="en"` and the same accessible names as without it ("Pause the photo rotation", "Previous photo", "Next photo",
+"Close photo viewer"; `Accessibility.getFullAXTree`), the dialog has no `lang`, and the pause button keeps it after it is pressed
+("Play the photo rotation"). On `/en/` and the English photo posts (`/en/post/20260107-photo-gallery/`) none of these buttons has a `lang`.
 
 Plural forms: the `rtl` build's `js/wall.ar.min.<hash>.js` has `p:[0,1,2,3,…]` and `t:[…]` in each count, and the
 English and German scripts have only `one` and `other`. To see the six forms pick, copy `<out>/rtl` to a scratch folder,
