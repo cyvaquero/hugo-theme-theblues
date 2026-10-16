@@ -1,0 +1,50 @@
+# Test variant (docs/testing.md): French (i18n/fr.toml) as the default next to English. French translates the visible text
+# of the lightbox buttons (Précédent, Suivant, Fermer) but not their accessible names, which stay the theme's English, so a
+# button named in English holds text in the page's language. Build with: --config hugo.toml,variants/lightbox-names.toml
+defaultContentLanguage = "fr"
+
+[languages.fr]
+  weight = 1
+  label = "Français"
+  locale = "fr-FR"
+  title = "Les fixtures Blues"
+[languages.en]
+  weight = 2
+  label = "English"
+  locale = "en-US"
+
+# Each language has its own content folder. Listing a mount turns off Hugo's default mounts, so they are listed here too.
+[module]
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["en"]
+  # A French photo post (docs/testing.md), so the page has a lightbox.
+  [[module.mounts]]
+    source = "content-fr-photos"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["fr"]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  # The theme's layouts as assets, as in hugo.toml, so the English-fallback pair check runs in this build too (#263).
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"

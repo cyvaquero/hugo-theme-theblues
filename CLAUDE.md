@@ -46,7 +46,7 @@ What the theme is built and tested for. A request outside it is an enhancement, 
 cd exampleSite
 hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d <scratch>/base
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d <scratch>/min
-for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one; do   # every variants/*.toml except dark-tokens
+for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one lightbox-names; do   # every variants/*.toml except dark-tokens
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d <scratch>/$v
 done
 hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>/dark-tokens   # must warn

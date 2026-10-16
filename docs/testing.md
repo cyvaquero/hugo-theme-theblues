@@ -42,7 +42,7 @@ the month ("12 يناير 2026"), and the counts have all six plural forms (see 
 
 ```bash
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
-for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one; do
+for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one lightbox-names; do
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
 done
 ```
@@ -279,6 +279,12 @@ the dialog has `lang="en"` (its name, "Photo viewer", is English) with its `.in`
 is not marked. The announcement (`[aria-live]` in the dialog) is `<span lang="en">Photo 1 of 2</span>` followed by `: ` and the
 alt text as plain text; a photo that fails to load (block its URL) adds a second `<span lang="en">` with the failure text, in the
 announcement and the counter. On `/en/` and the English photo posts (`/en/post/20260107-photo-gallery/`) none of these has a `lang`.
+
+The `lightbox-names` variant (#377) has a French photo post (`content-fr-photos/`) and `i18n/fr.toml`, which translates the lightbox buttons'
+visible text (`previous`, `next`, `close`) but not their names (`previousPhoto`, `nextPhoto`, `closeViewer`). In Chrome, on
+`/post/20260114-photos/` with a photo opened, each of the three buttons has `lang="en"` and its English name ("Previous photo", "Next
+photo", "Close photo viewer"), and its visible text ("Précédent", "Suivant", "Fermer") is inside a `<span lang="fr-FR">` that sets it back to
+the page's language. The opposite case (a translated name with English text) has `<span lang="en">` around the text and no `lang` on the button.
 
 The other scripts mark theirs the same way, and each script's text in the built file has `en:[…]`, the names of the entries the
 language lacks (`js/wall.de.min.<hash>.js` lists the caption sentences and counts, `js/wall.ar.min.<hash>.js` lists the sentences

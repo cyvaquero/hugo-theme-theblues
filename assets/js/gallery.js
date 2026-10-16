@@ -11,7 +11,8 @@
 // The text it shows is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
 // js-text.html), from i18n/en.toml or the site's own file. Text the site's language lacks is the theme's English; TX.en lists
 // it, and it is marked lang="en" (WCAG 3.1.2): on a button or the dialog when its accessible name is that text, in a
-// <span lang="en"> where it is element content or part of the announcement.
+// <span lang="en"> where it is element content or part of the announcement. A button whose name is English but whose visible
+// text is translated holds that text in a span set to the page's language.
 (function () {
   var galleries = document.querySelectorAll('.gal');
   if (!galleries.length || typeof HTMLDialogElement === 'undefined') return;
@@ -48,8 +49,16 @@
     if (isEn(key)) attrs.lang = 'en';
     return attrs;
   }
-  // A button's visible text (TX[key]): the button's own lang="en" already covers it when its name is English too.
-  function label(nameKey, key) { return isEn(nameKey) && isEn(key) ? TX[key] : words(key); }
+  // A button's visible text (TX[key]). The button's own lang="en" (named()) covers it when its name and the text are both the theme's
+  // English. When only the name is English, the text is the site's language, so it goes in a <span> set back to the page's language;
+  // when only the text is English, words() marks it. Else it is plain.
+  function label(nameKey, key) {
+    if (isEn(nameKey) && !isEn(key)) {
+      var s = document.createElement('span'); s.lang = document.documentElement.lang; s.textContent = TX[key];
+      return s;
+    }
+    return isEn(nameKey) ? TX[key] : words(key);
+  }
   // The dialog is built when a photo is first opened, not at load: most visits to a photo post never open it.
   function build() {
     dlg = document.createElement('dialog');
