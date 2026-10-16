@@ -1,7 +1,10 @@
 {{- /*
   Smaller SmugMug sizes for a hero photo (#149), so a phone or a one-x screen doesn't load a size much larger than the
-  hero box. Context: dict "src" (the hero URL, as in --hi) "h" (the tallest the hero box gets, in CSS pixels: 416 for
-  .phero, whose min-height is at most 26rem; 240 for .hero, about 225 at most). Returns dict "src", "vars" (extra
+  hero box. Context: dict "src" (the hero URL, as in --hi) "h" (the height the hero box is sized for, in CSS pixels: 416 for
+  .phero, whose min-height is at most 26rem; 246 for .hero, whose box is 245.64 at 800px and wider
+  with a one-line slogan and tagline: the CSS padding of 6.5rem, the kicker, a 4.4rem h1 and a 1.1rem tagline. A slogan or tagline
+  that wraps, at a narrow viewport or because it is long, makes the box taller, and no h bounds that, so such a box can show a
+  tier's size up to a few percent enlarged). Returns dict "src", "vars" (extra
   declarations for the hero's style attribute, ";--hi1:url(…)" and so on) and "links" (slice of dict "href" "media"
   for the preload) and "names" (slice of the size name each of the six tiers uses, "" for a tier that keeps the src size, for the
   rotating hero's script, #356), or an empty dict for any other URL, or when the size can't be read (offline build): the hero then
@@ -14,7 +17,7 @@
   1280px long edge: 427 × 3 = 1281 is the widest viewport it covers (1px allowed), so a 428 or 430px phone (an iPhone
   Plus or Pro Max) keeps the src size. It stops at three-x because a denser screen would need more pixels than X2 has
   at the same width. A tall box can rule X2 out too: the 416px .phero needs 1248px of height at three-x and X2 is 960px
-  high, so only the 240px .hero (720px) gets a size at tier 6, and only a src larger than X3 can offer X3. For each tier, the hero gets the smallest of SmugMug's M, L, XL, X2 and X3
+  high, so only the 246px .hero (738px) gets a size at tier 6, and only a src larger than X3 can offer X3. For each tier, the hero gets the smallest of SmugMug's M, L, XL, X2 and X3
   that is smaller than src and still covers the box at the tier's widest viewport and highest pixel ratio
   (background-size: cover needs the photo at least as wide as the viewport and as tall as the box, in device pixels; 1px
   is allowed for SmugMug's rounding, 1279 for 1280), so it is never shown at less than one photo pixel per device pixel.
