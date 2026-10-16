@@ -8,11 +8,10 @@ All notable changes to this theme are documented here. The format follows
 The rotating hero checks each photo entry it reads more strictly (#368).
 
 ### Security
-- `hero.js` took any size names from a `data-pool` entry and put them into the photo's URL, and the pattern that reads the
-  photo's path could take quadratic time on a path with many `/M/` segments. Neither can happen with a page the theme
-  built, since the entries are written by the build from SmugMug URLs it has already checked, so this is defense in depth.
-  An entry is now ignored unless it is no longer than 512 characters, its path is split on `/` (so it can't backtrack)
-  into a directory and a `SIZE/stem-SIZE.ext` ending with the same size twice, and it has either no size names or exactly
+- `hero.js` took any size names from a `data-pool` entry and put them into the photo's URL. That can't happen with a page
+  the theme built, since the entries are written by the build from SmugMug URLs it has already checked, so this is
+  defense in depth. An entry is now ignored unless it is no longer than 512 characters, its path splits on `/` into a
+  directory and a `SIZE/stem-SIZE.ext` ending with the same size twice, and it has either no size names or exactly
   six, each one of M, L, XL, X2, X3, X4, X5 or empty. Pages built by the theme are unchanged apart from the script's name.
 
 ## [1.7.5] - 2026-10-15
