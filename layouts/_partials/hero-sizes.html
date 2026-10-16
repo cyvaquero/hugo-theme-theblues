@@ -1,7 +1,9 @@
 {{- /*
   Smaller SmugMug sizes for a hero photo (#149), so a phone or a one-x screen doesn't load a size much larger than the
   hero box. Context: dict "src" (the hero URL, as in --hi) "h" (the height the hero box is sized for, in CSS pixels: 416 for
-  .phero, whose min-height is at most 26rem; 246 for .hero, whose box is 245.64 at 800px and wider
+  .phero, whose min-height is at most 26rem, a floor: a title that wraps, at a narrow viewport or because it is long,
+  makes the box taller, and no h bounds that, so such a box can show a tier's size slightly enlarged (about 1.6% for the
+  422.7px box of a long, wrapping title at 320px); 246 for .hero, whose box is 245.64 at 800px and wider
   with a one-line slogan and tagline: the CSS padding of 6.5rem, the kicker, a 4.4rem h1 and a 1.1rem tagline. A slogan or tagline
   that wraps, at a narrow viewport or because it is long, makes the box taller, and no h bounds that, so such a box can show a
   tier's size up to a few percent enlarged). Returns dict "src", "vars" (extra

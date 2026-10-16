@@ -2,7 +2,7 @@
   The photos a rotating hero draws from (#356): the landscape gallery photos of the photo posts in a set of pages, newest
   post first and each post's photos in source order. Context: a map with "page" (the home page or the term page whose
   hero it is), "pages" (the pages to take posts from: the main-section posts of the site, or of the term) and "h" (the
-  hero box's height in CSS pixels, 246 for .hero and 416 for .phero, as hero-sizes.html takes it). Returns a map with "src" (the first photo's URL, as the hero's --hi takes it,
+  hero box's height in CSS pixels, 246 for .hero and 416 for .phero, its minimum height, as hero-sizes.html takes it). Returns a map with "src" (the first photo's URL, as the hero's --hi takes it,
   or empty when the pool is empty), "count" (the number of photos) and "data" (the value of the hero's data-pool attribute: every photo's
   token, below, separated by spaces; empty when the pool has fewer than two photos, since there is nothing to rotate).
   What counts:
