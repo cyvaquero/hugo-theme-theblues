@@ -80,8 +80,9 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
   (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. Reloads give different start photos (from different galleries, given enough reloads)
   and different sets of five; no photo comes back before the cycle ends and the sixth photo shown is the first of the five again. To see a whole cycle sooner, scale the page's timers before it loads
   (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
-- `params.hero_interval`: the base build's `hero.js` has `SHOW = 30000`; with `--config hugo.toml,<file setting hero_interval = 15>` it has
-  `SHOW = 15000` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`SHOW = 5000` and `2147483000`).
+- `params.hero_interval`: the show interval (`SHOW` in `assets/js/hero.js`, in milliseconds) is minified in every build but a development one,
+  so the base build's `hero.js` has it as `3e4`, just before `LEAD`'s `5e3`; with `--config hugo.toml,<file setting hero_interval = 15>` it is
+  `15e3` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`5e3` and `2147483e3`).
 - A photo that fails to load is replaced (block some of the pool's photo URLs with `Network.setBlockedURLs`, or fail them with `Fetch.failRequest`): the
   rotation goes on with the others, and ends, with the button hidden, only when fewer than two photos can be loaded.
 - `data-pool` entries the build can't write are ignored (#368): serve a copy of a built page whose `data-pool` also holds a token with an unknown size name
