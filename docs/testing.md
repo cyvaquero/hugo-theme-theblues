@@ -51,7 +51,9 @@ done
 
 The `legacy-nav` variant (#350) replaces the legacy `params.addtional_menus` list with hrefs that carry a query or a fragment. In its
 nav, `/about#team` is `/about/#team`, `/search?x=1` is `/search/?x=1`, `/archive?s=a#b` is `/archive/?s=a#b`, `/feed.xml#x` is
-`/feed.xml#x` (it has an extension), and the hrefs that are only a fragment or a query, `#top` and `?page=2`, stay as written (not
+`/feed.xml#x` (it has an extension), `/files/guide.pdf` stays as it is, `/releases/v1.2` (a last segment that looks like a version, whose
+`.2` is not an extension) is `/releases/v1.2/` and carries `aria-current="page"` on the page `content-legacy-nav/v1.2.md`, which the variant mounts at
+`content/releases` (so the base build is unchanged), and the hrefs that are only a fragment or a query, `#top` and `?page=2`, stay as written (not
 `/#top/`); with `-b https://example.org/sub/` the paths gain `/sub`, and with the `multilingual` variant added to the
 `--config` list they gain `/en` on the English pages (`/en/about/#team`).
 
@@ -79,7 +81,9 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
   and different sets of five; no photo comes back before the cycle ends and the sixth photo shown is the first of the five again. To see a whole cycle sooner, scale the page's timers before it loads
   (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
 - `params.hero_interval`: the base build's `hero.js` has `SHOW = 30000`; with `--config hugo.toml,<file setting hero_interval = 15>` it has
-  `SHOW = 15000` (and `7.5` gives `7500`), and `"15"`, `4` and `true` each fail the build with the `params.hero_interval` error.
+  `SHOW = 15000` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`SHOW = 5000` and `2147483000`).
+- A photo that fails to load is replaced (block some of the pool's photo URLs with `Network.setBlockedURLs`, or fail them with `Fetch.failRequest`): the
+  rotation goes on with the others, and ends, with the button hidden, only when fewer than two photos can be loaded.
 - `data-pool` entries the build can't write are ignored (#368): serve a copy of a built page whose `data-pool` also holds a token with an unknown size name
   (`…|M,L,EVIL,X2,,X2`), one with five names, one over 512 characters and one whose path has the same `/M/` segment repeated many times; the
   script keeps only the build's entries (and parses the long path in well under a millisecond), and the hero still rotates.
@@ -329,7 +333,8 @@ are not made this way. To recreate the README images:
   `href` is `X3` in every case.
   A modifier turns the lightbox's keys off (#350): with the lightbox open, real key events (`Input.dispatchKeyEvent` with `modifiers`: 1 Alt, 2 Ctrl, 4 Meta, 8
   Shift) for Right, Left, Home and End change nothing and leave `defaultPrevented` false, so Alt+Left (Back) and Ctrl+End work; the same keys with no modifier
-  still change the photo; Tab and Escape behave as before. The choice of X2 or X3 follows the window (#350): open the first photo at 390x844 (pixel ratio 1, X2), set 1280x800 at
+  still change the photo; Tab and Escape behave as before. A pen that goes down on the photo and comes up off it
+  (`Input.dispatchMouseEvent` with `pointerType: "pen"`) doesn't stop later swipes: a touch swipe (`Input.dispatchTouchEvent`) still changes the photo. The choice of X2 or X3 follows the window (#350): open the first photo at 390x844 (pixel ratio 1, X2), set 1280x800 at
   ratio 2 (`Emulation.setDeviceMetricsOverride`), and the lightbox asks for X3 once and shows it when it has loaded (before, X2 stayed); back at 390x844 ratio 3 it
   shows X2 again; five more resizes make no new request; opening and closing the lightbox several times leaves one `resize` and one `orientationchange`
   listener on `window` (`DOMDebugger.getEventListeners`). With the DevTools `Fetch` domain answering every `photos.smugmug.com` request with a 404, the counter
