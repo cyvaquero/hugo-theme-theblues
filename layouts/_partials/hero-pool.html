@@ -26,16 +26,17 @@
 {{- $m := partial "memo.html" (dict "page" .page "key" $key) -}}
 {{- if $m }}{{ $out = $m.val }}{{ else -}}
 {{- $h := .h -}}
-{{- $seen := dict -}}
+{{- /* Photos already taken, in a Scratch: adding to a dict with merge copies it each time, quadratic in the photo count. */ -}}
+{{- $seen := newScratch -}}
 {{- $tokens := slice -}}
 {{- range (where .pages "Section" "in" site.MainSections).ByDate.Reverse -}}
   {{- if partialCached "is-photo.html" . .Path -}}
     {{- range partialCached "photos.html" . .Path -}}
       {{- $full := .full -}}
-      {{- if and (findRE `^https://photos\.smugmug\.com/[A-Za-z0-9_.~/-]+$` $full 1) (not (index $seen $full)) -}}
+      {{- if and (findRE `^https://photos\.smugmug\.com/[A-Za-z0-9_.~/-]+$` $full 1) (not ($seen.Get $full)) -}}
         {{- $sz := partialCached "img-size.html" .src .src -}}
         {{- if and $sz.w $sz.h (gt $sz.w $sz.h) -}}
-          {{- $seen = merge $seen (dict $full true) -}}
+          {{- $seen.Set $full true -}}
           {{- $token := strings.TrimPrefix "https://photos.smugmug.com/" $full -}}
           {{- $hs := partialCached "hero-sizes.html" (dict "src" $full "h" $h) $full $h -}}
           {{- with $hs.names }}{{ $token = printf "%s|%s" $token (delimit . ",") }}{{ end -}}

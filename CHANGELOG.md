@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.4] - 2026-10-15
+
+The rotating hero's photo list builds in linear time (#363).
+
+### Changed
+- `hero-pool.html` keeps the photos it has already taken in a Scratch instead of adding each one to a dict with `merge`,
+  which copied the dict every time. Building one pool was quadratic in its photo count (281 ms at 2,000 photos and
+  4.4 s at 8,000 in a micro-benchmark, against 15 ms and 89 ms now); the output is the same.
+
 ## [1.7.3] - 2026-10-15
 
 Heroes load a smaller photo on a three-x phone (#359).
