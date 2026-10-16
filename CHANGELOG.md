@@ -5,7 +5,7 @@ All notable changes to this theme are documented here. The format follows
 
 ## [1.7.11] - 2026-10-16
 
-Two corrections from the 1.8.0 docs review (#369).
+Three documentation corrections from the 1.8.0 docs review (#369, #372).
 
 ### Fixed
 - The 1.7.3 entry said the three-x hero size applies to term heroes too. Term heroes are 416 pixels tall, like a photo
@@ -13,6 +13,8 @@ Two corrections from the 1.8.0 docs review (#369).
 - `docs/testing.md` gave the `params.hero_interval` checks as `SHOW = 30000` and so on, which only an unminified
   development build contains. It now gives the values as the built `hero.js` has them (`3e4`, `15e3`, `7500`, `5e3`,
   `2147483e3`).
+- `docs/testing.md` showed the fixture's `data-pool` token with five size names (`|M,L,X2,X2,`). It has six, one per tier:
+  `|M,L,X2,X2,,X2` on the home page and `|L,L,X2,X2,,` on the term pages (#372).
 
 ## [1.7.10] - 2026-10-16
 
