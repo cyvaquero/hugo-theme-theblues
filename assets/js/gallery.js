@@ -9,7 +9,9 @@
 // announcement says), so they always describe the photo on screen (#3, #168); neighbors are preloaded. The choice is made
 // again when the window is resized or the device turned, for the photo on screen (refit()).
 // The text it shows is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
-// js-text.html), from i18n/en.toml or the site's own file.
+// js-text.html), from i18n/en.toml or the site's own file. Text the site's language lacks is the theme's English; TX.en lists
+// it, and it is marked lang="en" (WCAG 3.1.2): on a button or the dialog when its accessible name is that text, in a
+// <span lang="en"> where it is element content or part of the announcement.
 (function () {
   var galleries = document.querySelectorAll('.gal');
   if (!galleries.length || typeof HTMLDialogElement === 'undefined') return;
@@ -27,30 +29,44 @@
   function el(tag, attrs, text) {
     var e = document.createElement(tag);
     for (var k in attrs) e.setAttribute(k, attrs[k]);
-    if (text) e.textContent = text;
+    if (text) e.append(text);
     return e;
   }
-  // A button's attributes with lang="en" added when its name (TX[key]) is the theme's English for a site language that has no text
-  // for it (js-text.html), so a screen reader speaks the name with an English voice (WCAG 3.1.2). TX.en lists those keys.
+  function isEn(key) { return TX.en.indexOf(key) >= 0; }
+  // The text TX[key] (or text, a filled-in form of it) as element content: a <span lang="en"> when it is the theme's English for a
+  // site language that has no text for it (js-text.html), else a plain string.
+  function words(key, text) {
+    if (text === undefined) text = TX[key];
+    if (!isEn(key)) return text;
+    var s = document.createElement('span'); s.lang = 'en'; s.textContent = text;
+    return s;
+  }
+  // A button's attributes with lang="en" added when its name (TX[key]) is the theme's English, so a screen reader speaks the
+  // name with an English voice (WCAG 3.1.2). The button holds only its own text, so the attribute is on the button.
   function named(attrs, key) {
     attrs['aria-label'] = TX[key];
-    if (TX.en.indexOf(key) >= 0) attrs.lang = 'en';
+    if (isEn(key)) attrs.lang = 'en';
     return attrs;
   }
+  // A button's visible text (TX[key]): the button's own lang="en" already covers it when its name is English too.
+  function label(nameKey, key) { return isEn(nameKey) && isEn(key) ? TX[key] : words(key); }
   // The dialog is built when a photo is first opened, not at load: most visits to a photo post never open it.
   function build() {
     dlg = document.createElement('dialog');
     dlg.className = 'lb';
     dlg.setAttribute('aria-label', TX.viewer);
+    // The dialog's name is in the dialog's language, so lang="en" goes on the dialog when the name is the theme's English, and the
+    // content (the photo's alt text, the buttons) is put back in the page's language by its wrapper.
     var inner = el('div', { 'class': 'in' }), bar = el('div', { 'class': 'bb' });
+    if (isEn('viewer')) { dlg.lang = 'en'; inner.setAttribute('lang', document.documentElement.lang); }
     inner.appendChild(el('img', { alt: '' }));
-    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'p' }, 'previousPhoto'), TX.previous));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'p' }, 'previousPhoto'), label('previousPhoto', 'previous')));
     // The visible counter ("4 / 18") is hidden from screen readers; a visually hidden live region announces the position
     // and the photo's alt text instead ("Photo 4 of 18: La Huasteca", #38).
     bar.appendChild(el('span', { 'class': 'count', 'aria-hidden': 'true' }));
     bar.appendChild(el('span', { 'class': 'vh', 'aria-live': 'polite' }));
-    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'n' }, 'nextPhoto'), TX.next));
-    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'c' }, 'closeViewer'), TX.close));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'n' }, 'nextPhoto'), label('nextPhoto', 'next')));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'c' }, 'closeViewer'), label('closeViewer', 'close')));
     inner.appendChild(bar);
     dlg.appendChild(inner);
     document.body.appendChild(dlg);
@@ -159,9 +175,11 @@
       if (my !== seq) return;  // a later photo was asked for meanwhile
       img.src = pre.src || (thumb ? thumb.src : '');
       img.alt = thumb ? thumb.alt : '';
-      var note = failed === true ? ' ' + TX.photoFailed : '';
-      count.textContent = (idx + 1) + ' / ' + list.length + note;
-      say.textContent = TX.photoOf.replace('{i}', idx + 1).replace('{n}', list.length) + (img.alt ? ': ' + img.alt : '') + note;
+      count.textContent = (idx + 1) + ' / ' + list.length;
+      say.textContent = '';
+      say.append(words('photoOf', TX.photoOf.replace('{i}', idx + 1).replace('{n}', list.length)));
+      if (img.alt) say.append(': ' + img.alt);
+      if (failed === true) { count.append(' ', words('photoFailed')); say.append(' ', words('photoFailed')); }
       dlg.removeAttribute('aria-busy');
       preload(idx + 1); preload(idx - 1);
       refit();

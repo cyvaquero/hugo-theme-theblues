@@ -132,12 +132,20 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   of an element, the fallback half is `partial "t-en.html"`, which returns t.html's text escaped inside
   `<span lang="en">`, so a screen reader reads it in English on a page in another language. Attribute values, the page
   `<title>`, `<option>` content, feeds, date layouts and the "Undated" text keep `t.html`, since no markup can carry a
-  language there. `i18n-check.html` calls `t-en.html` once so an English-only fixture build sees it used. The fixture's
+  language there. Hugo's `T` returns the default language's text for an entry a language lacks, so when the default language is
+  English the fallback half never runs for that entry and the text is English with no `lang` (README, "Translating the theme").
+  `i18n-check.html` calls `t-en.html` once so an English-only fixture build sees it used. The fixture's
   pair check (`exampleSite/layouts/_partials/i18n-pairs.html`) counts both partials.
-- **Script text.** `js-text.html` gives a script its text; `js-forms.html` makes a count's forms. The "hero" and "gallery" maps
-  also have `en`, the names of the buttons whose text fell back to the theme's English (T had no text for the key: `heroPause`,
-  `heroPlay`, `previousPhoto`, `nextPhoto`, `closeViewer`), and `hero.js` and `gallery.js` put `lang="en"` on those buttons, as the
-  templates do with `t-en.html`. The other scripts' text, and the lightbox's dialog name and announcements, can't be marked. T gets the plain numbers
+- **Script text.** `js-text.html` gives a script its text; `js-forms.html` makes a count's forms. Every map also has `en`, the
+  names (the map's own keys, such as `pause`, `previousPhoto`, `photoOf`, `articleCount` or `noResults`) of the text that fell
+  back to the theme's English (T had no text for the key; a count is listed when T has none for 1), and each script marks what it
+  writes from them, as the templates do with `t-en.html`: `lang="en"` on an element whose whole content is that text (the hero's
+  pause and play button, the lightbox's previous, next and close buttons, which also carry the name in `aria-label`, the comment
+  status and its "Try again" button, the "active" note in the options badge), else a `<span lang="en">` around the text (the wall's
+  caption, counts and group headings, the search status, the lightbox's announcement and counter). A sentence is split at its marks,
+  so a count, the query and the photo's alt text keep their own language. The lightbox's dialog name is its `aria-label`, so
+  the dialog gets `lang="en"` and its `.in` wrapper takes `<html lang>` back, which keeps the photo's alt text and the buttons in
+  the page's language. The wall's On and Off sit in an `aria-hidden` span and are not marked. T gets the plain numbers
   0 to 7, 11, 12, 21, 22 and 100 to 103; when they give more than two distinct texts the script gets those texts with the
   numbers (`p`, `t`) and picks the one whose plural category (`Intl.PluralRules`) matches the count; otherwise it gets
   `one` and `other`, as before.

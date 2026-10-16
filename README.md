@@ -369,12 +369,22 @@ translate the theme, or reword its English, for a site:
    `hugo --printI18nWarnings` lists the missing entries. A language with no file at all uses the default language's
    file; when the default language is not English and has no file, the labels are all English and the build warns
    (`theblues-i18n`). Where the English text becomes the content of an element (a label, a heading, a button, a link
-   name), the theme wraps it in `<span lang="en">`, so a screen reader reads it with an English voice (WCAG 3.1.2). Where
-   it would become an attribute value (`aria-label`, `title`, `alt`), the page `<title>`, an `<option>`, a feed, a date
-   layout or the "Undated" text, or text a script writes (captions, counts, the comment and search messages, the lightbox's
-   dialog name and announcements), no markup can carry the language, so a reader hears it in the page's language. The
-   exceptions are the script-written buttons: the hero's pause and play button and the lightbox's previous, next and close
-   buttons get `lang="en"` when their text is the theme's English. Translate the other entries for a complete experience.
+   name), the theme wraps it in `<span lang="en">`, so a screen reader reads it with an English voice (WCAG 3.1.2). The
+   text the theme's scripts write is marked the same way, with a `<span lang="en">` around it or `lang="en"` on the element
+   that holds only that text: the wall's caption, counts and group headings, the comment and search messages, the
+   lightbox's announcement and its buttons, and the hero's pause and play button. The lightbox's name is its dialog's
+   `aria-label`, so the dialog carries `lang="en"` when that name is English, and its content is set back to the page's
+   language. Where English becomes an attribute value in a template (`aria-label`, `title`, `alt`, `placeholder`), the
+   page `<title>`, an `<option>`, a feed, a date layout or the "Undated" text, no markup can carry the language, so a
+   reader hears it in the page's language. Translate those entries for a complete experience.
+
+   Hugo takes a language's missing entry from the default language before the theme can tell. When the default language is
+   English, an entry that a non-default language's file lacks shows the default language's English text, and the theme
+   neither wraps it in `<span lang="en">` nor lists it in a script's English text, so a screen reader reads it in that
+   language's voice. Hugo does not say which language an entry came from, and comparing the text with the theme's English
+   would mislabel a translation that happens to match it, so the theme does not guess: give each non-default language a
+   complete `i18n/<language>.toml` (`hugo --printI18nWarnings` lists what is missing). The marking above covers a site
+   whose default language is not English, or whose language has no entry and no default-language entry.
 4. Set the site's `locale` (for example `de-DE`), which also sets `<html lang>`. The three date entries are Go layouts
    (`dateFormat` for dates on posts, tiles and wall headings unless `params.dateFormat` is set, `dateFormatDay` for the
    archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
@@ -704,10 +714,12 @@ On the 404 page the matches are a list of links under a heading ("Were you looki
 status, and focus is not moved; the prefilled field is labeled like the search page's.
 
 **Language of parts.** A site in another language that lacks a translation shows the theme's English text. Where that
-text is the content of an element, it is marked `lang="en"` (WCAG 3.1.2, Section 508 E205.4). English text in an
-attribute, the page `<title>`, a feed, an `<option>`, a date layout or a script's captions, counts and messages can't be marked and is read
-in the page's language: translate those entries (see "Translating the theme"). The buttons a script writes, the hero's pause
-and play button and the lightbox's previous, next and close buttons, are marked `lang="en"` themselves when their text is English.
+text is the content of an element, or a script writes it (captions, counts, messages, the lightbox's announcement, its
+dialog name and buttons, the hero's pause and play button), it is marked `lang="en"` (WCAG 3.1.2, Section 508 E205.4).
+English text in an attribute value a template writes (`aria-label`, `title`, `alt`, `placeholder`), the page `<title>`, a
+feed, an `<option>` or a date layout can't be marked and is read in the page's language: translate those entries (see
+"Translating the theme"). An entry a non-default language lacks while the default language is English shows the default
+language's text unmarked (see the same section).
 
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.

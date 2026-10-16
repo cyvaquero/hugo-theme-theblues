@@ -13,6 +13,8 @@
 // it is the gallery's only tile, and its group counts in the caption (#252).
 // The text this script writes (captions, counts, the Articles group, On/Off) is the site's language: Hugo fills it in
 // when it builds this file (asset.html runs it as a template, js-text.html), from i18n/en.toml or the site's own file.
+// Text the site's language lacks is the theme's English; TX.en lists it, and it is written inside <span lang="en"> (or, when an
+// element holds only that text, with lang="en" on the element), so a screen reader speaks it with an English voice (WCAG 3.1.2).
 (function () {
   var stage = document.getElementById('stage'), ctl = document.getElementById('ctl');
   if (!stage || !ctl) return;
@@ -27,8 +29,31 @@
     if (PR && f.p) for (var i = 0; i < f.p.length; i++) if (PR.select(f.p[i]) === c) { s = f.t[i]; break; }
     return s.replace('%d', n);
   }
-  // A sentence with {articles} and {photos} marks for the two counts.
-  function fill(s, a, p) { return s.replace('{articles}', a).replace('{photos}', p); }
+  // Text is written as parts, each [text, key]: key is the name of the text in TX, or '' for text from the page. Parts whose key
+  // is in TX.en (the theme's English) go in a <span lang="en">, a run of them in one.
+  function isEn(key) { return !!key && TX.en.indexOf(key) >= 0; }
+  function add(node, parts) {
+    var run = '', en = false;
+    function flush() {
+      if (!run) return;
+      var s = en ? document.createElement('span') : null;
+      if (s) { s.lang = 'en'; s.textContent = run; node.appendChild(s); } else node.appendChild(document.createTextNode(run));
+      run = '';
+    }
+    parts.forEach(function (p) {
+      if (!p[0]) return;
+      if (isEn(p[1]) !== en) { flush(); en = !en; }
+      run += p[0];
+    });
+    flush();
+  }
+  function plain(parts) { return parts.map(function (p) { return p[0]; }).join(''); }
+  // A sentence (TX[key]) with {articles} and {photos} marks for the two counts, as parts.
+  function fill(key, a, p) {
+    return TX[key].split(/(\{articles\}|\{photos\})/).map(function (t) {
+      return t === '{articles}' ? [a, 'articleCount'] : t === '{photos}' ? [p, 'photoCount'] : [t, key];
+    });
+  }
 
   // Collect the tiles the server rendered; ord is a tile's position in the server's order (newest first).
   var items = [], galleries = {}, galleryList = [];
@@ -107,12 +132,12 @@
       if (d.hidden !== h) d.hidden = h;
     });
     var s;
-    if (S.m === 'filter') s = fill(paged ? TX.showingPage : TX.showing, plural(vis.a, TX.articleCount), plural(vis.p, TX.photoCount));
-    else if (S.f === 'all') s = fill(paged ? TX.pickPage : TX.pick, plural(NA, TX.articleCount), plural(NP, TX.photoCount));
-    else s = fill(S.f === 'article' ? (paged ? TX.highlightArticlesPage : TX.highlightArticles) : (paged ? TX.highlightPhotosPage : TX.highlightPhotos),
+    if (S.m === 'filter') s = fill(paged ? 'showingPage' : 'showing', plural(vis.a, TX.articleCount), plural(vis.p, TX.photoCount));
+    else if (S.f === 'all') s = fill(paged ? 'pickPage' : 'pick', plural(NA, TX.articleCount), plural(NP, TX.photoCount));
+    else s = fill(S.f === 'article' ? (paged ? 'highlightArticlesPage' : 'highlightArticles') : (paged ? 'highlightPhotosPage' : 'highlightPhotos'),
                   plural(NA, TX.articleCount), plural(NP, TX.photoCount));
-    if (S.g && ng) s += ', ' + plural(ng, TX.grouped);
-    if (cap.textContent !== s) cap.textContent = s;  // the caption is a live region: announce changes only
+    if (S.g && ng) s.push([', ', 'grouped'], [plural(ng, TX.grouped), 'grouped']);
+    if (cap.textContent !== plain(s)) { cap.textContent = ''; add(cap, s); }  // the caption is a live region: announce changes only
     sync();
   }
 
@@ -144,12 +169,12 @@
       galleryList.slice().sort(function (x, y) { return x.date === y.date ? (x.ord - y.ord) * dir : (x.date < y.date ? 1 : -1) * dir; })
         .forEach(function (g) {
           secs.push({
-            k: g.key, title: g.name, extra: (g.shown ? g.shown + ' · ' : '') + plural(g.n, TX.photoCount),
+            k: g.key, title: [[g.name, '']], extra: [[g.shown ? g.shown + ' · ' : '', ''], [plural(g.n, TX.photoCount), 'photoCount']],
             its: items.filter(function (i) { return i.t === 'p' && i.key === g.key; }).sort(cmp)
           });
         });
       if (NA) {
-        var as = { k: '#articles', title: TX.articles, extra: plural(NA, TX.articleCount),
+        var as = { k: '#articles', title: [[TX.articles, 'articles']], extra: [[plural(NA, TX.articleCount), 'articleCount']],
                    its: items.filter(function (i) { return i.t === 'a'; }).sort(cmp) };
         if (S.s === 'art') secs.unshift(as); else secs.push(as);
       }
@@ -159,8 +184,8 @@
         d.className = 'grp'; d.open = openGroups[sc.k] !== false;
         d.addEventListener('toggle', function () { openGroups[sc.k] = d.open; });
         // The title is a heading inside the summary, so it is in the heading list (#172).
-        h.appendChild(document.createTextNode(sc.title + ' · '));
-        x.className = 'meta'; x.textContent = sc.extra; h.appendChild(x);
+        add(h, sc.title); h.appendChild(document.createTextNode(' · '));
+        x.className = 'meta'; add(x, sc.extra); h.appendChild(x);
         sm.appendChild(h);
         d.appendChild(sm);
         var m2 = flow();
@@ -182,12 +207,13 @@
     qa('[data-f]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.f === S.f); });
     qa('[data-m2]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.m2 === S.m); });
     qa('[data-role=sort]').forEach(function (x) { x.value = S.s; });
+    // On/Off sits in an aria-hidden span (the switch is named by its label and its state is checked), so it is never spoken.
     qa('[data-role=grp]').forEach(function (c) { c.checked = S.g; c.parentNode.querySelector('.st').textContent = S.g ? TX.on : TX.off; });
     var inPop = (S.m !== DEF.m) + (S.s !== DEF.s) + (S.g ? 1 : 0), any = inPop + (S.f !== DEF.f);
     qa('[data-badge=opts]').forEach(function (e) {
       e.hidden = !inPop;
       e.textContent = ' ' + inPop;  // the leading space keeps the name "View options 1 active" where flex items aren't spaced
-      var v = document.createElement('span'); v.className = 'vh'; v.textContent = ' ' + TX.active; e.appendChild(v);
+      var v = document.createElement('span'); v.className = 'vh'; v.textContent = ' ' + TX.active; if (isEn('active')) v.lang = 'en'; e.appendChild(v);
     });
     qa('[data-role=clear],[data-role=reset]').forEach(function (e) { e.hidden = !any; });
   }
