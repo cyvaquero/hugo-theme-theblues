@@ -159,7 +159,7 @@ The templates assume this layout; other structures are not supported yet.
   updates `<meta name="color-scheme">` and both `theme-color` metas, keeps other open tabs in step, and reloads loaded
   Disqus comments so they match. Without JavaScript the switch is hidden and the mode follows the system.
 - **Rotating hero:** the home page's hero and the heroes of tag, category and series pages show the landscape photos of
-  the site's photo posts, one after the other. There is no setting for it.
+  the site's photo posts, one after the other. The only setting is how long each photo shows (`params.hero_interval`).
   - *Which photos.* The gallery photos of photo posts (category `photos`, or a `{{< galleries >}}` block), as the wall
     reads them: never an image in an article's text, never a gallery in an article, never a post that Hugo doesn't build
     (a draft, a future or an expired post), and only posts in the main sections. A photo counts when it is landscape
@@ -170,14 +170,15 @@ The templates assume this layout; other structures are not supported yet.
     in the page, painted and preloaded like any hero photo, so it shows at once and without JavaScript, and a build is
     the same every time. It replaces `header_image` on the home page and the term's cover on a term page.
   - *Rotation.* In the browser, `hero.js` picks four more photos at random from the others, so each visit shows up to
-    five, and shows each for 30 seconds before fading to the next, then starts again with the first. The next
+    five, and shows each for `params.hero_interval` seconds before fading to the next, then starts again with the first.
+    The interval is 30 by default; anything but a number of 5 or more fails the build once a hero rotates. The next
     photo is fetched 5 seconds before it is shown, never all at once, and is faded in only when it has loaded, with the
     SmugMug size that suits the screen, as for the first photo. A photo that fails to load is skipped. The photos are
     CSS backgrounds under the same scrim as before, so the text keeps its contrast, and nothing is announced to
     screen readers.
   - *Pause.* A pause and play button in the hero's top corner (44 by 44 pixels, named "Pause the photo rotation" or
     "Play the photo rotation") stops and starts it. Only `hero.js` adds it, so a page without JavaScript has none, and
-    it stays paused for the page view. A hidden tab pauses the rotation too, and the photo on screen gets its 30 seconds
+    it stays paused for the page view. A hidden tab pauses the rotation too, and the photo on screen gets its full time
     again when the tab is visible.
   - *Reduced motion.* With `prefers-reduced-motion: reduce` the hero shows the first photo only: no timer, no fade, no
     other photo fetched and no button.
@@ -481,7 +482,7 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 
 - `title` (the site's name; the build warns with `theblues-no-title` when it is missing), `locale` (sets `<html lang>` and the language of month names; see Translating the theme), `mainSections` (the sections that hold posts, see Content structure)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
-  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `search_label` (default `SEARCH`, from the `searchLabel` entry of `i18n/en.toml`), `dateFormat` (a Go layout for
+  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `hero_interval` (seconds each rotating hero photo shows, default 30, at least 5), `search_label` (default `SEARCH`, from the `searchLabel` entry of `i18n/en.toml`), `dateFormat` (a Go layout for
   dates on posts, tiles and wall headings, default `Jan 2, 2006`, from the `dateFormat` entry; the archive's `Jan 2` and
   the series box's `Jan 2006` are the `dateFormatDay` and `dateFormatMonth` entries), `showtoc` (site-wide default for
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), the optional

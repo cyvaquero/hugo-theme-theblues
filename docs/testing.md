@@ -73,10 +73,12 @@ Because the `hero-none` content must give the old output, compare it by building
 In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me build, whose photos load), on a page with a pool of two or more:
 
 - With JavaScript off, the hero shows the first photo (the computed `background-image` is its size for the viewport), `<head>` has its preload, and the page
-  has no `.hr` and no `.hpp`. With JavaScript on, at 25 s the next photo's request starts (one request, the size the viewport uses), at 30 s the `.hr` layer fades in
+  has no `.hr` and no `.hpp`. With JavaScript on (and the default `hero_interval` of 30), at 25 s the next photo's request starts (one request, the size the viewport uses), at 30 s the `.hr` layer fades in
   (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. A reload picks another set of four; the first photo never comes back
   before the cycle ends and the sixth photo shown is the first again. To see a whole cycle sooner, scale the page's timers before it loads
   (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
+- `params.hero_interval`: the base build's `hero.js` has `SHOW = 30000`; with `--config hugo.toml,<file setting hero_interval = 15>` it has
+  `SHOW = 15000` (and `7.5` gives `7500`), and `"15"`, `4` and `true` each fail the build with the `params.hero_interval` error.
 - Tab reaches the pause button (after the hero's links), its accessible name is "Pause the photo rotation" (`Accessibility.getFullAXTree`), Enter changes it to
   "Play the photo rotation" and the rotation stops: no change and no request for as long as it is paused; Space and a click change it back. The button has no `aria-pressed`, the
   layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is the 3px sand outline.

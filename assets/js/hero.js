@@ -2,8 +2,9 @@
 // Rotating hero (#356): the home and term heroes (header[data-pool]) show five of the landscape photos of the site's
 // photo posts, one after the other. The page paints the first photo with no script (the hero's own --hi); this picks four
 // more at random from the data-pool attribute (hero-pool.html lists every photo there, the first one too), never the
-// first again, and shows each for 30 seconds before a 1.5 second fade to the next. The next photo is fetched 5 seconds
-// ahead (never all at once) and is faded in only once it has loaded and decoded, so the hero never shows an empty box.
+// first again, and shows each for params.hero_interval seconds (30 by default, 5 at least) before a 1.5 second fade to
+// the next. The next photo is fetched 5 seconds ahead (never all at once) and is faded in only once it has loaded and
+// decoded, so the hero never shows an empty box.
 // The fade is a second layer (.hr) over the hero, holding the same scrim and the next photo; when it is done the hero
 // itself takes the photo and the layer is hidden again. The photo's sizes are chosen by main.css exactly as for the first
 // photo: the layer and the hero get --hi and --hi1 to --hi5 (hero-sizes.html's tiers), and the script reads the URL the
@@ -11,14 +12,19 @@
 // announced.
 // A visitor who prefers reduced motion gets the first photo and no timer, no fade and no button. Everyone else gets a
 // pause/play button (WCAG 2.2.2), made here so a page without script has none. A paused rotation stays paused for the
-// page view; a hidden tab pauses it too and starts the current photo's 30 seconds again when the tab comes back.
-// The text it shows is the site's language, filled in when Hugo builds this file (asset.html, js-text.html).
+// page view; a hidden tab pauses it too and starts the current photo's time again when the tab comes back.
+// The text it shows is the site's language and the interval is the site's setting, both filled in when Hugo builds this
+// file (asset.html, js-text.html).
+{{- $show := site.Params.hero_interval | default 30 }}
+{{- if or (not (in (slice "int" "int64" "float64") (printf "%T" $show))) (lt $show 5) }}
+  {{- errorf "theblues: params.hero_interval must be a number of seconds, 5 or more (got %#v)" $show }}
+{{- end }}
 (function () {
   var hero = document.querySelector('header[data-pool]');
   if (!hero) return;
 
   var TX = {{ partial "js-text.html" "hero" | jsonify }};
-  var SHOW = 30000, LEAD = 5000, FADE = 1500;   // ms; FADE is the opacity transition of .hr in main.css
+  var SHOW = {{ mul $show 1000 | math.Round }}, LEAD = 5000, FADE = 1500;   // ms; FADE is the opacity transition of .hr in main.css
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var URL_RE = /^[A-Za-z0-9_.~\/-]+$/;
   var SIZE_RE = /^(.+)\/(M|L|XL|X2|X3|X4|X5)\/([A-Za-z0-9_.~-]+)-(M|L|XL|X2|X3|X4|X5)\.([A-Za-z0-9]+)$/;
@@ -107,7 +113,7 @@
 
   function running() { return !paused && !document.hidden && !reduce.matches; }
 
-  // Starts the 30 seconds of the photo on screen.
+  // Starts the time of the photo on screen.
   function begin() {
     clear();
     if (!running() || fading) return;

@@ -14,7 +14,8 @@ The home and term heroes rotate through landscape photos from photo posts (#356)
   term. The page paints the first landscape photo of the newest photo post at once, preloaded and without
   JavaScript. In the browser, four more are picked at random and each of the five shows for 30 seconds before fading to
   the next, loading only shortly before it shows and appearing only once it has loaded, in the SmugMug size that suits the
-  screen. There is no setting for it.
+  screen. The new `params.hero_interval` sets how many seconds each photo shows (30 by default; a value that isn't a
+  number of 5 or more fails the build of a site whose hero rotates).
 - A pause and play button in the rotating hero (WCAG 2.2.2), added by the script, 44 by 44 pixels, keyboard operable,
   named "Pause the photo rotation" or "Play the photo rotation". The rotation also pauses while the tab is hidden. The two
   names are new strings, `heroPause` and `heroPlay`, in `i18n/en.toml`; a site's own language file can translate them.

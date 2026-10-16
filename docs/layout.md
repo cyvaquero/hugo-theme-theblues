@@ -109,7 +109,8 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
 - **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, drops what isn't a
   SmugMug path of the form the pool writes, keeps the first photo and picks four random others (a partial Fisher-Yates
   shuffle), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
-  (`SHOW` 30 s, `LEAD` 5 s, `FADE` 1.5 s): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
+  (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a
+  number of 5 or more; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
   `--hi` to `--hi5` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with
   `Image()` and waits for `decode()`; at 30 s, if it is ready, it shows the layer and adds `.on` (the opacity transition), and
   after the fade writes the same custom properties on the hero and hides the layer again; if it isn't ready it waits for it. A photo that
