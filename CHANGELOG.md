@@ -19,6 +19,16 @@ Three accessibility notes from the 1.8.0 review (#369, lines 4, 5 and 6).
   their text is the English fallback; a language with theme text gets no `lang`, and the buttons' names are the same. The
   `multilingual` test variant has a German photo post for it.
 
+## [1.7.8] - 2026-10-15
+
+The photo-post and term hero comments and docs say what their 416px stands for (#367).
+
+### Fixed
+- The comments in the hero partials and `docs/layout.md` said the photo-post and term heroes are sized for a 416px box. That is
+  the box's minimum height: a title that wraps at a narrow viewport makes it taller (422.7px for the fixture's deep-headings
+  post at 320px wide), and the sizes do not cover that, so a tier's size can be shown about 1.6% enlarged there. They now say
+  so, as they already do for the home hero's slogan. The pages the theme builds are unchanged.
+
 ## [1.7.7] - 2026-10-15
 
 Four small fixes from the 1.8.0 review (#369).
