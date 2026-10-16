@@ -3,6 +3,23 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.10] - 2026-10-16
+
+Text a script writes in the theme's English is marked as English (#375).
+
+### Fixed
+- On a site whose language has no theme text for an entry, the text a script writes from it was read in the page language's voice
+  although it is the theme's English: the wall's caption, counts and group headings, the comment and search messages, and the
+  lightbox's name, its announcement ("Photo 3 of 9") and its "image couldn't be loaded" note. Each is now inside `lang="en"`
+  (a `<span lang="en">` around it, or the attribute on the element that holds only that text, such as the comment status and the
+  lightbox dialog), so a screen reader speaks it with an English voice. The search query and the photo's alt text stay in the
+  page's language, and a language with theme text for an entry gets no `lang` for it. The same words are read and the accessible
+  names are the same; the pages Hugo builds are unchanged, only the scripts differ.
+- The README's translation section limited the unmarked English to "text a script writes". It now says that only attribute values
+  a template writes, the page title, an option, a feed and the date layouts can't be marked, and that when the site's default
+  language is English, an entry that another language's file lacks shows the default language's English with no `lang`, since Hugo
+  does not say where an entry came from. Give each language a complete `i18n/<language>.toml`.
+
 ## [1.7.9] - 2026-10-15
 
 Three accessibility notes from the 1.8.0 review (#369, lines 4, 5 and 6).

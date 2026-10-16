@@ -273,8 +273,34 @@ The scripts' English fallback is marked too: `multilingual` has a German photo p
 SmugMug photos give the German home page a rotating hero and the post a lightbox, and `i18n/de.toml` has no text for either. In
 Chrome, on `/` and `/post/20260113-fotos/`, the hero's `.hpp` button and, once a photo is opened, the lightbox's Previous, Next and
 Close buttons have `lang="en"` and the same accessible names as without it ("Pause the photo rotation", "Previous photo", "Next photo",
-"Close photo viewer"; `Accessibility.getFullAXTree`), the dialog has no `lang`, and the pause button keeps it after it is pressed
-("Play the photo rotation"). On `/en/` and the English photo posts (`/en/post/20260107-photo-gallery/`) none of these buttons has a `lang`.
+"Close photo viewer"; `Accessibility.getFullAXTree`), the pause button keeps it after it is pressed ("Play the photo rotation"), and
+the dialog has `lang="en"` (its name, "Photo viewer", is English) with its `.in` wrapper set back to the page's language (`de-DE`), so the photo's alt text
+is not marked. The announcement (`[aria-live]` in the dialog) is `<span lang="en">Photo 1 of 2</span>` followed by `: ` and the
+alt text as plain text; a photo that fails to load (block its URL) adds a second `<span lang="en">` with the failure text, in the
+announcement and the counter. On `/en/` and the English photo posts (`/en/post/20260107-photo-gallery/`) none of these has a `lang`.
+
+The other scripts mark theirs the same way, and each script's text in the built file has `en:[…]`, the names of the entries the
+language lacks (`js/wall.de.min.<hash>.js` lists the caption sentences and counts, `js/wall.ar.min.<hash>.js` lists the sentences
+but not the counts, which `ar.toml` has). In the `multilingual` build's `/` and the `rtl` build's `/` (Arabic), the wall's caption
+(`.cap`) puts the theme's English in `<span lang="en">` and nothing else: German is `<span lang="en">Showing 1 article, 2 photos</span>`
+as one span, and Arabic is `<span lang="en">This page: </span>` then the Arabic count then `<span lang="en">, </span>` and the other
+count. With Group by gallery on, the "Articles" heading is `<h3><span lang="en">Articles</span> · …`, the gallery heading keeps the
+gallery's title and date outside any span, and the options badge's "active" is `<span class="vh" lang="en">`. The comment status
+(`#comments-status`) and the "Try again" button have `lang="en"` on the element while their text is English (on a German post, block
+`*.disqus.com` and press Show comments: "Comments couldn't be loaded…"; the same page in English gets no `lang`). The search status
+has the same spans, with the query outside them: `<span lang="en">No results for “</span>zzzqqq<span lang="en">”.</span>`. The
+fixture's German side has no search page (the nav test above relies on that), so check it in a scratch copy of the fixture with
+`content-de/search/_index.md` added, a copy of the English one with `outputs: [html, searchindex]`, built with the `multilingual`
+variant. The lightbox, when a photo is opened (or its load fails: block `photos.smugmug.com`), has `lang="en"` on the dialog and `lang="de-DE"`
+(the page's) on its `.in` wrapper, `<span lang="en">Photo 1 of 2</span>: Querformat` in the announcement (`[aria-live]`) and
+` <span lang="en">(image couldn't be loaded)</span>` after it and after the counter. Accessible names and the text are the same as before
+the marking (`Accessibility.getFullAXTree` for the dialog and buttons; `textContent` of the status, caption and announcement), and
+the English pages (`/en/`, `/en/search/`, the English photo post) have no `lang` in any of them.
+
+An entry that the language lacks while the default language is English can't be detected (README, "Translating the theme"): `T`
+returns the default language's text. A scratch site with `defaultContentLanguage = "en"`, an `fr` language and an `i18n/fr.toml`
+holding one entry shows it: a template printing `{{ T "b" }}` on an `fr` page for an entry only `i18n/en.toml` has prints the English
+text, as it does on the English page.
 
 Plural forms: the `rtl` build's `js/wall.ar.min.<hash>.js` has `p:[0,1,2,3,…]` and `t:[…]` in each count, and the
 English and German scripts have only `one` and `other`. To see the six forms pick, copy `<out>/rtl` to a scratch folder,
