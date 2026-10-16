@@ -80,6 +80,9 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
   (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
 - `params.hero_interval`: the base build's `hero.js` has `SHOW = 30000`; with `--config hugo.toml,<file setting hero_interval = 15>` it has
   `SHOW = 15000` (and `7.5` gives `7500`), and `"15"`, `4` and `true` each fail the build with the `params.hero_interval` error.
+- `data-pool` entries the build can't write are ignored (#368): serve a copy of a built page whose `data-pool` also holds a token with an unknown size name
+  (`…|M,L,EVIL,X2,,X2`), one with five names, one over 512 characters and one whose path has the same `/M/` segment repeated many times; the
+  script keeps only the build's entries (and parses the long path in well under a millisecond), and the hero still rotates.
 - Tab reaches the pause button (after the hero's links), its accessible name is "Pause the photo rotation" (`Accessibility.getFullAXTree`), Enter changes it to
   "Play the photo rotation" and the rotation stops: no change and no request for as long as it is paused; Space and a click change it back. The button has no `aria-pressed`, the
   layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is the 3px sand outline.
