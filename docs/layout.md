@@ -107,7 +107,8 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   an attribute and not as a JSON file so that no request, no `connect-src` entry and no failure mode are added; a file per
   term would also be one more page to build for every tag.
 - **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, drops what isn't a
-  SmugMug path of the form the pool writes, picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless
+  SmugMug path of the form the pool writes (a token over 512 characters, a path that doesn't end in `SIZE/stem-SIZE.ext` with the same
+  size twice, or size names that aren't six known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless
   the first pick is the build's photo, fetches it at once and fades it in as soon as it is ready (`cur` is -1 until then;
   `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
   (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a

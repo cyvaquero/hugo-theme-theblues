@@ -22,6 +22,17 @@ Four small fixes from the 1.8.0 review (#369).
   rotation, and hide the pause button, while the site's other photos were fine. It is replaced by another photo of the
   pool now, and the rotation ends only when fewer than two photos can be loaded.
 
+## [1.7.6] - 2026-10-15
+
+The rotating hero checks each photo entry it reads more strictly (#368).
+
+### Security
+- `hero.js` took any size names from a `data-pool` entry and put them into the photo's URL. That can't happen with a page
+  the theme built, since the entries are written by the build from SmugMug URLs it has already checked, so this is
+  defense in depth. An entry is now ignored unless it is no longer than 512 characters, its path splits on `/` into a
+  directory and a `SIZE/stem-SIZE.ext` ending with the same size twice, and it has either no size names or exactly
+  six, each one of M, L, XL, X2, X3, X4, X5 or empty. Pages built by the theme are unchanged apart from the script's name.
+
 ## [1.7.5] - 2026-10-15
 
 The home hero's photo sizes cover its real box height (#361).
