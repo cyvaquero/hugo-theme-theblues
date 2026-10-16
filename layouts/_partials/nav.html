@@ -34,7 +34,7 @@
       {{- $path := strings.TrimSuffix $tail $href }}
       {{- if or $path (not $tail) }}
       {{- $path = strings.TrimPrefix "/" $path | relLangURL }}
-      {{- if not (or (strings.HasSuffix $path "/") (findRE `\.[a-zA-Z0-9]+$` $path 1)) }}{{ $path = printf "%s/" $path }}{{ end }}
+      {{- if not (or (strings.HasSuffix $path "/") (findRE `\.[A-Za-z][A-Za-z0-9]*$` $path 1)) }}{{ $path = printf "%s/" $path }}{{ end }}
       {{- end }}
       {{- $href = printf "%s%s" $path $tail }}
     {{- end }}

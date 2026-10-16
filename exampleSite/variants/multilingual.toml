@@ -25,6 +25,12 @@ defaultContentLanguage = "de"
     target = "content"
     [module.mounts.sites.matrix]
       languages = ["de"]
+  # A German photo post (docs/testing.md): the site's language has no text for the lightbox and the hero's pause button.
+  [[module.mounts]]
+    source = "content-de-photos"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["de"]
   [[module.mounts]]
     source = "archetypes"
     target = "archetypes"

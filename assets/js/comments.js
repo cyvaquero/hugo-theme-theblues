@@ -7,7 +7,8 @@
 // that merely timed out is kept, since its request is still running: "Try again" waits for it, and adds a second one only
 // after an error (#254).
 // The text it writes is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
-// js-text.html), from i18n/en.toml or the site's own file.
+// js-text.html), from i18n/en.toml or the site's own file. Text the site's language lacks is the theme's English; the status and the
+// button hold only that text, so they get lang="en" while it is there (TX.en lists the text, WCAG 3.1.2).
 (function () {
   var b = document.querySelector('.comments .showc');
   if (!b) return;
@@ -16,15 +17,20 @@
   b.hidden = false;
   var TX = {{ partial "js-text.html" "comments" | jsonify }};
 
-  function say(text) { if (st) st.textContent = text; }
+  // Sets an element's text to TX[key], with lang="en" on the element when that is the theme's English.
+  function put(e, key) {
+    if (TX.en.indexOf(key) >= 0) e.lang = 'en'; else e.removeAttribute('lang');
+    e.textContent = TX[key];
+  }
+  function say(key) { if (st) put(st, key); }
 
   // drop: the script's request failed, so remove it and let the next try add a new one. After a timeout it stays, because
   // its request may still finish (embed.js would run twice if a second script were added next to it, #254).
   function fail(drop) {
     clearTimeout(timer);
     if (drop && script) { script.onerror = null; script.remove(); script = null; }
-    say(TX.failed);
-    b.textContent = TX.tryAgain;
+    say('failed');
+    put(b, 'tryAgain');
     b.hidden = false;
   }
 
@@ -38,13 +44,13 @@
       this.callbacks.onReady = [function () {
         clearTimeout(timer);
         b.hidden = true;
-        say(TX.loaded);
+        say('loaded');
       }];
     };
     // The button goes away while loading, so first put keyboard focus on the heading above the comments.
     if (h) { h.hidden = false; h.focus(); }
     b.hidden = true;
-    say(TX.loading);
+    say('loading');
     clearTimeout(timer);
     timer = setTimeout(function () { fail(false); }, TIMEOUT);
     if (window.DISQUS) {  // an earlier try loaded embed.js but never reported ready: reload instead of adding it twice

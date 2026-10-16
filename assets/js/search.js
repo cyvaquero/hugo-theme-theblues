@@ -127,14 +127,14 @@
     var u;
     try { u = new URL(root.getAttribute('data-index'), location.href); } catch (e) { return Promise.reject(e); }
     if (u.origin !== location.origin) return Promise.reject(new Error('origin'));
-    var slow = setTimeout(function () { say(TX.loading); }, 400);
+    var slow = setTimeout(function () { say([[TX.loading, 'loading']]); }, 400);
     pending = fetch(u.href, { credentials: 'same-origin' }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     }).then(function (data) { index = build(data); return index; });
     // The "Loading…" text is cleared when the load ends, unless something else has been written since: a failure message
     // (written after this runs) or a count. Otherwise a slow load with no query leaves it in the live region (#322).
-    function done() { clearTimeout(slow); pending = null; if (status.textContent === TX.loading) say(''); }
+    function done() { clearTimeout(slow); pending = null; if (status.textContent === TX.loading) say([]); }
     pending.then(done, done);
     return pending;
   }
@@ -260,13 +260,34 @@
   }
 
   function clear() { list.textContent = ''; box.hidden = true; }
-  function say(text) { status.textContent = text; }
+  // The status holds parts, each [text, key]: key is the name of the text in TX, or '' for text that isn't the theme's. A part whose
+  // key is in TX.en (the theme's English, which the site's language lacks) goes in a <span lang="en"> (WCAG 3.1.2); the query stays outside.
+  function say(parts) {
+    var run = '', en = false;
+    function flush() {
+      if (!run) return;
+      var s = en ? document.createElement('span') : null;
+      if (s) { s.lang = 'en'; s.textContent = run; status.appendChild(s); } else status.appendChild(document.createTextNode(run));
+      run = '';
+    }
+    status.textContent = '';
+    parts.forEach(function (p) {
+      if (!p[0]) return;
+      var e = !!p[1] && TX.en.indexOf(p[1]) >= 0;
+      if (e !== en) { flush(); en = e; }
+      run += p[0];
+    });
+    flush();
+  }
 
   function summary() {
     var n = last.r.hits.length, q = input.value.trim();
-    if (!n) return TX.noResults.replace('{query}', function () { return q; });
-    var text = countText(n);
-    return n > MAX ? text + ' ' + TX.capped.replace('{n}', MAX) : text;
+    if (!n) {
+      var at = TX.noResults.indexOf('{query}');   // the query goes in as typed, not as theme text
+      return at < 0 ? [[TX.noResults, 'noResults']] : [[TX.noResults.slice(0, at), 'noResults'], [q, ''], [TX.noResults.slice(at + 7), 'noResults']];
+    }
+    var parts = [[countText(n), 'count']];
+    return n > MAX ? parts.concat([[' ', 'count'], [TX.capped.replace('{n}', MAX), 'capped']]) : parts;
   }
 
   // Keep the query in the address (?q=), so a result can be shared or come back to with Back; no history entry is added.
@@ -283,7 +304,7 @@
   function update(now) {
     var q = input.value.trim(), mine = ++seq, words = queryWords(q);
     sync(q);
-    if (!words.length) { clear(); last = null; say(''); return; }
+    if (!words.length) { clear(); last = null; say([]); return; }
     function go() {
       if (mine !== seq) return;
       last = { r: search(words) };
@@ -291,7 +312,7 @@
       if (now || statusDue) say(summary());
     }
     if (index) go();
-    else load().then(go, function () { if (mine === seq) { clear(); last = null; say(TX.failed); } });
+    else load().then(go, function () { if (mine === seq) { clear(); last = null; say([[TX.failed, 'failed']]); } });
   }
 
   // The address with its percent escapes decoded, each run of escapes on its own: one malformed escape ("%E0%A4%A") must not

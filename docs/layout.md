@@ -91,7 +91,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
 ## How the rotating hero works
 
 - **Pool.** `hero-pool.html` takes the page (home or term), its pages (the main-section posts of the site, or of the term) and
-  the hero's height (246 or 416, as `hero-sizes.html` takes it). Newest post first, for each photo post (`is-photo.html`) it
+  the hero's height (246 or 416, as `hero-sizes.html` takes it: the `.phero` figure is its minimum height, and a title or slogan that wraps makes the box taller than either). Newest post first, for each photo post (`is-photo.html`) it
   walks the gallery photos `photos.html` returns, keeps a photo whose URL is a plain `https://photos.smugmug.com/` one and
   that is wider than high by `img-size.html` (the wall's own ranged read, shared through `partialCached`, so a photo is
   read once per build), asks `hero-sizes.html` for the tier size names (it now also returns `names`, the size each of the six
@@ -107,16 +107,19 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   an attribute and not as a JSON file so that no request, no `connect-src` entry and no failure mode are added; a file per
   term would also be one more page to build for every tag.
 - **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, drops what isn't a
-  SmugMug path of the form the pool writes, picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless
+  SmugMug path of the form the pool writes (a token over 512 characters, a path that doesn't end in `SIZE/stem-SIZE.ext` with the same
+  size twice, or size names that aren't six known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless
   the first pick is the build's photo, fetches it at once and fades it in as soon as it is ready (`cur` is -1 until then;
   `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
   (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a
-  number of 5 or more; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
+  number from 5 to 2147483 (a timer's longest delay in milliseconds is 2^31-1), checked before any default so that 0, `nan` and `inf` fail too; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
   `--hi` to `--hi6` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with
   `Image()` and waits for `decode()`; at 30 s, if it is ready, it shows the layer and adds `.on` (the opacity transition), and
   after the fade writes the same custom properties on the hero and hides the layer again; if it isn't ready it waits for it. A photo that
-  fails is dropped from the five. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
-  changes while the page is open) clear the timers and the pending load; a fade in progress is allowed to finish.
+  fails is replaced by one of the pool not yet tried (the pool beyond the five is kept in random order for that); the five shrink only
+  when none is left, and the rotation ends (no button) when fewer than two photos remain. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
+  changes while the page is open) clear the timers and the pending load; a fade in progress is allowed to finish. Hiding the button (reduced motion, or fewer than
+  two photos left) while it has focus first moves focus to `<main>`, the skip link's target, so focus isn't dropped to `<body>`.
 - **Styles.** `.hero` and `.phero` keep their scrim in `--sc`, and `.hr` paints the same scrim over the next photo, so the layer
   covers the hero's own background but sits under its text (`z-index: -1` in the hero's own stacking context, `isolation:
   isolate` on `.rot`), and the contrast of the text is the scrim's, as before. The tier media queries also set `--hs` on `.hr`.
@@ -129,9 +132,20 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   of an element, the fallback half is `partial "t-en.html"`, which returns t.html's text escaped inside
   `<span lang="en">`, so a screen reader reads it in English on a page in another language. Attribute values, the page
   `<title>`, `<option>` content, feeds, date layouts and the "Undated" text keep `t.html`, since no markup can carry a
-  language there. `i18n-check.html` calls `t-en.html` once so an English-only fixture build sees it used. The fixture's
+  language there. Hugo's `T` returns the default language's text for an entry a language lacks, so when the default language is
+  English the fallback half never runs for that entry and the text is English with no `lang` (README, "Translating the theme").
+  `i18n-check.html` calls `t-en.html` once so an English-only fixture build sees it used. The fixture's
   pair check (`exampleSite/layouts/_partials/i18n-pairs.html`) counts both partials.
-- **Script text.** `js-text.html` gives a script its text; `js-forms.html` makes a count's forms. T gets the plain numbers
+- **Script text.** `js-text.html` gives a script its text; `js-forms.html` makes a count's forms. Every map also has `en`, the
+  names (the map's own keys, such as `pause`, `previousPhoto`, `photoOf`, `articleCount` or `noResults`) of the text that fell
+  back to the theme's English (T had no text for the key; a count is listed when T has none for 1), and each script marks what it
+  writes from them, as the templates do with `t-en.html`: `lang="en"` on an element whose whole content is that text (the hero's
+  pause and play button, the lightbox's previous, next and close buttons, which also carry the name in `aria-label`, the comment
+  status and its "Try again" button, the "active" note in the options badge), else a `<span lang="en">` around the text (the wall's
+  caption, counts and group headings, the search status, the lightbox's announcement and counter). A sentence is split at its marks,
+  so a count, the query and the photo's alt text keep their own language. The lightbox's dialog name is its `aria-label`, so
+  the dialog gets `lang="en"` and its `.in` wrapper takes `<html lang>` back, which keeps the photo's alt text and the buttons in
+  the page's language. The wall's On and Off sit in an `aria-hidden` span and are not marked. T gets the plain numbers
   0 to 7, 11, 12, 21, 22 and 100 to 103; when they give more than two distinct texts the script gets those texts with the
   numbers (`p`, `t`) and picks the one whose plural category (`Intl.PluralRules`) matches the count; otherwise it gets
   `one` and `other`, as before.
@@ -196,7 +210,9 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   1600px wide, up to two-x up to 640px, and up to three-x up to 427px), the smallest of M, L, XL, X2 and X3 that is smaller than the URL's own size
   and still covers the hero box at that tier's widest viewport and highest pixel ratio. The three-x tier stops at 427px
   because X2's 1280px long edge covers 427 × 3 = 1281 device pixels (1px allowed) and no more; its 960px height also
-  rules X2 out for the 416px photo-post hero (1248px at three-x), so there it only helps the 246px home hero.
+  rules X2 out for the 416px photo-post hero (1248px at three-x), so there it only helps the 246px home hero. The 416px is `.phero`'s minimum height, not a bound: a title that wraps at a
+  narrow viewport makes the box taller (422.7px for the fixture's deep-headings post at 320px wide), and the sizes don't
+  cover that, so a tier's size can be shown slightly enlarged there.
   Denser and wider screens keep
   the URL's size, and so do other hosts and photos whose size can't be read (offline build). The preload, where a page
   has one, gives each size with the same media query, so the browser fetches the hero once. Share images (`og:image`)

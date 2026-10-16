@@ -3,109 +3,103 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.7.5] - 2026-10-15
-
-The home hero's photo sizes cover its real box height (#361).
-
-### Fixed
-- The home and 404 heroes picked their smaller photo sizes for a 240px box, but the box is 245.64px tall with a
-  one-line slogan and tagline (241 to 246px at the usual widths), so a size 240 to 246 device pixels high was shown
-  slightly enlarged. They now use 246px. On a photo that is 16:9, a three-x phone (up to 427px wide) therefore gets
-  the full size instead of X2, since X2 is 720px high and the box needs 738. A slogan or tagline that wraps makes the
-  box taller still; the sizes do not cover that.
-- The comments in the hero partials and `docs/layout.md` now state the box height they use.
-
-## [1.7.4] - 2026-10-15
-
-The rotating hero's photo list builds in linear time (#363).
-
-### Changed
-- `hero-pool.html` keeps the photos it has already taken in a Scratch instead of adding each one to a dict with `merge`,
-  which copied the dict every time. Building one pool was quadratic in its photo count (281 ms at 2,000 photos and
-  4.4 s at 8,000 in a micro-benchmark, against 15 ms and 89 ms now); the output is the same.
-
-## [1.7.3] - 2026-10-15
-
-Heroes load a smaller photo on a three-x phone (#359).
-
-### Changed
-- A phone with a pixel ratio above 2 and up to 3 (an iPhone or Pixel up to 427 CSS pixels wide, such as 390, 393, 402 or
-  412) now gets a smaller SmugMug size for a hero photo, as the one-x and two-x screens already did: X2 where the
-  photo post's cover is X3, instead of the full size, which is about 0.6 to 0.9 MB. It applies to the home page and term
-  heroes (240 CSS pixels tall at most), and so to every photo the rotating hero shows. A tall photo-post hero (416
-  pixels) and a wider phone (428 or 430 pixels, an iPhone Plus or Pro Max) keep the full size, since X2 would be shown
-  below one photo pixel per device pixel there. A page's hero style attribute gains a `--hi6` declaration and its
-  `<head>` a preload link for it; the rotating hero's `data-pool` tokens carry a sixth size name.
-
-## [1.7.2] - 2026-10-15
-
-The home and term heroes rotate through landscape photos from photo posts (#356).
+## [1.8.0] - 2026-10-16
 
 ### Added
-- The home page's hero and the heroes of tag, category and series pages now rotate through landscape photos from the
-  site's photo posts. The pool is the gallery photos of photo posts (never images in an article's text or galleries in
-  articles, and never drafts, future or expired posts), only the ones wider than high; a term page uses the photo posts in that
-  term. The page paints the first landscape photo of the newest photo post at once, preloaded and without
-  JavaScript. In the browser, five photos are picked at random from the whole pool, so each visit starts on a random
-  photo of a random gallery, faded in over the build's photo as soon as it has loaded; each of the five shows for 30
-  seconds before fading to the next, loading only shortly before it shows and appearing only once it has loaded, in the SmugMug size that suits the
-  screen. The new `params.hero_interval` sets how many seconds each photo shows (30 by default; a value that isn't a
-  number of 5 or more fails the build of a site whose hero rotates).
-- A pause and play button in the rotating hero (WCAG 2.2.2), added by the script, 44 by 44 pixels, keyboard operable,
-  named "Pause the photo rotation" or "Play the photo rotation". The rotation also pauses while the tab is hidden. The two
-  names are new strings, `heroPause` and `heroPlay`, in `i18n/en.toml`; a site's own language file can translate them.
+- The home page's hero and the heroes of tag, category and series pages rotate through landscape photos from the site's
+  photo posts (#356). The pool is the gallery photos of photo posts (never images in an article's text or galleries in
+  articles, and never drafts, future or expired posts), only the ones wider than high; a term page uses the photo posts in
+  that term. The page paints the first landscape photo of the newest photo post at once, preloaded and without
+  JavaScript. In the browser, five photos are picked at random from the whole pool, so each visit starts on a random photo
+  of a random gallery, faded in over the build's photo as soon as it has loaded; each of the five shows for 30 seconds
+  before fading to the next, loading only shortly before it shows and appearing only once it has loaded, in the SmugMug
+  size that suits the screen. A photo that fails to load is replaced by another photo of the pool, and the rotation ends
+  only when fewer than two photos can be loaded (#369). The pool builds in linear time (15 ms at 2,000 photos and 89 ms at
+  8,000 in a micro-benchmark) (#363).
+- `params.hero_interval` sets how many seconds each photo shows: 30 by default, and any number from 5 to 2147483. Any other
+  value (text, `nan`, `inf`, `0`, or one too large for a browser timer) fails the build of a site whose hero rotates
+  (#356, #369).
+- A pause and play button in the rotating hero (WCAG 2.2.2), added by the script, 44 by 44 pixels, keyboard operable, named
+  "Pause the photo rotation" or "Play the photo rotation" (#356). Its focus ring is two-tone, a cream outline around a 2px
+  dark halo, so it shows over any photo (14.6:1 between the two), with `ButtonText` and `ButtonFace` in Windows high
+  contrast; when the button is hidden while it has focus (reduced motion switched on while the page is open, or the
+  rotation ending because photos failed to load), focus moves to the main content (#369). The rotation also pauses while
+  the tab is hidden. The two names are new strings, `heroPause` and `heroPlay`, in `i18n/en.toml`; a site's own language
+  file can translate them, and on a language without them the button carries `lang="en"` (#369).
 - A new script, `assets/js/hero.js`, loaded only on a page whose hero has two or more photos to rotate through. It adds no
-  inline script, no new origin and nothing to a site's CSP: the photos reach it as a `data-pool` attribute on the hero.
-- The fixture has two variants, `hero-none` (landscape photos only where no hero may use them: its output is the same as
-  before) and `hero-one` (a pool of one photo), next to the rotating base build; `docs/testing.md` lists the checks.
+  inline script, no new origin and nothing to a site's CSP: the photos reach it as a `data-pool` attribute on the hero
+  (#356).
+- The photo viewer says when a photo could not be loaded: its counter and the announcement read "(image couldn’t be
+  loaded)" after the position when neither the large photo nor the thumbnail loads, where they announced the photo as if
+  it were on screen. The text is a new string, `photoFailed`, in `i18n/en.toml`; a site's own language file can translate
+  it (#350).
 
 ### Changed
-- With `prefers-reduced-motion: reduce` the rotating hero shows its first photo only: no timer, no fade, no button.
+- With `prefers-reduced-motion: reduce` the rotating hero shows its first photo only: no timer, no fade, no button (#356).
 - `header_image` (on the home page) and a term's cover are now used only when the site, or the term, has no landscape photo
   in its photo posts; a term's hero shows the first landscape photo of its newest photo post, not the post's `image` or its
-  first photo of any shape. A site with no such photo builds every page as before.
-
-## [1.7.1] - 2026-10-15
-
-The low and info findings of the 1.7.0 review (#350).
-
-### Added
-- The photo viewer says when a photo could not be loaded: its counter and the announcement read "(image couldn’t be
-  loaded)" after the position when neither the large photo nor the thumbnail loads, where they announced the photo as
-  if it were on screen. The text is a new string, `photoFailed`, in `i18n/en.toml`; a site's own language file can
-  translate it.
-- The fixture's `legacy-nav` variant (`exampleSite/variants/legacy-nav.toml`) covers legacy nav links with a query or a
-  fragment, and the accents and vocalized pages have words for the new search folds.
-
-### Changed
-- The search treats more spellings as the same word. `strasse` finds "Straße", `lodz` finds "Łódź", and ø, đ, æ and œ
-  match o, d, ae and oe. The Greek capitals `ΚΟΣ` find "ΚΟΣΜΟΣ" (a capital sigma at the end of a word no longer differs
-  from σ). The zero-width joiners (U+200C, U+200D) inside a word are ignored, so "کتاب‌ها" is one word and `کتابها`,
-  typed without the joiner, finds it, and the whole word is highlighted.
-- On the 404 page, one malformed `%` sequence in the address no longer turns every non-ASCII word of it into noise
-  (`c3`, `bcnal`): each run of escapes is decoded on its own, so `/caf%C3%A9%/` still searches "cafe".
-- The previous and next arrows (← →) are hidden from screen readers, so the links read "Older", "Back to all posts"
-  and so on, not "Older leftwards arrow". The space beside the arrow is now part of it, which also keeps that space in the
-  pager and the nav where English text is used in a right-to-left language.
+  first photo of any shape. A site with no such photo builds every page as before (#356).
+- A phone with a pixel ratio above 2 and up to 3 (an iPhone or Pixel up to 427 CSS pixels wide, such as 390, 393, 402 or
+  412) gets a smaller SmugMug size for the home page hero, and the photos it rotates through, where one covers the hero's
+  246px box, as the one-x and two-x screens already did, instead of the full size, which is about 0.6 to 0.9 MB (#359).
+  Photo-post and term heroes (416 pixels) and a wider phone (428 or 430 pixels, an iPhone Plus or Pro Max) keep the full
+  size, since a smaller one would be shown below one photo pixel per device pixel there. A page's hero style attribute
+  gains a `--hi6` declaration and its `<head>` a preload link for it.
+- The search treats more spellings as the same word (#350). `strasse` finds "Straße", `lodz` finds "Łódź", and ø, đ, æ and
+  œ match o, d, ae and oe. The Greek capitals `ΚΟΣ` find "ΚΟΣΜΟΣ" (a capital sigma at the end of a word no longer differs
+  from σ). The zero-width joiners (U+200C, U+200D) inside a word are ignored, so "کتاب‌ها" is one word and `کتابها`, typed
+  without the joiner, finds it, and the whole word is highlighted.
+- On the 404 page, one malformed `%` sequence in the address no longer turns every non-ASCII word of it into noise (`c3`,
+  `bcnal`): each run of escapes is decoded on its own, so `/caf%C3%A9%/` still searches "cafe" (#350).
+- The previous and next arrows (← →) are hidden from screen readers, so the links read "Older", "Back to all posts" and so
+  on, not "Older leftwards arrow". The space beside the arrow is now part of it, which also keeps that space in the pager
+  and the nav where English text is used in a right-to-left language (#350).
 - A legacy `params.addtional_menus` link with a `?query` or a `#fragment` keeps it as written, after the path's trailing
   slash (`/about#team` is `/about/#team`, not `/about#team/`), and a link that is only a fragment or a query (`#top`) is
-  left as it is.
-- The nav's search link is shown only in a language that has a search page, so a language without one (the Arabic
-  fixture) no longer links to a missing page.
-- The disclosure triangle of a closed "Group by gallery" section points toward its heading in a right-to-left language.
-- A front-matter `image` (or `params.og_image`) that is not a valid URL fails the build with a message that names the
-  page and the setting, in place of Hugo's bare "first path segment in URL cannot contain colon".
+  left as it is (#350).
+- The nav's search link is shown only in a language that has a search page, so a language without one no longer links to
+  a missing page (#350).
+- The disclosure triangle of a closed "Group by gallery" section points toward its heading in a right-to-left language
+  (#350).
+- A front-matter `image` (or `params.og_image`) that is not a valid URL fails the build with a message that names the page
+  and the setting, in place of Hugo's bare "first path segment in URL cannot contain colon" (#350).
 - The photo viewer's X2 or X3 choice is made again when the window is resized or the device turned, so a phone rotated
-  with the viewer open stops showing a slightly enlarged photo; the new size is swapped in once it has loaded.
+  with the viewer open stops showing a slightly enlarged photo; the new size is swapped in once it has loaded (#350).
 
 ### Fixed
+- On a site whose language has no theme text for an entry, the text a script writes from it was read in the page
+  language's voice although it is the theme's English: the photo viewer's previous, next and close buttons, its name, its
+  announcement ("Photo 3 of 9") and its "image couldn't be loaded" note, the wall's caption, counts and group headings, and
+  the comment and search messages. Each is now inside `lang="en"` (a `<span lang="en">` around it, or the attribute on the
+  element that holds only that text), so a screen reader speaks it with an English voice; the search query and the photo's
+  alt text stay in the page's language, and a language with theme text for an entry gets no `lang` for it. The README's
+  translation section says what still can't be marked: attribute values a template writes, the page title, an option, a
+  feed and the date layouts, and, when the site's default language is English, an entry that another language's file
+  lacks, which Hugo fills with the default language's text without saying so (#369, #375).
+- The home and 404 heroes picked their smaller photo sizes for a 240px box, but the box is 245.64px tall with a one-line
+  slogan and tagline (241 to 246px at the usual widths), so a size 240 to 246 device pixels high was shown slightly
+  enlarged. They now use 246px. A slogan or tagline that wraps makes the box taller still; the sizes do not cover that
+  (#361).
+- A pen put down on the photo viewer's photo and lifted somewhere else left the viewer counting a finger that was still
+  down, so every later swipe was taken for a pinch and ignored until the page was reloaded. The photo now keeps the
+  pointer's events until it is lifted, and the count starts again each time the viewer opens or closes (#369).
+- A legacy `params.addtional_menus` link whose last part looks like a version, such as `/releases/v1.2`, was taken for a
+  file: it got no trailing slash and never showed as the current page. Only a last segment that ends in an extension
+  starting with a letter (`/feed.xml`, `/files/guide.pdf`) is a file now (#369).
 - `og:locale` is written only when the site's `locale` ends in a two-letter region (`en-US`, and now `zh-Hant-TW` as
   `zh_TW`). It no longer writes `zh_HANT`, `sr_LATN` or `es_419` for a script or a numeric region; those locales get no
-  `og:locale`, as a locale with no region always did.
+  `og:locale`, as a locale with no region always did (#350).
 - A term (tag, category or series) with no pages in the main sections no longer has a `<link rel="alternate">` to its
-  empty feed in `<head>`; its visible "Subscribe via RSS" link was already left out.
+  empty feed in `<head>`; its visible "Subscribe via RSS" link was already left out (#350).
 - The photo viewer's keys no longer take Alt, Ctrl, Meta or Shift with the arrows, Home and End, so Alt+Left (Back) and
-  Ctrl+End work while it is open.
+  Ctrl+End work while it is open (#350).
+
+### Security
+- `hero.js` checks each `data-pool` entry before it puts its size names into a photo's URL (#368). That can't be misused
+  with a page the theme built, since the entries are written by the build from SmugMug URLs it has already checked, so
+  this is defense in depth. An entry is ignored unless it is no longer than 512 characters, its path splits on `/` into a
+  directory and a `SIZE/stem-SIZE.ext` ending with the same size twice, and it has either no size names or exactly six,
+  each one of M, L, XL, X2, X3, X4, X5 or empty.
 
 ## [1.7.0] - 2026-10-15
 

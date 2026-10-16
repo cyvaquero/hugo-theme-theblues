@@ -20,7 +20,7 @@ Integrity hashes and fingerprinted names. The fixture builds that way, but not m
 compared. Also build it minified, as a site is deployed, and the eight variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
 which cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
 the legacy `params.addtional_menus`), the legacy nav with hrefs that carry a query or a fragment (`legacy-nav`, below), a second language with a partial translation (`i18n/de.toml`, content in
-`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
+`content-de/`, and one German photo post in `content-de-photos/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
 Google Analytics ID, which the theme loads in production builds only, and a right-to-left language (`rtl`: Arabic with
 `direction = "rtl"` next to English, #266), whose pages must start `<html lang="ar" dir="rtl">` while the English ones
 have no `dir`, and whose layout mirrors (#296): the series box, article tile, table of contents and blockquote bars are on
@@ -51,7 +51,9 @@ done
 
 The `legacy-nav` variant (#350) replaces the legacy `params.addtional_menus` list with hrefs that carry a query or a fragment. In its
 nav, `/about#team` is `/about/#team`, `/search?x=1` is `/search/?x=1`, `/archive?s=a#b` is `/archive/?s=a#b`, `/feed.xml#x` is
-`/feed.xml#x` (it has an extension), and the hrefs that are only a fragment or a query, `#top` and `?page=2`, stay as written (not
+`/feed.xml#x` (it has an extension), `/files/guide.pdf` stays as it is, `/releases/v1.2` (a last segment that looks like a version, whose
+`.2` is not an extension) is `/releases/v1.2/` and carries `aria-current="page"` on the page `content-legacy-nav/v1.2.md`, which the variant mounts at
+`content/releases` (so the base build is unchanged), and the hrefs that are only a fragment or a query, `#top` and `?page=2`, stay as written (not
 `/#top/`); with `-b https://example.org/sub/` the paths gain `/sub`, and with the `multilingual` variant added to the
 `--config` list they gain `/en` on the English pages (`/en/about/#team`).
 
@@ -59,7 +61,7 @@ The rotating hero (#356, README, "Rotating hero") has fixtures in the base build
 `photos.smugmug.com`, so a first build needs the network. In the **base build**, the newest photo post (`20260107`, on
 `photos.example.org`) has no photo whose size can be read, so the pool is the two landscape photos of `20260104-smugmug-photos`
 (its portrait photo is left out, and so is the `image` of the hero-image article, which is not a gallery photo): the home page, `/tags/photos/`,
-`/tags/fixtures/` and `/categories/photos/` (and their pager pages) have `data-pool` with two tokens (`photos/i-25Xwh4F/…|M,L,X2,X2,`),
+`/tags/fixtures/` and `/categories/photos/` (and their pager pages) have `data-pool` with two tokens (`photos/i-25Xwh4F/…|M,L,X2,X2,,X2` on the home page, `…|L,L,X2,X2,,` on the 416px term heroes),
 the first photo (`i-25Xwh4F`) in the hero's `--hi` and in the preload links, and a `<script src=/js/hero.…>`; `/tags/code/`, `/categories/tech/`
 and the pages of the other terms, and every other page, have none of that. The **`hero-none` variant** (`variants/hero-none.toml`,
 `content-hero-none/`) has landscape SmugMug photos only where no pool may take them: an article's inline gallery, `image` and Markdown image, a photo post
@@ -78,17 +80,29 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
   (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. Reloads give different start photos (from different galleries, given enough reloads)
   and different sets of five; no photo comes back before the cycle ends and the sixth photo shown is the first of the five again. To see a whole cycle sooner, scale the page's timers before it loads
   (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
-- `params.hero_interval`: the base build's `hero.js` has `SHOW = 30000`; with `--config hugo.toml,<file setting hero_interval = 15>` it has
-  `SHOW = 15000` (and `7.5` gives `7500`), and `"15"`, `4` and `true` each fail the build with the `params.hero_interval` error.
+- `params.hero_interval`: the show interval (`SHOW` in `assets/js/hero.js`, in milliseconds) is minified in every build but a development one,
+  so the base build's `hero.js` has it as `3e4`, just before `LEAD`'s `5e3`; with `--config hugo.toml,<file setting hero_interval = 15>` it is
+  `15e3` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`5e3` and `2147483e3`).
+- A photo that fails to load is replaced (block some of the pool's photo URLs with `Network.setBlockedURLs`, or fail them with `Fetch.failRequest`): the
+  rotation goes on with the others, and ends, with the button hidden, only when fewer than two photos can be loaded.
+- `data-pool` entries the build can't write are ignored (#368): serve a copy of a built page whose `data-pool` also holds a token with an unknown size name
+  (`…|M,L,EVIL,X2,,X2`), one with five names, one over 512 characters and one whose path has the same `/M/` segment repeated many times; the
+  script keeps only the build's entries (and parses the long path in well under a millisecond), and the hero still rotates.
 - Tab reaches the pause button (after the hero's links), its accessible name is "Pause the photo rotation" (`Accessibility.getFullAXTree`), Enter changes it to
   "Play the photo rotation" and the rotation stops: no change and no request for as long as it is paused; Space and a click change it back. The button has no `aria-pressed`, the
-  layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is the 3px sand outline.
+  layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is a 3px cream outline around a 2px dark halo (`box-shadow`, the scrim color), also with `forced-colors: active`
+  (`Emulation.setEmulatedMedia`). Over a white photo (serve a built term page with the hero's `--hi` and `--hi1` to `--hi6` pointed at a local white image) and a black
+  one, Tab to the button (a real Tab key event) and screenshot it: the dark ring shows against the cream border and outline in both, and the outline shows against the black one.
   A tab reported hidden (`document.hidden` true, then a `visibilitychange` event) stops the rotation and a visible one restarts it.
+- Focus is not lost when the button goes away: Tab to the pause button (a real Tab key event), then turn on `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`),
+  and separately make every photo request fail (`Fetch.failRequest`, holding the requests until the button has focus), so the rotation ends. In both,
+  `document.activeElement` is `main#main` (not `body`), the button is `hidden`, and the next Tab goes to the first stop after the hero.
 - With `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`) there is no button, the layer is never shown, the hero keeps the build's photo
   (no random start) and makes no further photo request; changing the setting while the page is open starts or stops the rotation.
 - The text's computed colors and the hero's `background-image` (with the URL taken out) equal those of the same page before the change, in light and dark mode; and with the
   layer shown over the hero with the hero's own photo (copy the hero's `--hi` to `--hi6` to the layer, `.on`, no transition) a screenshot of the hero is pixel for pixel the same as without it.
 - Hero sizes by screen (device metrics override, `getComputedStyle(hero).backgroundImage`): the home hero's photo is X2 at 390, 412 and 427px wide at three-x and X3 at 428 and 430px wide or at four-x, in each case at least the viewport width and the hero box's height in device pixels (`getBoundingClientRect().height` of the home `.hero`: 245.64 at 800px and wider with the fixture's one-line slogan and tagline, which `hero-sizes.html` takes as 246; it is taller where the slogan or tagline wraps); at two-x and one-x it is the same size as before the three-x tier (the .phero of a photo post or term keeps its X3 or X5 size at three-x).
+- The photo-post hero is sized for its minimum height, 416px, and a title that wraps makes it taller: `getBoundingClientRect().height` of `.phero` on `/post/20260110-deep-headings/` is 416 at 390 and 1280px wide and 422.7 at 320px (about 1.6% more, so a tier's size can be shown slightly enlarged there).
 - At 320px (and 390px) the button is inside the window, overlaps no text and the page has no horizontal scroll; in a right-to-left page it is at the left.
 - Under the site's real CSP and under the README's example policy (`style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https://photos.smugmug.com; connect-src 'self'`), sent as a header, the
   console has no violation while the hero rotates.
@@ -256,6 +270,39 @@ theme's English text that is the content of an element (a button, a label, a hea
 English build has no such span (T finds the text, so `t-en.html` isn't used). With the spans taken out, a `multilingual`
 page equals the same page built without `t-en.html`: the markup is the only difference.
 
+The scripts' English fallback is marked too: `multilingual` has a German photo post (`content-de-photos/`) whose two landscape
+SmugMug photos give the German home page a rotating hero and the post a lightbox, and `i18n/de.toml` has no text for either. In
+Chrome, on `/` and `/post/20260113-fotos/`, the hero's `.hpp` button and, once a photo is opened, the lightbox's Previous, Next and
+Close buttons have `lang="en"` and the same accessible names as without it ("Pause the photo rotation", "Previous photo", "Next photo",
+"Close photo viewer"; `Accessibility.getFullAXTree`), the pause button keeps it after it is pressed ("Play the photo rotation"), and
+the dialog has `lang="en"` (its name, "Photo viewer", is English) with its `.in` wrapper set back to the page's language (`de-DE`), so the photo's alt text
+is not marked. The announcement (`[aria-live]` in the dialog) is `<span lang="en">Photo 1 of 2</span>` followed by `: ` and the
+alt text as plain text; a photo that fails to load (block its URL) adds a second `<span lang="en">` with the failure text, in the
+announcement and the counter. On `/en/` and the English photo posts (`/en/post/20260107-photo-gallery/`) none of these has a `lang`.
+
+The other scripts mark theirs the same way, and each script's text in the built file has `en:[…]`, the names of the entries the
+language lacks (`js/wall.de.min.<hash>.js` lists the caption sentences and counts, `js/wall.ar.min.<hash>.js` lists the sentences
+but not the counts, which `ar.toml` has). In the `multilingual` build's `/` and the `rtl` build's `/` (Arabic), the wall's caption
+(`.cap`) puts the theme's English in `<span lang="en">` and nothing else: German is `<span lang="en">Showing 1 article, 2 photos</span>`
+as one span, and Arabic is `<span lang="en">This page: </span>` then the Arabic count then `<span lang="en">, </span>` and the other
+count. With Group by gallery on, the "Articles" heading is `<h3><span lang="en">Articles</span> · …`, the gallery heading keeps the
+gallery's title and date outside any span, and the options badge's "active" is `<span class="vh" lang="en">`. The comment status
+(`#comments-status`) and the "Try again" button have `lang="en"` on the element while their text is English (on a German post, block
+`*.disqus.com` and press Show comments: "Comments couldn't be loaded…"; the same page in English gets no `lang`). The search status
+has the same spans, with the query outside them: `<span lang="en">No results for “</span>zzzqqq<span lang="en">”.</span>`. The
+fixture's German side has no search page (the nav test above relies on that), so check it in a scratch copy of the fixture with
+`content-de/search/_index.md` added, a copy of the English one with `outputs: [html, searchindex]`, built with the `multilingual`
+variant. The lightbox, when a photo is opened (or its load fails: block `photos.smugmug.com`), has `lang="en"` on the dialog and `lang="de-DE"`
+(the page's) on its `.in` wrapper, `<span lang="en">Photo 1 of 2</span>: Querformat` in the announcement (`[aria-live]`) and
+` <span lang="en">(image couldn't be loaded)</span>` after it and after the counter. Accessible names and the text are the same as before
+the marking (`Accessibility.getFullAXTree` for the dialog and buttons; `textContent` of the status, caption and announcement), and
+the English pages (`/en/`, `/en/search/`, the English photo post) have no `lang` in any of them.
+
+An entry that the language lacks while the default language is English can't be detected (README, "Translating the theme"): `T`
+returns the default language's text. A scratch site with `defaultContentLanguage = "en"`, an `fr` language and an `i18n/fr.toml`
+holding one entry shows it: a template printing `{{ T "b" }}` on an `fr` page for an entry only `i18n/en.toml` has prints the English
+text, as it does on the English page.
+
 Plural forms: the `rtl` build's `js/wall.ar.min.<hash>.js` has `p:[0,1,2,3,…]` and `t:[…]` in each count, and the
 English and German scripts have only `one` and `other`. To see the six forms pick, copy `<out>/rtl` to a scratch folder,
 make pages from its `index.html` with the article tile (`<article class="tile article">…</article>`) repeated A times and a
@@ -326,7 +373,8 @@ are not made this way. To recreate the README images:
   `href` is `X3` in every case.
   A modifier turns the lightbox's keys off (#350): with the lightbox open, real key events (`Input.dispatchKeyEvent` with `modifiers`: 1 Alt, 2 Ctrl, 4 Meta, 8
   Shift) for Right, Left, Home and End change nothing and leave `defaultPrevented` false, so Alt+Left (Back) and Ctrl+End work; the same keys with no modifier
-  still change the photo; Tab and Escape behave as before. The choice of X2 or X3 follows the window (#350): open the first photo at 390x844 (pixel ratio 1, X2), set 1280x800 at
+  still change the photo; Tab and Escape behave as before. A pen that goes down on the photo and comes up off it
+  (`Input.dispatchMouseEvent` with `pointerType: "pen"`) doesn't stop later swipes: a touch swipe (`Input.dispatchTouchEvent`) still changes the photo. The choice of X2 or X3 follows the window (#350): open the first photo at 390x844 (pixel ratio 1, X2), set 1280x800 at
   ratio 2 (`Emulation.setDeviceMetricsOverride`), and the lightbox asks for X3 once and shows it when it has loaded (before, X2 stayed); back at 390x844 ratio 3 it
   shows X2 again; five more resizes make no new request; opening and closing the lightbox several times leaves one `resize` and one `orientationchange`
   listener on `window` (`DOMDebugger.getEventListeners`). With the DevTools `Fetch` domain answering every `photos.smugmug.com` request with a 404, the counter

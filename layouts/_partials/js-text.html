@@ -4,37 +4,99 @@
   for any other name. A script gets it through {{ partial "js-text.html" "wall" | jsonify }} in its own source, which
   asset.html runs as a template (#192) because its first line is the template comment "theblues:template" (#262); the HTML stays the
   same for every language, so the text is not in data attributes. A count has its forms, with %d where the number goes (js-forms.html; the script picks the form with
-  Intl.PluralRules), and a sentence with names in it has {name} marks for the script to fill in.
+  Intl.PluralRules), and a sentence with names in it has {name} marks for the script to fill in. Every map also has "en", the
+  names (the map's own keys) of the text that fell back to the theme's English (T had no text for the key), so the script can mark
+  what it writes from them lang="en", as the templates do with t-en.html: on the element when its whole content is that text, else in a
+  <span lang="en"> around it (WCAG 3.1.2). A count is in "en" when T has no text for its key, whatever the number. Each T is followed by its t.html, as the
+  fixture's pair check needs.
   Usage: assets/js/wall.js, comments.js, gallery.js, hero.js and search.js.
 */ -}}
 {{- $out := dict -}}
+{{- $en := slice -}}
 {{- if eq . "wall" -}}
-  {{- /* The three counts, each as its forms (js-forms.html, #249). */ -}}
+  {{- /* The three counts, each as its forms (js-forms.html, #249); T is asked for the plain number 1, as js-forms.html does. */ -}}
   {{- $counts := dict -}}
   {{- range slice "articleCount" "photoCount" "grouped" -}}
     {{- $counts = merge $counts (dict . (partial "js-forms.html" .)) -}}
+    {{- if not (T . 1) }}{{ $en = $en | append . }}{{ end -}}
   {{- end -}}
-  {{- $out = merge $counts (dict
-    "articles" ((or (T "articles") (partial "t.html" "articles"))) "on" ((or (T "on") (partial "t.html" "on"))) "off" ((or (T "off") (partial "t.html" "off"))) "active" ((or (T "active") (partial "t.html" "active")))
-    "showing" ((or (T "captionShowing") (partial "t.html" "captionShowing"))) "showingPage" ((or (T "captionShowingPage") (partial "t.html" "captionShowingPage")))
-    "pick" ((or (T "captionPick") (partial "t.html" "captionPick"))) "pickPage" ((or (T "captionPickPage") (partial "t.html" "captionPickPage")))
-    "highlightArticles" ((or (T "highlightArticles") (partial "t.html" "highlightArticles"))) "highlightArticlesPage" ((or (T "highlightArticlesPage") (partial "t.html" "highlightArticlesPage")))
-    "highlightPhotos" ((or (T "highlightPhotos") (partial "t.html" "highlightPhotos"))) "highlightPhotosPage" ((or (T "highlightPhotosPage") (partial "t.html" "highlightPhotosPage")))) -}}
+  {{- $articles := (T "articles") -}}
+  {{- if not $articles }}{{ $en = $en | append "articles" }}{{ $articles = partial "t.html" "articles" }}{{ end -}}
+  {{- $on := (T "on") -}}
+  {{- if not $on }}{{ $en = $en | append "on" }}{{ $on = partial "t.html" "on" }}{{ end -}}
+  {{- $off := (T "off") -}}
+  {{- if not $off }}{{ $en = $en | append "off" }}{{ $off = partial "t.html" "off" }}{{ end -}}
+  {{- $active := (T "active") -}}
+  {{- if not $active }}{{ $en = $en | append "active" }}{{ $active = partial "t.html" "active" }}{{ end -}}
+  {{- $showing := (T "captionShowing") -}}
+  {{- if not $showing }}{{ $en = $en | append "showing" }}{{ $showing = partial "t.html" "captionShowing" }}{{ end -}}
+  {{- $showingPage := (T "captionShowingPage") -}}
+  {{- if not $showingPage }}{{ $en = $en | append "showingPage" }}{{ $showingPage = partial "t.html" "captionShowingPage" }}{{ end -}}
+  {{- $pick := (T "captionPick") -}}
+  {{- if not $pick }}{{ $en = $en | append "pick" }}{{ $pick = partial "t.html" "captionPick" }}{{ end -}}
+  {{- $pickPage := (T "captionPickPage") -}}
+  {{- if not $pickPage }}{{ $en = $en | append "pickPage" }}{{ $pickPage = partial "t.html" "captionPickPage" }}{{ end -}}
+  {{- $highlightArticles := (T "highlightArticles") -}}
+  {{- if not $highlightArticles }}{{ $en = $en | append "highlightArticles" }}{{ $highlightArticles = partial "t.html" "highlightArticles" }}{{ end -}}
+  {{- $highlightArticlesPage := (T "highlightArticlesPage") -}}
+  {{- if not $highlightArticlesPage }}{{ $en = $en | append "highlightArticlesPage" }}{{ $highlightArticlesPage = partial "t.html" "highlightArticlesPage" }}{{ end -}}
+  {{- $highlightPhotos := (T "highlightPhotos") -}}
+  {{- if not $highlightPhotos }}{{ $en = $en | append "highlightPhotos" }}{{ $highlightPhotos = partial "t.html" "highlightPhotos" }}{{ end -}}
+  {{- $highlightPhotosPage := (T "highlightPhotosPage") -}}
+  {{- if not $highlightPhotosPage }}{{ $en = $en | append "highlightPhotosPage" }}{{ $highlightPhotosPage = partial "t.html" "highlightPhotosPage" }}{{ end -}}
+  {{- $out = merge $counts (dict "en" $en "articles" $articles "on" $on "off" $off "active" $active
+    "showing" $showing "showingPage" $showingPage "pick" $pick "pickPage" $pickPage
+    "highlightArticles" $highlightArticles "highlightArticlesPage" $highlightArticlesPage
+    "highlightPhotos" $highlightPhotos "highlightPhotosPage" $highlightPhotosPage) -}}
 {{- else if eq . "comments" -}}
-  {{- $out = dict "loading" ((or (T "commentsLoading") (partial "t.html" "commentsLoading"))) "loaded" ((or (T "commentsLoaded") (partial "t.html" "commentsLoaded"))) "failed" ((or (T "commentsFailed") (partial "t.html" "commentsFailed"))) "tryAgain" ((or (T "tryAgain") (partial "t.html" "tryAgain"))) -}}
+  {{- $loading := (T "commentsLoading") -}}
+  {{- if not $loading }}{{ $en = $en | append "loading" }}{{ $loading = partial "t.html" "commentsLoading" }}{{ end -}}
+  {{- $loaded := (T "commentsLoaded") -}}
+  {{- if not $loaded }}{{ $en = $en | append "loaded" }}{{ $loaded = partial "t.html" "commentsLoaded" }}{{ end -}}
+  {{- $failed := (T "commentsFailed") -}}
+  {{- if not $failed }}{{ $en = $en | append "failed" }}{{ $failed = partial "t.html" "commentsFailed" }}{{ end -}}
+  {{- $tryAgain := (T "tryAgain") -}}
+  {{- if not $tryAgain }}{{ $en = $en | append "tryAgain" }}{{ $tryAgain = partial "t.html" "tryAgain" }}{{ end -}}
+  {{- $out = dict "en" $en "loading" $loading "loaded" $loaded "failed" $failed "tryAgain" $tryAgain -}}
 {{- else if eq . "gallery" -}}
-  {{- $out = dict
-    "viewer" ((or (T "photoViewer") (partial "t.html" "photoViewer"))) "previousPhoto" ((or (T "previousPhoto") (partial "t.html" "previousPhoto"))) "previous" ((or (T "previous") (partial "t.html" "previous"))) "nextPhoto" ((or (T "nextPhoto") (partial "t.html" "nextPhoto")))
-    "next" ((or (T "next") (partial "t.html" "next"))) "closeViewer" ((or (T "closeViewer") (partial "t.html" "closeViewer"))) "close" ((or (T "close") (partial "t.html" "close")))
-    "photoOf" ((or (T "photoOf" (dict "i" "{i}" "n" "{n}")) (partial "t.html" (slice "photoOf" (dict "i" "{i}" "n" "{n}")))))
-    "photoFailed" ((or (T "photoFailed") (partial "t.html" "photoFailed"))) -}}
+  {{- $viewer := (T "photoViewer") -}}
+  {{- if not $viewer }}{{ $en = $en | append "viewer" }}{{ $viewer = partial "t.html" "photoViewer" }}{{ end -}}
+  {{- $previousPhoto := (T "previousPhoto") -}}
+  {{- if not $previousPhoto }}{{ $en = $en | append "previousPhoto" }}{{ $previousPhoto = partial "t.html" "previousPhoto" }}{{ end -}}
+  {{- $previous := (T "previous") -}}
+  {{- if not $previous }}{{ $en = $en | append "previous" }}{{ $previous = partial "t.html" "previous" }}{{ end -}}
+  {{- $nextPhoto := (T "nextPhoto") -}}
+  {{- if not $nextPhoto }}{{ $en = $en | append "nextPhoto" }}{{ $nextPhoto = partial "t.html" "nextPhoto" }}{{ end -}}
+  {{- $next := (T "next") -}}
+  {{- if not $next }}{{ $en = $en | append "next" }}{{ $next = partial "t.html" "next" }}{{ end -}}
+  {{- $closeViewer := (T "closeViewer") -}}
+  {{- if not $closeViewer }}{{ $en = $en | append "closeViewer" }}{{ $closeViewer = partial "t.html" "closeViewer" }}{{ end -}}
+  {{- $close := (T "close") -}}
+  {{- if not $close }}{{ $en = $en | append "close" }}{{ $close = partial "t.html" "close" }}{{ end -}}
+  {{- $photoOf := (T "photoOf" (dict "i" "{i}" "n" "{n}")) -}}
+  {{- if not $photoOf }}{{ $en = $en | append "photoOf" }}{{ $photoOf = partial "t.html" (slice "photoOf" (dict "i" "{i}" "n" "{n}")) }}{{ end -}}
+  {{- $photoFailed := (T "photoFailed") -}}
+  {{- if not $photoFailed }}{{ $en = $en | append "photoFailed" }}{{ $photoFailed = partial "t.html" "photoFailed" }}{{ end -}}
+  {{- $out = dict "en" $en "viewer" $viewer "previousPhoto" $previousPhoto "previous" $previous "nextPhoto" $nextPhoto "next" $next
+    "closeViewer" $closeViewer "close" $close "photoOf" $photoOf "photoFailed" $photoFailed -}}
 {{- else if eq . "hero" -}}
-  {{- $out = dict "pause" ((or (T "heroPause") (partial "t.html" "heroPause"))) "play" ((or (T "heroPlay") (partial "t.html" "heroPlay"))) -}}
+  {{- $pause := (T "heroPause") -}}
+  {{- if not $pause }}{{ $en = $en | append "pause" }}{{ $pause = partial "t.html" "heroPause" }}{{ end -}}
+  {{- $play := (T "heroPlay") -}}
+  {{- if not $play }}{{ $en = $en | append "play" }}{{ $play = partial "t.html" "heroPlay" }}{{ end -}}
+  {{- $out = dict "pause" $pause "play" $play "en" $en -}}
 {{- else if eq . "search" -}}
   {{- /* The result count as its forms (js-forms.html, #249); the other sentences keep {query} and {n} for the script to fill in, as photoOf does. */ -}}
-  {{- $out = dict "count" (partial "js-forms.html" "searchResultCount")
-    "noResults" ((or (T "searchNoResults" (dict "query" "{query}")) (partial "t.html" (slice "searchNoResults" (dict "query" "{query}")))))
-    "loading" ((or (T "searchLoading") (partial "t.html" "searchLoading"))) "failed" ((or (T "searchFailed") (partial "t.html" "searchFailed")))
-    "capped" ((or (T "searchCapped" (dict "n" "{n}")) (partial "t.html" (slice "searchCapped" (dict "n" "{n}"))))) -}}
+  {{- $countKey := "searchResultCount" -}}
+  {{- if not (T $countKey 1) }}{{ $en = $en | append "count" }}{{ end -}}
+  {{- $noResults := (T "searchNoResults" (dict "query" "{query}")) -}}
+  {{- if not $noResults }}{{ $en = $en | append "noResults" }}{{ $noResults = partial "t.html" (slice "searchNoResults" (dict "query" "{query}")) }}{{ end -}}
+  {{- $loading := (T "searchLoading") -}}
+  {{- if not $loading }}{{ $en = $en | append "loading" }}{{ $loading = partial "t.html" "searchLoading" }}{{ end -}}
+  {{- $failed := (T "searchFailed") -}}
+  {{- if not $failed }}{{ $en = $en | append "failed" }}{{ $failed = partial "t.html" "searchFailed" }}{{ end -}}
+  {{- $capped := (T "searchCapped" (dict "n" "{n}")) -}}
+  {{- if not $capped }}{{ $en = $en | append "capped" }}{{ $capped = partial "t.html" (slice "searchCapped" (dict "n" "{n}")) }}{{ end -}}
+  {{- $out = dict "en" $en "count" (partial "js-forms.html" "searchResultCount") "noResults" $noResults "loading" $loading "failed" $failed "capped" $capped -}}
 {{- end -}}
 {{- return $out -}}
