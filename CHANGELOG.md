@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.5] - 2026-10-15
+
+The home hero's photo sizes cover its real box height (#361).
+
+### Fixed
+- The home and 404 heroes picked their smaller photo sizes for a 240px box, but the box is 245.64px tall with a
+  one-line slogan and tagline (241 to 246px at the usual widths), so a size 240 to 246 device pixels high was shown
+  slightly enlarged. They now use 246px. On a photo that is 16:9, a three-x phone (up to 427px wide) therefore gets
+  the full size instead of X2, since X2 is 720px high and the box needs 738. A slogan or tagline that wraps makes the
+  box taller still; the sizes do not cover that.
+- The comments in the hero partials and `docs/layout.md` now state the box height they use.
+
 ## [1.7.4] - 2026-10-15
 
 The rotating hero's photo list builds in linear time (#363).

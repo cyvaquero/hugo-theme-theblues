@@ -91,7 +91,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
 ## How the rotating hero works
 
 - **Pool.** `hero-pool.html` takes the page (home or term), its pages (the main-section posts of the site, or of the term) and
-  the hero's height (240 or 416, as `hero-sizes.html` takes it). Newest post first, for each photo post (`is-photo.html`) it
+  the hero's height (246 or 416, as `hero-sizes.html` takes it). Newest post first, for each photo post (`is-photo.html`) it
   walks the gallery photos `photos.html` returns, keeps a photo whose URL is a plain `https://photos.smugmug.com/` one and
   that is wider than high by `img-size.html` (the wall's own ranged read, shared through `partialCached`, so a photo is
   read once per build), asks `hero-sizes.html` for the tier size names (it now also returns `names`, the size each of the six
@@ -196,7 +196,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   1600px wide, up to two-x up to 640px, and up to three-x up to 427px), the smallest of M, L, XL, X2 and X3 that is smaller than the URL's own size
   and still covers the hero box at that tier's widest viewport and highest pixel ratio. The three-x tier stops at 427px
   because X2's 1280px long edge covers 427 × 3 = 1281 device pixels (1px allowed) and no more; its 960px height also
-  rules X2 out for the 416px photo-post hero (1248px at three-x), so there it only helps the 240px home and term hero.
+  rules X2 out for the 416px photo-post hero (1248px at three-x), so there it only helps the 246px home hero.
   Denser and wider screens keep
   the URL's size, and so do other hosts and photos whose size can't be read (offline build). The preload, where a page
   has one, gives each size with the same media query, so the browser fetches the hero once. Share images (`og:image`)
