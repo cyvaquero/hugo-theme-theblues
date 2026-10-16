@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.1] - 2026-10-16
+
+### Fixed
+- A lightbox button whose name falls back to the theme's English no longer marks its visible text English when that text is
+  translated: the Previous, Next and Close text is in a span in the page's language, so a screen reader, braille display or
+  translation tool takes it as that language. The name is still spoken in English, as before (#377).
+
 ## [1.8.0] - 2026-10-16
 
 ### Added

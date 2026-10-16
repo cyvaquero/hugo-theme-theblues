@@ -715,7 +715,7 @@ status, and focus is not moved; the prefilled field is labeled like the search p
 
 **Language of parts.** A site in another language that lacks a translation shows the theme's English text. Where that
 text is the content of an element, or a script writes it (captions, counts, messages, the lightbox's announcement, its
-dialog name and buttons, the hero's pause and play button), it is marked `lang="en"` (WCAG 3.1.2, Section 508 E205.4).
+dialog name and buttons, the hero's pause and play button), it is marked `lang="en"` (WCAG 3.1.2, Section 508 E205.4). A lightbox button whose name is English but whose visible text is translated holds that text in a span in the page's language.
 English text in an attribute value a template writes (`aria-label`, `title`, `alt`, `placeholder`), the page `<title>`, a
 feed, an `<option>` or a date layout can't be marked and is read in the page's language: translate those entries (see
 "Translating the theme"). An entry a non-default language lacks while the default language is English shows the default
