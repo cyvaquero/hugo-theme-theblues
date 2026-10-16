@@ -15,8 +15,8 @@
     quotes or escaping in the attribute, in the script or in CSS. A photo listed twice counts once.
   The first photo is the hero's own photo, fixed at build time, so a build is the same every time; the script picks the
   others in the browser. A token is the URL without "https://photos.smugmug.com/", then, when hero-sizes.html found
-  smaller sizes for it, "|" and the five tiers' size names joined by "," (an empty one for a tier that keeps the full
-  size), for example "photos/i-x/0/h/X3/i-x-X3.jpg|M,L,XL,M,XL". The tokens go in the hero's data-pool attribute, separated by spaces.
+  smaller sizes for it, "|" and the six tiers' size names joined by "," (an empty one for a tier that keeps the full
+  size), for example "photos/i-x/0/h/X3/i-x-X3.jpg|M,L,XL,M,XL,X2". The tokens go in the hero's data-pool attribute, separated by spaces.
   Worked out once per page (memo.html keeps it in the page's Store) and not for every pager page (#7, #164); the sizes are
   read through partialCached, so a photo that is on a wall or in another pool is read once.
   Usage: {{ $pool := partial "hero-pool.html" (dict "page" . "pages" (where site.RegularPages "Section" "in" site.MainSections) "h" 240) }}

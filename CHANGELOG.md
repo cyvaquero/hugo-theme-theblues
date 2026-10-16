@@ -3,6 +3,19 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.3] - 2026-10-15
+
+Heroes load a smaller photo on a three-x phone (#359).
+
+### Changed
+- A phone with a pixel ratio above 2 and up to 3 (an iPhone or Pixel up to 427 CSS pixels wide, such as 390, 393, 402 or
+  412) now gets a smaller SmugMug size for a hero photo, as the one-x and two-x screens already did: X2 where the
+  photo post's cover is X3, instead of the full size, which is about 0.6 to 0.9 MB. It applies to the home page and term
+  heroes (240 CSS pixels tall at most), and so to every photo the rotating hero shows. A tall photo-post hero (416
+  pixels) and a wider phone (428 or 430 pixels, an iPhone Plus or Pro Max) keep the full size, since X2 would be shown
+  below one photo pixel per device pixel there. A page's hero style attribute gains a `--hi6` declaration and its
+  `<head>` a preload link for it; the rotating hero's `data-pool` tokens carry a sixth size name.
+
 ## [1.7.2] - 2026-10-15
 
 The home and term heroes rotate through landscape photos from photo posts (#356).

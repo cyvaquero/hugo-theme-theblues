@@ -94,14 +94,14 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   the hero's height (240 or 416, as `hero-sizes.html` takes it). Newest post first, for each photo post (`is-photo.html`) it
   walks the gallery photos `photos.html` returns, keeps a photo whose URL is a plain `https://photos.smugmug.com/` one and
   that is wider than high by `img-size.html` (the wall's own ranged read, shared through `partialCached`, so a photo is
-  read once per build), asks `hero-sizes.html` for the tier size names (it now also returns `names`, the size each of the five
+  read once per build), asks `hero-sizes.html` for the tier size names (it now also returns `names`, the size each of the six
   tiers uses or an empty string), and returns the first photo's URL (`src`), the count and `data`, the tokens joined by
-  spaces. A token is the URL without `https://photos.smugmug.com/`, then `|` and the five names joined by `,` when there
+  spaces. A token is the URL without `https://photos.smugmug.com/`, then `|` and the six names joined by `,` when there
   are smaller sizes. `data` is empty below two photos. `memo.html` keeps the result in the page's Store, so the home page and
   a term build it once for all their pager pages. Hugo has already left out drafts, future and expired posts. Nothing
   random happens at build time: the order is by date and then by position in the post.
 - **Page.** `home.html` and `term.html` use `src` as the hero's photo through `hero-style.html` in place of `header_image` or
-  the term's cover (so the hero keeps its inline `--hi` and `--hi1` to `--hi5`, and `head.html` preloads it as before), write `data-pool` on the
+  the term's cover (so the hero keeps its inline `--hi` and `--hi1` to `--hi6`, and `head.html` preloads it as before), write `data-pool` on the
   `<header>` when there are two photos or more, and set `hasHeroPool` in the page's Store, which makes `baseof.html` load
   `hero.js`. A page with no pool writes nothing new, so its output is byte for byte what it was. The pool reaches the page as
   an attribute and not as a JSON file so that no request, no `connect-src` entry and no failure mode are added; a file per
@@ -112,7 +112,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
   (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a
   number of 5 or more; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
-  `--hi` to `--hi5` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with
+  `--hi` to `--hi6` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with
   `Image()` and waits for `decode()`; at 30 s, if it is ready, it shows the layer and adds `.on` (the opacity transition), and
   after the fade writes the same custom properties on the hero and hides the layer again; if it isn't ready it waits for it. A photo that
   fails is dropped from the five. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
@@ -192,9 +192,12 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   and `hero-sizes.html` share).
 - A hero photo on `photos.smugmug.com` whose URL names a size (M, L, XL, X2, X3, X4 or X5, such as a photo post's X3
   cover or an `image` set to an X5 URL) also gets smaller sizes for phones and one-x screens
-  (`layouts/_partials/hero-sizes.html`): for each of five viewport tiers in `main.css` (one-x up to 480, 800, 1280 and
-  1600px wide, and up to two-x up to 640px), the smallest of M, L, XL, X2 and X3 that is smaller than the URL's own size
-  and still covers the hero box at that tier's widest viewport and highest pixel ratio. Denser and wider screens keep
+  (`layouts/_partials/hero-sizes.html`): for each of six viewport tiers in `main.css` (one-x up to 480, 800, 1280 and
+  1600px wide, up to two-x up to 640px, and up to three-x up to 427px), the smallest of M, L, XL, X2 and X3 that is smaller than the URL's own size
+  and still covers the hero box at that tier's widest viewport and highest pixel ratio. The three-x tier stops at 427px
+  because X2's 1280px long edge covers 427 × 3 = 1281 device pixels (1px allowed) and no more; its 960px height also
+  rules X2 out for the 416px photo-post hero (1248px at three-x), so there it only helps the 240px home and term hero.
+  Denser and wider screens keep
   the URL's size, and so do other hosts and photos whose size can't be read (offline build). The preload, where a page
   has one, gives each size with the same media query, so the browser fetches the hero once. Share images (`og:image`)
   are unchanged.

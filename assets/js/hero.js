@@ -8,7 +8,7 @@
 // decoded, so the hero never shows an empty box.
 // The fade is a second layer (.hr) over the hero, holding the same scrim and the next photo; when it is done the hero
 // itself takes the photo and the layer is hidden again. The photo's sizes are chosen by main.css exactly as for the first
-// photo: the layer and the hero get --hi and --hi1 to --hi5 (hero-sizes.html's tiers), and the script reads the URL the
+// photo: the layer and the hero get --hi and --hi1 to --hi6 (hero-sizes.html's tiers), and the script reads the URL the
 // browser's media queries picked (--hs) to load it. Photos stay CSS backgrounds: the layer is aria-hidden and nothing is
 // announced.
 // A visitor who prefers reduced motion gets the build's photo and no timer, no fade and no button. Everyone else gets a
@@ -31,7 +31,7 @@
   var SIZE_RE = /^(.+)\/(M|L|XL|X2|X3|X4|X5)\/([A-Za-z0-9_.~-]+)-(M|L|XL|X2|X3|X4|X5)\.([A-Za-z0-9]+)$/;
   var ORIGIN = 'https://photos.smugmug.com/';
 
-  // data-pool: tokens separated by spaces, each "path" or "path|M,L,XL,M,XL" (the size name of each of the five tiers, empty
+  // data-pool: tokens separated by spaces, each "path" or "path|M,L,XL,M,XL,X2" (the size name of each of the six tiers, empty
   // where the full size is used). Anything that doesn't look like what hero-pool.html writes is ignored.
   var pool = [];
   (hero.getAttribute('data-pool') || '').split(' ').forEach(function (tok) {
@@ -50,7 +50,7 @@
   // Sets a photo's custom properties on an element, the way the hero's style attribute does for the first photo.
   function paint(node, p) {
     node.style.setProperty('--hi', 'url("' + p.full + '")');
-    for (var k = 0; k < 5; k++) {
+    for (var k = 0; k < 6; k++) {
       var n = p.names[k];
       node.style.setProperty('--hi' + (k + 1), n ? 'url("' + p.base + '/' + n + '/' + p.stem + '-' + n + '.' + p.ext + '")' : 'initial');
     }
