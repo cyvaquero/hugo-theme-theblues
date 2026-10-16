@@ -1,0 +1,29 @@
+# Test variant (docs/testing.md): the content folder is content-hero-one/, whose photo posts (#356) have exactly one landscape photo (the pool of one: the heroes
+# show it from the build, with no rotation, no data-pool, no button and no hero script), next to the ineligible ones of hero-none. Listing a mount turns
+# off Hugo's default mounts, so they are all listed here.
+# Build with: --config hugo.toml,variants/hero-one.toml
+[module]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "content-hero-one"
+    target = "content"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"

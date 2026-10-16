@@ -1,10 +1,10 @@
 {{- /*
   Returns a CSS/JS resource from assets/. Production builds are minified and fingerprinted (comments stripped, content
   hash in the file name). Development builds (hugo server) return the readable, commented source unchanged.
-  A script whose first line is the template comment "theblues:template" (wall.js, comments.js, gallery.js and search.js, which hold
+  A script whose first line is the template comment "theblues:template" (wall.js, comments.js, gallery.js, hero.js and search.js, which hold
   {{ partial "js-text.html" … }}) is run as a template first, so the text it shows comes from the site's language (#192).
   The comment renders as nothing. Any other script is published as written, even if it contains "{{" in a comment or a
-  string, and a site's own copy of one of these four scripts needs the same first line (#262). On a site with more than
+  string, and a site's own copy of one of these five scripts needs the same first line (#262). On a site with more than
   one language the file is written once per language, with the language in its name (wall.de.js).
   Usage: {{ with partialCached "asset.html" "css/main.css" "css/main.css" }}...{{ .RelPermalink }}...{{ end }}
   Returns nil when the file doesn't exist, so a site's own partials can use it for optional files. The theme's own

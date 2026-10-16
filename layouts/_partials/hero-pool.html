@@ -1,0 +1,52 @@
+{{- /*
+  The photos a rotating hero draws from (#356): the landscape gallery photos of the photo posts in a set of pages, newest
+  post first and each post's photos in source order. Context: a map with "page" (the home page or the term page whose
+  hero it is), "pages" (the pages to take posts from: the main-section posts of the site, or of the term) and "h" (the
+  hero's tallest box in CSS pixels, 240 for .hero and 416 for .phero, as hero-sizes.html takes it). Returns a map with "src" (the first photo's URL, as the hero's --hi takes it,
+  or empty when the pool is empty), "count" (the number of photos) and "data" (the value of the hero's data-pool attribute: every photo's
+  token, below, separated by spaces; empty when the pool has fewer than two photos, since there is nothing to rotate).
+  What counts:
+  - Photo posts only (is-photo.html), their photos as photos.html returns them (the gallery calls, not images in the
+    text, and not the galleries of an article). Only pages of the main sections that Hugo builds, so a draft, a future
+    or an expired post is not in it.
+  - Landscape only: wider than high, by the size img-size.html reads at build time (remote-photo.html's ranged fetch).
+    A photo whose size can't be read, such as one on another host or one that is offline, is left out.
+  - Only a plain SmugMug URL (https://photos.smugmug.com/ and letters, digits and -_.~/ after it), so the URL needs no
+    quotes or escaping in the attribute, in the script or in CSS. A photo listed twice counts once.
+  The first photo is the hero's own photo, fixed at build time, so a build is the same every time; the script picks the
+  others in the browser. A token is the URL without "https://photos.smugmug.com/", then, when hero-sizes.html found
+  smaller sizes for it, "|" and the five tiers' size names joined by "," (an empty one for a tier that keeps the full
+  size), for example "photos/i-x/0/h/X3/i-x-X3.jpg|M,L,XL,M,XL". The tokens go in the hero's data-pool attribute, separated by spaces.
+  Worked out once per page (memo.html keeps it in the page's Store) and not for every pager page (#7, #164); the sizes are
+  read through partialCached, so a photo that is on a wall or in another pool is read once.
+  Usage: {{ $pool := partial "hero-pool.html" (dict "page" . "pages" (where site.RegularPages "Section" "in" site.MainSections) "h" 240) }}
+*/ -}}
+{{- $key := "theblues-hero-pool" -}}
+{{- $out := dict "src" "" "count" 0 "data" "" -}}
+{{- $m := partial "memo.html" (dict "page" .page "key" $key) -}}
+{{- if $m }}{{ $out = $m.val }}{{ else -}}
+{{- $h := .h -}}
+{{- $seen := dict -}}
+{{- $tokens := slice -}}
+{{- range (where .pages "Section" "in" site.MainSections).ByDate.Reverse -}}
+  {{- if partialCached "is-photo.html" . .Path -}}
+    {{- range partialCached "photos.html" . .Path -}}
+      {{- $full := .full -}}
+      {{- if and (findRE `^https://photos\.smugmug\.com/[A-Za-z0-9_.~/-]+$` $full 1) (not (index $seen $full)) -}}
+        {{- $sz := partialCached "img-size.html" .src .src -}}
+        {{- if and $sz.w $sz.h (gt $sz.w $sz.h) -}}
+          {{- $seen = merge $seen (dict $full true) -}}
+          {{- $token := strings.TrimPrefix "https://photos.smugmug.com/" $full -}}
+          {{- $hs := partialCached "hero-sizes.html" (dict "src" $full "h" $h) $full $h -}}
+          {{- with $hs.names }}{{ $token = printf "%s|%s" $token (delimit . ",") }}{{ end -}}
+          {{- $tokens = $tokens | append $token -}}
+          {{- if not $out.src }}{{ $out = merge $out (dict "src" $full) }}{{ end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $out = merge $out (dict "count" (len $tokens) "data" (cond (gt (len $tokens) 1) (delimit $tokens " ") "")) -}}
+{{- $_ := partial "memo.html" (dict "page" .page "key" $key "val" $out) -}}
+{{- end -}}
+{{- return $out -}}

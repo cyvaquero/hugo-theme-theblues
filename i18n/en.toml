@@ -1,4 +1,4 @@
-# The text The Blues shows, in English: templates read it with T, and assets/js/wall.js, comments.js, gallery.js and
+# The text The Blues shows, in English: templates read it with T, and assets/js/wall.js, comments.js, gallery.js, hero.js and
 # search.js get theirs through layouts/_partials/js-text.html. A site translates the theme by adding its own i18n/<language>.toml with
 # the entries below (README, "Translating the theme"); an entry the site's file lacks, in any language, is shown in
 # English from this file (layouts/_partials/t.html).
@@ -267,3 +267,9 @@ other = "Next"
 other = "Close photo viewer"
 [close]
 other = "Close"
+
+# --- Rotating hero (assets/js/hero.js): the pause and play button's name, which names what it does next ---
+[heroPause]
+other = "Pause the photo rotation"
+[heroPlay]
+other = "Play the photo rotation"

@@ -186,7 +186,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 /* Home hero: header photo (--hi) under a navy scrim. */
 /* Text over photos (#3): the scrim keeps text readable even over a white image. Cream small text needs a scrim of at
    least .65, sand small text .78 (computed against white); the home hero uses .70 to .85 and cream text only. */
-.hero { color: var(--bt); padding: 3.5rem 1rem 3rem; text-align: center; background: linear-gradient(rgb(var(--scrim) / .70), rgb(var(--scrim) / .85)), var(--hs, var(--hi, none)) center / cover, var(--band); }
+.hero { --sc: linear-gradient(rgb(var(--scrim) / .70), rgb(var(--scrim) / .85)); color: var(--bt); padding: 3.5rem 1rem 3rem; text-align: center; background: var(--sc), var(--hs, var(--hi, none)) center / cover, var(--band); }
 .hero .k { font-size: .8rem; letter-spacing: .2em; text-transform: uppercase; color: var(--bt); margin: 0; }
 .hero h1 { margin: .3rem 0 0; font: 700 clamp(2.4rem, 9vw, 4.4rem) / 1.05 var(--serif); overflow-wrap: anywhere; }
 .hero p.sub { margin: .8rem auto 0; max-width: 40rem; font-size: 1.1rem; }
@@ -198,7 +198,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
    many lines the title takes: from clear at the top of .in to .73 at 4.5rem, just above the first line (.85 with the
    hero's .45, enough for the sand kicker and meta), and .86 at the bottom (.92 in all) (#74). .in spans the hero and
    pads its content into the --wide column. */
-.phero { color: var(--bt); min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: linear-gradient(rgb(var(--scrim) / .45), rgb(var(--scrim) / .45)), var(--hs, var(--hi, none)) center / cover, var(--band); }
+.phero { --sc: linear-gradient(rgb(var(--scrim) / .45), rgb(var(--scrim) / .45)); color: var(--bt); min-height: min(52vh, 26rem); display: flex; align-items: flex-end; background: var(--sc), var(--hs, var(--hi, none)) center / cover, var(--band); }
 .phero .in { width: 100%; padding: 5rem max(1rem, calc((100% - var(--wide)) / 2 + 1rem)) 2rem; background: linear-gradient(rgb(var(--scrim) / 0), rgb(var(--scrim) / .73) 4.5rem, rgb(var(--scrim) / .86)); }
 .phero h1 { margin: .3rem 0; font: 700 clamp(2rem, 6.5vw, 3.4rem) / 1.1 var(--serif); overflow-wrap: anywhere; }
 .phero .sub { margin: .2rem 0 .4rem; font-size: 1.05rem; color: var(--bt); max-width: 46rem; }
@@ -217,11 +217,26 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 /* Hero sizes (#149): on a SmugMug photo the hero also gets --hi1 to --hi5, a smaller size for each of these viewport
    tiers (layouts/_partials/hero-sizes.html, which works them out, and whose preload links use the same media queries).
    A tier the page doesn't set leaves --hs invalid, so the hero falls back to --hi. */
-@media (resolution <= 1dppx) and (width <= 480px) { .hero, .phero { --hs: var(--hi1); } }
-@media (resolution <= 1dppx) and (480px < width <= 800px) { .hero, .phero { --hs: var(--hi2); } }
-@media (resolution <= 1dppx) and (800px < width <= 1280px) { .hero, .phero { --hs: var(--hi3); } }
-@media (1dppx < resolution <= 2dppx) and (width <= 640px) { .hero, .phero { --hs: var(--hi4); } }
-@media (resolution <= 1dppx) and (1280px < width <= 1600px) { .hero, .phero { --hs: var(--hi5); } }
+@media (resolution <= 1dppx) and (width <= 480px) { .hero, .phero, .hr { --hs: var(--hi1); } }
+@media (resolution <= 1dppx) and (480px < width <= 800px) { .hero, .phero, .hr { --hs: var(--hi2); } }
+@media (resolution <= 1dppx) and (800px < width <= 1280px) { .hero, .phero, .hr { --hs: var(--hi3); } }
+@media (1dppx < resolution <= 2dppx) and (width <= 640px) { .hero, .phero, .hr { --hs: var(--hi4); } }
+@media (resolution <= 1dppx) and (1280px < width <= 1600px) { .hero, .phero, .hr { --hs: var(--hi5); } }
+
+/* Rotating hero (#356, assets/js/hero.js): the script adds .rot to a hero that has a pool of photos and puts the layer .hr
+   in it, first. The layer holds the same scrim (--sc) and the next photo, so it covers the hero's own background while
+   the text and links, which paint above it (z-index -1 inside the hero's own stacking context), keep the contrast the
+   scrim gives. It gets its own --hi and --hi1 to --hi5 from the script and the tier rules above; the script sets
+   --hi1 to --hi5 to "initial" for a tier with no smaller size, since they would be inherited from the hero. The fade
+   is the 1.5s in hero.js (FADE) and only runs where motion is allowed; hero.js does nothing for a visitor who asks
+   for less. The pause/play button (.hpp) is in the top corner, on its own dark disc, so its cream icon and ring keep
+   their contrast over any photo; the hero's padding (3.5rem) and the term hero's .in (5rem) leave room above the text. */
+.hero.rot, .phero.rot { position: relative; isolation: isolate; }
+.hr { position: absolute; inset: 0; z-index: -1; background: var(--sc), var(--hs, var(--hi, none)) center / cover, var(--band); opacity: 0; pointer-events: none; }
+.hr.on { opacity: 1; }
+.hpp { position: absolute; z-index: 1; top: .6rem; inset-inline-end: .6rem; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 2px solid var(--bt); border-radius: 50%; background: rgb(var(--scrim) / .85); color: var(--bt); cursor: pointer; }
+.hpp:hover { color: var(--hv); border-color: var(--hv); }
+.hpp svg { width: 18px; height: 18px; fill: currentColor; }
 
 /* 5 Shared bits ------------------------------------------------------------------------------------------- */
 .tag { display: inline-block; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem 0; margin-inline-end: .25rem; text-decoration: none; }
@@ -548,6 +563,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .tile.photo:hover img { transform: scale(1.03); }
   .swt input, .swt input::before { transition: all .15s; }
   .vbtn .chev { transition: transform .15s; }
+  .hr { transition: opacity 1.5s ease-in-out; }
 }
 
 /* 15 Forced colors (Windows high contrast) --------------------------------------------------------------------- */
@@ -560,6 +576,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .swt input:checked::before { background: HighlightText; }
   .seg button[aria-pressed=true], .pg a[aria-current=page], .thm button[aria-pressed=true] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
   .bdg { border: 1px solid CanvasText; }
+  .hpp { forced-color-adjust: none; background: ButtonFace; color: ButtonText; border-color: ButtonText; }
   .sres mark { forced-color-adjust: none; background: Mark; color: MarkText; }
 }
 
@@ -568,7 +585,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
    would otherwise print cream text on white paper (#3). */
 @media print {
   body { background: #fff; color: #000; }
-  nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc, .feed { display: none !important; }
+  nav.site, .ctl, .skip, .comments, dialog.lb, footer.site .soc, .feed, .hr, .hpp { display: none !important; }
   .hero, .phero { background: none !important; color: #000; min-height: 0; padding-top: 1rem; }
   .phero .in { background: none !important; }
   .hero .k, .phero .sub, .phero .meta, .phero .ptype, .phero .tag, .phero a { color: #000; }
