@@ -61,7 +61,7 @@ The rotating hero (#356, README, "Rotating hero") has fixtures in the base build
 `photos.smugmug.com`, so a first build needs the network. In the **base build**, the newest photo post (`20260107`, on
 `photos.example.org`) has no photo whose size can be read, so the pool is the two landscape photos of `20260104-smugmug-photos`
 (its portrait photo is left out, and so is the `image` of the hero-image article, which is not a gallery photo): the home page, `/tags/photos/`,
-`/tags/fixtures/` and `/categories/photos/` (and their pager pages) have `data-pool` with two tokens (`photos/i-25Xwh4F/…|M,L,X2,X2,`),
+`/tags/fixtures/` and `/categories/photos/` (and their pager pages) have `data-pool` with two tokens (`photos/i-25Xwh4F/…|M,L,X2,X2,,X2` on the home page, `…|L,L,X2,X2,,` on the 416px term heroes),
 the first photo (`i-25Xwh4F`) in the hero's `--hi` and in the preload links, and a `<script src=/js/hero.…>`; `/tags/code/`, `/categories/tech/`
 and the pages of the other terms, and every other page, have none of that. The **`hero-none` variant** (`variants/hero-none.toml`,
 `content-hero-none/`) has landscape SmugMug photos only where no pool may take them: an article's inline gallery, `image` and Markdown image, a photo post
@@ -80,8 +80,9 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
   (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. Reloads give different start photos (from different galleries, given enough reloads)
   and different sets of five; no photo comes back before the cycle ends and the sixth photo shown is the first of the five again. To see a whole cycle sooner, scale the page's timers before it loads
   (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
-- `params.hero_interval`: the base build's `hero.js` has `SHOW = 30000`; with `--config hugo.toml,<file setting hero_interval = 15>` it has
-  `SHOW = 15000` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`SHOW = 5000` and `2147483000`).
+- `params.hero_interval`: the show interval (`SHOW` in `assets/js/hero.js`, in milliseconds) is minified in every build but a development one,
+  so the base build's `hero.js` has it as `3e4`, just before `LEAD`'s `5e3`; with `--config hugo.toml,<file setting hero_interval = 15>` it is
+  `15e3` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`5e3` and `2147483e3`).
 - A photo that fails to load is replaced (block some of the pool's photo URLs with `Network.setBlockedURLs`, or fail them with `Fetch.failRequest`): the
   rotation goes on with the others, and ends, with the button hidden, only when fewer than two photos can be loaded.
 - `data-pool` entries the build can't write are ignored (#368): serve a copy of a built page whose `data-pool` also holds a token with an unknown size name

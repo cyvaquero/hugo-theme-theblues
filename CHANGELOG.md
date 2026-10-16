@@ -3,6 +3,19 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.11] - 2026-10-16
+
+Three documentation corrections from the 1.8.0 docs review (#369, #372).
+
+### Fixed
+- The 1.7.3 entry said the three-x hero size applies to term heroes too. Term heroes are 416 pixels tall, like a photo
+  post's, and keep the full size on a three-x phone; only the home page hero gets it, with the photos it rotates through.
+- `docs/testing.md` gave the `params.hero_interval` checks as `SHOW = 30000` and so on, which only an unminified
+  development build contains. It now gives the values as the built `hero.js` has them (`3e4`, `15e3`, `7500`, `5e3`,
+  `2147483e3`).
+- `docs/testing.md` showed the fixture's `data-pool` token with five size names (`|M,L,X2,X2,`). It has six, one per tier:
+  `|M,L,X2,X2,,X2` on the home page and `|L,L,X2,X2,,` on the term pages (#372).
+
 ## [1.7.10] - 2026-10-16
 
 Text a script writes in the theme's English is marked as English (#375).
@@ -104,8 +117,8 @@ Heroes load a smaller photo on a three-x phone (#359).
 ### Changed
 - A phone with a pixel ratio above 2 and up to 3 (an iPhone or Pixel up to 427 CSS pixels wide, such as 390, 393, 402 or
   412) now gets a smaller SmugMug size for a hero photo, as the one-x and two-x screens already did: X2 where the
-  photo post's cover is X3, instead of the full size, which is about 0.6 to 0.9 MB. It applies to the home page and term
-  heroes (240 CSS pixels tall at most), and so to every photo the rotating hero shows. A tall photo-post hero (416
+  photo post's cover is X3, instead of the full size, which is about 0.6 to 0.9 MB. It applies to the home page hero (240
+  CSS pixels tall at most), and so to every photo the rotating hero shows there. A tall photo-post or term hero (416
   pixels) and a wider phone (428 or 430 pixels, an iPhone Plus or Pro Max) keep the full size, since X2 would be shown
   below one photo pixel per device pixel there. A page's hero style attribute gains a `--hi6` declaration and its
   `<head>` a preload link for it; the rotating hero's `data-pool` tokens carry a sixth size name.
