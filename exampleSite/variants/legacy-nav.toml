@@ -1,0 +1,63 @@
+# Test variant (docs/testing.md): the legacy params.addtional_menus nav with hrefs that carry a query or a fragment, or are
+# only one, which must come out as written after the path's trailing slash. Build with:
+#   --config hugo.toml,variants/legacy-nav.toml
+# The "/releases/v1.2" entry is a path whose last segment looks like a version, not a file: it gets a trailing slash, and
+# content-legacy-nav/ (mounted at content/releases) holds the page it points at, which must carry aria-current. Listing a
+# mount turns off Hugo's default mounts, so hugo.toml's are all listed here, plus that one.
+[module]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+  [[module.mounts]]
+    source = "content-legacy-nav"
+    target = "content/releases"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"
+
+[params]
+  [[params.addtional_menus]]
+    title = "TEAM"
+    href = "/about#team"
+  [[params.addtional_menus]]
+    title = "QUERY"
+    href = "/search?x=1"
+  [[params.addtional_menus]]
+    title = "BOTH"
+    href = "/archive?s=a#b"
+  [[params.addtional_menus]]
+    title = "TOP"
+    href = "#top"
+  [[params.addtional_menus]]
+    title = "PAGE"
+    href = "?page=2"
+  [[params.addtional_menus]]
+    title = "FILE"
+    href = "/feed.xml#x"
+  [[params.addtional_menus]]
+    title = "PLAIN"
+    href = "/about"
+  [[params.addtional_menus]]
+    title = "VERSION"
+    href = "/releases/v1.2"
+  [[params.addtional_menus]]
+    title = "PDF"
+    href = "/files/guide.pdf"

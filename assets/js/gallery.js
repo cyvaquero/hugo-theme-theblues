@@ -1,14 +1,17 @@
 {{- /* theblues:template */ -}}
 // Native <dialog> lightbox for the masonry galleries (.gal) on photo posts (decision D7).
-// Previous/next buttons, arrow, Home and End keys, swipe, counter, Esc to close, focus returns to the photo that was
-// opened. The dialog is built at the first click, not at load. Each link points at the large image (X3), which is what
+// Previous/next buttons, arrow, Home and End keys (without Alt, Ctrl, Meta or Shift, which belong to the browser), swipe,
+// counter, Esc to close, focus returns to the photo that was opened. The dialog is built at the first click, not at load. Each link points at the large image (X3), which is what
 // opens without JavaScript; the thumbnail in the page stays X2. The lightbox shows the X2 photo instead when it already
 // has a pixel for each device pixel of the space the photo fills (width and height, from the thumbnail's attributes,
 // the viewport and devicePixelRatio, see big()), and the X3 one otherwise; the preloads use the same choice (#345). The
-// counter and alt text change only when the new image has loaded (or both it and the thumbnail have failed), so they
-// always describe the photo on screen (#3, #168); neighbors are preloaded.
+// counter and alt text change only when the new image has loaded (or both it and the thumbnail have failed, which the
+// announcement says), so they always describe the photo on screen (#3, #168); neighbors are preloaded. The choice is made
+// again when the window is resized or the device turned, for the photo on screen (refit()).
 // The text it shows is the site's language: Hugo fills it in when it builds this file (asset.html runs it as a template,
-// js-text.html), from i18n/en.toml or the site's own file.
+// js-text.html), from i18n/en.toml or the site's own file. Text the site's language lacks is the theme's English; TX.en lists
+// it, and it is marked lang="en" (WCAG 3.1.2): on a button or the dialog when its accessible name is that text, in a
+// <span lang="en"> where it is element content or part of the announcement.
 (function () {
   var galleries = document.querySelectorAll('.gal');
   if (!galleries.length || typeof HTMLDialogElement === 'undefined') return;
@@ -17,6 +20,8 @@
   var dlg = null;
   var img, count, say, prev, next;
   var list = [], idx = 0, opener = null, seq = 0;
+  // The URL show() chose for the photo on screen, and the one refit() is loading in its place.
+  var chose = '', fitting = '';
   // Swipe state, see below.
   var sx = null, sy = null, down = 0;
 
@@ -24,23 +29,44 @@
   function el(tag, attrs, text) {
     var e = document.createElement(tag);
     for (var k in attrs) e.setAttribute(k, attrs[k]);
-    if (text) e.textContent = text;
+    if (text) e.append(text);
     return e;
   }
+  function isEn(key) { return TX.en.indexOf(key) >= 0; }
+  // The text TX[key] (or text, a filled-in form of it) as element content: a <span lang="en"> when it is the theme's English for a
+  // site language that has no text for it (js-text.html), else a plain string.
+  function words(key, text) {
+    if (text === undefined) text = TX[key];
+    if (!isEn(key)) return text;
+    var s = document.createElement('span'); s.lang = 'en'; s.textContent = text;
+    return s;
+  }
+  // A button's attributes with lang="en" added when its name (TX[key]) is the theme's English, so a screen reader speaks the
+  // name with an English voice (WCAG 3.1.2). The button holds only its own text, so the attribute is on the button.
+  function named(attrs, key) {
+    attrs['aria-label'] = TX[key];
+    if (isEn(key)) attrs.lang = 'en';
+    return attrs;
+  }
+  // A button's visible text (TX[key]): the button's own lang="en" already covers it when its name is English too.
+  function label(nameKey, key) { return isEn(nameKey) && isEn(key) ? TX[key] : words(key); }
   // The dialog is built when a photo is first opened, not at load: most visits to a photo post never open it.
   function build() {
     dlg = document.createElement('dialog');
     dlg.className = 'lb';
     dlg.setAttribute('aria-label', TX.viewer);
+    // The dialog's name is in the dialog's language, so lang="en" goes on the dialog when the name is the theme's English, and the
+    // content (the photo's alt text, the buttons) is put back in the page's language by its wrapper.
     var inner = el('div', { 'class': 'in' }), bar = el('div', { 'class': 'bb' });
+    if (isEn('viewer')) { dlg.lang = 'en'; inner.setAttribute('lang', document.documentElement.lang); }
     inner.appendChild(el('img', { alt: '' }));
-    bar.appendChild(el('button', { type: 'button', 'data-a': 'p', 'aria-label': TX.previousPhoto }, TX.previous));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'p' }, 'previousPhoto'), label('previousPhoto', 'previous')));
     // The visible counter ("4 / 18") is hidden from screen readers; a visually hidden live region announces the position
     // and the photo's alt text instead ("Photo 4 of 18: La Huasteca", #38).
     bar.appendChild(el('span', { 'class': 'count', 'aria-hidden': 'true' }));
     bar.appendChild(el('span', { 'class': 'vh', 'aria-live': 'polite' }));
-    bar.appendChild(el('button', { type: 'button', 'data-a': 'n', 'aria-label': TX.nextPhoto }, TX.next));
-    bar.appendChild(el('button', { type: 'button', 'data-a': 'c', 'aria-label': TX.closeViewer }, TX.close));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'n' }, 'nextPhoto'), label('nextPhoto', 'next')));
+    bar.appendChild(el('button', named({ type: 'button', 'data-a': 'c' }, 'closeViewer'), label('closeViewer', 'close')));
     inner.appendChild(bar);
     dlg.appendChild(inner);
     document.body.appendChild(dlg);
@@ -48,8 +74,12 @@
     img = dlg.querySelector('img'); count = dlg.querySelector('.count'); say = dlg.querySelector('[aria-live]');
     prev = dlg.querySelector('[data-a="p"]'); next = dlg.querySelector('[data-a="n"]');
     img.addEventListener('load', keepInView);
+    // A turned phone or a resized window changes the space the photo fills, and with it the choice big() makes. Added once,
+    // here, since the dialog is built once; refit() does nothing while the dialog is closed.
+    window.addEventListener('resize', refit);
+    window.addEventListener('orientationchange', refit);
 
-    dlg.addEventListener('close', function () { if (opener) opener.focus(); });
+    dlg.addEventListener('close', function () { down = 0; sx = sy = null; if (opener) opener.focus(); });
     dlg.addEventListener('click', function (e) {
       var a = e.target.dataset && e.target.dataset.a;
       if (a === 'n') show(idx + 1);
@@ -57,7 +87,7 @@
       else if (a === 'c' || e.target === dlg || e.target.classList.contains('in') || e.target.classList.contains('bb')) dlg.close();
     });
     dlg.addEventListener('keydown', function (e) {
-      if (list.length < 2) return;
+      if (list.length < 2 || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;  // Alt+Left is Back, Ctrl+End is the page's end
       // The arrows point where the buttons are: the next photo is on the right in a left-to-right page and on the left in
       // a right-to-left one (#296).
       var fwd = rtl() ? 'ArrowLeft' : 'ArrowRight', back = rtl() ? 'ArrowRight' : 'ArrowLeft';
@@ -70,6 +100,8 @@
     // pointer going down means a pinch, so the gesture is dropped and nothing changes until every pointer is up again.
     img.addEventListener('pointerdown', function (e) {
       if (e.pointerType === 'mouse') return;
+      // Keep the pointer's events on the photo, so its pointerup comes here even when the finger or pen is lifted elsewhere.
+      try { img.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is already gone */ }
       down++;
       if (down === 1) { sx = e.clientX; sy = e.clientY; } else sx = sy = null;
     });
@@ -118,26 +150,47 @@
 
   function preload(n) { if (list.length > 1) new Image().src = big(list[(n + list.length) % list.length]); }
 
+  // The photo on screen at a window size that would make big() choose the other size: load that one first, and swap it in
+  // only once it has loaded, so there is no flicker, and only if the same photo is still shown. Waits for a photo being
+  // loaded (show() runs this when it finishes), and asks for a URL only once, whether or not it loads.
+  function refit() {
+    if (!dlg || !dlg.open || !list.length || dlg.hasAttribute('aria-busy')) return;
+    var want = big(list[idx]), my = seq;
+    if (want === chose || want === fitting) return;
+    fitting = want;
+    var pre = new Image();
+    pre.onload = function () {
+      if (my !== seq || want !== fitting) return;
+      img.src = chose = want;
+    };
+    pre.src = want;
+  }
+
   function show(n) {
     idx = (n + list.length) % list.length;
     var a = list[idx], thumb = a.querySelector('img'), my = ++seq, pre = new Image();
     dlg.setAttribute('aria-busy', 'true');
-    function done() {
+    fitting = '';
+    function done(failed) {
       if (my !== seq) return;  // a later photo was asked for meanwhile
       img.src = pre.src || (thumb ? thumb.src : '');
       img.alt = thumb ? thumb.alt : '';
       count.textContent = (idx + 1) + ' / ' + list.length;
-      say.textContent = TX.photoOf.replace('{i}', idx + 1).replace('{n}', list.length) + (img.alt ? ': ' + img.alt : '');
+      say.textContent = '';
+      say.append(words('photoOf', TX.photoOf.replace('{i}', idx + 1).replace('{n}', list.length)));
+      if (img.alt) say.append(': ' + img.alt);
+      if (failed === true) { count.append(' ', words('photoFailed')); say.append(' ', words('photoFailed')); }
       dlg.removeAttribute('aria-busy');
       preload(idx + 1); preload(idx - 1);
+      refit();
     }
-    pre.onload = done;
+    pre.onload = function () { done(false); };
     // The large image failed: try the thumbnail once; if that fails too, still finish (broken image, counter and caption
-    // updated, no longer busy) instead of leaving the viewer empty and busy (#168).
+    // updated, no longer busy) instead of leaving the viewer empty and busy (#168), and say in both that it didn't load.
     pre.onerror = function () {
-      if (thumb && pre.src !== thumb.src) { pre.onerror = done; pre.src = thumb.src; } else done();
+      if (thumb && pre.src !== thumb.src) { pre.onerror = function () { done(true); }; pre.src = thumb.src; } else done(true);
     };
-    pre.src = big(a);
+    chose = pre.src = big(a);
   }
 
   galleries.forEach(function (g) {
@@ -152,6 +205,7 @@
       prev.hidden = next.hidden = list.length < 2;
       img.removeAttribute('src'); img.alt = ''; count.textContent = ''; say.textContent = '';
       show(list.indexOf(a));
+      down = 0; sx = sy = null;
       dlg.showModal();
       dlg.querySelector('[data-a="c"]').focus();
       keepInView();

@@ -7,8 +7,9 @@
 // address in data-index is fetched, and an index whose "v" isn't 1 (a layout this script doesn't know) is refused.
 // Each row is [title, url, date, section, tags, categories, series, description, photoTitles, text].
 //
-// The matcher folds case and accents (lower case, Unicode NFD, then only the optional marks removed, see fold()), splits
-// words at anything that isn't a letter, a digit or a combining mark, and scores a page by where the words are found: title 10, tags/categories/series 6, description 4, photo titles 3, text 1
+// The matcher folds case and accents (zero-width joiners removed, lower case, a few letters with no decomposition spelled
+// with plain ones, a final sigma made a sigma, Unicode NFD, then only the optional marks removed, see fold()), splits
+// words at anything that isn't a letter, a digit, a combining mark or a joiner, and scores a page by where the words are found: title 10, tags/categories/series 6, description 4, photo titles 3, text 1
 // (a little more for repeats in the text). It tries three passes and stops at the first that finds a page:
 //   1. every word of the query matches a word of the page, exactly or as its start ("bost" finds "Boston");
 //   2. the same, allowing one typo (an extra, missing, wrong or swapped letter) in query words of 4 letters or more;
@@ -41,6 +42,13 @@
   // A word is letters, digits and combining marks. The marks must stay in the word: in Devanagari, Thai and similar scripts
   // the vowel signs are marks, and the index and the highlighting must cut a word at the same places (#320).
   var TOKEN = /[\p{L}\p{N}\p{M}]+/gu;
+  // The same for the text as the page wrote it, which still holds the zero-width joiners fold() removes: U+200C (ZWNJ) and
+  // U+200D (ZWJ) sit inside words in Persian, Arabic-script, Indic and other scripts, and the word shown in <mark> must
+  // span them (#350).
+  var RAW = /[\p{L}\p{N}\p{M}\u200c\u200d]+/gu;
+  var JOINERS = /[\u200c\u200d]/g;
+  // Letters that have no decomposition, so NFD leaves them as they are: spelled as a reader types them on a plain keyboard.
+  var PLAIN = { 'ß': 'ss', 'ł': 'l', 'đ': 'd', 'ø': 'o', 'æ': 'ae', 'œ': 'oe' };
   // The marks fold() removes, after NFD: U+0300-U+036F (accents of Latin, Greek and Cyrillic), Arabic harakat and other
   // optional vocalization (U+064B-U+065F, U+0670), and Hebrew points and cantillation (U+0591-U+05BD, U+05BF, U+05C1,
   // U+05C2, U+05C4, U+05C5, U+05C7). Every other mark (Indic and Thai vowel signs, viramas, nuktas, tone marks) tells
@@ -61,7 +69,12 @@
     if (plural && f.p) for (var i = 0; i < f.p.length; i++) if (plural.select(f.p[i]) === c) { s = f.t[i]; break; }
     return s.replace('%d', n);
   }
-  function fold(s) { return s.toLowerCase().normalize('NFD').replace(OPTIONAL, ''); }
+  // toLowerCase() turns a capital sigma at the end of a word into the final form (ς), so ς becomes σ afterwards: "ΚΟΣ" as
+  // a prefix of "ΚΟΣΜΟΣ" must find it.
+  function fold(s) {
+    return s.replace(JOINERS, '').toLowerCase().replace(/[ßłđøæœ]/g, function (c) { return PLAIN[c]; })
+      .replace(/ς/g, 'σ').normalize('NFD').replace(OPTIONAL, '');
+  }
   function str(x) { return typeof x === 'string' ? x : ''; }
   function strs(x) { return Array.isArray(x) ? x.filter(function (v) { return typeof v === 'string'; }) : []; }
 
@@ -114,14 +127,14 @@
     var u;
     try { u = new URL(root.getAttribute('data-index'), location.href); } catch (e) { return Promise.reject(e); }
     if (u.origin !== location.origin) return Promise.reject(new Error('origin'));
-    var slow = setTimeout(function () { say(TX.loading); }, 400);
+    var slow = setTimeout(function () { say([[TX.loading, 'loading']]); }, 400);
     pending = fetch(u.href, { credentials: 'same-origin' }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     }).then(function (data) { index = build(data); return index; });
     // The "Loading…" text is cleared when the load ends, unless something else has been written since: a failure message
     // (written after this runs) or a count. Otherwise a slow load with no query leaves it in the live region (#322).
-    function done() { clearTimeout(slow); pending = null; if (status.textContent === TX.loading) say(''); }
+    function done() { clearTimeout(slow); pending = null; if (status.textContent === TX.loading) say([]); }
     pending.then(done, done);
     return pending;
   }
@@ -185,7 +198,7 @@
 
   // text into node, with the words that match the query in <mark> (text nodes and createElement only).
   function mark(node, text, r) {
-    var re = new RegExp(TOKEN), at = 0, m;
+    var re = new RegExp(RAW), at = 0, m;
     while ((m = re.exec(text))) {
       if (!isHit(fold(m[0]), r)) continue;
       if (m.index > at) node.appendChild(document.createTextNode(text.slice(at, m.index)));
@@ -198,7 +211,7 @@
   }
 
   function firstHit(text, r) {
-    var re = new RegExp(TOKEN), m;
+    var re = new RegExp(RAW), m;
     while ((m = re.exec(text))) if (isHit(fold(m[0]), r)) return m.index;
     return -1;
   }
@@ -247,13 +260,34 @@
   }
 
   function clear() { list.textContent = ''; box.hidden = true; }
-  function say(text) { status.textContent = text; }
+  // The status holds parts, each [text, key]: key is the name of the text in TX, or '' for text that isn't the theme's. A part whose
+  // key is in TX.en (the theme's English, which the site's language lacks) goes in a <span lang="en"> (WCAG 3.1.2); the query stays outside.
+  function say(parts) {
+    var run = '', en = false;
+    function flush() {
+      if (!run) return;
+      var s = en ? document.createElement('span') : null;
+      if (s) { s.lang = 'en'; s.textContent = run; status.appendChild(s); } else status.appendChild(document.createTextNode(run));
+      run = '';
+    }
+    status.textContent = '';
+    parts.forEach(function (p) {
+      if (!p[0]) return;
+      var e = !!p[1] && TX.en.indexOf(p[1]) >= 0;
+      if (e !== en) { flush(); en = e; }
+      run += p[0];
+    });
+    flush();
+  }
 
   function summary() {
     var n = last.r.hits.length, q = input.value.trim();
-    if (!n) return TX.noResults.replace('{query}', function () { return q; });
-    var text = countText(n);
-    return n > MAX ? text + ' ' + TX.capped.replace('{n}', MAX) : text;
+    if (!n) {
+      var at = TX.noResults.indexOf('{query}');   // the query goes in as typed, not as theme text
+      return at < 0 ? [[TX.noResults, 'noResults']] : [[TX.noResults.slice(0, at), 'noResults'], [q, ''], [TX.noResults.slice(at + 7), 'noResults']];
+    }
+    var parts = [[countText(n), 'count']];
+    return n > MAX ? parts.concat([[' ', 'count'], [TX.capped.replace('{n}', MAX), 'capped']]) : parts;
   }
 
   // Keep the query in the address (?q=), so a result can be shared or come back to with Back; no history entry is added.
@@ -270,7 +304,7 @@
   function update(now) {
     var q = input.value.trim(), mine = ++seq, words = queryWords(q);
     sync(q);
-    if (!words.length) { clear(); last = null; say(''); return; }
+    if (!words.length) { clear(); last = null; say([]); return; }
     function go() {
       if (mine !== seq) return;
       last = { r: search(words) };
@@ -278,13 +312,30 @@
       if (now || statusDue) say(summary());
     }
     if (index) go();
-    else load().then(go, function () { if (mine === seq) { clear(); last = null; say(TX.failed); } });
+    else load().then(go, function () { if (mine === seq) { clear(); last = null; say([[TX.failed, 'failed']]); } });
+  }
+
+  // The address with its percent escapes decoded, each run of escapes on its own: one malformed escape ("%E0%A4%A") must not
+  // leave every other word as raw bytes ("c3", "bcnal"). A run that doesn't decode is read character by character, and a byte
+  // that begins no character becomes a space, so it cuts a word and is not read as one.
+  function decodePath(p) {
+    return p.replace(/(?:%[0-9A-Fa-f]{2})+/g, function (run) {
+      try { return decodeURIComponent(run); } catch (e) {}
+      var bytes = run.match(/%[0-9A-Fa-f]{2}/g), out = '', i = 0, n, ok;
+      while (i < bytes.length) {
+        for (n = 1, ok = false; n <= 4 && i + n <= bytes.length && !ok; n++) {
+          try { out += decodeURIComponent(bytes.slice(i, i + n).join('')); i += n; ok = true; } catch (e) {}
+        }
+        if (!ok) { out += ' '; i++; }
+      }
+      return out;
+    });
   }
 
   // The words of the missing address, folded, 8 at most and 40 letters each (the 404 page).
   function pathWords() {
     var p = location.pathname, base = root.getAttribute('data-base') || '/', seen = new Set(), out = [];
-    try { p = decodeURIComponent(p); } catch (e) {}
+    p = decodePath(p);
     if (base !== '/' && p.indexOf(base) === 0) p = p.slice(base.length);
     (fold(p).match(TOKEN) || []).forEach(function (w) {
       w = w.slice(0, 40);

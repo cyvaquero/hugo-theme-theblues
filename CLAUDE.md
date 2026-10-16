@@ -28,7 +28,7 @@ What the theme is built and tested for. A request outside it is an enhancement, 
 - **Languages:** one or more languages, with the theme's strings translatable through `i18n/` and an English
   fallback. A right-to-left language gets `dir="rtl"` on `<html>` and a mirrored layout (CSS logical
   properties; the `rtl` variant is the test). The previous/next arrows come from `_partials/arrow.html`, which swaps
-  `&larr;` and `&rarr;` for a right-to-left language.
+  `&larr;` and `&rarr;` for a right-to-left language, in an `aria-hidden` span.
 - **Content:** Markdown files under `content/`, with posts in the main sections and a site `title` set (the build warns without one). Content
   adapters are tested only for the fallback title of a page without one (the `adapter` variant); the rest is not.
 - **Photos:** SmugMug photo URLs (`photos.smugmug.com`) for galleries, wall tiles and heroes. Only those are read for
@@ -46,7 +46,7 @@ What the theme is built and tested for. A request outside it is an enhancement, 
 cd exampleSite
 hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d <scratch>/base
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d <scratch>/min
-for v in main-menu multilingual analytics rtl adapter; do   # every variants/*.toml except dark-tokens
+for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one; do   # every variants/*.toml except dark-tokens
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d <scratch>/$v
 done
 hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>/dark-tokens   # must warn
@@ -69,7 +69,7 @@ hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>
 - The theme's strings use the English-fallback idiom `(or (T "key") (partial "t.html" "key"))`, with the same keys
   in both calls and every key in `i18n/en.toml`. The fixture build checks the pairs.
 - Scripts in `assets/js` are published as written, except those run as Hugo templates: `wall.js`, `comments.js`,
-  `gallery.js` and `search.js`. A script is a template only if its first line is `{{- /* theblues:template */ -}}`.
+  `gallery.js`, `hero.js` and `search.js`. A script is a template only if its first line is `{{- /* theblues:template */ -}}`.
 - Theme assets go through `layouts/_partials/asset.html` (minify and fingerprint in production).
 - Docs stay out of the published output: `docs/` and the README are not mounted. Never put docs in `static/`,
   `layouts/` or `assets/`.

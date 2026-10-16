@@ -17,17 +17,20 @@ hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../
 
 `hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
 Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
-compared. Also build it minified, as a site is deployed, and the five variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
+compared. Also build it minified, as a site is deployed, and the eight variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
 which cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
-the legacy `params.addtional_menus`), a second language with a partial translation (`i18n/de.toml`, content in
-`content-de/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
+the legacy `params.addtional_menus`), the legacy nav with hrefs that carry a query or a fragment (`legacy-nav`, below), a second language with a partial translation (`i18n/de.toml`, content in
+`content-de/`, and one German photo post in `content-de-photos/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
 Google Analytics ID, which the theme loads in production builds only, and a right-to-left language (`rtl`: Arabic with
 `direction = "rtl"` next to English, #266), whose pages must start `<html lang="ar" dir="rtl">` while the English ones
 have no `dir`, and whose layout mirrors (#296): the series box, article tile, table of contents and blockquote bars are on
 the right, the View options panel, skip link, photo badge and theme switch knob anchor to the other side, the lightbox
 arrow keys go the other way, and code blocks stay left to right. The previous/next arrows (`_partials/arrow.html`, #340) point toward
 the side their link is on: `&rarr;` before the previous link and `&larr;` after the next link, in the post navigation, the series box, the pager,
-the "back to all posts" and "all tags" links of a term page and the "more photos" tile. Extra Arabic posts in `exampleSite/content-rtl/` (three in a series
+the "back to all posts" and "all tags" links of a term page and the "more photos" tile. The arrow comes in a span with `aria-hidden="true"`
+that also holds the no-break space beside it, so the links' accessible names have no arrow in them ("Older", "Back to all posts"; in Chrome's accessibility
+tree, `Accessibility.getFullAXTree`) and the pager's and nav's flex links keep the space between arrow and text (an arrow in a flex link beside an English-fallback
+`<span lang=en>` text has the space, which a plain space there would lose). Extra Arabic posts in `exampleSite/content-rtl/` (three in a series
 and a photo post, mounted by `variants/rtl.toml`) give the Arabic site those links; `grep -rho '&[lr]arr;' <out>/rtl --include=index.html` finds both on its
 `/post/20260112-series-2/` and `/tags/fixtures/` pages and `&rarr;` on `/page/2/` (the wall's last page, with only the Newer link), and the English pages of that build keep `&larr;` before the previous link. The Arabic pages must not scroll sideways: in a browser at 320px and at 1280px, `document.documentElement.scrollWidth` must be at most
 `clientWidth` on `/`, a post page and a term page (the off-screen skip link must add no overflow in either direction), and
@@ -39,12 +42,78 @@ the month ("12 يناير 2026"), and the counts have all six plural forms (see 
 
 ```bash
 hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
-for v in main-menu multilingual analytics rtl adapter; do
+for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one; do
   hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
 done
 ```
 
 (`--printUnusedTemplates` is left out of the variants, since each one leaves some templates unused on purpose.)
+
+The `legacy-nav` variant (#350) replaces the legacy `params.addtional_menus` list with hrefs that carry a query or a fragment. In its
+nav, `/about#team` is `/about/#team`, `/search?x=1` is `/search/?x=1`, `/archive?s=a#b` is `/archive/?s=a#b`, `/feed.xml#x` is
+`/feed.xml#x` (it has an extension), `/files/guide.pdf` stays as it is, `/releases/v1.2` (a last segment that looks like a version, whose
+`.2` is not an extension) is `/releases/v1.2/` and carries `aria-current="page"` on the page `content-legacy-nav/v1.2.md`, which the variant mounts at
+`content/releases` (so the base build is unchanged), and the hrefs that are only a fragment or a query, `#top` and `?page=2`, stay as written (not
+`/#top/`); with `-b https://example.org/sub/` the paths gain `/sub`, and with the `multilingual` variant added to the
+`--config` list they gain `/en` on the English pages (`/en/about/#team`).
+
+The rotating hero (#356, README, "Rotating hero") has fixtures in the base build and in two variants. Photos are on
+`photos.smugmug.com`, so a first build needs the network. In the **base build**, the newest photo post (`20260107`, on
+`photos.example.org`) has no photo whose size can be read, so the pool is the two landscape photos of `20260104-smugmug-photos`
+(its portrait photo is left out, and so is the `image` of the hero-image article, which is not a gallery photo): the home page, `/tags/photos/`,
+`/tags/fixtures/` and `/categories/photos/` (and their pager pages) have `data-pool` with two tokens (`photos/i-25Xwh4F/…|M,L,X2,X2,,X2` on the home page, `…|L,L,X2,X2,,` on the 416px term heroes),
+the first photo (`i-25Xwh4F`) in the hero's `--hi` and in the preload links, and a `<script src=/js/hero.…>`; `/tags/code/`, `/categories/tech/`
+and the pages of the other terms, and every other page, have none of that. The **`hero-none` variant** (`variants/hero-none.toml`,
+`content-hero-none/`) has landscape SmugMug photos only where no pool may take them: an article's inline gallery, `image` and Markdown image, a photo post
+that is a draft, one dated in the future and one that has expired, and a photo post with only a portrait and a photo of unknown size. Every page of its build must be
+byte for byte the same as the same variant built with the theme before the change (below), the footer version and the stylesheet's fingerprint aside, with no
+`hero.js` in the output and every hero on `header_image`. The **`hero-one` variant** adds one photo post (`20260106-single`) with one landscape
+and one portrait photo: the home page and `/tags/single/` show that photo from the build (preloaded, with its sizes) and have no `data-pool`, no button and no `hero.js`.
+Because the `hero-none` content must give the old output, compare it by building the variant with a worktree of `develop`, which needs `content-hero-none/` and
+`variants/hero-none.toml` copied into its `exampleSite/` (they don't exist there).
+
+In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me build, whose photos load), on a page with a pool of two or more:
+
+- With JavaScript off, the hero shows the first photo (the computed `background-image` is its size for the viewport), `<head>` has its preload, and the page
+  has no `.hr` and no `.hpp`. With JavaScript on, the hero starts on a random photo of the pool: unless it is the build's photo, its request starts at load and
+  the `.hr` layer fades it in over the build's photo as soon as it has loaded. Then (with the default `hero_interval` of 30) at 25 s the next photo's request starts (one request, the size the viewport uses), at 30 s the `.hr` layer fades in
+  (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. Reloads give different start photos (from different galleries, given enough reloads)
+  and different sets of five; no photo comes back before the cycle ends and the sixth photo shown is the first of the five again. To see a whole cycle sooner, scale the page's timers before it loads
+  (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
+- `params.hero_interval`: the show interval (`SHOW` in `assets/js/hero.js`, in milliseconds) is minified in every build but a development one,
+  so the base build's `hero.js` has it as `3e4`, just before `LEAD`'s `5e3`; with `--config hugo.toml,<file setting hero_interval = 15>` it is
+  `15e3` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`5e3` and `2147483e3`).
+- A photo that fails to load is replaced (block some of the pool's photo URLs with `Network.setBlockedURLs`, or fail them with `Fetch.failRequest`): the
+  rotation goes on with the others, and ends, with the button hidden, only when fewer than two photos can be loaded.
+- `data-pool` entries the build can't write are ignored (#368): serve a copy of a built page whose `data-pool` also holds a token with an unknown size name
+  (`…|M,L,EVIL,X2,,X2`), one with five names, one over 512 characters and one whose path has the same `/M/` segment repeated many times; the
+  script keeps only the build's entries (and parses the long path in well under a millisecond), and the hero still rotates.
+- Tab reaches the pause button (after the hero's links), its accessible name is "Pause the photo rotation" (`Accessibility.getFullAXTree`), Enter changes it to
+  "Play the photo rotation" and the rotation stops: no change and no request for as long as it is paused; Space and a click change it back. The button has no `aria-pressed`, the
+  layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is a 3px cream outline around a 2px dark halo (`box-shadow`, the scrim color), also with `forced-colors: active`
+  (`Emulation.setEmulatedMedia`). Over a white photo (serve a built term page with the hero's `--hi` and `--hi1` to `--hi6` pointed at a local white image) and a black
+  one, Tab to the button (a real Tab key event) and screenshot it: the dark ring shows against the cream border and outline in both, and the outline shows against the black one.
+  A tab reported hidden (`document.hidden` true, then a `visibilitychange` event) stops the rotation and a visible one restarts it.
+- Focus is not lost when the button goes away: Tab to the pause button (a real Tab key event), then turn on `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`),
+  and separately make every photo request fail (`Fetch.failRequest`, holding the requests until the button has focus), so the rotation ends. In both,
+  `document.activeElement` is `main#main` (not `body`), the button is `hidden`, and the next Tab goes to the first stop after the hero.
+- With `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`) there is no button, the layer is never shown, the hero keeps the build's photo
+  (no random start) and makes no further photo request; changing the setting while the page is open starts or stops the rotation.
+- The text's computed colors and the hero's `background-image` (with the URL taken out) equal those of the same page before the change, in light and dark mode; and with the
+  layer shown over the hero with the hero's own photo (copy the hero's `--hi` to `--hi6` to the layer, `.on`, no transition) a screenshot of the hero is pixel for pixel the same as without it.
+- Hero sizes by screen (device metrics override, `getComputedStyle(hero).backgroundImage`): the home hero's photo is X2 at 390, 412 and 427px wide at three-x and X3 at 428 and 430px wide or at four-x, in each case at least the viewport width and the hero box's height in device pixels (`getBoundingClientRect().height` of the home `.hero`: 245.64 at 800px and wider with the fixture's one-line slogan and tagline, which `hero-sizes.html` takes as 246; it is taller where the slogan or tagline wraps); at two-x and one-x it is the same size as before the three-x tier (the .phero of a photo post or term keeps its X3 or X5 size at three-x).
+- The photo-post hero is sized for its minimum height, 416px, and a title that wraps makes it taller: `getBoundingClientRect().height` of `.phero` on `/post/20260110-deep-headings/` is 416 at 390 and 1280px wide and 422.7 at 320px (about 1.6% more, so a tier's size can be shown slightly enlarged there).
+- At 320px (and 390px) the button is inside the window, overlaps no text and the page has no horizontal scroll; in a right-to-left page it is at the left.
+- Under the site's real CSP and under the README's example policy (`style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https://photos.smugmug.com; connect-src 'self'`), sent as a header, the
+  console has no violation while the hero rotates.
+
+The nav's search link is written only for a language that has a search page (#350): in the `multilingual` and `rtl` builds the
+German and Arabic pages, whose content folder has no `search/`, have no "SEARCH" link, and the English ones keep it.
+`og:locale` is written when the locale ends in a two-letter region: `HUGO_LOCALE=en-US`, `en-us` and `pt-br` give `en_US` and `pt_BR`;
+`zh-Hant-TW` gives `zh_TW`; `zh-Hant`, `sr-Latn`, `es-419`, `de` and `en` give no `og:locale` (Hugo reads the environment variable
+as the site's `locale`; build the fixture with it and `grep -o 'property="og:locale"[^>]*' <out>/index.html`). A front-matter `image` that
+isn't a URL fails the build and names the page: in a copy of the fixture add a post with `image: "1:2/x.jpg"`; the error must start with
+the post's path and say "the share image "1:2/x.jpg" is not a valid URL".
 
 The `adapter` variant (#277) has a content adapter, `content-adapter/post/_content.gotmpl`, that adds three pages without a title
 and one with a title to the post section. Its untitled pages must get distinct titles from their paths ("Adapter Note",
@@ -117,7 +186,7 @@ must have no row and whose words must find nothing (`grep -c 'Unrendered\|Link-o
 filter; recheck it against Hugo's when the Hugo version changes, README, "Upgrading Hugo"), and apart from that page's `<url>` block
 the sitemaps match a build with Hugo's built-in template byte for byte, and with four pages for the marks (#320): `hindi.md` ("किताब", and
 "की" in its text) and `hindi-other.md` ("कमल", "कोई", "कुछ", "करता", "के", "को", "कि"), `decomposed.md` (Latin saved in
-NFD) and `vocalized.md` (Arabic with harakat). Check the build, in
+NFD) and `vocalized.md` (Arabic with harakat; its last line holds "کتاب‌ها" with a U+200C inside), and the last lines of `accents.md` (Straße, Łódź, København, Øslo, Đan, Ærøe, cœur and the Greek capitals ΚΟΣΜΟΣ, #350). Check the build, in
 `<out>/search/`: `index.json` exists, has `"v":1` and no row for the unlisted page or the two unpublished ones, and `index.xml` doesn't exist. Then serve
 `<out>` (`python3 -m http.server`) and, in a browser (headless Chrome over the DevTools protocol works), on `/search/`:
 
@@ -127,6 +196,10 @@ NFD) and `vocalized.md` (Arabic with harakat). Check the build, in
   that page with the whole word marked and the snippet centered on it; `ecole` finds the decomposed page with "école"
   marked whole; `كتاب` and `كِتَابٌ` both find the Arabic page, with the whole word marked; `/की/` on the 404 page
   searches that word the same way;
+- `strasse`, `lodz`, `kobenhavn`, `oslo`, `dan`, `đan`, `aeroe` and `coeur` find the accents page with Straße, Łódź, København, Øslo, Đan, Ærøe or cœur marked whole;
+  `ΚΟΣ`, `κοσμος` and `ΚΟΣΜΟΣ` find it with "ΚΟΣΜΟΣ" marked (a final capital sigma lower-cases to ς, which folds to σ; before
+  #350 `ΚΟΣ` found nothing); `کتابها` (no joiner), `کتاب‌ها` and `کتاب` find the Arabic page with the whole "کتاب‌ها" marked (before, the joiner split it into two words and the
+  query without it found nothing). Words of fewer than four letters are not matched with a typo, so `dan` shows that Đ is folded;
 - `constructor` finds the accents page (a plain object used as a set would have taken it for already seen; #322), on `/search/?q=constructor`
   and, on the 404 page, at `/constructor/`;
 - `smug` finds the SmugMug posts (start of a word); `galery` finds the gallery posts (one typo);
@@ -145,8 +218,9 @@ NFD) and `vocalized.md` (Arabic with harakat). Check the build, in
 The nav's search link (`params.search_enabled`, set in the fixture) has `aria-current="page"` on `/search/` and on no other page, with a language prefix (`/en/search/` in `multilingual`) and with a sub-path base URL (build with `-b https://example.org/sub/`: `/sub/search/`) (#333).
 
 Feeds and feed links (#322): in `<out>/tags/fixtures/index.xml` no item is the "Unlisted note" page (outside the main sections), while the
-terms used only by root pages (`/tags/münster/`, `/tags/crème-brûlée/`, `/tags/किताब/`, `/categories/food/`) have a feed with no items and no
-"Subscribe via RSS" link in their header (their wall is empty too); a section's feed (`/post/index.xml`) is unchanged. In the accessibility tree
+terms used only by root pages (`/tags/münster/`, `/tags/crème-brûlée/`, `/tags/किताब/`, `/categories/food/`) have a feed with no items, no
+"Subscribe via RSS" link in their header (their wall is empty too) and no `<link rel="alternate" type="application/rss+xml">` in their `<head>`
+(both ask `_partials/feed-has-items.html`; #350), while `/tags/fixtures/` keeps its link in both; a section's feed (`/post/index.xml`) is unchanged. In the accessibility tree
 of `/post/20260106-untitled/` the two feed links in the series boxes are named "Subscribe via RSS : Fixture Series" and "Subscribe via RSS :
 Second Fixture Series" (a link name starts with its visible text), and the term pages' links stay "Subscribe via RSS".
 
@@ -167,6 +241,9 @@ Chrome answers it: with the DevTools `Fetch` domain, fulfill a request for a mis
   the accents page; Enter in the field goes to `/search/?q=smug`;
 - `/2017/05/` (only numbers), `/zzzqxv/` and `/2017/05/awx-on-centos/` (no page has them; the two-letter `on` is not used
   alone) show the empty field and the latest five posts, and no result list;
+- `/caf%C3%A9%/` (a lone `%`, which makes `decodeURIComponent` throw for the whole path) and `/post/caf%C3%A9-%E0%A4%A/` (a broken escape
+  after a good one) put `cafe` in the field and list the accents page; each run of escapes is decoded on its own, and a byte that
+  begins no character cuts a word, so no `c3`, `a9`, `e0` or `a4` words appear (#350);
 - `/%3Cimg%20src=x%20onerror=alert(1)%3E/` and `/%E0%A4%A/` (a malformed escape) put nothing of the address on the page as
   markup, run no script, open no dialog and cause no console error besides the 404 response itself;
 - with JavaScript off, and in a copy of the fixture whose search section leaves out `searchindex`, the 404 page is the hero,
@@ -192,6 +269,39 @@ theme's English text that is the content of an element (a button, a label, a hea
 `grep -o '<span lang=en>[^<]*</span>' <out>/multilingual/index.html` lists labels such as "View options" and "Sort". An
 English build has no such span (T finds the text, so `t-en.html` isn't used). With the spans taken out, a `multilingual`
 page equals the same page built without `t-en.html`: the markup is the only difference.
+
+The scripts' English fallback is marked too: `multilingual` has a German photo post (`content-de-photos/`) whose two landscape
+SmugMug photos give the German home page a rotating hero and the post a lightbox, and `i18n/de.toml` has no text for either. In
+Chrome, on `/` and `/post/20260113-fotos/`, the hero's `.hpp` button and, once a photo is opened, the lightbox's Previous, Next and
+Close buttons have `lang="en"` and the same accessible names as without it ("Pause the photo rotation", "Previous photo", "Next photo",
+"Close photo viewer"; `Accessibility.getFullAXTree`), the pause button keeps it after it is pressed ("Play the photo rotation"), and
+the dialog has `lang="en"` (its name, "Photo viewer", is English) with its `.in` wrapper set back to the page's language (`de-DE`), so the photo's alt text
+is not marked. The announcement (`[aria-live]` in the dialog) is `<span lang="en">Photo 1 of 2</span>` followed by `: ` and the
+alt text as plain text; a photo that fails to load (block its URL) adds a second `<span lang="en">` with the failure text, in the
+announcement and the counter. On `/en/` and the English photo posts (`/en/post/20260107-photo-gallery/`) none of these has a `lang`.
+
+The other scripts mark theirs the same way, and each script's text in the built file has `en:[…]`, the names of the entries the
+language lacks (`js/wall.de.min.<hash>.js` lists the caption sentences and counts, `js/wall.ar.min.<hash>.js` lists the sentences
+but not the counts, which `ar.toml` has). In the `multilingual` build's `/` and the `rtl` build's `/` (Arabic), the wall's caption
+(`.cap`) puts the theme's English in `<span lang="en">` and nothing else: German is `<span lang="en">Showing 1 article, 2 photos</span>`
+as one span, and Arabic is `<span lang="en">This page: </span>` then the Arabic count then `<span lang="en">, </span>` and the other
+count. With Group by gallery on, the "Articles" heading is `<h3><span lang="en">Articles</span> · …`, the gallery heading keeps the
+gallery's title and date outside any span, and the options badge's "active" is `<span class="vh" lang="en">`. The comment status
+(`#comments-status`) and the "Try again" button have `lang="en"` on the element while their text is English (on a German post, block
+`*.disqus.com` and press Show comments: "Comments couldn't be loaded…"; the same page in English gets no `lang`). The search status
+has the same spans, with the query outside them: `<span lang="en">No results for “</span>zzzqqq<span lang="en">”.</span>`. The
+fixture's German side has no search page (the nav test above relies on that), so check it in a scratch copy of the fixture with
+`content-de/search/_index.md` added, a copy of the English one with `outputs: [html, searchindex]`, built with the `multilingual`
+variant. The lightbox, when a photo is opened (or its load fails: block `photos.smugmug.com`), has `lang="en"` on the dialog and `lang="de-DE"`
+(the page's) on its `.in` wrapper, `<span lang="en">Photo 1 of 2</span>: Querformat` in the announcement (`[aria-live]`) and
+` <span lang="en">(image couldn't be loaded)</span>` after it and after the counter. Accessible names and the text are the same as before
+the marking (`Accessibility.getFullAXTree` for the dialog and buttons; `textContent` of the status, caption and announcement), and
+the English pages (`/en/`, `/en/search/`, the English photo post) have no `lang` in any of them.
+
+An entry that the language lacks while the default language is English can't be detected (README, "Translating the theme"): `T`
+returns the default language's text. A scratch site with `defaultContentLanguage = "en"`, an `fr` language and an `i18n/fr.toml`
+holding one entry shows it: a template printing `{{ T "b" }}` on an `fr` page for an entry only `i18n/en.toml` has prints the English
+text, as it does on the English page.
 
 Plural forms: the `rtl` build's `js/wall.ar.min.<hash>.js` has `p:[0,1,2,3,…]` and `t:[…]` in each count, and the
 English and German scripts have only `one` and `other`. To see the six forms pick, copy `<out>/rtl` to a scratch folder,
@@ -231,6 +341,9 @@ compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted f
 footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does; anything else that differs
 is a change in output.
 
+In the `rtl` build, with Group by gallery on, the closed group's triangle (`::before` of `details.grp > summary`) is "◂" in the Arabic pages and "▸" in
+the English ones, and the open one "▾" in both (#350; `getComputedStyle(summary, '::before').content`).
+
 The fixture's 4 tiles per page never leave a see-all tile alone on a page. To check the wall's grouped view for that case,
 build with `HUGO_PARAMS_WALL_TILESPERPAGE=5` and open `/page/3/`: with Group by gallery on, the one gallery's heading has
 its date and the caption ends "grouped into 1 gallery" (#252).
@@ -258,6 +371,15 @@ are not made this way. To recreate the README images:
   the network log on, open the first photo and step through them at 390x844 (pixel ratio 1 and 3) and at 1280x800 (1 and
   2); the photo requests are `X2` at both phone ratios and at 1280x800 ratio 1, and `X3` at 1280x800 ratio 2. The link's
   `href` is `X3` in every case.
+  A modifier turns the lightbox's keys off (#350): with the lightbox open, real key events (`Input.dispatchKeyEvent` with `modifiers`: 1 Alt, 2 Ctrl, 4 Meta, 8
+  Shift) for Right, Left, Home and End change nothing and leave `defaultPrevented` false, so Alt+Left (Back) and Ctrl+End work; the same keys with no modifier
+  still change the photo; Tab and Escape behave as before. A pen that goes down on the photo and comes up off it
+  (`Input.dispatchMouseEvent` with `pointerType: "pen"`) doesn't stop later swipes: a touch swipe (`Input.dispatchTouchEvent`) still changes the photo. The choice of X2 or X3 follows the window (#350): open the first photo at 390x844 (pixel ratio 1, X2), set 1280x800 at
+  ratio 2 (`Emulation.setDeviceMetricsOverride`), and the lightbox asks for X3 once and shows it when it has loaded (before, X2 stayed); back at 390x844 ratio 3 it
+  shows X2 again; five more resizes make no new request; opening and closing the lightbox several times leaves one `resize` and one `orientationchange`
+  listener on `window` (`DOMDebugger.getEventListeners`). With the DevTools `Fetch` domain answering every `photos.smugmug.com` request with a 404, the counter
+  reads "1 / 3 (image couldn’t be loaded)" and the live region "Photo 1 of 3: Landscape (image couldn’t be loaded)"; with only the `X3` request failing (the thumbnail loads)
+  both read as for a photo that loaded. At 320px the longer counter wraps and Close, Previous and Next stay on screen.
   The controls stay on screen on a short viewport (#348): with a real-photo build (the author's site, whose gallery photos
   load) and device scale factor 1, set the viewport to 320x200, 320x256, 568x320, 320x640, 1280x1024 and 1920x1080
   (`Emulation.setDeviceMetricsOverride`; a plain window won't go below about 500 px), open a 3:2 photo and a 2:3 photo, wait

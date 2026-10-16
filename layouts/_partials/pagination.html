@@ -3,7 +3,7 @@
 {{ if gt .TotalPages 1 }}
 {{ $cur := .PageNumber }}{{ $last := .TotalPages }}{{ $shown := 0 }}
 <nav class="pg" aria-label="{{ (or (T "pagination") (partial "t.html" "pagination")) }}">
-  {{ if .HasPrev }}<a href="{{ .Prev.URL }}" rel="prev">{{ partial "arrow.html" "start" }} {{ (or (T "newer") (partial "t-en.html" "newer")) }}</a>{{ end }}
+  {{ if .HasPrev }}<a href="{{ .Prev.URL }}" rel="prev">{{ partial "arrow.html" "start" }}{{ (or (T "newer") (partial "t-en.html" "newer")) }}</a>{{ end }}
   {{- range .Pagers }}
   {{- $n := .PageNumber }}
   {{- if or (eq $n 1) (eq $n $last) (and (ge $n (sub $cur 2)) (le $n (add $cur 2))) }}
@@ -12,6 +12,6 @@
   {{- $shown = $n }}
   {{- end }}
   {{- end }}
-  {{ if .HasNext }}<a href="{{ .Next.URL }}" rel="next">{{ (or (T "older") (partial "t-en.html" "older")) }} {{ partial "arrow.html" "end" }}</a>{{ end }}
+  {{ if .HasNext }}<a href="{{ .Next.URL }}" rel="next">{{ (or (T "older") (partial "t-en.html" "older")) }}{{ partial "arrow.html" "end" }}</a>{{ end }}
 </nav>
 {{ end }}

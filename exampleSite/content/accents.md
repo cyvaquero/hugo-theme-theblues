@@ -8,3 +8,6 @@ A page in the site root (no section) with accents in its title, description, tag
 accents, so "cafe", "creme", "naive", "resume", "facade", "zurich", "jalapeno", "sao paulo", "munster" and "brulee"
 find it, and so do the accented spellings. The plain word "constructor", in the description too, is here to search for a word that
 is also a property of every JavaScript object (search and 404 page).
+
+Letters with no accent to remove (docs/testing.md lists the searches): Straße, Łódź, København, Øslo, Đan, Ærøe and cœur,
+and the Greek capitals ΚΟΣΜΟΣ, whose last capital sigma lower-cases to a final sigma.

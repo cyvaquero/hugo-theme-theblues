@@ -22,6 +22,6 @@
   {{ partialCached "script.html" (dict "path" "js/menu.js" "defer" true) "js/menu.js" true }}
   {{ if .Store.Get "hasWall" }}{{ partialCached "script.html" (dict "path" "js/wall.js" "defer" true) "js/wall.js" true }}{{ end }}
   {{ if .Store.Get "hasComments" }}{{ partialCached "script.html" (dict "path" "js/comments.js" "defer" true) "js/comments.js" true }}{{ end }}
-  {{ if .Store.Get "hasGallery" }}{{ partialCached "script.html" (dict "path" "js/gallery.js" "defer" true) "js/gallery.js" true }}{{ end }}{{ if .Store.Get "hasSearch" }}{{ partialCached "script.html" (dict "path" "js/search.js" "defer" true) "js/search.js" true }}{{ end }}
+  {{ if .Store.Get "hasGallery" }}{{ partialCached "script.html" (dict "path" "js/gallery.js" "defer" true) "js/gallery.js" true }}{{ end }}{{ if .Store.Get "hasHeroPool" }}{{ partialCached "script.html" (dict "path" "js/hero.js" "defer" true) "js/hero.js" true }}{{ end }}{{ if .Store.Get "hasSearch" }}{{ partialCached "script.html" (dict "path" "js/search.js" "defer" true) "js/search.js" true }}{{ end }}
 </body>
 </html>
