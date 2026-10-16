@@ -371,9 +371,10 @@ translate the theme, or reword its English, for a site:
    (`theblues-i18n`). Where the English text becomes the content of an element (a label, a heading, a button, a link
    name), the theme wraps it in `<span lang="en">`, so a screen reader reads it with an English voice (WCAG 3.1.2). Where
    it would become an attribute value (`aria-label`, `title`, `alt`), the page `<title>`, an `<option>`, a feed, a date
-   layout or the "Undated" text, or text a script writes (captions, counts, the lightbox and comment messages), no
-   markup can carry the language, so a reader hears it in the page's language. Translate those entries for a complete
-   experience.
+   layout or the "Undated" text, or text a script writes (captions, counts, the comment and search messages, the lightbox's
+   dialog name and announcements), no markup can carry the language, so a reader hears it in the page's language. The
+   exceptions are the script-written buttons: the hero's pause and play button and the lightbox's previous, next and close
+   buttons get `lang="en"` when their text is the theme's English. Translate the other entries for a complete experience.
 4. Set the site's `locale` (for example `de-DE`), which also sets `<html lang>`. The three date entries are Go layouts
    (`dateFormat` for dates on posts, tiles and wall headings unless `params.dateFormat` is set, `dateFormatDay` for the
    archive, `dateFormatMonth` for the series box), so a translation can reorder day, month and year. Month names come from
@@ -681,8 +682,10 @@ on photos):
   focus to the photo that was opened. On a short screen (a phone held sideways, a window at 400% zoom) the photo shrinks so that Close, Previous and Next stay on screen with their focus rings (WCAG 2.4.7, 1.4.10). Modifier clicks still open the large image (`X3`) in a new tab. The photo shown, and the next and previous ones it preloads, are the `X2` size on a screen where that is enough (the choice is made again for the photo on screen when the window is resized or the device turned), and a photo that can't be loaded at all is announced as "Photo 1 of 4: Title (image couldn’t be loaded)" and counted the same way, so a pinch that zooms in past the photo's pixels shows it softer than `X3` would.
 - **Rotating hero:** the pause and play button in a rotating hero (WCAG 2.2.2, Pause, Stop, Hide, level A; Section 508 E205.4)
   is a native button, so Tab reaches it and Enter or Space press it. It is named by what it does next, "Pause the photo
-  rotation" or "Play the photo rotation" (the name changes; it has no `aria-pressed`), it is 44 by 44 pixels, and it has the
-  hero's sand focus ring. Its cream icon and ring sit on a dark disc (the scrim color at 85%), 9.1:1 or more over any
+  rotation" or "Play the photo rotation" (the name changes; it has no `aria-pressed`), it is 44 by 44 pixels, and its focus
+  ring has two tones, so it shows over any photo: a cream 3px outline around a 2px dark halo (the scrim color), which has
+  14.6:1 against the cream on both sides whatever the photo is (a sand ring alone was 1.6:1 over a white photo under the term hero's scrim).
+  Its cream icon and ring sit on a dark disc (the scrim color at 85%), 9.1:1 or more over any
   photo (5.7:1 for the sand of its hover state). It sits in the hero's top corner at the end of the line (the right, and the
   left in a right-to-left language), above the hero's text at every width down to 320px, and comes after the text in the
   reading order.
@@ -702,8 +705,9 @@ status, and focus is not moved; the prefilled field is labeled like the search p
 
 **Language of parts.** A site in another language that lacks a translation shows the theme's English text. Where that
 text is the content of an element, it is marked `lang="en"` (WCAG 3.1.2, Section 508 E205.4). English text in an
-attribute, the page `<title>`, a feed, an `<option>`, a date layout or a script's captions can't be marked and is read
-in the page's language: translate those entries (see "Translating the theme").
+attribute, the page `<title>`, a feed, an `<option>`, a date layout or a script's captions, counts and messages can't be marked and is read
+in the page's language: translate those entries (see "Translating the theme"). The buttons a script writes, the hero's pause
+and play button and the lightbox's previous, next and close buttons, are marked `lang="en"` themselves when their text is English.
 
 **Announcements.** The wall's caption ("Showing 5 articles, 12 photos") is a polite live region that announces changes
 but not the first render; the lightbox announces "Photo 4 of 18" and the photo's alt text once the photo has loaded.

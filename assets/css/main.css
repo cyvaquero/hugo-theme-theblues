@@ -231,12 +231,17 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
    --hi1 to --hi6 to "initial" for a tier with no smaller size, since they would be inherited from the hero. The fade
    is the 1.5s in hero.js (FADE) and only runs where motion is allowed; hero.js does nothing for a visitor who asks
    for less. The pause/play button (.hpp) is in the top corner, on its own dark disc, so its cream icon and ring keep
-   their contrast over any photo; the hero's padding (3.5rem) and the term hero's .in (5rem) leave room above the text. */
+   their contrast over any photo. Its focus ring is two-tone: a dark halo (the scrim color, 2px, in the outline's offset)
+   inside a cream outline. The halo sits between the cream border and the cream outline, so it has 14.6:1 against both
+   whatever the photo is; a single sand outline was 1.6:1 over a white photo under the term hero's .45 scrim (#369).
+   In forced colors (.hpp opts out of forced-color-adjust, so its box-shadow stays) the pair is ButtonText and ButtonFace, which
+   always contrast, between the same border and the photo. The hero's padding (3.5rem) and the term hero's .in (5rem) leave room above the text. */
 .hero.rot, .phero.rot { position: relative; isolation: isolate; }
 .hr { position: absolute; inset: 0; z-index: -1; background: var(--sc), var(--hs, var(--hi, none)) center / cover, var(--band); opacity: 0; pointer-events: none; }
 .hr.on { opacity: 1; }
 .hpp { position: absolute; z-index: 1; top: .6rem; inset-inline-end: .6rem; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 2px solid var(--bt); border-radius: 50%; background: rgb(var(--scrim) / .85); color: var(--bt); cursor: pointer; }
 .hpp:hover { color: var(--hv); border-color: var(--hv); }
+.hpp:focus-visible { outline: 3px solid var(--bt); outline-offset: 2px; box-shadow: 0 0 0 2px rgb(var(--scrim)); }
 .hpp svg { width: 18px; height: 18px; fill: currentColor; }
 
 /* 5 Shared bits ------------------------------------------------------------------------------------------- */
@@ -578,6 +583,7 @@ ul.atl .nm { min-width: 0; overflow-wrap: anywhere; }  /* a long name wraps in t
   .seg button[aria-pressed=true], .pg a[aria-current=page], .thm button[aria-pressed=true] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
   .bdg { border: 1px solid CanvasText; }
   .hpp { forced-color-adjust: none; background: ButtonFace; color: ButtonText; border-color: ButtonText; }
+  .hpp:focus-visible { outline-color: ButtonText; box-shadow: 0 0 0 2px ButtonFace; }
   .sres mark { forced-color-adjust: none; background: Mark; color: MarkText; }
 }
 

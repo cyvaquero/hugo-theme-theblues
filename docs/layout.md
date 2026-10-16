@@ -118,7 +118,8 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   after the fade writes the same custom properties on the hero and hides the layer again; if it isn't ready it waits for it. A photo that
   fails is replaced by one of the pool not yet tried (the pool beyond the five is kept in random order for that); the five shrink only
   when none is left, and the rotation ends (no button) when fewer than two photos remain. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
-  changes while the page is open) clear the timers and the pending load; a fade in progress is allowed to finish.
+  changes while the page is open) clear the timers and the pending load; a fade in progress is allowed to finish. Hiding the button (reduced motion, or fewer than
+  two photos left) while it has focus first moves focus to `<main>`, the skip link's target, so focus isn't dropped to `<body>`.
 - **Styles.** `.hero` and `.phero` keep their scrim in `--sc`, and `.hr` paints the same scrim over the next photo, so the layer
   covers the hero's own background but sits under its text (`z-index: -1` in the hero's own stacking context, `isolation:
   isolate` on `.rot`), and the contrast of the text is the scrim's, as before. The tier media queries also set `--hs` on `.hr`.
@@ -133,7 +134,10 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   `<title>`, `<option>` content, feeds, date layouts and the "Undated" text keep `t.html`, since no markup can carry a
   language there. `i18n-check.html` calls `t-en.html` once so an English-only fixture build sees it used. The fixture's
   pair check (`exampleSite/layouts/_partials/i18n-pairs.html`) counts both partials.
-- **Script text.** `js-text.html` gives a script its text; `js-forms.html` makes a count's forms. T gets the plain numbers
+- **Script text.** `js-text.html` gives a script its text; `js-forms.html` makes a count's forms. The "hero" and "gallery" maps
+  also have `en`, the names of the buttons whose text fell back to the theme's English (T had no text for the key: `heroPause`,
+  `heroPlay`, `previousPhoto`, `nextPhoto`, `closeViewer`), and `hero.js` and `gallery.js` put `lang="en"` on those buttons, as the
+  templates do with `t-en.html`. The other scripts' text, and the lightbox's dialog name and announcements, can't be marked. T gets the plain numbers
   0 to 7, 11, 12, 21, 22 and 100 to 103; when they give more than two distinct texts the script gets those texts with the
   numbers (`p`, `t`) and picks the one whose plural category (`Intl.PluralRules`) matches the count; otherwise it gets
   `one` and `other`, as before.
