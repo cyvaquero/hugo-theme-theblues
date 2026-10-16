@@ -28,17 +28,25 @@
   var SHOW = {{ mul $show 1000 | math.Round }}, LEAD = 5000, FADE = 1500;   // ms; FADE is the opacity transition of .hr in main.css
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var URL_RE = /^[A-Za-z0-9_.~\/-]+$/;
-  var SIZE_RE = /^(.+)\/(M|L|XL|X2|X3|X4|X5)\/([A-Za-z0-9_.~-]+)-(M|L|XL|X2|X3|X4|X5)\.([A-Za-z0-9]+)$/;
+  var FILE_RE = /^([A-Za-z0-9_.~-]+)-(M|L|XL|X2|X3|X4|X5)\.([A-Za-z0-9]+)$/;   // the last segment: stem-SIZE.ext
+  var NAME_RE = /^(M|L|XL|X2|X3|X4|X5)?$/, SIZES = /^(M|L|XL|X2|X3|X4|X5)$/;
   var ORIGIN = 'https://photos.smugmug.com/';
 
   // data-pool: tokens separated by spaces, each "path" or "path|M,L,XL,M,XL,X2" (the size name of each of the six tiers, empty
-  // where the full size is used). Anything that doesn't look like what hero-pool.html writes is ignored.
+  // where the full size is used). Anything that doesn't look like what hero-pool.html writes is ignored: a token over 512
+  // characters, a path that isn't "directory/SIZE/stem-SIZE.ext" with the same size twice, or size names that aren't six
+  // known ones. The path is split on "/" rather than matched with one pattern, so a long path can't make it backtrack.
   var pool = [];
   (hero.getAttribute('data-pool') || '').split(' ').forEach(function (tok) {
-    var part = tok.split('|'), path = part[0], m = SIZE_RE.exec(path);
-    if (!m || !URL_RE.test(path) || m[2] !== m[4]) return;
-    var names = (part[1] || '').split(',');
-    pool.push({ full: ORIGIN + path, base: ORIGIN + m[1], stem: m[3], ext: m[5], names: names });
+    if (tok.length > 512) return;
+    var part = tok.split('|'), path = part[0];
+    if (part.length > 2 || !URL_RE.test(path)) return;
+    var segs = path.split('/'), m = FILE_RE.exec(segs.pop() || ''), size = segs.pop(), dir = segs.join('/');
+    if (!m || !dir || !SIZES.test(size || '') || m[2] !== size) return;
+    var names = part.length > 1 ? part[1].split(',') : [];
+    if (part.length > 1 && names.length !== 6) return;
+    for (var k = 0; k < names.length; k++) if (!NAME_RE.test(names[k])) return;
+    pool.push({ full: ORIGIN + path, base: ORIGIN + dir, stem: m[1], ext: m[3], names: names });
   });
   if (pool.length < 2) return;
 
