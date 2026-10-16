@@ -87,7 +87,8 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
 - With `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`) there is no button, the layer is never shown, the hero keeps the build's photo
   (no random start) and makes no further photo request; changing the setting while the page is open starts or stops the rotation.
 - The text's computed colors and the hero's `background-image` (with the URL taken out) equal those of the same page before the change, in light and dark mode; and with the
-  layer shown over the hero with the hero's own photo (copy the hero's `--hi` to `--hi5` to the layer, `.on`, no transition) a screenshot of the hero is pixel for pixel the same as without it.
+  layer shown over the hero with the hero's own photo (copy the hero's `--hi` to `--hi6` to the layer, `.on`, no transition) a screenshot of the hero is pixel for pixel the same as without it.
+- Hero sizes by screen (device metrics override, `getComputedStyle(hero).backgroundImage`): the home hero's photo is X2 at 390, 412 and 427px wide at three-x and X3 at 428 and 430px wide or at four-x, in each case at least the viewport width and the hero box's height in device pixels; at two-x and one-x it is the same size as before the three-x tier (the .phero of a photo post or term keeps its X3 or X5 size at three-x).
 - At 320px (and 390px) the button is inside the window, overlaps no text and the page has no horizontal scroll; in a right-to-left page it is at the left.
 - Under the site's real CSP and under the README's example policy (`style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https://photos.smugmug.com; connect-src 'self'`), sent as a header, the
   console has no violation while the hero rotates.
