@@ -1,16 +1,17 @@
 {{- /* theblues:template */ -}}
 // Rotating hero (#356): the home and term heroes (header[data-pool]) show five of the landscape photos of the site's
-// photo posts, one after the other. The page paints the first photo with no script (the hero's own --hi); this picks four
-// more at random from the data-pool attribute (hero-pool.html lists every photo there, the first one too), never the
-// first again, and shows each for params.hero_interval seconds (30 by default, 5 at least) before a 1.5 second fade to
-// the next. The next photo is fetched 5 seconds ahead (never all at once) and is faded in only once it has loaded and
+// photo posts, one after the other. The page paints the build's first photo with no script (the hero's own --hi), for a
+// visitor without script or who prefers reduced motion. This picks five at random from the data-pool attribute
+// (hero-pool.html lists every photo there, the build's first one too), so each visit starts on a random photo of a
+// random gallery: unless the pick is the build's photo, it is fetched at once and faded in as soon as it has loaded.
+// Each then shows for params.hero_interval seconds (30 by default, 5 at least) before a 1.5 second fade to the next. The next photo is fetched 5 seconds ahead (never all at once) and is faded in only once it has loaded and
 // decoded, so the hero never shows an empty box.
 // The fade is a second layer (.hr) over the hero, holding the same scrim and the next photo; when it is done the hero
 // itself takes the photo and the layer is hidden again. The photo's sizes are chosen by main.css exactly as for the first
 // photo: the layer and the hero get --hi and --hi1 to --hi5 (hero-sizes.html's tiers), and the script reads the URL the
 // browser's media queries picked (--hs) to load it. Photos stay CSS backgrounds: the layer is aria-hidden and nothing is
 // announced.
-// A visitor who prefers reduced motion gets the first photo and no timer, no fade and no button. Everyone else gets a
+// A visitor who prefers reduced motion gets the build's photo and no timer, no fade and no button. Everyone else gets a
 // pause/play button (WCAG 2.2.2), made here so a page without script has none. A paused rotation stays paused for the
 // page view; a hidden tab pauses it too and starts the current photo's time again when the tab comes back.
 // The text it shows is the site's language and the interval is the site's setting, both filled in when Hugo builds this
@@ -41,10 +42,10 @@
   });
   if (pool.length < 2) return;
 
-  // The first photo is the page's own; four of the others, picked at random (a partial Fisher-Yates shuffle).
-  var rest = pool.slice(1), seq = [pool[0]], i, j, t;
-  for (i = rest.length - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); t = rest[i]; rest[i] = rest[j]; rest[j] = t; }
-  seq = seq.concat(rest.slice(0, 4));
+  // Five photos picked at random (a Fisher-Yates shuffle); the first of them is the one the rotation starts on.
+  var seq = pool.slice(), i, j, t;
+  for (i = seq.length - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); t = seq[i]; seq[i] = seq[j]; seq[j] = t; }
+  seq = seq.slice(0, 5);
 
   // Sets a photo's custom properties on an element, the way the hero's style attribute does for the first photo.
   function paint(node, p) {
@@ -73,7 +74,7 @@
   btn.appendChild(svg);
   hero.appendChild(btn);
 
-  var cur = 0;                 // index in seq of the photo on screen
+  var cur = seq[0] === pool[0] ? 0 : -1;   // index in seq of the photo on screen; -1 while the build's photo shows
   var nextIdx = 0, nextState = 'idle';   // the photo being fetched for next: 'idle', 'loading' or 'ready'
   var waiting = false;         // the show timer ran out before the next photo was ready
   var fading = false;
@@ -113,10 +114,11 @@
 
   function running() { return !paused && !document.hidden && !reduce.matches; }
 
-  // Starts the time of the photo on screen.
+  // Starts the time of the photo on screen; the build's photo, when the visit starts elsewhere, gets none.
   function begin() {
     clear();
     if (!running() || fading) return;
+    if (cur < 0) { showTimer = setTimeout(advance, 0); return; }
     loadTimer = setTimeout(prepare, SHOW - LEAD);
     showTimer = setTimeout(advance, SHOW);
   }

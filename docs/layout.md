@@ -107,8 +107,9 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   an attribute and not as a JSON file so that no request, no `connect-src` entry and no failure mode are added; a file per
   term would also be one more page to build for every tag.
 - **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, drops what isn't a
-  SmugMug path of the form the pool writes, keeps the first photo and picks four random others (a partial Fisher-Yates
-  shuffle), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
+  SmugMug path of the form the pool writes, picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless
+  the first pick is the build's photo, fetches it at once and fades it in as soon as it is ready (`cur` is -1 until then;
+  `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
   (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a
   number of 5 or more; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
   `--hi` to `--hi5` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with

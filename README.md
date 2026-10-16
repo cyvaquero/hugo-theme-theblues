@@ -168,9 +168,12 @@ The templates assume this layout; other structures are not supported yet.
     A term page uses the photo posts in that term only.
   - *First photo.* The first landscape photo of the newest photo post (of the newest in the term, on a term page). It is
     in the page, painted and preloaded like any hero photo, so it shows at once and without JavaScript, and a build is
-    the same every time. It replaces `header_image` on the home page and the term's cover on a term page.
-  - *Rotation.* In the browser, `hero.js` picks four more photos at random from the others, so each visit shows up to
-    five, and shows each for `params.hero_interval` seconds before fading to the next, then starts again with the first.
+    the same every time. It replaces `header_image` on the home page and the term's cover on a term page. It is what a
+    page without JavaScript, or a visitor who prefers reduced motion, sees.
+  - *Rotation.* In the browser, `hero.js` picks five photos at random from the whole pool, so each visit starts on a
+    random photo of a random gallery: unless the pick is the build's first photo, it is fetched at once and faded in over
+    it as soon as it has loaded (one more photo download per visit). It shows each of the five for
+    `params.hero_interval` seconds before fading to the next, then starts again with the first of the five.
     The interval is 30 by default; anything but a number of 5 or more fails the build once a hero rotates. The next
     photo is fetched 5 seconds before it is shown, never all at once, and is faded in only when it has loaded, with the
     SmugMug size that suits the screen, as for the first photo. A photo that fails to load is skipped. The photos are
@@ -180,8 +183,8 @@ The templates assume this layout; other structures are not supported yet.
     "Play the photo rotation") stops and starts it. Only `hero.js` adds it, so a page without JavaScript has none, and
     it stays paused for the page view. A hidden tab pauses the rotation too, and the photo on screen gets its full time
     again when the tab is visible.
-  - *Reduced motion.* With `prefers-reduced-motion: reduce` the hero shows the first photo only: no timer, no fade, no
-    other photo fetched and no button.
+  - *Reduced motion.* With `prefers-reduced-motion: reduce` the hero shows the build's first photo only: no random
+    start, no timer, no fade, no other photo fetched and no button.
   - *Fallback.* A site, or a term, with no such photo keeps `header_image` (or the term's cover) and its pages are
     unchanged. With one photo there is nothing to rotate: the hero shows it and has no button and no script.
   - The photos reach the page as a `data-pool` attribute on the hero, one short entry per photo (about 100 bytes), so

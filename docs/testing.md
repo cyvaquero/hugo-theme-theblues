@@ -73,9 +73,10 @@ Because the `hero-none` content must give the old output, compare it by building
 In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me build, whose photos load), on a page with a pool of two or more:
 
 - With JavaScript off, the hero shows the first photo (the computed `background-image` is its size for the viewport), `<head>` has its preload, and the page
-  has no `.hr` and no `.hpp`. With JavaScript on (and the default `hero_interval` of 30), at 25 s the next photo's request starts (one request, the size the viewport uses), at 30 s the `.hr` layer fades in
-  (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. A reload picks another set of four; the first photo never comes back
-  before the cycle ends and the sixth photo shown is the first again. To see a whole cycle sooner, scale the page's timers before it loads
+  has no `.hr` and no `.hpp`. With JavaScript on, the hero starts on a random photo of the pool: unless it is the build's photo, its request starts at load and
+  the `.hr` layer fades it in over the build's photo as soon as it has loaded. Then (with the default `hero_interval` of 30) at 25 s the next photo's request starts (one request, the size the viewport uses), at 30 s the `.hr` layer fades in
+  (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. Reloads give different start photos (from different galleries, given enough reloads)
+  and different sets of five; no photo comes back before the cycle ends and the sixth photo shown is the first of the five again. To see a whole cycle sooner, scale the page's timers before it loads
   (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
 - `params.hero_interval`: the base build's `hero.js` has `SHOW = 30000`; with `--config hugo.toml,<file setting hero_interval = 15>` it has
   `SHOW = 15000` (and `7.5` gives `7500`), and `"15"`, `4` and `true` each fail the build with the `params.hero_interval` error.
@@ -83,8 +84,8 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
   "Play the photo rotation" and the rotation stops: no change and no request for as long as it is paused; Space and a click change it back. The button has no `aria-pressed`, the
   layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is the 3px sand outline.
   A tab reported hidden (`document.hidden` true, then a `visibilitychange` event) stops the rotation and a visible one restarts it.
-- With `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`) there is no button, the layer is never shown, the hero keeps the first photo
-  and makes no further photo request; changing the setting while the page is open starts or stops the rotation.
+- With `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`) there is no button, the layer is never shown, the hero keeps the build's photo
+  (no random start) and makes no further photo request; changing the setting while the page is open starts or stops the rotation.
 - The text's computed colors and the hero's `background-image` (with the URL taken out) equal those of the same page before the change, in light and dark mode; and with the
   layer shown over the hero with the hero's own photo (copy the hero's `--hi` to `--hi5` to the layer, `.on`, no transition) a screenshot of the hero is pixel for pixel the same as without it.
 - At 320px (and 390px) the button is inside the window, overlaps no text and the page has no horizontal scroll; in a right-to-left page it is at the left.
