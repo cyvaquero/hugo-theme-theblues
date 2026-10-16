@@ -111,11 +111,12 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   the first pick is the build's photo, fetches it at once and fades it in as soon as it is ready (`cur` is -1 until then;
   `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
   (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a
-  number of 5 or more; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
+  number from 5 to 2147483 (a timer's longest delay in milliseconds is 2^31-1), checked before any default so that 0, `nan` and `inf` fail too; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
   `--hi` to `--hi6` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with
   `Image()` and waits for `decode()`; at 30 s, if it is ready, it shows the layer and adds `.on` (the opacity transition), and
   after the fade writes the same custom properties on the hero and hides the layer again; if it isn't ready it waits for it. A photo that
-  fails is dropped from the five. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
+  fails is replaced by one of the pool not yet tried (the pool beyond the five is kept in random order for that); the five shrink only
+  when none is left, and the rotation ends (no button) when fewer than two photos remain. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
   changes while the page is open) clear the timers and the pending load; a fade in progress is allowed to finish.
 - **Styles.** `.hero` and `.phero` keep their scrim in `--sc`, and `.hr` paints the same scrim over the next photo, so the layer
   covers the hero's own background but sits under its text (`z-index: -1` in the hero's own stacking context, `isolation:

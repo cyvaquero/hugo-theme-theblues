@@ -174,9 +174,9 @@ The templates assume this layout; other structures are not supported yet.
     random photo of a random gallery: unless the pick is the build's first photo, it is fetched at once and faded in over
     it as soon as it has loaded (one more photo download per visit). It shows each of the five for
     `params.hero_interval` seconds before fading to the next, then starts again with the first of the five.
-    The interval is 30 by default; anything but a number of 5 or more fails the build once a hero rotates. The next
+    The interval is 30 by default; anything but a number from 5 to 2147483 (just under 25 days) fails the build once a hero rotates. The next
     photo is fetched 5 seconds before it is shown, never all at once, and is faded in only when it has loaded, with the
-    SmugMug size that suits the screen, as for the first photo. A photo that fails to load is skipped. The photos are
+    SmugMug size that suits the screen, as for the first photo. A photo that fails to load is replaced by another of the site's photos, and the rotation stops only when fewer than two can be loaded. The photos are
     CSS backgrounds under the same scrim as before, so the text keeps its contrast, and nothing is announced to
     screen readers.
   - *Pause.* A pause and play button in the hero's top corner (44 by 44 pixels, named "Pause the photo rotation" or
@@ -485,7 +485,7 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
 
 - `title` (the site's name; the build warns with `theblues-no-title` when it is missing), `locale` (sets `<html lang>` and the language of month names; see Translating the theme), `mainSections` (the sections that hold posts, see Content structure)
 - `params`: `header_image`, `slogan`, `tagline`, `description`, `SEOTitle`, `keyword`, `social.rss|linkedin|github`,
-  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `hero_interval` (seconds each rotating hero photo shows, default 30, at least 5), `search_label` (default `SEARCH`, from the `searchLabel` entry of `i18n/en.toml`), `dateFormat` (a Go layout for
+  `image_404`, `title_404`, `og_image` (share image for pages without their own), `search_enabled` (default off), `hero_interval` (seconds each rotating hero photo shows, default 30, from 5 to 2147483), `search_label` (default `SEARCH`, from the `searchLabel` entry of `i18n/en.toml`), `dateFormat` (a Go layout for
   dates on posts, tiles and wall headings, default `Jan 2, 2006`, from the `dateFormat` entry; the archive's `Jan 2` and
   the series box's `Jan 2006` are the `dateFormatDay` and `dateFormatMonth` entries), `showtoc` (site-wide default for
   the TOC; on when unset, and shown only when a post has headings within the `markup.tableOfContents` levels), the optional
@@ -511,7 +511,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   `ignoreLogs = ['theblues-undated']`.
 - `[[menus.main]]`, or the legacy `params.addtional_menus` list (Clean White's spelling) when no main menu is defined.
   A `?query` or `#fragment` after a path is kept as written (`/about#team` becomes `/about/#team`), and a href that is only
-  one (`#top`) is left alone. The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major
+  one (`#top`) is left alone. A path gets a trailing slash unless its last segment ends in a file extension that starts
+  with a letter (`/feed.xml` stays as written; `/releases/v1.2` becomes `/releases/v1.2/`). The legacy list is deprecated: the build warns (`theblues-addtional-menus`), and it will be removed in a future major
   version.
   A `[[menus.main]]` entry whose `pageRef` doesn't resolve to a page is left out of the nav, so a link to a category
   or section appears only once it has content.

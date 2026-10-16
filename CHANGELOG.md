@@ -3,6 +3,25 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.7.7] - 2026-10-15
+
+Four small fixes from the 1.8.0 review (#369).
+
+### Fixed
+- A pen put down on the lightbox photo and lifted somewhere else left the lightbox counting a finger that was still down,
+  so every later swipe was taken for a pinch and ignored until the page was reloaded. The photo now keeps the pointer's
+  events until it is lifted, and the count starts again each time the lightbox opens or closes.
+- `params.hero_interval` accepted `nan` (the photos changed every 1.6 seconds), `inf` (a script error and no pause
+  button), `0` (silently 30) and values too large for a browser timer (such as `3000000`, which fired at once). The build
+  now fails unless the setting is a number from 5 to 2147483 seconds, as it did already for other values; leaving it
+  out still gives 30.
+- A legacy `params.addtional_menus` link whose last part looks like a version, such as `/releases/v1.2`, was taken for a
+  file: it got no trailing slash and never showed as the current page. Only a last segment that ends in an extension
+  starting with a letter (`/feed.xml`, `/files/guide.pdf`) is a file now.
+- In the rotating hero, a photo that failed to load was dropped and never replaced, so a poor connection could end the
+  rotation, and hide the pause button, while the site's other photos were fine. It is replaced by another photo of the
+  pool now, and the rotation ends only when fewer than two photos can be loaded.
+
 ## [1.7.5] - 2026-10-15
 
 The home hero's photo sizes cover its real box height (#361).

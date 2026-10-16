@@ -4,7 +4,7 @@
 // visitor without script or who prefers reduced motion. This picks five at random from the data-pool attribute
 // (hero-pool.html lists every photo there, the build's first one too), so each visit starts on a random photo of a
 // random gallery: unless the pick is the build's photo, it is fetched at once and faded in as soon as it has loaded.
-// Each then shows for params.hero_interval seconds (30 by default, 5 at least) before a 1.5 second fade to the next. The next photo is fetched 5 seconds ahead (never all at once) and is faded in only once it has loaded and
+// Each then shows for params.hero_interval seconds (30 by default, from 5 to 2147483) before a 1.5 second fade to the next. The next photo is fetched 5 seconds ahead (never all at once) and is faded in only once it has loaded and
 // decoded, so the hero never shows an empty box.
 // The fade is a second layer (.hr) over the hero, holding the same scrim and the next photo; when it is done the hero
 // itself takes the photo and the layer is hidden again. The photo's sizes are chosen by main.css exactly as for the first
@@ -16,9 +16,13 @@
 // page view; a hidden tab pauses it too and starts the current photo's time again when the tab comes back.
 // The text it shows is the site's language and the interval is the site's setting, both filled in when Hugo builds this
 // file (asset.html, js-text.html).
-{{- $show := site.Params.hero_interval | default 30 }}
-{{- if or (not (in (slice "int" "int64" "float64") (printf "%T" $show))) (lt $show 5) }}
-  {{- errorf "theblues: params.hero_interval must be a number of seconds, 5 or more (got %#v)" $show }}
+{{- /* The raw value is checked, before any default: 0, nan and inf are not "unset". 2147483 s is the longest that fits a timer (2^31-1 ms). */ -}}
+{{- $show := 30 }}
+{{- if isset site.Params "hero_interval" }}
+  {{- $show = site.Params.hero_interval }}
+  {{- if or (not (in (slice "int" "int64" "float64") (printf "%T" $show))) (ne $show $show) (lt $show 5) (gt $show 2147483) }}
+    {{- errorf "theblues: params.hero_interval must be a number of seconds, from 5 to 2147483 (got %#v)" $show }}
+  {{- end }}
 {{- end }}
 (function () {
   var hero = document.querySelector('header[data-pool]');
@@ -45,6 +49,7 @@
   // Five photos picked at random (a Fisher-Yates shuffle); the first of them is the one the rotation starts on.
   var seq = pool.slice(), i, j, t;
   for (i = seq.length - 1; i > 0; i--) { j = Math.floor(Math.random() * (i + 1)); t = seq[i]; seq[i] = seq[j]; seq[j] = t; }
+  var spare = seq.slice(5);   // the rest of the pool, in random order: stands in for a photo that fails to load
   seq = seq.slice(0, 5);
 
   // Sets a photo's custom properties on an element, the way the hero's style attribute does for the first photo.
@@ -123,7 +128,8 @@
     showTimer = setTimeout(advance, SHOW);
   }
 
-  // Fetches the next photo; one that can't be loaded is dropped from the five, and the one after it is tried.
+  // Fetches the next photo; one that can't be loaded is replaced by a photo of the pool not yet tried, and only when there
+  // is none left is it dropped from the five.
   function prepare() {
     loadTimer = 0;
     if (nextState !== 'idle' || !running()) return;
@@ -134,8 +140,8 @@
     load(seq[nextIdx], function (ok) {
       if (mine !== gen) return;
       if (!ok) {
-        seq.splice(nextIdx, 1);
-        if (nextIdx <= cur) cur--;
+        if (spare.length) seq[nextIdx] = spare.pop();
+        else { seq.splice(nextIdx, 1); if (nextIdx <= cur) cur--; }
         nextState = 'idle';
         return prepare();
       }

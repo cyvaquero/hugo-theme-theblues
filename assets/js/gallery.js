@@ -56,7 +56,7 @@
     window.addEventListener('resize', refit);
     window.addEventListener('orientationchange', refit);
 
-    dlg.addEventListener('close', function () { if (opener) opener.focus(); });
+    dlg.addEventListener('close', function () { down = 0; sx = sy = null; if (opener) opener.focus(); });
     dlg.addEventListener('click', function (e) {
       var a = e.target.dataset && e.target.dataset.a;
       if (a === 'n') show(idx + 1);
@@ -77,6 +77,8 @@
     // pointer going down means a pinch, so the gesture is dropped and nothing changes until every pointer is up again.
     img.addEventListener('pointerdown', function (e) {
       if (e.pointerType === 'mouse') return;
+      // Keep the pointer's events on the photo, so its pointerup comes here even when the finger or pen is lifted elsewhere.
+      try { img.setPointerCapture(e.pointerId); } catch (err) { /* the pointer is already gone */ }
       down++;
       if (down === 1) { sx = e.clientX; sy = e.clientY; } else sx = sy = null;
     });
@@ -178,6 +180,7 @@
       prev.hidden = next.hidden = list.length < 2;
       img.removeAttribute('src'); img.alt = ''; count.textContent = ''; say.textContent = '';
       show(list.indexOf(a));
+      down = 0; sx = sy = null;
       dlg.showModal();
       dlg.querySelector('[data-a="c"]').focus();
       keepInView();
