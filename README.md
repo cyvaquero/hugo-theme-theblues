@@ -775,9 +775,10 @@ them without a build error:
 
 Before moving the theme, or a site that uses it, to a newer Hugo:
 
-1. Build the `exampleSite` fixture, minified and not, and its variants with the old and the new Hugo, as
-   [docs/testing.md](docs/testing.md) describes. Each build must finish with no warnings, except the `dark-tokens`
-   variant, which must warn. Compare the outputs with `diff -r`: apart from the Hugo version in the footer, any difference needs explaining.
+1. Build the `exampleSite` fixture, minified and not, and its variants with the old and the new Hugo
+   (`scripts/build-fixtures.sh`), as [docs/testing.md](docs/testing.md) describes. Each build must finish with no
+   warnings, except the `dark-tokens` variant, which must warn. Compare the outputs with `scripts/compare.py`: apart
+   from the Hugo version in the footer, any difference needs explaining.
 2. Pagination: the fixture shows 4 tiles per page. Check that every wall page lists its own tiles, with none repeated
    or missing, and that the pager's page count and links match.
 3. Rebuilds: run `hugo server` on the fixture, change a post's tags, and check that the home wall and both the old and
