@@ -15,6 +15,19 @@ All notable changes to this theme are documented here. The format follows
   gets two more size tiers, `--hi7` and `--hi8`, and the rotating hero's `data-pool` entries list eight size names instead of
   six (#362).
 
+## [1.8.2] - 2026-10-16
+
+### Added
+- Scripts that run the checks `docs/testing.md` describes, in a new `scripts/` folder that is not mounted, so nothing from it
+  reaches a site's output: `build-fixtures.sh` makes every fixture build (the base and minified builds, each variant it finds in
+  `exampleSite/variants/`, and `dark-tokens`, which must warn) and fails on a warning or a missing one; `compare.py` compares two
+  build trees file by file, ignoring the theme version, fingerprints and Subresource Integrity values, and exits non-zero on any other
+  difference; `check-browser.mjs` serves the builds and runs 40 browser checks in headless Chrome (right-to-left layout, skip link,
+  accessible names, the rotating hero, the photo viewer, search and the 404 page, the language marking of the scripts' English), each
+  with a PASS or FAIL line; `cdp.mjs` is the small DevTools Protocol helper they share. They need only Hugo, Python 3 and Node, with no
+  packages. `docs/testing.md` and the contributor notes point to them, and the README's Hugo upgrade steps use them. The theme's output
+  is unchanged (#382).
+
 ## [1.8.1] - 2026-10-16
 
 ### Fixed
