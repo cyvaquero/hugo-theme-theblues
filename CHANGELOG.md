@@ -13,6 +13,43 @@ All notable changes to this theme are documented here. The format follows
   each pager page. Page 1 and a page with no pager are unchanged, byte for byte. If the file does not load, the hero keeps
   the page's own photo with no button, as it does without script. It needs nothing new in a Content Security Policy (#364).
 
+## [1.8.4] - 2026-10-18
+
+### Added
+- The rotating hero's photo pans slowly while it shows, wherever the hero crops it from the top and bottom: from 1/6 to
+  5/6 of the cropped part, in a straight line over the whole `params.hero_interval`, then the next photo fades in at its
+  starting point. It is on by default, with no setting; a longer interval is a slower pan. Only the photo moves, never the
+  scrim or the text. A photo cropped only at the sides does not move. The pause button stops the pan (WCAG 2.2.2), as do a
+  hidden tab and reduced motion, and it goes on from where it stopped. A page with no script, one photo, reduced motion
+  or a hero that doesn't rotate shows what it did. The pan is a transform on a layer the browser has already painted, so it
+  doesn't repaint the hero each frame. The photo on screen is now in a layer (`.hr` over the hero's background) from the first
+  fade on, and the hero no longer takes the photo from the layer when a fade ends (#385).
+
+## [1.8.3] - 2026-10-18
+
+### Fixed
+- A photo-post or term hero (416px tall) no longer shows its X3 photo enlarged on a phone over two-x: at three-x it needs 1248px of
+  height and an X3 landscape photo is 1067px high (900 at 16:9), about 0.86 photo pixels per device pixel on a 390px phone at
+  three-x. Over two-x (up to three-x from 428 to 533px wide, and up to four-x up to 400px wide, besides the existing three-x
+  tier up to 427px) an X3 hero whose box X3 doesn't cover is served as X4 (a 2047px long edge), when the photo has an X4;
+  on the fixture's photos, that is 0.86 to 1.09 photo pixels per device pixel at 390px and three-x, for 0.5MB more (1.01MB
+  against 1.53MB). Every other screen keeps its size, and a hero whose X3 covers the box (the home hero) keeps X3. The hero
+  gets two more size tiers, `--hi7` and `--hi8`, and the rotating hero's `data-pool` entries list eight size names instead of
+  six (#362).
+
+## [1.8.2] - 2026-10-16
+
+### Added
+- Scripts that run the checks `docs/testing.md` describes, in a new `scripts/` folder that is not mounted, so nothing from it
+  reaches a site's output: `build-fixtures.sh` makes every fixture build (the base and minified builds, each variant it finds in
+  `exampleSite/variants/`, and `dark-tokens`, which must warn) and fails on a warning or a missing one; `compare.py` compares two
+  build trees file by file, ignoring the theme version, fingerprints and Subresource Integrity values, and exits non-zero on any other
+  difference; `check-browser.mjs` serves the builds and runs 40 browser checks in headless Chrome (right-to-left layout, skip link,
+  accessible names, the rotating hero, the photo viewer, search and the 404 page, the language marking of the scripts' English), each
+  with a PASS or FAIL line; `cdp.mjs` is the small DevTools Protocol helper they share. They need only Hugo, Python 3 and Node, with no
+  packages. `docs/testing.md` and the contributor notes point to them, and the README's Hugo upgrade steps use them. The theme's output
+  is unchanged (#382).
+
 ## [1.8.1] - 2026-10-16
 
 ### Fixed
