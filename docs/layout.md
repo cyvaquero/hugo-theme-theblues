@@ -108,22 +108,34 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   term would also be one more page to build for every tag.
 - **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, drops what isn't a
   SmugMug path of the form the pool writes (a token over 512 characters, a path that doesn't end in `SIZE/stem-SIZE.ext` with the same
-  size twice, or size names that aren't eight known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless
-  the first pick is the build's photo, fetches it at once and fades it in as soon as it is ready (`cur` is -1 until then;
-  `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, an empty `aria-hidden` layer `.hr` as its first child and the pause button as its last. Timers
+  size twice, or size names that aren't eight known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, 
+  fetches it at once (the browser has the build's photo already) and fades it in as soon as it is ready (`cur` is -1 until then;
+  `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, two `aria-hidden` layers `.hr` (each holding a photo `.hp`) as its first children and the pause button as its last. Timers
   (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a
   number from 5 to 2147483 (a timer's longest delay in milliseconds is 2^31-1), checked before any default so that 0, `nan` and `inf` fail too; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
   `--hi` to `--hi8` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with
-  `Image()` and waits for `decode()`; at 30 s, if it is ready, it shows the layer and adds `.on` (the opacity transition), and
-  after the fade writes the same custom properties on the hero and hides the layer again; if it isn't ready it waits for it. A photo that
+  `Image()` and waits for `decode()`; at 30 s, if it is ready, it shows the layer that is not showing, above the one that is, and adds `.on` (the opacity transition), and
+  after the fade hides the other layer and writes the same custom properties on the hero (its own background, which print and no layer use); if it isn't ready it waits for it. A layer is never hidden to hand the photo to the hero, so there is no handover to jump at. A photo that
   fails is replaced by one of the pool not yet tried (the pool beyond the five is kept in random order for that); the five shrink only
   when none is left, and the rotation ends (no button) when fewer than two photos remain. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
-  changes while the page is open) clear the timers and the pending load; a fade in progress is allowed to finish. Hiding the button (reduced motion, or fewer than
+  changes while the page is open) clear the timers and the pending load, and pause the pan; a fade in progress is allowed to finish, and the pan of the new photo starts when it has. Hiding the button (reduced motion, or fewer than
   two photos left) while it has focus first moves focus to `<main>`, the skip link's target, so focus isn't dropped to `<body>`.
 - **Styles.** `.hero` and `.phero` keep their scrim in `--sc`, and `.hr` paints the same scrim over the next photo, so the layer
   covers the hero's own background but sits under its text (`z-index: -1` in the hero's own stacking context, `isolation:
   isolate` on `.rot`), and the contrast of the text is the scrim's, as before. The tier media queries also set `--hs` on `.hr`.
   The script sets a tier a photo has no size for to `initial`, since the layer would inherit the hero's.
+- **Pan (#385).** `.hr` is the scrim (`::after`, above) over `.hp`, the photo, and clips it (`overflow: hidden`). Where `cover` would crop
+  the photo vertically (the hero's box is wider than the photo's ratio), the script makes `.hp` as high as `cover` would draw the
+  photo (the box's width times the photo's height over its width, from the size the image loaded at) and runs a Web Animations
+  `translateY` on it from `-crop/6` to `-5*crop/6` px, `linear`, `SHOW` long, where `crop` is that height minus the box's. A transform
+  on a layer the browser has already rasterized runs on the compositor: a 3 s trace of the home hero on a desktop-size window
+  showed 0 paint events with the pan, against 364 (the whole hero, twice per frame) for the same movement written as
+  `background-position-y`. The animation is made paused at progress 0 when the layer is prepared (the photo is at 1/6 while it
+  fades in) and `syncAnim()` plays it only while `running()` is true (not paused, tab visible, no reduced motion) and no fade
+  is in progress, so pause, a hidden tab and reduced motion hold it where it is, and `begin()` times the next fetch and fade from
+  the animation's remaining time, so the pan and the fade end together after a pause. A `ResizeObserver` on the hero draws the
+  pan again at the same progress when the box changes (a window resize, a wrapped title). No animation is made for a photo with
+  less than 1px to crop, so a photo cropped only at the sides, and a browser without `Element.animate`, show it as before.
 
 ## How the theme's text and settings are read
 

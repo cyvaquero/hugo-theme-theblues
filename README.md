@@ -171,20 +171,28 @@ The templates assume this layout; other structures are not supported yet.
     the same every time. It replaces `header_image` on the home page and the term's cover on a term page. It is what a
     page without JavaScript, or a visitor who prefers reduced motion, sees.
   - *Rotation.* In the browser, `hero.js` picks five photos at random from the whole pool, so each visit starts on a
-    random photo of a random gallery: unless the pick is the build's first photo, it is fetched at once and faded in over
-    it as soon as it has loaded (one more photo download per visit). It shows each of the five for
+    random photo of a random gallery: the pick is faded in over the build's first photo as soon as it has loaded (one more
+    photo download per visit, unless the pick is the build's own photo, which the browser already has). It shows each of the five for
     `params.hero_interval` seconds before fading to the next, then starts again with the first of the five.
     The interval is 30 by default; anything but a number from 5 to 2147483 (just under 25 days) fails the build once a hero rotates. The next
     photo is fetched 5 seconds before it is shown, never all at once, and is faded in only when it has loaded, with the
     SmugMug size that suits the screen, as for the first photo. A photo that fails to load is replaced by another of the site's photos, and the rotation stops only when fewer than two can be loaded. The photos are
     CSS backgrounds under the same scrim as before, so the text keeps its contrast, and nothing is announced to
     screen readers.
+  - *Pan.* While a photo shows, it moves slowly where the hero crops it from the top and bottom (a wide hero over a
+    landscape photo, such as the home hero on a desktop or phone): from 1/6 to 5/6 of the part that is cropped, in a straight
+    line over the whole `params.hero_interval`, so a longer interval is a slower pan. There is no setting to turn it off;
+    reduced motion and the pause button stop it. The next photo fades in at its starting point, and the scrim and the text
+    never move, so the text keeps its contrast at every position. A photo that the hero crops only at the sides (a tall
+    hero such as a tag page's on a narrow phone) does not move. It moves as a layer the browser has already painted, so it
+    costs no repainting of the hero.
   - *Pause.* A pause and play button in the hero's top corner (44 by 44 pixels, named "Pause the photo rotation" or
-    "Play the photo rotation") stops and starts it. Only `hero.js` adds it, so a page without JavaScript has none, and
+    "Play the photo rotation") stops and starts the rotation and the pan. Only `hero.js` adds it, so a page without JavaScript has none, and
     it stays paused for the page view. A hidden tab pauses the rotation too, and the photo on screen gets its full time
-    again when the tab is visible.
+    again when the tab is visible. A paused pan stays where it is, and goes on from there.
   - *Reduced motion.* With `prefers-reduced-motion: reduce` the hero shows the build's first photo only: no random
-    start, no timer, no fade, no other photo fetched and no button.
+    start, no timer, no fade, no pan, no other photo fetched and no button; if the setting is turned on while the page is
+    open, the pan stops where it is.
   - *Fallback.* A site, or a term, with no such photo keeps `header_image` (or the term's cover) and its pages are
     unchanged. With one photo there is nothing to rotate: the hero shows it and has no button and no script.
   - The photos reach the page as a `data-pool` attribute on the hero, one short entry per photo (about 100 bytes), so
@@ -699,7 +707,9 @@ on photos):
   Its cream icon and ring sit on a dark disc (the scrim color at 85%), 9.1:1 or more over any
   photo (5.7:1 for the sand of its hover state). It sits in the hero's top corner at the end of the line (the right, and the
   left in a right-to-left language), above the hero's text at every width down to 320px, and comes after the text in the
-  reading order.
+  reading order. The same button stops the photo's slow pan, which is moving content that starts on its own and lasts
+  longer than 5 seconds (WCAG 2.2.2). A hidden tab and `prefers-reduced-motion: reduce` stop it too (WCAG 2.3.3, as good
+  practice), and the scrim over the photo never moves, so the text has its contrast at every position of the photo.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
   seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already
