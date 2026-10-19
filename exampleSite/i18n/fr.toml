@@ -1,0 +1,15 @@
+# A partial French translation for the lightbox-names test variant (variants/lightbox-names.toml): it translates the visible
+# text of the lightbox buttons (previous, next, close) but not their accessible names (previousPhoto, nextPhoto, closeViewer),
+# so the buttons are named in the theme's English and show French text (a lightbox button with an English name and
+# translated text must not mark that text English). skipToContent is there so the build has theme text for the language (no
+# theblues-i18n warning). The other entries fall back to the theme's English.
+[skipToContent]
+other = "Aller au contenu"
+[previous]
+other = "Précédent"
+[next]
+other = "Suivant"
+[close]
+other = "Fermer"
+[opensInNewTab]
+other = "(s’ouvre dans un nouvel onglet)"

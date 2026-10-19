@@ -304,7 +304,7 @@
   function update(now) {
     var q = input.value.trim(), mine = ++seq, words = queryWords(q);
     sync(q);
-    if (!words.length) { clear(); last = null; say([]); return; }
+    if (!words.length) { clear(); last = null; say(now ? [[TX.empty, 'empty']] : []); return; }   // Enter on an empty field says so; clearing the field, or typing, says nothing
     function go() {
       if (mine !== seq) return;
       last = { r: search(words) };

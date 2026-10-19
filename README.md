@@ -171,25 +171,40 @@ The templates assume this layout; other structures are not supported yet.
     the same every time. It replaces `header_image` on the home page and the term's cover on a term page. It is what a
     page without JavaScript, or a visitor who prefers reduced motion, sees.
   - *Rotation.* In the browser, `hero.js` picks five photos at random from the whole pool, so each visit starts on a
-    random photo of a random gallery: unless the pick is the build's first photo, it is fetched at once and faded in over
-    it as soon as it has loaded (one more photo download per visit). It shows each of the five for
+    random photo of a random gallery: the pick is faded in over the build's first photo as soon as it has loaded (one more
+    photo download per visit, unless the pick is the build's own photo, which the browser already has). It shows each of the five for
     `params.hero_interval` seconds before fading to the next, then starts again with the first of the five.
     The interval is 30 by default; anything but a number from 5 to 2147483 (just under 25 days) fails the build once a hero rotates. The next
     photo is fetched 5 seconds before it is shown, never all at once, and is faded in only when it has loaded, with the
-    SmugMug size that suits the screen, as for the first photo. A photo that fails to load is replaced by another of the site's photos, and the rotation stops only when fewer than two can be loaded. The photos are
+    SmugMug size that suits the screen, as for the first photo. A photo that fails to load, or has neither loaded nor failed after about 10 seconds, is replaced by another of the site's photos, and the rotation stops only when fewer than two can be loaded. The photos are
     CSS backgrounds under the same scrim as before, so the text keeps its contrast, and nothing is announced to
     screen readers.
+  - *Pan.* While a photo shows, it moves slowly where the hero crops it from the top and bottom (a wide hero over a
+    landscape photo, such as the home hero on a desktop or phone): from 1/6 to 5/6 of the part that is cropped, in a straight
+    line over the whole `params.hero_interval`, so a longer interval is a slower pan. There is no setting to turn it off;
+    reduced motion and the pause button stop it. The next photo fades in at its starting point (the build's photo, when it is the first one shown, starts at the
+    middle, where the hero's own background draws it, and pans to the same end), and the scrim and the text
+    never move, so the text keeps its contrast at every position. A photo that the hero crops only at the sides (a tall
+    hero such as a tag page's on a narrow phone) does not move. It moves as a layer the browser has already painted, so it
+    costs no repainting of the hero.
   - *Pause.* A pause and play button in the hero's top corner (44 by 44 pixels, named "Pause the photo rotation" or
-    "Play the photo rotation") stops and starts it. Only `hero.js` adds it, so a page without JavaScript has none, and
-    it stays paused for the page view. A hidden tab pauses the rotation too, and the photo on screen gets its full time
-    again when the tab is visible.
+    "Play the photo rotation") stops and starts the rotation and the pan. Only `hero.js` adds it, so a page without JavaScript has none, and
+    it stays paused for the page view. A hidden tab pauses the rotation too. When the tab is visible again, a photo that is
+    panning goes on from where it was, and a photo with no pan (the hero doesn't crop it vertically) gets its full time again. A paused
+    pan stays where it is, and goes on from there. When the rotation has ended because fewer than two photos can be shown,
+    the button is gone and the pan stays paused for good. If the hero changes size (a resize, a phone turned), the pan is drawn again
+    from the same point, also when the photo had none before.
   - *Reduced motion.* With `prefers-reduced-motion: reduce` the hero shows the build's first photo only: no random
-    start, no timer, no fade, no other photo fetched and no button.
+    start, no timer, no fade, no pan, no other photo fetched and no button; if the setting is turned on while the page is
+    open, the pan stops where it is.
   - *Fallback.* A site, or a term, with no such photo keeps `header_image` (or the term's cover) and its pages are
     unchanged. With one photo there is nothing to rotate: the hero shows it and has no button and no script.
-  - The photos reach the page as a `data-pool` attribute on the hero, one short entry per photo (about 100 bytes), so
-    the cost grows with the number of landscape photos: 20 photos add about 2 KB to the home page and to each of its
-    pager pages, and the same to a term page for its own photos.
+  - The photos reach page 1 of the home page and of a term as a `data-pool` attribute on the hero, one short entry per
+    photo (about 100 bytes), so the cost grows with the number of landscape photos: 20 photos add about 2 KB to the page,
+    and 500 about 50 KB. Page 2 and later of a pager carry a short `data-pool-key` instead and load the pool from one
+    script file for the page (`/hero/pool-<key>.<hash>.js`, fingerprinted and cached by the browser), so the pool is
+    downloaded once for all its pager pages. If that file does not load, the hero keeps the build's first photo and has no
+    button. The file is also downloaded with reduced motion (the page cannot know the setting before script runs), and the script ignores it.
 - **Share image (`og:image`):** a page's own `image`, or the first photo the page shows from a `gallery` shortcode
   (photos Hugo doesn't render, inside an HTML comment or a `{{% galleries %}}` block, don't count). Otherwise
   `params.og_image` if set, and otherwise the cover, which is the site's `header_image`. Only an `http` or `https` URL is
@@ -311,7 +326,8 @@ A site can add its own page types without overriding theme files:
   fills the `main` block, and can replace the default hero by defining the `header` block. The nav, footer, stylesheet
   and menu script still come from the theme. The theme's heroes (home, About-style, 404, posts, and tag, category and
   series pages) preload their photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`, one per
-  hero size with its `media` query when the hero has smaller SmugMug sizes). A `header` block of the site's own gets no preload unless
+  hero size with its `media` query when the hero has smaller SmugMug sizes, or an X4 size on a phone or tablet over
+  two-x, where an X3 photo would be shown enlarged, such as the 416px-tall photo-post and term hero at three-x). A `header` block of the site's own gets no preload unless
   it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`. The theme's heroes all set
   theirs up through `layouts/_partials/hero-style.html`.
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
@@ -427,10 +443,17 @@ the person building the site.
   number, `true` or `false`, and a number with a fraction (`2.9`) or too big for a whole number (`1e30`), fails the build
   with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
+- A Markdown table in a page body is wrapped in a labeled region (`<div class="tw" role="region" tabindex="0" aria-label="Table">`, from
+  `layouts/_markup/render-table.html`) that scrolls it sideways, so a keyboard user can scroll a wide table in every browser (the
+  scroller of a table is focusable by itself only in Chrome and Firefox); the region's name is the `tableRegion` text, since a Markdown table has no
+  caption. Two things stay outside it: an HTML table written into a page (with `markup.goldmark.renderer.unsafe`), which still scrolls by itself, and an indented
+  code block (four spaces, no fence), which Hugo writes as a plain `<pre>`. A `<pre>` that scrolls sideways is reachable from the
+  keyboard in Chrome and Firefox but, as far as is known, not in Safari; a fenced block is highlighted and gets `tabindex="0"` from Hugo in every browser, so
+  use a fence for code with long lines.
 - The rotating hero reads the size of every gallery photo of the site's photo posts at build time, not only those the
   wall shows, so a first build of a site with many photos fetches the first 32 KB of each one it has not read before (Hugo
   keeps them in its cache afterward, as for the wall). The pool is built once per home page and once per term, and its
-  list is written into each of that page's pager pages; a site with thousands of landscape photos writes about 100 bytes
+  list is written once as a script file shared by all that page's pager pages (page 1 keeps it inline); a site with thousands of landscape photos writes about 100 bytes
   for each into its home page, so it should expect a home page of hundreds of kilobytes.
 - The series box lists every post of the series on each of its posts, so a series of N posts writes N x N list entries
   and its build time grows with the square of its length: about a second for a 150-post series. The theme is built and
@@ -594,7 +617,7 @@ else can stay at `default-src 'none'`.
 
 | Directive | Value | Why |
 |---|---|---|
-| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `hero.js`, `search.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
+| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `hero.js`, `search.js`, `comments.js`, `analytics.js`) and, on page 2 and later of a rotating hero's pager, its pool file (`/hero/pool-<key>.<hash>.js`); all are files on the site, with nothing inline to hash. |
 | `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
 | `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element. `hero.js` sets CSS custom properties on the hero from the script (`element.style.setProperty`), which a CSP does not restrict, so the rotating hero needs nothing more. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too, the rotating hero's photos included (SmugMug: below). |
@@ -698,7 +721,9 @@ on photos):
   Its cream icon and ring sit on a dark disc (the scrim color at 85%), 9.1:1 or more over any
   photo (5.7:1 for the sand of its hover state). It sits in the hero's top corner at the end of the line (the right, and the
   left in a right-to-left language), above the hero's text at every width down to 320px, and comes after the text in the
-  reading order.
+  reading order. The same button stops the photo's slow pan, which is moving content that starts on its own and lasts
+  longer than 5 seconds (WCAG 2.2.2). A hidden tab and `prefers-reduced-motion: reduce` stop it too (WCAG 2.3.3, as good
+  practice), and the scrim over the photo never moves, so the text has its contrast at every position of the photo.
 - **Comments:** "Show comments" loads Disqus and moves focus to the "Comments" heading above them. A polite status
   announces "Loading comments…" and then "Comments loaded.", or, if Disqus is blocked or doesn't answer within 15
   seconds, "Comments couldn't be loaded…" with the button back as "Try again". After a timeout, "Try again" waits for the request already
@@ -706,7 +731,7 @@ on photos):
 
 **Search.** The field has a visible label, "Search this site", and Enter submits. The result count ("3 results", "No
 results for …") is a polite `role="status"` that is on the page from the start and is said once typing pauses, not on
-every key. Focus is never moved: not on load, not when results appear. Results are a list of links named by the page title,
+every key. Pressing Enter in an empty field says "Enter a search term." in the same status line (emptying the field says nothing). Focus is never moved: not on load, not when results appear. Results are a list of links named by the page title,
 with the date, section and snippet after the link, and matches are in `<mark>` (bold as well as colored). The field and the
 button are at least 44px tall, and on touch screens (`pointer: coarse`) so are the result links; the page reflows to 320px.
 
@@ -715,7 +740,7 @@ status, and focus is not moved; the prefilled field is labeled like the search p
 
 **Language of parts.** A site in another language that lacks a translation shows the theme's English text. Where that
 text is the content of an element, or a script writes it (captions, counts, messages, the lightbox's announcement, its
-dialog name and buttons, the hero's pause and play button), it is marked `lang="en"` (WCAG 3.1.2, Section 508 E205.4).
+dialog name and buttons, the hero's pause and play button), it is marked `lang="en"` (WCAG 3.1.2, Section 508 E205.4). A lightbox button whose name is English but whose visible text is translated holds that text in a span in the page's language.
 English text in an attribute value a template writes (`aria-label`, `title`, `alt`, `placeholder`), the page `<title>`, a
 feed, an `<option>` or a date layout can't be marked and is read in the page's language: translate those entries (see
 "Translating the theme"). An entry a non-default language lacks while the default language is English shows the default
@@ -727,7 +752,9 @@ Photo tiles have names that start with their visible text ("Monterrey, Mexico Ga
 of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a visually hidden "Posts" h2, and wall
 pages after the first have their own title. With Group by gallery on, each group title ("Articles · 5 articles") is an
 h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
-box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s.
+box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s. The 404 page's h1 shows "404"; its
+accessible name also holds the page-not-found text ("404 Page not found"), in a visually hidden part, since the line under
+it already shows that text. The links of the tag, category and series indexes are named by what they show ("#Fixtures 11 posts").
 Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, are
 described as "(opens in a new tab)" by a hidden element on the page (`id="tb-newtab"`), not named by it (a link with a
 Markdown title is described by the title followed by the notice instead): the notice is
@@ -735,8 +762,8 @@ read after the link's name, and a heading that contains such a link is named by 
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
 system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). The borders of controls (type chips, the View options mode switch and selects, and pager links) are at least 3:1 against the page and the popover (WCAG 1.4.11), in both modes; the tag pills in a post's hero are sand on the navy hero, 6.6:1 or more. Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high
-contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
-off unless `prefers-reduced-motion` allows them, and a rotating hero with that setting shows its first photo only, with no timer, fade or button. Pages reflow to 320px wide with no horizontal scrolling. On touch
+contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state, and the scrims over hero photos keep their colors (they are gradients, which forced colors would otherwise drop, leaving the text over a bare photo), while the text takes the system colors. Transitions are
+off unless `prefers-reduced-motion` allows them, and a rotating hero with that setting shows its first photo only, with no timer, fade or button. Pages reflow to 320px wide with no horizontal scrolling, also with a site title that is one long unbreakable word (it wraps in the nav, the hero's kicker and the footer). On touch
 screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover
 (switch and selects), the Menu button, the color theme switch, the nav links and brand, tag links (hero, tiles, lists),
 the footer links, the "Subscribe via RSS" links, pagination, the table of contents entries, the series box's list and previous/next links, post
@@ -775,9 +802,10 @@ them without a build error:
 
 Before moving the theme, or a site that uses it, to a newer Hugo:
 
-1. Build the `exampleSite` fixture, minified and not, and its variants with the old and the new Hugo, as
-   [docs/testing.md](docs/testing.md) describes. Each build must finish with no warnings, except the `dark-tokens`
-   variant, which must warn. Compare the outputs with `diff -r`: apart from the Hugo version in the footer, any difference needs explaining.
+1. Build the `exampleSite` fixture, minified and not, and its variants with the old and the new Hugo
+   (`scripts/build-fixtures.sh`), as [docs/testing.md](docs/testing.md) describes. Each build must finish with no
+   warnings, except the `dark-tokens` variant, which must warn. Compare the outputs with `scripts/compare.py`: apart
+   from the Hugo version in the footer, any difference needs explaining.
 2. Pagination: the fixture shows 4 tiles per page. Check that every wall page lists its own tiles, with none repeated
    or missing, and that the pager's page count and links match.
 3. Rebuilds: run `hugo server` on the fixture, change a post's tags, and check that the home wall and both the old and

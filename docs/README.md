@@ -4,7 +4,7 @@ Documentation for changing and testing the theme. The [README](../README.md) is 
 publish this folder.
 
 - [layout.md](layout.md): how the files are organized and how the wall is built.
-- [testing.md](testing.md): the `exampleSite` fixture, its variants and checks, and how the README's images are made.
+- [testing.md](testing.md): the `exampleSite` fixture, its variants and checks, the scripts in `../scripts/` that run them, and how the README's images are made.
 
 ## Design decisions
 

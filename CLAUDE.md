@@ -35,30 +35,27 @@ What the theme is built and tested for. A request outside it is an enhancement, 
   sizes, `srcset` and the hero preload; other hosts work without them.
 - **Browsers:** the current and previous major versions of Chrome, Edge, Firefox and Safari, desktop and mobile. The
   README's Requirements section lists how older versions degrade.
-- No Node, no Sass, no CSS framework, no external fonts, no CDN or inline scripts. CSS is hand-written in
-  `assets/css/main.css`; Hugo Pipes minifies and fingerprints.
+- No Node, no Sass, no CSS framework, no external fonts, no CDN or inline scripts in the theme. CSS is hand-written in
+  `assets/css/main.css`; Hugo Pipes minifies and fingerprints. Only the test scripts in `scripts/` use Node (its
+  built-ins, no packages) and Python's standard library.
 
 ## Testing
 
-`exampleSite/` is the fixture. Every change builds it from that folder, as `docs/testing.md` shows:
+`exampleSite/` is the fixture, and `scripts/` runs the checks of `docs/testing.md` (Hugo, POSIX sh, Python 3 and Node
+only; Chrome or Chromium for the browser checks):
 
 ```bash
-cd exampleSite
-hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d <scratch>/base
-hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d <scratch>/min
-for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one; do   # every variants/*.toml except dark-tokens
-  hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d <scratch>/$v
-done
-hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>/dark-tokens   # must warn
+scripts/build-fixtures.sh <scratch>/after                       # every fixture build; -l lists them, names pick some
+scripts/build-fixtures.sh -t <develop worktree> <scratch>/before  # the same with another checkout of the theme
+scripts/compare.py <scratch>/before <scratch>/after              # per-file comparison, exit 0 when identical
+node scripts/check-browser.mjs <scratch>/after                   # the browser checks; --list names them
 ```
 
-- `--themesDir` must hold the theme in a folder named `hugo-theme-theblues`. A worktree or export elsewhere needs a
-  copy or link with that name.
-- Every build except `dark-tokens` finishes with no warnings. The fixture's deliberate warnings are listed in
-  `ignoreLogs` in `exampleSite/hugo.toml`.
+- Every build except `dark-tokens` finishes with no warnings, and `dark-tokens` must warn; the script fails otherwise.
+  The fixture's deliberate warnings are listed in `ignoreLogs` in `exampleSite/hugo.toml`.
 - A change not meant to alter output leaves every fixture build byte-identical to the same build of `develop`, with
-  the version in `data/theblues.toml` normalized. So does guyheckman.me built with the branch's theme
-  (`--themesDir`); report that comparison.
+  the version, fingerprints and SRI values normalized, which `compare.py` does (it works on any Hugo output). So does
+  guyheckman.me built with the branch's theme (`--themesDir`); report that comparison.
 - A fix for a case the fixture doesn't exercise adds that case to the fixture (content, settings or a new variant) in
   the same branch, and `docs/testing.md` lists it.
 
@@ -71,8 +68,8 @@ hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d <scratch>
 - Scripts in `assets/js` are published as written, except those run as Hugo templates: `wall.js`, `comments.js`,
   `gallery.js`, `hero.js` and `search.js`. A script is a template only if its first line is `{{- /* theblues:template */ -}}`.
 - Theme assets go through `layouts/_partials/asset.html` (minify and fingerprint in production).
-- Docs stay out of the published output: `docs/` and the README are not mounted. Never put docs in `static/`,
-  `layouts/` or `assets/`.
+- Docs and scripts stay out of the published output: `docs/`, `scripts/` and the README are not mounted. Never put
+  them in `static/`, `layouts/` or `assets/`.
 - The README is the user manual: requirements, installation, content structure, shortcodes, extending, translating,
   known limits, site settings, CSP and accessibility. Internals live under `docs/`: `layout.md` (the files and how
   the wall works), `testing.md` and `README.md` (the index and design decisions). New internal material goes there.

@@ -95,8 +95,10 @@
   {{- if not $loading }}{{ $en = $en | append "loading" }}{{ $loading = partial "t.html" "searchLoading" }}{{ end -}}
   {{- $failed := (T "searchFailed") -}}
   {{- if not $failed }}{{ $en = $en | append "failed" }}{{ $failed = partial "t.html" "searchFailed" }}{{ end -}}
+  {{- $empty := (T "searchEmpty") -}}
+  {{- if not $empty }}{{ $en = $en | append "empty" }}{{ $empty = partial "t.html" "searchEmpty" }}{{ end -}}
   {{- $capped := (T "searchCapped" (dict "n" "{n}")) -}}
   {{- if not $capped }}{{ $en = $en | append "capped" }}{{ $capped = partial "t.html" (slice "searchCapped" (dict "n" "{n}")) }}{{ end -}}
-  {{- $out = dict "en" $en "count" (partial "js-forms.html" "searchResultCount") "noResults" $noResults "loading" $loading "failed" $failed "capped" $capped -}}
+  {{- $out = dict "en" $en "count" (partial "js-forms.html" "searchResultCount") "noResults" $noResults "loading" $loading "failed" $failed "empty" $empty "capped" $capped -}}
 {{- end -}}
 {{- return $out -}}
