@@ -3,6 +3,12 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.10] - 2026-10-19
+
+### Fixed
+- The CHANGELOG has a blank line between the 1.8.7 and 1.8.6 sections again; a merge had dropped it. Documentation only:
+  no theme file other than the version changes (#394).
+
 ## [1.8.9] - 2026-10-19
 
 ### Security
@@ -31,6 +37,7 @@ All notable changes to this theme are documented here. The format follows
   still), `hero-pan-second` (the next photo fades in at 1/6 and does not jump), `hero-pan-hold` (the pause button, a hidden
   tab and reduced motion hold the pan and it goes on from there) and `hero-pan-none` (no pan with reduced motion, without a
   pool, or where the photo is not cropped). Theme files are unchanged (#389).
+
 ## [1.8.6] - 2026-10-19
 
 ### Fixed
