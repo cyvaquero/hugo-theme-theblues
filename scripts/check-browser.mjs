@@ -554,7 +554,7 @@ check('hero-focus-kept', 'Focus moves to main#main, not body, when the button go
 });
 
 check('hero-bad-pool', 'data-pool tokens the build can not write are ignored (unknown size, five names, over 512 characters) and the hero still rotates', async (c) => {
-  const bad = ['photos/b1/0/zz/X3/badone-X3.jpg|M,L,EVIL,X2,,X2', 'photos/b2/0/zz/X3/badfive-X3.jpg|M,L,X2,X2,', 'photos/' + 'a'.repeat(600) + '/0/zz/X3/badlong-X3.jpg|M,L,X2,X2,,X2', 'photos/b4/0/zz/X2/badmix-X3.jpg|M,L,X2,X2,,X2'];
+  const bad = ['photos/b1/0/zz/X3/badone-X3.jpg|M,L,EVIL,X2,,X2,,', 'photos/b2/0/zz/X3/badfive-X3.jpg|M,L,X2,X2,', 'photos/' + 'a'.repeat(600) + '/0/zz/X3/badlong-X3.jpg|M,L,X2,X2,,X2', 'photos/b4/0/zz/X2/badmix-X3.jpg|M,L,X2,X2,,X2'];
   const rewrite = (path, body) => (path === '/' ? Buffer.from(body.toString().replace('data-pool="', `data-pool="${bad.join(' ')} `)) : undefined);
   const p = await c.open('base', '/', { scale: true, viewport: [1280, 800], hooks: { rewrite }, key: 'bad-pool' });
   await p.waitForEval(`!!document.querySelector('.hpp')`, { what: 'the pause button' });
