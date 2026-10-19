@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.8] - 2026-10-19
+
+### Fixed
+- Switching on reduced motion just as the rotating hero changes photo no longer leaves its pause button showing. Chrome
+  reports a `prefers-reduced-motion` change to the page one frame late, and not at all to a script that reads the setting
+  in between, which `hero.js` does when a photo changes; the rotation stopped but the button stayed. The script now applies
+  the setting (hides or shows the button, and starts or clears the timers) once per change, from the `change` listener or
+  from the first place that reads it. The browser check `hero-reduced-motion` no longer waits 400 ms before switching, and
+  the new `hero-reduced-motion-silent` covers a setting that changes with no event (#384).
+
 ## [1.8.7] - 2026-10-19
 
 ### Fixed
