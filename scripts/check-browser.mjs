@@ -52,7 +52,7 @@ class Context {
   /**
    * Opens build/path in a new page. Options: viewport [w, h, {dpr, mobile}], media {feature: value}, js (false turns
    * script off), scale (scale the long timers), photos ('ok', 'fail' or a function), hooks and key (a server with hooks),
-   * dir ('rtl' or 'ltr' set on <html> after load), load (false: return before navigating).
+   * dir ('rtl' or 'ltr' set on <html> after load), init (a script run before the page's own), load (false: return before navigating).
    */
   async open(build, path, o = {}) {
     const base = await this.serve(build, o.hooks, o.key);
@@ -64,6 +64,7 @@ class Context {
     if (o.media) await page.setMedia(o.media);
     await page.send('Network.setCacheDisabled', { cacheDisabled: true });
     if (o.scale) await page.addInitScript(SCALE);
+    if (o.init) await page.addInitScript(o.init);
     if (o.js === false) await page.setJavaScript(false);
     if (o.load !== false) await page.goto(base + path);
     return page;
@@ -260,48 +261,210 @@ check('hero-nojs', 'With JavaScript off the hero shows the first photo and has t
   eq(await p.eval(`document.querySelectorAll('.hr, .hpp').length`), 0, 'layer and buttons');
 });
 
-check('hero-rotation', 'The rotation starts, changes photo, fades through a layer, and the button, layer and live regions are as specified', async (c) => {
-  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800] });
+// The hero alternates two layers (.hr, each a scrim over a photo in .hp): the first fade puts one over the hero's own photo, each
+// later one fades the idle layer in over the one showing and then hides that one. The pan is a Web Animations transform on the
+// .hp of the layer showing. `off` below is how far the layer's photo is moved up, in px (0 at the top of the cropped part,
+// `crop` at its bottom), read from the rendered box, so it holds whatever the photo's start position is.
+const LAYER_STATE = `(() => {
+  const h = document.querySelector('header[data-pool]'), hb = h.getBoundingClientRect();
+  const ids = (window.__hrIds = window.__hrIds || new WeakMap());
+  return [...h.querySelectorAll(':scope > .hr')].map((l) => {
+    if (!ids.has(l)) ids.set(l, (window.__hrN = (window.__hrN || 0) + 1));
+    const hp = l.firstElementChild, r = hp.getBoundingClientRect(), lr = l.getBoundingClientRect(), a = hp.getAnimations()[0];
+    const prev = l.previousElementSibling;
+    return { id: ids.get(l), shown: !l.hidden, on: l.classList.contains('on'), opacity: +getComputedStyle(l).opacity,
+      photo: (l.style.getPropertyValue('--hi').match(/i-[A-Za-z0-9]+/) || [''])[0], prev: prev && ids.has(prev) ? ids.get(prev) : 0,
+      off: hb.top - r.top, crop: r.height - hb.height, layerMoved: lr.top !== hb.top || lr.height !== hb.height,
+      anims: hp.getAnimations().length, state: a ? a.playState : null, t: a ? a.currentTime : null,
+      dur: a ? a.effect.getTiming().duration : null, easing: a ? a.effect.getTiming().easing : null };
+  });
+})()`;
+const layerState = (p) => p.eval(LAYER_STATE);
+/** The layer showing alone at full opacity (no fade running), or undefined. */
+const settledLayer = (ls) => { const s = ls.filter((l) => l.shown); return s.length === 1 && s[0].opacity === 1 ? s[0] : undefined; };
+/** Waits for a layer that has settled with its pan running (and moved on a little). */
+const settledPanning = (p, timeout = 15000) => waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.state === 'running' && s.t > 0 && s; }, { timeout, interval: 25, what: 'a photo showing alone with its pan running' });
+/** Polls every 100 ms for ms, failing as soon as check(state of the layer showing) returns a message. */
+async function holdFor(p, ms, check) {
+  const end = Date.now() + ms;
+  while (Date.now() < end) {
+    const s = settledLayer(await layerState(p));
+    const bad = check(s);
+    if (bad) throw new Error(bad);
+    await sleep(100);
+  }
+}
+// Records every change of the layers (which are shown, their opacity and photo) from the first frame, so a check sees the
+// first fade as well as the later ones.
+const LAYER_LOG = `(() => { const log = (window.__hrLog = []), ids = new WeakMap(); let n = 0, last = '';
+  const tick = () => { const h = document.querySelector('header[data-pool]'); if (h) {
+    const s = [...h.querySelectorAll(':scope > .hr')].map((l) => { if (!ids.has(l)) ids.set(l, ++n);
+      return { id: ids.get(l), shown: !l.hidden, on: l.classList.contains('on'), opacity: +(+getComputedStyle(l).opacity).toFixed(2), photo: (l.style.getPropertyValue('--hi').match(/i-[A-Za-z0-9]+/) || [''])[0] }; });
+    const k = JSON.stringify(s); if (k !== last) { last = k; log.push(s); } }
+    requestAnimationFrame(tick); }; requestAnimationFrame(tick); })();`;
+
+check('hero-rotation', 'The two layers take turns: the first photo fades in over the hero\'s own, each later fade brings the idle layer in over the one showing and then hides that one; button, layers and live regions are as specified', async (c) => {
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800], init: LAYER_LOG });
   await p.waitForEval(`!!document.querySelector('header[data-pool] .hpp')`, { what: 'the pause button' });
   const b = await heroButton(p);
   eq([b.hidden, b.label, b.lang, b.pressed], [false, 'Pause the photo rotation', null, false], 'pause button');
   const box = await p.eval(`(() => { const r = document.querySelector('.hpp').getBoundingClientRect(); return [r.width, r.height]; })()`);
   eq(box, [44, 44], 'button size');
-  eq(await p.eval(`document.querySelector('header[data-pool] .hr').getAttribute('aria-hidden')`), 'true', 'layer aria-hidden');
+  eq(await p.eval(`[...document.querySelectorAll('header[data-pool] .hr')].map((l) => l.getAttribute('aria-hidden'))`), ['true', 'true'], 'the two layers\' aria-hidden');
   eq(await p.eval(`document.querySelectorAll('header[data-pool] [aria-live], header[data-pool] [role=status], header[data-pool] [role=alert]').length`), 0, 'live regions in the hero');
   assert((await names(p, 'button')).includes('Pause the photo rotation'), 'accessibility tree has no button "Pause the photo rotation"');
-  const seq = await heroSequence(p, 3);
-  eq(new Set(seq).size, 2, `photos shown (${seq})`);
-  assert(seq.includes(BUILD_PHOTO) && seq.includes('i-8Nr9Vp5'), `both pool photos are not shown (${seq})`);
+  // The visible layer changes at each fade: layer A, then B, then A again.
+  const order = [];
+  await waitFor(async () => {
+    const s = settledLayer(await layerState(p));
+    if (s && s.id !== order[order.length - 1]?.id) order.push({ id: s.id, photo: s.photo });
+    return order.length >= 3;
+  }, { timeout: 20000, interval: 25, what: `the visible layer to change twice (saw ${JSON.stringify(order)})` });
+  assert(order[0].id !== order[1].id && order[1].id !== order[2].id && order[0].id === order[2].id, `the layers do not take turns: ${JSON.stringify(order)}`);
+  assert(order[0].photo !== order[1].photo && order[0].photo === order[2].photo, `the photos do not alternate: ${JSON.stringify(order)}`);
+  assert(order.some((o) => o.photo === BUILD_PHOTO) && order.some((o) => o.photo === 'i-8Nr9Vp5'), `both pool photos are not shown: ${JSON.stringify(order)}`);
+  // The recorded fades: the first has one layer rising over the hero's own photo; the later ones have the idle layer rising
+  // over the one at full opacity, which is hidden when it ends.
+  const log = await p.eval('window.__hrLog');
+  const shown = (s) => s.filter((l) => l.shown);
+  const first = log.find((s) => shown(s).length === 1 && shown(s)[0].opacity > 0 && shown(s)[0].opacity < 1);
+  assert(first, 'the first photo was not seen fading in over the hero\'s own photo (one layer with an opacity between 0 and 1)');
+  const rising = log.filter((s) => shown(s).length === 2);
+  assert(rising.some((s) => shown(s).some((l) => l.opacity > 0 && l.opacity < 1)), 'no later fade was seen with the idle layer rising (opacity between 0 and 1) over the one showing');
+  for (const s of rising) {
+    const [out, inc] = shown(s).sort((x, y) => y.opacity - x.opacity);
+    assert(out.opacity === 1 && inc.opacity <= 1 && inc.id !== out.id && inc.photo !== out.photo, `a fade does not bring the idle layer in over the one showing: ${JSON.stringify(s)}`);
+  }
+  const after = log.filter((s) => shown(s).length === 1 && shown(s)[0].opacity === 1);
+  assert(after.length >= 3, 'too few settled states');
+  assert(log.slice(log.findIndex((s) => shown(s).length)).every((s) => shown(s).length >= 1), 'the hero\'s own photo showed again after the first fade (no layer shown)');
+  const hidden = await layerState(p);
+  assert(hidden.every((l) => l.shown || !l.on), 'a hidden layer still has .on');
   const req = p.requests.filter(isPhotoReq).map((r) => r.url);
   assert(req.some((u) => u.includes('i-8Nr9Vp5')), 'the other photo was never requested');
   assert(req.every((u) => /\/(M|L|XL|X2|X3)\//.test(u)), `a photo request is not in a size of the hero's tiers: ${req.join(' ')}`);
-  await p.waitForEval(`document.querySelector('header[data-pool] .hr').hidden`, { what: 'the layer to be hidden again after the fade', timeout: 4000 });
+  eq(await p.eval(`document.querySelectorAll('header[data-pool] > .hr').length`), 2, 'layers in the hero');
 });
 
-check('hero-pause', 'Tab reaches the pause button after the nav; Enter pauses (no change, no request), Space and a click resume; no aria-pressed', async (c) => {
+check('hero-pause', 'Tab reaches the pause button after the nav; Enter pauses the rotation and the pan (no change, no request), Space and a click resume both; no aria-pressed', async (c) => {
   const p = await c.open('base', '/', { scale: true, viewport: [1280, 800] });
   await p.waitForEval(`!!document.querySelector('header[data-pool] .hpp')`, { what: 'the pause button' });
   const presses = await tabTo(p, '.hpp');
   assert(presses > 3, `Tab reached the button after only ${presses} presses (the skip link and nav come first)`);
-  // Wait until no fade is running, so the pause is not pressed during one.
-  await p.waitForEval(`document.querySelector('header[data-pool] .hr').hidden`, { what: 'no fade running' });
+  // Wait until no fade is running and the pan is going, so the pause is not pressed during a fade.
+  await settledPanning(p);
   await p.key('Enter');
   eq((await heroButton(p)).label, 'Play the photo rotation', 'name after Enter');
   assert((await names(p, 'button')).includes('Play the photo rotation'), 'accessibility tree has no button "Play the photo rotation"');
   eq((await heroButton(p)).pressed, false, 'aria-pressed');
-  await sleep(300);
-  const id = await heroId(p), n = p.requests.filter(isPhotoReq).length;
-  await sleep(4500); // longer than the scaled interval plus the fade
-  eq(await heroId(p), id, 'photo while paused');
-  eq(p.requests.filter(isPhotoReq).length, n, 'photo requests while paused');
+  // The pause takes a frame: wait until the pan has stopped, then hold longer than the scaled interval plus the fade.
+  const held = await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.state === 'paused' && s; }, { timeout: 3000, what: 'the pan to pause' });
+  await sleep(150);
+  const still = settledLayer(await layerState(p));
+  const n = p.requests.filter(isPhotoReq).length;
+  await holdFor(p, 4500, (s) => {
+    if (!s) return 'a fade started while paused';
+    if (s.id !== still.id || s.photo !== still.photo) return `the layer or photo changed while paused (${still.photo} to ${s.photo})`;
+    if (s.state !== 'paused' || s.t !== still.t || s.off !== still.off) return `the pan moved while paused (t ${still.t} to ${s.t}, offset ${still.off} to ${s.off})`;
+    if (p.requests.filter(isPhotoReq).length !== n) return 'a photo was requested while paused';
+  });
+  assert(still.t >= held.t && still.t > 0, `the pan was reset by the pause (t ${still.t})`);
   await p.key(' ');
   eq((await heroButton(p)).label, 'Pause the photo rotation', 'name after Space');
-  await waitFor(async () => (await heroId(p)) !== id, { timeout: 12000, what: 'the rotation to resume after Space' });
+  // The pan goes on from where it stopped, then the rotation changes the visible layer.
+  const resumed = await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.id === still.id && s.state === 'running' && s.t > still.t && s; }, { timeout: 3000, what: 'the pan to run again from where it stopped' });
+  assert(resumed.t - still.t < 3000 && resumed.off >= still.off, `the pan did not go on from where it stopped (t ${still.t} to ${resumed.t}, offset ${still.off} to ${resumed.off})`);
+  await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.id !== still.id; }, { timeout: 12000, what: 'the rotation to resume after Space' });
+  const next = await settledPanning(p);
+  assert(next.id !== still.id && next.photo !== still.photo, 'the rotation did not move to the other layer and photo');
   await p.click('.hpp');
   eq((await heroButton(p)).label, 'Play the photo rotation', 'name after a click');
+  await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.state === 'paused'; }, { timeout: 3000, what: 'the pan to pause after a click' });
   await p.click('.hpp');
   eq((await heroButton(p)).label, 'Pause the photo rotation', 'name after the second click');
+  await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.state === 'running'; }, { timeout: 3000, what: 'the pan to run after the second click' });
+});
+
+// The pan (#385), on the home hero of the base build at 1280px: the photos are 3:2, so the hero (about 246px high) crops most of
+// the photo's height. The checks read the offset from the rendered box and the animation from getAnimations(), so they hold
+// whether the first photo starts its pan at 1/6 of the crop or at the middle (the build's photo over the hero's own, #388).
+check('hero-pan', 'The visible layer\'s photo pans down its crop on a compositor transform: linear over the interval, ending at 5/6, the layer itself still', async (c) => {
+  const p = await c.open('base', '/', { viewport: [1280, 800] }); // timers not scaled: the first photo stays for the whole check
+  const s = await settledPanning(p);
+  assert(s.crop > 100, `the photo is not cropped by much (${s.crop}px)`);
+  eq([s.anims, s.dur, s.easing], [1, 30000, 'linear'], 'animations on the photo, their duration (hero_interval 30 s) and easing');
+  assert(!s.layerMoved, 'the layer (scrim) moved: only its photo may');
+  assert(await p.eval(`getComputedStyle(document.querySelector('header[data-pool] .hr .hp'), null).transform !== 'none'`), 'the photo has no transform');
+  // Direction and speed from two readings of the rendered offset against the animation's own clock.
+  const read = () => p.eval(`(() => { const hb = document.querySelector('header[data-pool]').getBoundingClientRect(), hp = [...document.querySelectorAll('header[data-pool] .hr')].find((l) => !l.hidden).firstElementChild; const a = hp.getAnimations()[0]; return { t: a.currentTime, off: hb.top - hp.getBoundingClientRect().top }; })()`);
+  const a = await read();
+  const b2 = await waitFor(async () => { const r = await read(); return r.t - a.t >= 600 && r; }, { timeout: 5000, what: '600 ms of pan' });
+  assert(b2.off > a.off, `the photo does not move down its crop (offset ${a.off} to ${b2.off})`);
+  // Start, middle and end by seeking the animation (restored after), read in the same task so nothing else moves.
+  const seek = await p.eval(`(() => { const hb = document.querySelector('header[data-pool]').getBoundingClientRect(), hp = [...document.querySelectorAll('header[data-pool] .hr')].find((l) => !l.hidden).firstElementChild; const a = hp.getAnimations()[0], keep = a.currentTime;
+    const at = (t) => { a.currentTime = t; return hb.top - hp.getBoundingClientRect().top; };
+    const r = { start: at(0), mid: at(15000), end: at(30000), after: at(30000 + 5000) }; a.currentTime = keep; return r; })()`);
+  const near = (x, y, what) => assert(Math.abs(x - y) <= 1, `${what}: ${x} is not within 1px of ${y}`);
+  assert(seek.start >= s.crop / 6 - 1 && seek.start <= s.crop / 2 + 1, `the pan starts at ${seek.start}px, outside 1/6 to 1/2 of the ${s.crop}px crop`);
+  near(seek.end, s.crop * 5 / 6, 'the pan\'s end (5/6 of the crop)');
+  near(seek.mid, (seek.start + seek.end) / 2, 'the pan\'s middle (linear)');
+  near(seek.after, seek.end, 'the offset after the end (the pan holds its last position)');
+  const speed = (b2.off - a.off) / (b2.t - a.t), expect = (seek.end - seek.start) / 30000;
+  assert(Math.abs(speed - expect) <= expect * 0.05, `the pan's speed is ${speed} px/ms, not the ${expect} of a straight line over the interval`);
+  assert(b2.off >= seek.start - 1 && b2.off <= seek.end + 1, 'the offset is outside the pan');
+});
+
+check('hero-pan-second', 'The photo that fades in over another starts its pan at 1/6 of the crop, paused while it fades, and does not jump when the other layer is hidden', async (c) => {
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800] });
+  let fade, last;
+  await waitFor(async () => {
+    const ls = await layerState(p), sh = ls.filter((l) => l.shown);
+    if (sh.length === 2) { fade = sh.find((l) => l.opacity < 1); if (fade) last = fade; return false; }
+    return last && settledLayer(ls)?.id === last.id && ls;
+  }, { timeout: 20000, interval: 10, what: 'the second photo to fade in over the first and settle' });
+  const after = settledLayer(await layerState(p));
+  assert(last.opacity < 1 && last.anims === 1, 'the incoming layer has no pan animation while it fades');
+  assert(Math.abs(last.off - last.crop / 6) <= 1, `the second photo fades in at ${last.off}px, not 1/6 of its ${last.crop}px crop`);
+  eq([last.state, last.t], ['paused', 0], 'the incoming photo\'s pan during the fade');
+  assert(after.off >= last.off - 1 && after.off - last.off < 40, `the photo jumped when the other layer was hidden (${last.off} to ${after.off})`);
+  assert(await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.id === last.id && s.state === 'running' && s.off > last.off; }, { timeout: 3000, what: 'the second photo to pan' }), 'no pan');
+});
+
+check('hero-pan-hold', 'The pan holds its offset while the button pauses it, the tab is hidden or reduced motion is on, and goes on from there', async (c) => {
+  const p = await c.open('base', '/', { viewport: [1280, 800] });
+  await p.waitForEval(`!!document.querySelector('header[data-pool] .hpp')`, { what: 'the pause button' });
+  await settledPanning(p);
+  const cases = [
+    ['pause button', () => p.click('.hpp'), () => p.click('.hpp')],
+    ['hidden tab', () => p.eval(`Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); true`),
+      () => p.eval(`Object.defineProperty(document, 'hidden', { value: false, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); true`)],
+    ['reduced motion', () => p.setMedia({ 'prefers-reduced-motion': 'reduce' }), () => p.setMedia({ 'prefers-reduced-motion': 'no-preference' })],
+  ];
+  for (const [name, on, off] of cases) {
+    await on();
+    await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.state === 'paused'; }, { timeout: 3000, what: `the pan to pause (${name})` });
+    await sleep(150); // the pause takes a frame to settle
+    const held = settledLayer(await layerState(p));
+    await holdFor(p, 1200, (s) => (!s || s.state !== 'paused' || s.t !== held.t || s.off !== held.off ? `${name}: the pan moved while held (t ${held.t}, offset ${held.off})` : ''));
+    await off();
+    const r = await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.state === 'running' && s.t > held.t && s; }, { timeout: 3000, what: `the pan to run again (${name})` });
+    assert(r.t - held.t < 2500 && r.off >= held.off && r.off - held.off < 40, `${name}: the pan did not go on from where it stopped (t ${held.t} to ${r.t}, offset ${held.off} to ${r.off})`);
+  }
+});
+
+check('hero-pan-none', 'No pan with reduced motion, on a page with no pool, or where the photo is not cropped (320px wide)', async (c) => {
+  const r = await c.open('base', '/', { viewport: [1280, 800], media: { 'prefers-reduced-motion': 'reduce' } });
+  await r.waitForEval(`!!document.querySelector('header[data-pool] .hr')`, { what: 'the script to have run' });
+  const rm = () => r.eval(`({ all: document.getAnimations().length, hp: [...document.querySelectorAll('.hp')].map((h) => [h.getAnimations().length, h.style.transform, h.style.height]), shown: [...document.querySelectorAll('.hr')].filter((l) => !l.hidden).length })`);
+  eq(await rm(), { all: 0, hp: [[0, '', ''], [0, '', '']], shown: 0 }, 'animations, photo styles and layers shown with reduced motion');
+  await sleep(600);
+  eq((await rm()).all, 0, 'animations 600 ms later');
+  const t = await c.open('base', '/tags/code/', { viewport: [1280, 800] });
+  eq(await t.eval(`[document.querySelectorAll('.hr, .hp').length, document.getAnimations().length]`), [0, 0], 'layers and animations on a page with no pool');
+  const n = await c.open('base', '/', { viewport: [320, 800] });
+  await waitFor(async () => settledLayer(await layerState(n)), { timeout: 15000, interval: 25, what: 'the first photo to show at 320px' });
+  const hp = await n.eval(`(() => { const hb = document.querySelector('header[data-pool]').getBoundingClientRect(), hp = [...document.querySelectorAll('header[data-pool] .hr')].find((l) => !l.hidden).firstElementChild; return { hero: hb.height, photo: hp.getBoundingClientRect().height, anims: hp.getAnimations().length, style: hp.getAttribute('style') }; })()`);
+  assert(Math.abs(hp.hero - hp.photo) < 0.5 && hp.anims === 0 && !hp.style, `at 320px the photo is ${hp.photo}px in a ${hp.hero}px hero with ${hp.anims} animations (style ${hp.style})`);
 });
 
 check('hero-focus-ring', 'The pause button is 44 by 44 with a 3px cream outline around a 2px dark halo, also with forced colors', async (c) => {

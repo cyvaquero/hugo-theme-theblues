@@ -3,6 +3,17 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.7] - 2026-10-19
+
+### Fixed
+- The browser checks `hero-rotation` and `hero-pause` (`scripts/check-browser.mjs`) now follow the hero's two alternating
+  layers: they wait for the visible layer to change, not for the first layer to be hidden, which only happened after the
+  second photo, so they no longer skipped the first fade. `hero-pause` also checks that the pause stops the pan and that
+  playing continues it from where it stopped. Four new checks cover the pan, which `docs/testing.md` listed as manual
+  steps: `hero-pan` (one linear animation on the visible layer's photo, moving down the crop to 5/6, the layer itself
+  still), `hero-pan-second` (the next photo fades in at 1/6 and does not jump), `hero-pan-hold` (the pause button, a hidden
+  tab and reduced motion hold the pan and it goes on from there) and `hero-pan-none` (no pan with reduced motion, without a
+  pool, or where the photo is not cropped). Theme files are unchanged (#389).
 ## [1.8.6] - 2026-10-19
 
 ### Fixed
