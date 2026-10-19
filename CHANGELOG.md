@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.4] - 2026-10-18
+
+### Added
+- The rotating hero's photo pans slowly while it shows, wherever the hero crops it from the top and bottom: from 1/6 to
+  5/6 of the cropped part, in a straight line over the whole `params.hero_interval`, then the next photo fades in at its
+  starting point. It is on by default, with no setting; a longer interval is a slower pan. Only the photo moves, never the
+  scrim or the text. A photo cropped only at the sides does not move. The pause button stops the pan (WCAG 2.2.2), as do a
+  hidden tab and reduced motion, and it goes on from where it stopped. A page with no script, one photo, reduced motion
+  or a hero that doesn't rotate shows what it did. The pan is a transform on a layer the browser has already painted, so it
+  doesn't repaint the hero each frame. The photo on screen is now in a layer (`.hr` over the hero's background) from the first
+  fade on, and the hero no longer takes the photo from the layer when a fade ends (#385).
+
 ## [1.8.1] - 2026-10-16
 
 ### Fixed
