@@ -14,6 +14,14 @@ All notable changes to this theme are documented here. The format follows
   still), `hero-pan-second` (the next photo fades in at 1/6 and does not jump), `hero-pan-hold` (the pause button, a hidden
   tab and reduced motion hold the pan and it goes on from there) and `hero-pan-none` (no pan with reduced motion, without a
   pool, or where the photo is not cropped). Theme files are unchanged (#389).
+## [1.8.6] - 2026-10-19
+
+### Fixed
+- With the rotating hero's pan, the first photo no longer slides upward while it fades in. When the random start is the
+  build's photo, which the hero's own background draws centered, the photo now starts its pan at the middle of the
+  cropped part, where it already is, and pans to 5/6 over the same `params.hero_interval`; before, it started at 1/6, so it
+  visibly moved from the middle to 1/6 during the 1.5 second fade. Every other photo still pans from 1/6 to 5/6, and the
+  hero without script or with reduced motion is unchanged (#388).
 
 ## [1.8.5] - 2026-10-19
 

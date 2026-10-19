@@ -182,7 +182,8 @@ The templates assume this layout; other structures are not supported yet.
   - *Pan.* While a photo shows, it moves slowly where the hero crops it from the top and bottom (a wide hero over a
     landscape photo, such as the home hero on a desktop or phone): from 1/6 to 5/6 of the part that is cropped, in a straight
     line over the whole `params.hero_interval`, so a longer interval is a slower pan. There is no setting to turn it off;
-    reduced motion and the pause button stop it. The next photo fades in at its starting point, and the scrim and the text
+    reduced motion and the pause button stop it. The next photo fades in at its starting point (the build's photo, when it is the first one shown, starts at the
+    middle, where the hero's own background draws it, and pans to the same end), and the scrim and the text
     never move, so the text keeps its contrast at every position. A photo that the hero crops only at the sides (a tall
     hero such as a tag page's on a narrow phone) does not move. It moves as a layer the browser has already painted, so it
     costs no repainting of the hero.
