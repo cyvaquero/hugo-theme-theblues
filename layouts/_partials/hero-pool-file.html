@@ -1,0 +1,26 @@
+{{- /*
+  The pool of a rotating hero on a pager page (page 2 and later of the home page or a term) as a script file, so the
+  pages don't each repeat the pool in their data-pool attribute (#364). Context: a map with "page" (the home page or
+  term page whose hero it is) and "data" (hero-pool.html's data: the tokens separated by spaces). Returns a map with
+  "key" (a short name for this page's pool, the first 12 characters of the MD5 of its path, only hex digits, for the
+  hero's data-pool-key) and "tag" (the <script> tag that loads the file). The file, hero/pool-KEY.js, sets
+  window.theblues.pool[KEY] to the data, and goes through the same minify and fingerprint steps as asset.html, with the
+  Subresource Integrity hash of the other scripts. It has no code of its own and nothing inline, so it needs nothing in
+  a Content Security Policy beyond script-src 'self'. One file per distinct pool: every pager page of a page shares it.
+  Worked out once per page (memo.html keeps it in the page's Store), as hero-pool.html does.
+  Usage: {{ $f := partial "hero-pool-file.html" (dict "page" . "data" $pool.data) }}
+*/ -}}
+{{- $key := "theblues-hero-pool-file" -}}
+{{- $out := dict -}}
+{{- $m := partial "memo.html" (dict "page" .page "key" $key) -}}
+{{- if $m }}{{ $out = $m.val }}{{ else -}}
+{{- $id := substr (md5 .page.Path) 0 12 -}}
+{{- $r := resources.FromString (printf "hero/pool-%s.js" $id) (printf "(function(t){(t.pool=t.pool||{})[%q]=%q})(window.theblues=window.theblues||{});\n" $id .data) -}}
+{{- if not hugo.IsDevelopment }}{{ $r = $r | minify | fingerprint }}{{ end -}}
+{{- /* Reading .Content runs the minify and fingerprint steps now, as asset.html does (#243). */ -}}
+{{- $_ := $r.Content -}}
+{{- $sri := "" }}{{ with $r.Data.Integrity }}{{ $sri = printf ` integrity="%s"` . }}{{ end -}}
+{{- $out = dict "key" $id "tag" (printf `<script src="%s"%s defer></script>` $r.RelPermalink $sri | safeHTML) -}}
+{{- $_ := partial "memo.html" (dict "page" .page "key" $key "val" $out) -}}
+{{- end -}}
+{{- return $out -}}

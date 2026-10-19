@@ -3,6 +3,16 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.5] - 2026-10-19
+
+### Changed
+- Page 2 and later of the home page and of a term no longer repeat the rotating hero's whole pool in each page. They load
+  it from one script file for the pool (`/hero/pool-<key>.<hash>.js`, minified and fingerprinted, with a Subresource
+  Integrity hash like the theme's other scripts), which the browser caches, and carry a short `data-pool-key` in place of
+  `data-pool`; the hero keeps rotating there. With 500 photos that is about 50 KB once per visitor instead of about 50 KB in
+  each pager page. Page 1 and a page with no pager are unchanged, byte for byte. If the file does not load, the hero keeps
+  the page's own photo with no button, as it does without script. It needs nothing new in a Content Security Policy (#364).
+
 ## [1.8.4] - 2026-10-18
 
 ### Added

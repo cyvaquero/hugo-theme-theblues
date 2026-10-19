@@ -14,8 +14,18 @@
 {{- $pool := partial "hero-pool.html" (dict "page" $ "pages" $posts "h" 416) -}}
 {{- with $pool.src }}{{ $cover = . }}{{ end -}}
 {{- $.Store.Set "hasHeroPool" (ne $pool.data "") -}}
+{{- /* Page 2 and later of the wall (#364): the pool comes from a script file, one for all the pager pages, and the hero carries its key; page 1 and a page with no pager keep the attribute. */ -}}
+{{- $pn := 1 }}{{ with $.Store.Get "wall" }}{{ with .pag }}{{ $pn = .PageNumber }}{{ end }}{{ end -}}
+{{- $poolAttr := "" -}}
+{{- if and $pool.data (gt $pn 1) -}}
+  {{- $f := partial "hero-pool-file.html" (dict "page" $ "data" $pool.data) -}}
+  {{- $.Store.Set "heroPoolTag" $f.tag -}}
+  {{- $poolAttr = printf ` data-pool-key="%s"` $f.key -}}
+{{- else if $pool.data -}}
+  {{- $poolAttr = printf ` data-pool="%s"` $pool.data -}}
+{{- end -}}
 {{- $hero := partial "hero-style.html" (dict "page" $ "src" $cover "h" 416) }}
-<header class="phero thero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}{{ with $pool.data }} data-pool="{{ . }}"{{ end }}>
+<header class="phero thero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}{{ $poolAttr | safeHTMLAttr }}>
   <div class="in">
     <a class="tl" href="{{ site.Home.RelPermalink }}">{{ partial "arrow.html" "start" }}{{ (or (T "backToAllPosts") (partial "t-en.html" "backToAllPosts")) }}</a>{{ with .Parent }}<a class="tl" href="{{ .RelPermalink }}">{{ (or (T "allOfTerm") (partial "t-en.html" "allOfTerm")) }} {{ .Title | lower }}{{ partial "arrow.html" "end" }}</a>{{ end }}
     <div class="ptype">{{ $kind }}</div>
