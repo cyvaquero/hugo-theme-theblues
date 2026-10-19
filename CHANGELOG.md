@@ -38,6 +38,12 @@ All notable changes to this theme are documented here. The format follows
   (`hero-relayout`, `hero-relayout-fade`, `hero-pan-finished`, `hero-load-limit`, `hero-pool-lang`, `a11y-heading-names`, `search-empty`,
   `layout-long-title`, `tables-scroll`, `forced-colors-scrim`), 55 in all, and `docs/testing.md` lists them (#396).
 
+## [1.8.10] - 2026-10-19
+
+### Fixed
+- The CHANGELOG has a blank line between the 1.8.7 and 1.8.6 sections again; a merge had dropped it. Documentation only:
+  no theme file other than the version changes (#394).
+
 ## [1.8.9] - 2026-10-19
 
 ### Security
@@ -66,6 +72,7 @@ All notable changes to this theme are documented here. The format follows
   still), `hero-pan-second` (the next photo fades in at 1/6 and does not jump), `hero-pan-hold` (the pause button, a hidden
   tab and reduced motion hold the pan and it goes on from there) and `hero-pan-none` (no pan with reduced motion, without a
   pool, or where the photo is not cropped). Theme files are unchanged (#389).
+
 ## [1.8.6] - 2026-10-19
 
 ### Fixed
