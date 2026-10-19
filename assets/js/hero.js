@@ -42,9 +42,9 @@
   var NAME_RE = /^(M|L|XL|X2|X3|X4|X5)?$/, SIZES = /^(M|L|XL|X2|X3|X4|X5)$/;
   var ORIGIN = 'https://photos.smugmug.com/';
 
-  // data-pool: tokens separated by spaces, each "path" or "path|M,L,XL,M,XL,X2" (the size name of each of the six tiers, empty
+  // data-pool: tokens separated by spaces, each "path" or "path|M,L,XL,M,XL,X2,,X4" (the size name of each of the eight tiers, empty
   // where the full size is used). Anything that doesn't look like what hero-pool.html writes is ignored: a token over 512
-  // characters, a path that isn't "directory/SIZE/stem-SIZE.ext" with the same size twice, or size names that aren't six
+  // characters, a path that isn't "directory/SIZE/stem-SIZE.ext" with the same size twice, or size names that aren't eight
   // known ones. The path is split on "/" rather than matched with one pattern, so a long path can't make it backtrack.
   var pool = [];
   (hero.getAttribute('data-pool') || '').split(' ').forEach(function (tok) {
@@ -54,7 +54,7 @@
     var segs = path.split('/'), m = FILE_RE.exec(segs.pop() || ''), size = segs.pop(), dir = segs.join('/');
     if (!m || !dir || !SIZES.test(size || '') || m[2] !== size) return;
     var names = part.length > 1 ? part[1].split(',') : [];
-    if (part.length > 1 && names.length !== 6) return;
+    if (part.length > 1 && names.length !== 8) return;
     for (var k = 0; k < names.length; k++) if (!NAME_RE.test(names[k])) return;
     pool.push({ full: ORIGIN + path, base: ORIGIN + dir, stem: m[1], ext: m[3], names: names });
   });
@@ -69,7 +69,7 @@
   // Sets a photo's custom properties on an element, the way the hero's style attribute does for the first photo.
   function paint(node, p) {
     node.style.setProperty('--hi', 'url("' + p.full + '")');
-    for (var k = 0; k < 6; k++) {
+    for (var k = 0; k < 8; k++) {
       var n = p.names[k];
       node.style.setProperty('--hi' + (k + 1), n ? 'url("' + p.base + '/' + n + '/' + p.stem + '-' + n + '.' + p.ext + '")' : 'initial');
     }

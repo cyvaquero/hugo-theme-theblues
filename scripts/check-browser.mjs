@@ -1,0 +1,935 @@
+#!/usr/bin/env node
+// Runs the browser checks of docs/testing.md against the fixture builds that scripts/build-fixtures.sh makes.
+// Usage: node scripts/check-browser.mjs [--list] <out> [name ...]
+//   <out>   the folder build-fixtures.sh wrote (it needs base, rtl, multilingual and lightbox-names)
+//   name    run only these checks; a name also runs every check that starts with "name-"
+//   --list  print the check names and stop
+// One PASS or FAIL line per check, the reason on FAIL. Exit status: 0 all passed, 1 a check failed, 2 usage error.
+// Needs Chrome or Chromium (the CHROME environment variable, else the usual places); nothing else, and no network: photos
+// are answered by the script, not fetched.
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { Browser, serve, png, sleep, waitFor } from './cdp.mjs';
+
+const checks = [];
+export function check(name, what, fn) { checks.push({ name, what, fn }); }
+function assert(cond, msg) { if (!cond) throw new Error(typeof msg === 'function' ? msg() : msg); }
+function eq(actual, expected, what) {
+  assert(JSON.stringify(actual) === JSON.stringify(expected), () => `${what}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Shared setup
+
+const PHOTO = png(1200, 800);
+const HOST = '127.0.0.1';
+// Every image that is not on the local server (SmugMug photos, photos.example.org) is answered with a stand-in; every
+// other request to another origin fails, so nothing reaches the network.
+const photos = (mode = 'ok') => (url, req, type) => {
+  const u = new URL(url);
+  if (u.hostname === HOST) return undefined;
+  if (type !== 'Image') return { fail: true };
+  if (mode === 'ok') return { fulfill: { body: PHOTO } };
+  if (mode === 'fail') return { fulfill: { status: 404, body: '' } };
+  return mode(url, req, type); // a function: the check decides
+};
+// Divides every timer of 20 s or more by 20 (the hero's 30 s show and 25 s lead become 1.5 s and 1.25 s; its 1.5 s fade stays).
+const SCALE = `(() => { const st = window.setTimeout; window.setTimeout = function (f, d, ...a) { if (d >= 20000) d = d / 20; return st.call(this, f, d, ...a); }; })();`;
+
+class Context {
+  constructor(out, browser) { this.out = out; this.browser = browser; this.servers = new Map(); this.pages = new Set(); }
+
+  async serve(build, hooks, key = '') {
+    const k = build + '|' + key;
+    if (!this.servers.has(k)) {
+      const dir = resolve(this.out, build);
+      if (!existsSync(dir)) throw new Error(`no build "${build}" in ${this.out} (run scripts/build-fixtures.sh)`);
+      this.servers.set(k, await serve(dir, hooks));
+    }
+    return this.servers.get(k).url;
+  }
+
+  /**
+   * Opens build/path in a new page. Options: viewport [w, h, {dpr, mobile}], media {feature: value}, js (false turns
+   * script off), scale (scale the long timers), photos ('ok', 'fail' or a function), hooks and key (a server with hooks),
+   * dir ('rtl' or 'ltr' set on <html> after load), load (false: return before navigating).
+   */
+  async open(build, path, o = {}) {
+    const base = await this.serve(build, o.hooks, o.key);
+    const page = await this.browser.newPage();
+    this.pages.add(page);
+    page.base = base;
+    if (o.photos !== null) await page.intercept(photos(o.photos ?? 'ok'));
+    if (o.viewport) await page.setViewport(o.viewport[0], o.viewport[1], o.viewport[2]);
+    if (o.media) await page.setMedia(o.media);
+    await page.send('Network.setCacheDisabled', { cacheDisabled: true });
+    if (o.scale) await page.addInitScript(SCALE);
+    if (o.js === false) await page.setJavaScript(false);
+    if (o.load !== false) await page.goto(base + path);
+    return page;
+  }
+
+  async closePages() { for (const p of this.pages) await p.close(); this.pages.clear(); }
+  async close() {
+    await this.closePages();
+    for (const s of this.servers.values()) await s.close();
+    await this.browser.close();
+  }
+}
+
+/** The names of the accessibility tree's nodes with this role. */
+async function names(page, role) { return (await page.axNodes((n) => n.role === role)).map((n) => n.name); }
+/** Presses Tab until the active element matches selector (at most max times); returns how many presses it took. */
+async function tabTo(page, selector, max = 40) {
+  for (let i = 1; i <= max; i++) {
+    await page.key('Tab');
+    if (await page.eval(`!!document.activeElement && document.activeElement.matches(${JSON.stringify(selector)})`)) return i;
+  }
+  throw new Error(`Tab did not reach ${selector} in ${max} presses`);
+}
+const overflow = (page) => page.eval('[document.documentElement.scrollWidth, document.documentElement.clientWidth]');
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Right-to-left layout, skip link, overflow
+
+check('rtl-html', 'The Arabic pages start <html lang="ar" dir="rtl">; the English ones have no dir', async (c) => {
+  const ar = await c.open('rtl', '/');
+  eq(await ar.eval('[document.documentElement.lang, document.documentElement.getAttribute("dir")]'), ['ar', 'rtl'], 'Arabic home');
+  const en = await c.open('rtl', '/en/');
+  eq(await en.eval('document.documentElement.hasAttribute("dir")'), false, 'English page has dir');
+  eq(await en.eval('getComputedStyle(document.documentElement).direction'), 'ltr', 'English direction');
+});
+
+check('overflow', 'No page scrolls sideways at 320px and 1280px (Arabic: home, a post, a term; English: the same)', async (c) => {
+  const pages = [['rtl', '/'], ['rtl', '/post/20260112-series-2/'], ['rtl', '/tags/fixtures/'], ['rtl', '/en/'],
+    ['base', '/'], ['base', '/post/20260106-untitled/'], ['base', '/tags/fixtures/']];
+  const bad = [];
+  for (const w of [320, 1280]) {
+    for (const [build, path] of pages) {
+      const p = await c.open(build, path, { viewport: [w, 800] });
+      const [sw, cw] = await overflow(p);
+      if (sw > cw) bad.push(`${build}${path} at ${w}px: scrollWidth ${sw} > clientWidth ${cw}`);
+      await p.close();
+    }
+  }
+  assert(!bad.length, bad.join('; '));
+});
+
+check('skip-link', 'The skip link is off screen until Tab, then inside the window at the inline-start top corner', async (c) => {
+  for (const [build, path, dir] of [['rtl', '/', 'rtl'], ['rtl', '/en/', 'ltr'], ['base', '/', 'ltr']]) {
+    for (const w of [320, 1280]) {
+      const p = await c.open(build, path, { viewport: [w, 800] });
+      assert(await p.eval(`!!document.querySelector('a.skip')`), `${build}${path}: no skip link`);
+      const rect = `(() => { const r = document.querySelector('a.skip').getBoundingClientRect(); return [r.left, r.right, r.top, r.bottom, document.documentElement.clientWidth]; })()`;
+      let [l, r, t, b, cw] = await p.eval(rect);
+      const label = `${build}${path} at ${w}px`;
+      assert(r <= 0 || l >= cw || b <= 0 || t >= 800, `${label}: skip link is on screen before Tab (${l}, ${r}, ${t}, ${b})`);
+      await p.key('Tab');
+      eq(await p.eval('document.activeElement.className'), 'skip', `${label}: first Tab`);
+      await sleep(250); // its slide-in transition
+      [l, r, t, b, cw] = await p.eval(rect);
+      assert(l >= 0 && r <= cw && t >= 0 && b > 0, `${label}: skip link is not inside the window after Tab (${l}, ${r}, ${t}, ${b}, ${cw})`);
+      assert(dir === 'rtl' ? cw - r < l : l < cw - r, `${label}: skip link is not at the ${dir === 'rtl' ? 'right' : 'left'} (${l}, ${r}, ${cw})`);
+      await p.key('Enter');
+      eq(await p.eval('document.activeElement.id'), 'main', `${label}: Enter on the skip link moves focus to main`);
+      await p.close();
+    }
+  }
+});
+
+check('rtl-mirror', 'Arabic layout mirrors: the series box and article tile bars are on the right (the English ones on the left); code stays left to right', async (c) => {
+  const bar = (p, sel) => p.eval(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const cs = getComputedStyle(e); return parseFloat(cs.borderRightWidth) > parseFloat(cs.borderLeftWidth) ? 'right' : parseFloat(cs.borderRightWidth) < parseFloat(cs.borderLeftWidth) ? 'left' : 'none'; })()`);
+  const ar = await c.open('rtl', '/post/20260112-series-2/', { viewport: [1280, 800] });
+  eq(await bar(ar, '.series'), 'right', 'Arabic series box bar');
+  const arHome = await c.open('rtl', '/', { viewport: [1280, 800] });
+  eq(await bar(arHome, '.tile.article'), 'right', 'Arabic article tile bar');
+  const en = await c.open('rtl', '/en/post/20260106-untitled/', { viewport: [1280, 800] });
+  eq(await bar(en, '.series'), 'left', 'English series box bar');
+  const enHome = await c.open('rtl', '/en/', { viewport: [1280, 800] });
+  eq(await bar(enHome, '.tile.article'), 'left', 'English article tile bar');
+  const code = await ar.eval(`(() => { const pre = document.createElement('pre'); document.querySelector('.abody').appendChild(pre); const d = getComputedStyle(pre).direction; pre.remove(); return d; })()`);
+  eq(code, 'ltr', 'direction of a code block in an Arabic page');
+});
+
+check('rtl-arrows', 'Previous/next arrows point to their side, are aria-hidden and stay out of the accessible names', async (c) => {
+  const arrows = (p) => p.eval(`[...document.querySelectorAll('a')].flatMap((a) => [...a.querySelectorAll('span[aria-hidden=true]')].filter((s) => /[\\u2190\\u2192]/.test(s.textContent)).map((s) => [s.textContent.includes('\\u2192') ? 'rarr' : 'larr', a.getAttribute('rel') || a.textContent.trim().slice(0, 20), s.nextSibling === null || s.previousSibling === null ? (s.previousSibling === null ? 'before' : 'after') : 'inside']))`);
+  const p = await c.open('rtl', '/post/20260112-series-2/');
+  const a = await arrows(p);
+  assert(a.some(([d, rel, pos]) => d === 'rarr' && rel === 'prev' && pos === 'before'), `no → before the previous link: ${JSON.stringify(a)}`);
+  assert(a.some(([d, rel, pos]) => d === 'larr' && rel === 'next' && pos === 'after'), `no ← after the next link: ${JSON.stringify(a)}`);
+  const en = await c.open('rtl', '/en/post/20260106-untitled/');
+  const e = await arrows(en);
+  assert(e.some(([d, rel]) => d === 'larr' && rel === 'prev'), `English page lost ← before the previous link: ${JSON.stringify(e)}`);
+  for (const [pg, path] of [[p, '/post/20260112-series-2/'], [en, '/en/post/20260106-untitled/']]) {
+    const bad = (await pg.axNodes((n) => n.role === 'link' && /[←→]/.test(n.name))).map((n) => n.name);
+    assert(!bad.length, `${path}: links with an arrow in their accessible name: ${bad.join(' | ')}`);
+  }
+  const page2 = await c.open('rtl', '/page/2/');
+  const last = await arrows(page2);
+  assert(last.length > 0 && last.every(([d]) => d === 'rarr'), `/page/2/ (last page) should have only → : ${JSON.stringify(last)}`);
+  const tag = await c.open('rtl', '/tags/fixtures/');
+  const t = await arrows(tag);
+  assert(t.some(([d]) => d === 'rarr') && t.some(([d]) => d === 'larr'), `/tags/fixtures/ should have both arrows: ${JSON.stringify(t)}`);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Accessibility names
+
+check('a11y-feed-names', 'The two feed links in a post\'s series boxes have different accessible names; term pages keep "Subscribe via RSS"', async (c) => {
+  const p = await c.open('base', '/post/20260106-untitled/');
+  const feeds = (await names(p, 'link')).filter((n) => n.startsWith('Subscribe via RSS'));
+  eq(feeds, ['Subscribe via RSS : Fixture Series', 'Subscribe via RSS : Second Fixture Series'], 'series feed links');
+  const t = await c.open('base', '/tags/fixtures/');
+  assert((await names(t, 'link')).includes('Subscribe via RSS'), 'term page lost its "Subscribe via RSS" link');
+});
+
+check('a11y-newtab-names', 'External links name themselves without "(opens in a new tab)" and describe it; titles stay as written', async (c) => {
+  const p = await c.open('base', '/post/20260111-heading-link/');
+  const tocNames = await p.eval(`[...document.querySelectorAll('#TableOfContents a')].map((a) => a.textContent.trim())`);
+  const all = (await p.axNodes((n) => n.role === 'link')).map((n) => n.name);
+  for (const t of tocNames) assert(all.some((n) => n === t), `no link named "${t}"`);
+  assert(!all.some((n) => n.includes('(opens in a new tab)') && !n.includes('Hugo & friends')), `a name holds the notice: ${all.filter((n) => n.includes('(opens in a new tab)'))}`);
+  const heading = await p.eval(`(() => { const a = document.querySelector('h2#hugo a'); return [a.getAttribute('aria-describedby'), document.getElementById(a.getAttribute('aria-describedby')).textContent]; })()`);
+  eq(heading, ['tb-newtab', '(opens in a new tab)'], 'heading link description');
+  const titled = await p.eval(`(() => { const a = document.querySelector('a[title^="Hugo &"], a[title^="Hugo "]'); return [a.title, a.hasAttribute('aria-describedby'), a.target]; })()`);
+  eq(titled, ['Hugo & friends (opens in a new tab)', false, '_blank'], 'link with a title');
+  const internal = await p.eval(`(() => { const a = document.querySelector('a[title="All the posts"]'); return [a.hasAttribute('aria-describedby'), a.hasAttribute('target')]; })()`);
+  eq(internal, [false, false], 'internal titled link');
+});
+
+check('links-origin', 'About page: a link to the site\'s own host on its default port is internal; another port opens in a new tab', async (c) => {
+  const p = await c.open('base', '/about/');
+  const r = await p.eval(`(() => { const f = (h) => { const a = document.querySelector('a[href="' + h + '"]'); return a ? [a.target, a.getAttribute('aria-describedby')] : null; }; return [f('https://example.org:443/about/'), f('https://example.org:8443/')]; })()`);
+  assert(r[0] && r[1], `the About page lacks the test links: ${JSON.stringify(r)}`);
+  eq(r[0], ['', null], 'link to https://example.org:443/about/');
+  eq(r[1], ['_blank', 'tb-newtab'], 'link to https://example.org:8443/');
+});
+
+check('nav-search-current', 'The nav\'s search link has aria-current="page" on the search page and on no other page', async (c) => {
+  const cur = (p) => p.eval(`[...document.querySelectorAll('nav.site a[aria-current]')].map((a) => a.getAttribute('href')).filter((h) => /search/.test(h))`);
+  eq(await cur(await c.open('base', '/search/')), ['/search/'], 'base /search/');
+  eq(await cur(await c.open('base', '/')), [], 'base /');
+  eq(await cur(await c.open('base', '/about/')), [], 'base /about/');
+  const ml = await cur(await c.open('multilingual', '/en/search/'));
+  eq(ml, ['/en/search/'], 'multilingual /en/search/');
+  const de = await c.open('multilingual', '/');
+  eq(await de.eval(`[...document.querySelectorAll('nav.site a')].some((a) => /search/i.test(a.getAttribute('href')))`), false, 'German page has a search link');
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Theme switch
+
+check('theme-switch', 'The theme switch sets data-theme, aria-pressed and localStorage, and System puts it back', async (c) => {
+  const p = await c.open('base', '/post/20260105-dated-article/', { viewport: [1280, 800], media: { 'prefers-color-scheme': 'light' } });
+  await p.eval('localStorage.clear()');
+  await p.waitForEval(`!document.querySelector('nav.site li.theme').hidden`, { what: 'the theme switch' });
+  const state = () => p.eval(`({ t: document.documentElement.getAttribute('data-theme'), s: localStorage.getItem('theme'), bg: getComputedStyle(document.body).backgroundColor, pressed: [...document.querySelectorAll('.thm button')].filter((b) => b.getAttribute('aria-pressed') === 'true').map((b) => b.dataset.mode) })`);
+  const sys = await state();
+  eq([sys.t, sys.s, sys.pressed], [null, null, ['system']], 'initial');
+  await p.click('.thm button[data-mode=dark]');
+  const dark = await state();
+  eq([dark.t, dark.s, dark.pressed], ['dark', 'dark', ['dark']], 'after Dark');
+  assert(dark.bg !== sys.bg, `the page background did not change (${dark.bg})`);
+  await p.click('.thm button[data-mode=light]');
+  eq((await state()).t, 'light', 'after Light');
+  await p.click('.thm button[data-mode=system]');
+  const back = await state();
+  eq([back.t, back.s, back.pressed, back.bg], [null, null, ['system'], sys.bg], 'after System');
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Rotating hero (home page of the base build: a pool of two landscape photos)
+
+const heroId = (p) => p.eval(`(document.querySelector('header[data-pool]').style.getPropertyValue('--hi').match(/i-[A-Za-z0-9]+/) || [''])[0]`);
+const BUILD_PHOTO = 'i-25Xwh4F';
+const isPhotoReq = (r) => r.url.startsWith('https://photos.smugmug.com/');
+/** Follows the hero's photo until n different consecutive values have been seen; returns them. */
+async function heroSequence(p, n, timeout = 20000) {
+  const seen = [await heroId(p)];
+  await waitFor(async () => { const id = await heroId(p); if (id !== seen[seen.length - 1]) seen.push(id); return seen.length >= n; }, { timeout, interval: 40, what: `the hero to change photo ${n - 1} times (saw ${seen})` });
+  return seen;
+}
+const heroButton = (p) => p.eval(`(() => { const b = document.querySelector('header[data-pool] .hpp'); return b ? { hidden: b.hidden, label: b.getAttribute('aria-label'), lang: b.getAttribute('lang'), pressed: b.hasAttribute('aria-pressed') } : null; })()`);
+
+check('hero-nojs', 'With JavaScript off the hero shows the first photo and has the preload, no layer and no button', async (c) => {
+  const p = await c.open('base', '/', { js: false, viewport: [1280, 800] });
+  assert((await p.eval(`getComputedStyle(document.querySelector('header[data-pool]')).backgroundImage`)).includes(BUILD_PHOTO), 'hero background is not the build\'s first photo');
+  assert(await p.eval(`!![...document.querySelectorAll('head link[rel=preload][as=image]')].find((l) => (l.href + l.getAttribute('imagesrcset')).includes('${BUILD_PHOTO}'))`), 'no preload of the first photo in <head>');
+  eq(await p.eval(`document.querySelectorAll('.hr, .hpp').length`), 0, 'layer and buttons');
+});
+
+check('hero-rotation', 'The rotation starts, changes photo, fades through a layer, and the button, layer and live regions are as specified', async (c) => {
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800] });
+  await p.waitForEval(`!!document.querySelector('header[data-pool] .hpp')`, { what: 'the pause button' });
+  const b = await heroButton(p);
+  eq([b.hidden, b.label, b.lang, b.pressed], [false, 'Pause the photo rotation', null, false], 'pause button');
+  const box = await p.eval(`(() => { const r = document.querySelector('.hpp').getBoundingClientRect(); return [r.width, r.height]; })()`);
+  eq(box, [44, 44], 'button size');
+  eq(await p.eval(`document.querySelector('header[data-pool] .hr').getAttribute('aria-hidden')`), 'true', 'layer aria-hidden');
+  eq(await p.eval(`document.querySelectorAll('header[data-pool] [aria-live], header[data-pool] [role=status], header[data-pool] [role=alert]').length`), 0, 'live regions in the hero');
+  assert((await names(p, 'button')).includes('Pause the photo rotation'), 'accessibility tree has no button "Pause the photo rotation"');
+  const seq = await heroSequence(p, 3);
+  eq(new Set(seq).size, 2, `photos shown (${seq})`);
+  assert(seq.includes(BUILD_PHOTO) && seq.includes('i-8Nr9Vp5'), `both pool photos are not shown (${seq})`);
+  const req = p.requests.filter(isPhotoReq).map((r) => r.url);
+  assert(req.some((u) => u.includes('i-8Nr9Vp5')), 'the other photo was never requested');
+  assert(req.every((u) => /\/(M|L|XL|X2|X3)\//.test(u)), `a photo request is not in a size of the hero's tiers: ${req.join(' ')}`);
+  await p.waitForEval(`document.querySelector('header[data-pool] .hr').hidden`, { what: 'the layer to be hidden again after the fade', timeout: 4000 });
+});
+
+check('hero-pause', 'Tab reaches the pause button after the nav; Enter pauses (no change, no request), Space and a click resume; no aria-pressed', async (c) => {
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800] });
+  await p.waitForEval(`!!document.querySelector('header[data-pool] .hpp')`, { what: 'the pause button' });
+  const presses = await tabTo(p, '.hpp');
+  assert(presses > 3, `Tab reached the button after only ${presses} presses (the skip link and nav come first)`);
+  // Wait until no fade is running, so the pause is not pressed during one.
+  await p.waitForEval(`document.querySelector('header[data-pool] .hr').hidden`, { what: 'no fade running' });
+  await p.key('Enter');
+  eq((await heroButton(p)).label, 'Play the photo rotation', 'name after Enter');
+  assert((await names(p, 'button')).includes('Play the photo rotation'), 'accessibility tree has no button "Play the photo rotation"');
+  eq((await heroButton(p)).pressed, false, 'aria-pressed');
+  await sleep(300);
+  const id = await heroId(p), n = p.requests.filter(isPhotoReq).length;
+  await sleep(4500); // longer than the scaled interval plus the fade
+  eq(await heroId(p), id, 'photo while paused');
+  eq(p.requests.filter(isPhotoReq).length, n, 'photo requests while paused');
+  await p.key(' ');
+  eq((await heroButton(p)).label, 'Pause the photo rotation', 'name after Space');
+  await waitFor(async () => (await heroId(p)) !== id, { timeout: 12000, what: 'the rotation to resume after Space' });
+  await p.click('.hpp');
+  eq((await heroButton(p)).label, 'Play the photo rotation', 'name after a click');
+  await p.click('.hpp');
+  eq((await heroButton(p)).label, 'Pause the photo rotation', 'name after the second click');
+});
+
+check('hero-focus-ring', 'The pause button is 44 by 44 with a 3px cream outline around a 2px dark halo, also with forced colors', async (c) => {
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800] });
+  await p.waitForEval(`!!document.querySelector('header[data-pool] .hpp')`, { what: 'the pause button' });
+  await tabTo(p, '.hpp');
+  const ring = () => p.eval(`(() => { const cs = getComputedStyle(document.querySelector('.hpp')); return { w: cs.outlineWidth, s: cs.outlineStyle, c: cs.outlineColor, sh: cs.boxShadow }; })()`);
+  const r = await ring();
+  eq([r.w, r.s], ['3px', 'solid'], 'outline');
+  assert(/ 0px 0px 0px 2px|0px 0px 0px 2px/.test(r.sh), `no 2px halo in box-shadow: ${r.sh}`);
+  await p.setMedia({ 'forced-colors': 'active' });
+  const f = await ring();
+  assert(f.w === '3px' && f.s === 'solid', `forced-colors: outline is ${f.w} ${f.s}`);
+  assert(/ 0px 0px 0px 2px|0px 0px 0px 2px/.test(f.sh) || f.sh === 'none', `forced-colors: box-shadow ${f.sh}`);
+});
+
+check('hero-reduced-motion', 'With reduced motion: no button, no layer, no rotation and no more photo requests; the setting is followed while open', async (c) => {
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800], media: { 'prefers-reduced-motion': 'reduce' } });
+  await sleep(300);
+  let b = await heroButton(p);
+  assert(!b || b.hidden, 'the pause button is shown');
+  await sleep(4500);
+  eq(await heroId(p), BUILD_PHOTO, 'photo with reduced motion');
+  eq(await p.eval(`document.querySelector('header[data-pool] .hr') ? document.querySelector('header[data-pool] .hr').hidden : true`), true, 'layer hidden');
+  assert(!p.requests.filter(isPhotoReq).some((r) => r.url.includes('i-8Nr9Vp5')), 'the other photo was requested');
+  await p.setMedia({ 'prefers-reduced-motion': 'no-preference' });
+  await p.waitForEval(`(() => { const b = document.querySelector('.hpp'); return b && !b.hidden; })()`, { what: 'the button to appear when reduced motion is switched off' });
+  await heroSequence(p, 3);
+  // Chrome reports a media query change to a script one frame after it happens, and not at all if the script reads
+  // `matches` in between (the hero does when it starts a photo's timers, two frames after the photo changes): so switch
+  // when no timer is about to start or run.
+  await sleep(400);
+  await p.setMedia({ 'prefers-reduced-motion': 'reduce' });
+  try {
+    await p.waitForEval(`document.querySelector('.hpp').hidden`, { what: 'the button to go when reduced motion is switched on', timeout: 4000 });
+  } catch (e) {
+    throw new Error(`${e.message} (state: ${JSON.stringify(await p.eval(`[matchMedia('(prefers-reduced-motion: reduce)').matches, document.querySelector('.hpp').hidden, document.querySelector('.hr').hidden]`))})`);
+  }
+});
+
+check('hero-focus-kept', 'Focus moves to main#main, not body, when the button goes away (reduced motion switched on, or every photo fails)', async (c) => {
+  const focusAfter = async (p) => {
+    await p.waitForEval(`document.querySelector('.hpp').hidden`, { what: 'the button to be hidden' });
+    eq(await p.eval('document.activeElement.id'), 'main', 'document.activeElement');
+    await p.key('Tab');
+    assert(await p.eval(`(() => { const a = document.activeElement; return a !== document.body && !a.closest('header') && !!a.closest('main') && a.id !== 'main'; })()`), 'the next Tab did not go to the first stop after the hero');
+  };
+  const a = await c.open('base', '/', { viewport: [1280, 800] }); // timers not scaled: none is due while the media setting changes
+  await a.waitForEval(`!!document.querySelector('.hpp')`, { what: 'the pause button' });
+  await tabTo(a, '.hpp');
+  await a.setMedia({ 'prefers-reduced-motion': 'reduce' });
+  await focusAfter(a);
+
+  let armed = false, release;
+  const gate = new Promise((r) => { release = r; });
+  const held = [];
+  const rule = (url) => {
+    if (!armed || !url.startsWith('https://photos.smugmug.com/')) return { fulfill: { body: PHOTO } };
+    held.push(url);
+    return { wait: gate.then(() => ({ fail: true })) };
+  };
+  const b = await c.open('base', '/', { scale: true, viewport: [1280, 800], photos: rule });
+  await b.waitForEval(`!!document.querySelector('.hpp')`, { what: 'the pause button' });
+  armed = true;
+  await waitFor(() => held.length > 0, { timeout: 8000, what: 'a held photo request' });
+  await tabTo(b, '.hpp');
+  release();
+  await b.waitForEval(`document.querySelector('.hpp').hidden`, { what: 'the button to go once the photos fail' });
+  await focusAfter(b);
+});
+
+check('hero-bad-pool', 'data-pool tokens the build can not write are ignored (unknown size, five names, over 512 characters) and the hero still rotates', async (c) => {
+  const bad = ['photos/b1/0/zz/X3/badone-X3.jpg|M,L,EVIL,X2,,X2', 'photos/b2/0/zz/X3/badfive-X3.jpg|M,L,X2,X2,', 'photos/' + 'a'.repeat(600) + '/0/zz/X3/badlong-X3.jpg|M,L,X2,X2,,X2', 'photos/b4/0/zz/X2/badmix-X3.jpg|M,L,X2,X2,,X2'];
+  const rewrite = (path, body) => (path === '/' ? Buffer.from(body.toString().replace('data-pool="', `data-pool="${bad.join(' ')} `)) : undefined);
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800], hooks: { rewrite }, key: 'bad-pool' });
+  await p.waitForEval(`!!document.querySelector('.hpp')`, { what: 'the pause button' });
+  assert(await p.eval(`document.querySelector('header[data-pool]').getAttribute('data-pool').includes('badone')`), 'the test page has no bad tokens');
+  const seq = await heroSequence(p, 3);
+  assert(seq.every((s) => s === BUILD_PHOTO || s === 'i-8Nr9Vp5'), `the hero showed a photo outside the build's pool: ${seq}`);
+  assert(!p.requests.some((r) => /bad(one|five|long|mix)/.test(r.url)), 'a bad pool entry was requested');
+});
+
+check('hero-lang', 'On a language with no text for the pause button it carries lang="en" and the same names, also after it is pressed', async (c) => {
+  const p = await c.open('multilingual', '/', { scale: true, viewport: [1280, 800] });
+  await p.waitForEval(`!!document.querySelector('.hpp')`, { what: 'the pause button' });
+  let b = await heroButton(p);
+  eq([b.label, b.lang], ['Pause the photo rotation', 'en'], 'German pause button');
+  await p.click('.hpp');
+  b = await heroButton(p);
+  eq([b.label, b.lang], ['Play the photo rotation', 'en'], 'German play button');
+  const en = await c.open('multilingual', '/en/', { scale: true, viewport: [1280, 800] });
+  const e = await en.eval(`(() => { const b = document.querySelector('.hpp'); return b ? [b.getAttribute('aria-label'), b.getAttribute('lang')] : null; })()`);
+  if (e) eq(e, ['Pause the photo rotation', null], 'English pause button');
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Lightbox
+
+const LB = 'dialog.lb';
+async function openFirst(p, gallery = '.gal') {
+  await p.click(`${gallery} a`);
+  await p.waitForEval(`(() => { const d = document.querySelector('${LB}'); return d && d.open && d.querySelector('.count').textContent !== '' && !d.hasAttribute('aria-busy'); })()`, { what: 'the lightbox to open and show its first photo' });
+}
+const lbState = (p) => p.eval(`(() => { const d = document.querySelector('${LB}'); return { count: d.querySelector('.count').innerHTML, say: d.querySelector('[aria-live]').innerHTML, src: d.querySelector('img').src, open: d.open }; })()`);
+const lbCounter = (p) => p.eval(`document.querySelector('${LB} .count').textContent`);
+
+check('lightbox-lang', 'On a language lacking the lightbox text, the dialog and buttons are lang="en" with English names, the photo\'s alt text is not marked; English pages have no lang', async (c) => {
+  const p = await c.open('multilingual', '/post/20260113-fotos/', { viewport: [1280, 800] });
+  await openFirst(p);
+  const dom = await p.eval(`(() => { const d = document.querySelector('${LB}'); return { dlg: d.getAttribute('lang'), inn: d.querySelector('.in').getAttribute('lang'), btns: [...d.querySelectorAll('button')].map((b) => [b.getAttribute('aria-label'), b.getAttribute('lang')]) , say: d.querySelector('[aria-live]').innerHTML }; })()`);
+  eq(dom.dlg, 'en', 'dialog lang');
+  eq(dom.inn, 'de-DE', 'wrapper lang');
+  eq(dom.btns, [['Previous photo', 'en'], ['Next photo', 'en'], ['Close photo viewer', 'en']], 'buttons');
+  eq(dom.say, '<span lang="en">Photo 1 of 2</span>: Querformat', 'announcement');
+  const ax = await p.axNodes((n) => ['button', 'dialog'].includes(n.role));
+  const axNames = ax.map((n) => n.name);
+  for (const n of ['Photo viewer', 'Previous photo', 'Next photo', 'Close photo viewer']) assert(axNames.includes(n), `accessibility tree has no "${n}" (has ${axNames})`);
+
+  const f = await c.open('multilingual', '/post/20260113-fotos/', { viewport: [1280, 800], photos: 'fail' });
+  await openFirst(f);
+  const st = await lbState(f);
+  eq(st.say, '<span lang="en">Photo 1 of 2</span>: Querformat <span lang="en">(image couldn’t be loaded)</span>', 'announcement after a failed load');
+  eq(st.count, '1 / 2 <span lang="en">(image couldn’t be loaded)</span>', 'counter after a failed load');
+
+  const en = await c.open('multilingual', '/en/post/20260107-photo-gallery/', { viewport: [1280, 800] });
+  await openFirst(en);
+  eq(await en.eval(`(() => { const d = document.querySelector('${LB}'); return d.querySelectorAll('[lang]').length + (d.hasAttribute('lang') ? 1 : 0); })()`), 0, 'lang attributes in the English lightbox');
+});
+
+check('lightbox-names', 'A button whose name is English but whose text is translated keeps lang="en" on the button and the text in a span in the page\'s language', async (c) => {
+  const p = await c.open('lightbox-names', '/post/20260114-photos/', { viewport: [1280, 800] });
+  await openFirst(p);
+  const lang = await p.eval('document.documentElement.lang');
+  const btns = await p.eval(`[...document.querySelectorAll('${LB} button')].map((b) => ({ name: b.getAttribute('aria-label'), lang: b.getAttribute('lang'), text: b.textContent, span: b.querySelector('span') ? [b.querySelector('span').lang, b.querySelector('span').textContent] : null }))`);
+  eq(btns.map((b) => [b.name, b.lang]), [['Previous photo', 'en'], ['Next photo', 'en'], ['Close photo viewer', 'en']], 'button names and lang');
+  eq(btns.map((b) => b.span), [[lang, 'Précédent'], [lang, 'Suivant'], [lang, 'Fermer']], 'visible text spans');
+  assert(lang === 'fr-FR', `page language is ${lang}`);
+  const ax = (await p.axNodes((n) => n.role === 'button')).map((n) => n.name);
+  for (const n of ['Previous photo', 'Next photo', 'Close photo viewer']) assert(ax.includes(n), `accessibility tree has no button "${n}" (has ${ax})`);
+});
+
+check('lightbox-keys', 'Arrow, Home and End keys change the photo only without Alt, Ctrl, Meta or Shift; Tab cycles; Escape returns focus to the photo; arrows follow the direction', async (c) => {
+  const p = await c.open('base', '/post/20260104-smugmug-photos/', { viewport: [1280, 800] });
+  await openFirst(p);
+  const total = +(await lbCounter(p)).split(' / ')[1];
+  assert(total >= 3, `the post has ${total} photos`);
+  await p.eval(`window.__dp = []; document.addEventListener('keydown', (e) => window.__dp.push([e.key, e.defaultPrevented]));`);
+  for (const m of [1, 2, 4, 8]) {
+    for (const k of ['ArrowRight', 'ArrowLeft', 'Home', 'End']) {
+      await p.key(k, { modifiers: m });
+    }
+  }
+  await sleep(300);
+  eq(await lbCounter(p), `1 / ${total}`, 'counter after keys with a modifier');
+  const dp = await p.eval('window.__dp');
+  eq(dp.length, 16, 'keydown events seen');
+  assert(dp.every(([, prevented]) => prevented === false), `a modified key was default-prevented: ${JSON.stringify(dp.filter((d) => d[1]))}`);
+  const go = async (key, want) => { await p.key(key); await p.waitForEval(`document.querySelector('${LB} .count').textContent === '${want} / ${total}' && !document.querySelector('${LB}').hasAttribute('aria-busy')`, { what: `the counter to read ${want} / ${total} after ${key}` }); };
+  await go('ArrowRight', 2);
+  await go('ArrowLeft', 1);
+  await go('End', total);
+  await go('Home', 1);
+  // Tab moves Close, Previous, Next, Close.
+  const focus = () => p.eval(`document.activeElement.getAttribute('aria-label')`);
+  eq(await focus(), 'Close photo viewer', 'initial focus');
+  const order = [];
+  // (Headless Chrome spends one Tab on the document when focus wraps past the dialog's last button.)
+  for (let i = 0; i < 4; i++) { await p.key('Tab'); order.push(await focus()); }
+  eq(order.filter((n) => n), ['Previous photo', 'Next photo', 'Close photo viewer'], 'Tab order');
+  // The arrows follow the direction of a right-to-left page.
+  await p.eval(`document.documentElement.dir = 'rtl'`);
+  await go('ArrowLeft', 2);
+  await go('ArrowRight', 1);
+  await p.eval(`document.documentElement.dir = ''`);
+  await p.key('Escape');
+  await p.waitForEval(`!document.querySelector('${LB}').open`, { what: 'the lightbox to close' });
+  eq(await p.eval(`document.activeElement === document.querySelector('.gal a')`), true, 'focus after Escape');
+});
+
+check('lightbox-size', 'The lightbox loads X2 where it has a pixel per device pixel and X3 otherwise, and follows a resize; its listeners do not pile up', async (c) => {
+  const cases = [[390, 844, 1, 'X2'], [390, 844, 3, 'X2'], [1280, 800, 1, 'X2'], [1280, 800, 2, 'X3']];
+  for (const [w, h, dpr, want] of cases) {
+    const p = await c.open('base', '/post/20260104-smugmug-photos/', { viewport: [w, h, { dpr, mobile: w < 600 }] });
+    assert(await p.eval(`!!document.querySelector('.gal img[width][height]')`), "the thumbnails have no width and height (the build could not read the photos' sizes: build with a network)");
+    await openFirst(p);
+    const st = await lbState(p);
+    assert(st.src.includes(`/${want}/`), `${w}x${h} at ${dpr}x: expected ${want}, got ${st.src}`);
+    eq(await p.eval(`/\\/X3\\//.test(document.querySelector('.gal a').href)`), true, 'the link\'s href is X3');
+    await p.close();
+  }
+  const p = await c.open('base', '/post/20260104-smugmug-photos/', { viewport: [390, 844, { dpr: 1, mobile: true }] });
+  const listeners = async () => {
+    const { result } = await p.send('Runtime.evaluate', { expression: 'window' });
+    const { listeners: l } = await p.send('DOMDebugger.getEventListeners', { objectId: result.objectId });
+    return ['resize', 'orientationchange'].map((t) => l.filter((x) => x.type === t).length);
+  };
+  const before = await listeners();
+  await openFirst(p);
+  eq((await lbState(p)).src.includes('/X2/'), true, 'opened at 390x844 at 1x');
+  await p.setViewport(1280, 800, { dpr: 2 });
+  await p.waitForEval(`document.querySelector('${LB} img').src.includes('/X3/')`, { what: 'the lightbox to switch to X3 after the window grew' });
+  await p.setViewport(390, 844, { dpr: 3, mobile: true });
+  await p.waitForEval(`document.querySelector('${LB} img').src.includes('/X2/')`, { what: 'the lightbox to go back to X2' });
+  for (let i = 0; i < 4; i++) { await p.key('Escape'); await p.waitForEval(`!document.querySelector('${LB}').open`, { what: 'the lightbox to close' }); await openFirst(p); }
+  const after = await listeners();
+  eq(after.map((n, i) => n - before[i]), [1, 1], 'resize and orientationchange listeners added by opening the lightbox 5 times');
+});
+
+check('lightbox-failed', 'A photo that fails to load is said so in the counter and announcement; a failing X3 with a working thumbnail is not', async (c) => {
+  const p = await c.open('base', '/post/20260104-smugmug-photos/', { viewport: [1280, 800], photos: 'fail' });
+  await openFirst(p);
+  const total = +(await lbCounter(p)).match(/\/ (\d+)/)[1];
+  const alt = await p.eval(`document.querySelector('.gal img').alt`);
+  eq(await lbCounter(p), `1 / ${total} (image couldn’t be loaded)`, 'counter');
+  eq(await p.eval(`document.querySelector('${LB} [aria-live]').textContent`), `Photo 1 of ${total}: ${alt} (image couldn’t be loaded)`, 'announcement');
+  // Only the X3 request fails; at 2x on a desktop window the lightbox asks for X3, and the thumbnail loads.
+  const x3 = (url, req) => (url.includes('/X3/') ? { fulfill: { status: 404, body: '' } } : { fulfill: { body: PHOTO } });
+  const q = await c.open('base', '/post/20260104-smugmug-photos/', { viewport: [1280, 800, { dpr: 2 }], photos: x3 });
+  await openFirst(q);
+  eq(await lbCounter(q), `1 / ${total}`, 'counter with only X3 failing');
+  eq(await q.eval(`document.querySelector('${LB} [aria-live]').textContent`), `Photo 1 of ${total}: ${alt}`, 'announcement with only X3 failing');
+  assert(q.requests.some((r) => r.url.includes('/X3/')), 'X3 was never requested, so the test did not exercise the fallback');
+});
+
+check('lightbox-short-viewport', 'On a short viewport the lightbox\'s Close (with 5px around it), Previous and Next stay on screen and the dialog does not scroll; on others the photo keeps its size (3:2 and 2:3 photos, left to right and right to left)', async (c) => {
+  const bad = [];
+  for (const [pw, ph] of [[3000, 2000], [2000, 3000]]) {
+    const img = png(pw, ph);
+    const rule = (url, req, type) => (new URL(url).hostname === HOST ? undefined : type === 'Image' ? { fulfill: { body: img } } : { fail: true });
+    for (const dir of ['ltr', 'rtl']) {
+      for (const [w, h, short] of [[320, 200, true], [320, 256, true], [568, 320, true], [320, 640, false], [1280, 1024, false], [1920, 1080, false]]) {
+        const p = await c.open('base', '/post/20260104-smugmug-photos/', { viewport: [w, h], photos: rule });
+        await p.eval(`document.documentElement.dir = ${JSON.stringify(dir)}`);
+        await openFirst(p);
+        await p.waitForEval(`(() => { const i = document.querySelector('${LB} img'); return i.complete && i.naturalWidth > 0; })()`, { what: `the lightbox photo to load (${pw}x${ph} ${dir} at ${w}x${h})` });
+        await sleep(100);
+        const m = await p.eval(`(() => { const d = document.querySelector('${LB}'); const r = (s) => { const b = d.querySelector(s).getBoundingClientRect(); return [b.left, b.top, b.right, b.bottom]; }; const i = d.querySelector('img').getBoundingClientRect(); return { close: r('[data-a=c]'), prev: r('[data-a=p]'), next: r('[data-a=n]'), img: [i.width, i.height], scrolled: [d.scrollTop, d.scrollLeft], vw: document.documentElement.clientWidth, vh: innerHeight }; })()`);
+        const label = `${pw}x${ph} ${dir} at ${w}x${h}`;
+        if (short) {
+          const inside = (b, pad) => b[0] >= pad && b[1] >= pad && b[2] <= m.vw - pad && b[3] <= m.vh - pad;
+          if (!inside(m.close, 5)) bad.push(`${label}: Close is not inside the viewport with 5px around it (${m.close})`);
+          if (!inside(m.prev, 0)) bad.push(`${label}: Previous is outside the viewport (${m.prev})`);
+          if (!inside(m.next, 0)) bad.push(`${label}: Next is outside the viewport (${m.next})`);
+          if (m.scrolled[0] !== 0 || m.scrolled[1] !== 0) bad.push(`${label}: the dialog scrolled (${m.scrolled})`);
+        } else {
+          const byHeight = Math.abs(m.img[1] - 0.8 * h) <= 1.5, byWidth = Math.abs(m.img[0] - (w - 32)) <= 1.5;
+          if (!byHeight && !byWidth) bad.push(`${label}: the photo is ${m.img[0].toFixed(1)}x${m.img[1].toFixed(1)}, neither 80% of the height nor the width limit`);
+        }
+        await p.close();
+      }
+    }
+  }
+  assert(!bad.length, bad.slice(0, 4).join('; ') + (bad.length > 4 ? `; and ${bad.length - 4} more` : ''));
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Wall, comments, scripts' English fallback
+
+check('wall-nojs', 'Without JavaScript the wall controls and the theme switch collapse: the first row sits directly under the hero', async (c) => {
+  const p = await c.open('base', '/', { js: false, viewport: [1280, 900] });
+  const m = await p.eval(`(() => { const h = document.querySelector('header.hero').getBoundingClientRect(); const t = document.querySelector('.tile').getBoundingClientRect(); return { gap: t.top - h.bottom, ctl: getComputedStyle(document.querySelector('#ctl')).display, theme: getComputedStyle(document.querySelector('nav.site li.theme')).display }; })()`);
+  eq([m.ctl, m.theme], ['none', 'none'], 'controls and theme switch display');
+  assert(m.gap < 20, `the first tile is ${m.gap}px under the hero`);
+});
+
+check('wall-caption-lang', 'The wall\'s caption and group headings put the theme\'s English in lang="en" spans and nothing else (German, Arabic); English pages have none', async (c) => {
+  const cap = (p) => p.eval(`document.querySelector('.cap').innerHTML`);
+  const de = await c.open('multilingual', '/', { viewport: [1280, 900] });
+  assert(/^<span lang="en">Showing \d+ articles?, \d+ photos?<\/span>$/.test(await cap(de)), `German caption: ${await cap(de)}`);
+  const ar = await c.open('rtl', '/', { viewport: [1280, 900] });
+  assert(/^<span lang="en">This page: <\/span>[^<]+<span lang="en">, <\/span>[^<]+$/.test(await cap(ar)), `Arabic caption: ${await cap(ar)}`);
+  for (const [build, path] of [['base', '/'], ['multilingual', '/en/'], ['rtl', '/en/']]) {
+    const p = await c.open(build, path, { viewport: [1280, 900] });
+    eq(await p.eval(`document.querySelector('.cap').querySelectorAll('[lang]').length`), 0, `${build}${path} caption lang attributes`);
+  }
+  // Group by gallery: the "Articles" heading and the options badge are marked; the gallery's own heading is not.
+  await de.click('#vb');
+  await de.click('input[data-role=grp]');
+  await de.waitForEval(`document.querySelectorAll('#stage details.grp').length > 0`, { what: 'the grouped view' });
+  const g = await de.eval(`({ articles: [...document.querySelectorAll('#stage h3')].find((h) => /Articles/.test(h.textContent)).innerHTML, gallery: [...document.querySelectorAll('#stage h3')].find((h) => /Fotos auf Deutsch/.test(h.textContent)).innerHTML, badge: document.querySelector('#vb .bdg .vh').outerHTML, cap: document.querySelector('.cap').innerHTML })`);
+  assert(g.articles.startsWith('<span lang="en">Articles</span> · '), `"Articles" heading: ${g.articles}`);
+  assert(g.gallery.startsWith('Fotos auf Deutsch · '), `gallery heading: ${g.gallery}`);
+  assert(g.badge.includes('lang="en"') && g.badge.includes('class="vh"'), `badge: ${g.badge}`);
+  assert(/^<span lang="en">Showing 1 article, 2 photos, grouped into 1 gallery<\/span>$/.test(g.cap), `grouped caption: ${g.cap}`);
+});
+
+check('wall-script-text', 'Each language\'s wall script lists the entries it lacks as en:[…]; the Arabic one has the plural forms', async (c) => {
+  const src = async (build, path) => {
+    const p = await c.open(build, path);
+    const url = await p.eval(`[...document.scripts].map((s) => s.src).find((s) => /wall/.test(s))`);
+    return p.eval(`fetch(${JSON.stringify(url)}).then((r) => r.text())`).then((t) => [url, t]);
+  };
+  const [du, dt] = await src('multilingual', '/');
+  assert(/wall\.de\./.test(du) && /en:\[[^\]]/.test(dt), `German wall script (${du}) has no entries in en:[…]`);
+  const [au, at] = await src('rtl', '/');
+  assert(/wall\.ar\./.test(au) && /en:\[[^\]]/.test(at), `Arabic wall script (${au}) has no entries in en:[…]`);
+  assert(/p:\[0,1,2,3,/.test(at), 'Arabic wall script has no p:[0,1,2,3,…] plural samples');
+  const [eu, et] = await src('base', '/');
+  assert(!/en:\[[^\]]/.test(et), `English wall script (${eu}) lists entries as English`);
+});
+
+check('rtl-group-triangle', 'The closed group\'s triangle is "◂" on Arabic pages and "▸" on English ones; the open one is "▾" in both', async (c) => {
+  for (const [path, closed] of [['/', '◂'], ['/en/', '▸']]) {
+    const p = await c.open('rtl', path, { viewport: [1280, 900] });
+    await p.click('#vb');
+    await p.click('input[data-role=grp]');
+    await p.waitForEval(`document.querySelectorAll('#stage details.grp > summary').length > 0`, { what: 'the grouped view' });
+    const mark = () => p.eval(`getComputedStyle(document.querySelector('#stage details.grp > summary'), '::before').content`);
+    eq(await mark(), '"▾" / ""', `open triangle on ${path}`);
+    await p.eval(`document.querySelector('#stage details.grp').open = false`);
+    const got = await mark();
+    assert(got.startsWith(`"${closed}"`), `closed triangle on ${path}: expected "${closed}", got ${got}`);
+  }
+});
+
+check('wall-plural', 'The Arabic wall caption reads the six plural forms (0 zero, 1 one, 2 two, 3-10 few, 11-99 many, 100-102 other, 103 few)', async (c) => {
+  const toml = readFileSync(new URL('../exampleSite/i18n/ar.toml', import.meta.url), 'utf8');
+  const forms = (section) => {
+    const m = toml.match(new RegExp(`^\\[${section}\\]\\n((?:[a-z]+ = ".*"\\n?)+)`, 'm'));
+    return Object.fromEntries([...m[1].matchAll(/^([a-z]+) = "(.*)"$/gm)].map((x) => [x[1], x[2]]));
+  };
+  const art = forms('articleCount'), pho = forms('photoCount');
+  const rules = new Intl.PluralRules('ar');
+  const say = (f, n) => f[rules.select(n)].replace('{{ .Count }}', n);
+  const root = resolve(c.out, 'rtl');
+  const html = readFileSync(resolve(root, 'index.html'), 'utf8');
+  const article = html.match(/<article class="tile article"[\s\S]*?<\/article>/)[0];
+  const photo = html.match(/<figure class="tile photo"(?![^>]*data-more)[\s\S]*?<\/figure>/)[0];
+  const page = (A, P) => html.replace(/<article class="tile article"[\s\S]*?<\/article>|<figure class="tile photo"[\s\S]*?<\/figure>/g, '')
+    .replace('<div class=mas>', '<div class=mas>' + article.repeat(A) + photo.repeat(P)).replace(/data-articles=\d+ data-photos=\d+/, `data-articles=${A} data-photos=${P}`);
+  const hooks = { before: (path) => { const m = path.match(/^\/plural\/(\d+)\/(\d+)\/$/); return m ? { type: 'text/html; charset=utf-8', body: page(+m[1], +m[2]) } : undefined; } };
+  const bad = [];
+  for (const [A, P] of [[0, 1], [2, 3], [5, 11], [12, 100], [21, 22], [101, 102], [103, 6], [1, 2]]) {
+    const p = await c.open('rtl', `/plural/${A}/${P}/`, { hooks, key: 'plural', viewport: [1280, 900] });
+    const got = await p.eval(`document.querySelector('.cap').textContent`);
+    const want = `This page: ${say(art, A)}, ${say(pho, P)}`;
+    if (got !== want) bad.push(`(${A}, ${P}): expected "${want}", got "${got}"`);
+    await p.close();
+  }
+  assert(!bad.length, bad.join('; '));
+});
+
+check('comments-lang', 'The comment status and Try again button carry lang="en" while their text is English; English pages have none', async (c) => {
+  const run = async (build, path) => {
+    const p = await c.open(build, path);
+    await p.click('.showc');
+    await p.waitForEval(`/couldn.t be loaded/.test(document.getElementById('comments-status').textContent)`, { what: 'the failure message' });
+    return p.eval(`({ st: document.getElementById('comments-status').getAttribute('lang'), btn: document.querySelector('.showc').getAttribute('lang'), shown: !document.querySelector('.showc').hidden })`);
+  };
+  eq(await run('multilingual', '/post/20260113-fotos/'), { st: 'en', btn: 'en', shown: true }, 'German post');
+  eq(await run('multilingual', '/en/post/20260107-photo-gallery/'), { st: null, btn: null, shown: true }, 'English post');
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Search and the 404 page
+
+const results = (p) => p.eval(`({ status: document.querySelector('.sst').textContent, list: [...document.querySelectorAll('.sres li')].map((li) => ({ path: new URL(li.querySelector('a').href).pathname, marks: [...li.querySelectorAll('mark')].map((m) => m.textContent) })) })`);
+/**
+ * Types a query into the search field the way a reader does, presses Enter (which says the count at once) and waits until
+ * the results and the status are the ones for that query, not the previous query's.
+ */
+async function search(p, q) {
+  await p.click('#search-q');
+  await p.eval(`(() => { const i = document.getElementById('search-q'); i.value = ''; window.__sn = document.querySelector('.sst').firstChild; document.querySelectorAll('.sres li').forEach((li) => { li.__stale = true; }); })()`);
+  await p.typeText(q);
+  await p.key('Enter');
+  await p.waitForEval(`(() => { const st = document.querySelector('.sst'); return st.firstChild && st.firstChild !== window.__sn && ![...document.querySelectorAll('.sres li')].some((li) => li.__stale); })()`, { what: `the results for "${q}"`, timeout: 5000 });
+  return results(p);
+}
+
+check('search-index', 'The index is /search/index.json with "v":1, no row for the unlisted or the two unpublished pages, no index.xml; they are not in any sitemap', async (c) => {
+  const p = await c.open('base', '/search/');
+  const r = await p.eval(`(async () => { const t = await (await fetch('/search/index.json')).text(); const x = await fetch('/search/index.xml'); const sm = await (await fetch('/sitemap.xml')).text(); return { t, xml: x.status, sitemap: /unrendered/i.test(sm) }; })()`);
+  const j = JSON.parse(r.t);
+  eq(j.v, 1, 'index version');
+  assert(Array.isArray(j.d || j.rows || Object.values(j).find(Array.isArray)), 'the index has no rows');
+  assert(!/Unlisted note|Unrendered|Link-only|quokkaneverrender|wombatlinkonly|zebrafish/i.test(r.t), 'the index has a row (or text) of an unlisted or unpublished page');
+  eq(r.xml, 404, 'status of /search/index.xml');
+  eq(r.sitemap, false, 'unrendered pages in the sitemap');
+});
+
+const QUERIES = [
+  // [query, paths expected, a word that must be marked whole (or null)]
+  ['gallery', ['/post/20260107-photo-gallery/', '/post/20260109-embed/', '/post/20260102-article-with-gallery/', '/post/20260104-smugmug-photos/'], 'gallery'],
+  ['code', ['/post/20260105-dated-article/'], 'code'],
+  ['cafe creme', ['/accents/'], 'Café'], ['Café Crème', ['/accents/'], 'Café'], ['naive resume', ['/accents/'], 'naïve'], ['MUNSTER', ['/accents/'], 'munster'], ['brulee', ['/accents/'], 'brulee'],
+  ['की', ['/hindi/'], 'की'], ['किताब', ['/hindi/'], 'किताब'], ['ecole', ['/decomposed/'], 'école'],
+  ['كتاب', ['/vocalized/'], 'كتاب'], ['كِتَابٌ', ['/vocalized/'], 'كِتَابٌ'],
+  ['strasse', ['/accents/'], 'Straße'], ['lodz', ['/accents/'], 'Łódź'], ['kobenhavn', ['/accents/'], 'København'], ['oslo', ['/accents/'], 'Øslo'],
+  ['dan', ['/accents/'], 'Đan'], ['đan', ['/accents/'], 'Đan'], ['aeroe', ['/accents/'], 'Ærøe'], ['coeur', ['/accents/'], 'cœur'],
+  ['ΚΟΣ', ['/accents/'], 'ΚΟΣΜΟΣ'], ['κοσμος', ['/accents/'], 'ΚΟΣΜΟΣ'], ['ΚΟΣΜΟΣ', ['/accents/'], 'ΚΟΣΜΟΣ'],
+  ['کتابها', ['/vocalized/'], 'کتاب‌ها'], ['کتاب‌ها', ['/vocalized/'], 'کتاب‌ها'],
+  ['constructor', ['/accents/'], 'constructor'],
+  ['smug', ['/post/20260104-smugmug-photos/', '/post/20260103-hero-image/'], null], ['galery', ['/post/20260107-photo-gallery/', '/post/20260109-embed/', '/post/20260102-article-with-gallery/', '/post/20260104-smugmug-photos/'], null],
+];
+
+check('search-queries', 'Queries fold case and accents, mark whole words (Hindi, Arabic, Greek, Latin letters with no decomposition), allow one typo and find nothing for unpublished words', async (c) => {
+  const p = await c.open('base', '/search/', { viewport: [1280, 900] });
+  const bad = [];
+  for (const [q, paths, whole] of QUERIES) {
+    const r = await search(p, q);
+    const got = r.list.map((x) => x.path).sort();
+    if (JSON.stringify(got) !== JSON.stringify([...paths].sort())) bad.push(`"${q}": found ${JSON.stringify(got)}`);
+    else if (whole && !r.list.some((x) => x.marks.includes(whole))) bad.push(`"${q}": no whole "${whole}" in <mark> (${JSON.stringify(r.list.map((x) => x.marks))})`);
+    else if (!r.list.every((x) => x.marks.length)) bad.push(`"${q}": a result has no <mark>`);
+  }
+  for (const q of ['zzzqx', 'zebrafish', 'quokkaneverrender', 'wombatlinkonly']) {
+    const r = await search(p, q);
+    if (r.list.length || r.status !== `No results for “${q}”.`) bad.push(`"${q}": expected no results, got ${r.status} / ${r.list.length}`);
+  }
+  // Hindi: "की" finds only the page that has it, not "कमल", "कोई" or "कुछ"; the snippet of "किताब" is centered on the word.
+  const k = await search(p, 'किताब');
+  const snip = await p.eval(`document.querySelector('.sres li .sn').textContent`);
+  assert(snip.includes('किताब'), `the snippet for किताब does not hold the word: ${snip}`);
+  assert(!bad.length, bad.join('; '));
+});
+
+check('search-url', '?q= runs on load, leaves focus on the page and keeps other parameters and the hash; /constructor/ on the 404 page searches that word', async (c) => {
+  const p = await c.open('base', '/search/?q=Caf%C3%A9&x=1#top', { viewport: [1280, 900] });
+  await p.waitForEval(`document.querySelectorAll('.sres li').length === 1`, { what: 'the results from ?q=' });
+  eq(await p.eval(`document.getElementById('search-q').value`), 'Café', 'field');
+  eq(await p.eval(`document.activeElement === document.body`), true, 'focus stays on the page');
+  eq(await p.eval(`[location.search, location.hash]`), ['?q=Caf%C3%A9&x=1', '#top'], 'address');
+  const k = await c.open('base', '/search/?q=constructor');
+  await k.waitForEval(`document.querySelectorAll('.sres li').length === 1`, { what: 'the results for constructor' });
+  const n = await c.open('base', '/constructor/');
+  await n.waitForEval(`document.querySelectorAll('.sres li').length === 1`, { what: 'the 404 results for constructor' });
+  eq((await results(n)).list.map((x) => x.path), ['/accents/'], '404 constructor');
+});
+
+check('search-nojs', 'With JavaScript off the search page says it is unavailable and shows no form; the empty status is in the accessibility tree', async (c) => {
+  const p = await c.open('base', '/search/', { js: false });
+  eq(await p.eval(`document.querySelector('.soff').textContent`), 'Search is not available yet.', 'message');
+  eq(await p.eval(`getComputedStyle(document.querySelector('#search form')).display`), 'none', 'form display');
+  const { nodes } = await p.send('Accessibility.getFullAXTree');
+  assert(nodes.some((n) => !n.ignored && n.role?.value === 'status'), 'no role="status" node in the accessibility tree');
+});
+
+check('search-loading', 'A slow index shows "Loading the search index…" after 0.4 s and clears it; a 500 leaves the failure message', async (c) => {
+  // The server answers the index late (1.5 s) or with a 500: the page is served normally.
+  let mode = 'slow';
+  const hooks = { before: (path) => {
+    if (path !== '/search/index.json') return undefined;
+    return mode === 'slow' ? { delay: 1500, type: 'application/json', body: readFileSync(resolve(c.out, 'base/search/index.json')) } : { status: 500, body: 'no' };
+  } };
+  const p = await c.open('base', '/search/', { hooks, key: 'slow-index', viewport: [1280, 900] });
+  await p.click('#search-q'); // focus loads the index
+  await p.waitForEval(`document.querySelector('.sst').textContent === 'Loading the search index…'`, { what: 'the loading message', timeout: 1400 });
+  await p.waitForEval(`document.querySelector('.sst').textContent === ''`, { what: 'the loading message to clear once the index is in', timeout: 4000 });
+  mode = 'broken';
+  const q = await c.open('base', '/search/', { hooks, key: 'slow-index', viewport: [1280, 900] });
+  await q.click('#search-q');
+  await q.typeText('smug');
+  await q.waitForEval(`document.querySelector('.sst').textContent === 'The search couldn’t be loaded. Try again later.'`, { what: 'the failure message', timeout: 5000 });
+});
+
+check('search-ui', 'Title matches are bolder than the result title; Tab goes field, button, first result; a long query reflows at 320px; the status is a role=status; Enter searches', async (c) => {
+  const p = await c.open('base', '/search/', { viewport: [1280, 900] });
+  await search(p, 'smug');
+  const w = await p.eval(`(() => { const li = document.querySelector('.sres li'); const a = li.querySelector('a'); const m = a.querySelector('mark'); const sn = li.querySelector('.sn'); const sm = sn && sn.querySelector('mark'); return { link: getComputedStyle(a).fontWeight, mark: m && getComputedStyle(m).fontWeight, snip: sn && getComputedStyle(sn).fontWeight, snipMark: sm && getComputedStyle(sm).fontWeight }; })()`);
+  eq([w.link, w.mark], ['700', '900'], 'weight of a title and its match');
+  if (w.snipMark) eq([w.snip, w.snipMark], ['400', '700'], 'weight of a snippet and its match');
+  eq(await p.eval(`document.querySelector('.sst').getAttribute('role')`), 'status', 'status role');
+  // Tab: field, button, first result.
+  await p.eval(`document.getElementById('search-q').focus()`);
+  await p.key('Tab');
+  eq(await p.eval(`document.activeElement.type + ':' + document.activeElement.tagName`), 'submit:BUTTON', 'second stop');
+  await p.key('Tab');
+  eq(await p.eval(`document.activeElement.closest('.sres li') === document.querySelector('.sres li')`), true, 'third stop is in the first result');
+  // Enter runs the search without leaving the page.
+  await p.eval(`window.__same = true; const i = document.getElementById('search-q'); i.focus(); i.value = ''`);
+  await p.typeText('galery');
+  await p.key('Enter');
+  await p.waitForEval(`document.querySelector('.sst').textContent === '4 results'`, { what: 'the count after Enter' });
+  eq(await p.eval(`window.__same`), true, 'the page stayed');
+  const narrow = await c.open('base', '/search/', { viewport: [320, 700] });
+  await narrow.click('#search-q');
+  await narrow.typeText('averyveryveryverylongquerythatdoesnotmatchanythingatallbutkeepsgoing '.repeat(3));
+  await narrow.waitForEval(`document.querySelector('.sst').textContent !== ''`, { what: 'the status for a long query' });
+  const [sw, cw] = await overflow(narrow);
+  assert(sw <= cw, `a long query scrolls sideways at 320px (${sw} > ${cw})`);
+});
+
+check('search-mark-contrast', 'The search mark is 8:1 or better in light and dark (system and picked), and uses Mark and MarkText with forced colors', async (c) => {
+  const lum = (rgb) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]); };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+  const colors = (p) => p.eval(`(() => { const m = document.querySelector('.sres mark'); const cs = getComputedStyle(m); const parse = (s) => (s.match(/[\\d.]+/g) || []).slice(0, 3).map(Number); return [parse(cs.color), parse(cs.backgroundColor)]; })()`);
+  const bad = [];
+  for (const [label, scheme, theme] of [['light', 'light'], ['dark system', 'dark'], ['dark picked', 'light', 'dark'], ['light picked', 'dark', 'light']]) {
+    const p = await c.open('base', '/search/?q=gallery', { viewport: [1280, 900], media: { 'prefers-color-scheme': scheme } });
+    await p.waitForEval(`document.querySelector('.sres mark')`, { what: 'a mark' });
+    if (theme) await p.eval(`document.documentElement.setAttribute('data-theme', ${JSON.stringify(theme)})`);
+    const [fg, bg] = await colors(p);
+    const r = ratio(fg, bg);
+    if (r < 8) bad.push(`${label}: ${r.toFixed(2)}:1 (${fg} on ${bg})`);
+    await p.close();
+  }
+  const f = await c.open('base', '/search/?q=gallery', { viewport: [1280, 900], media: { 'forced-colors': 'active' } });
+  await f.waitForEval(`document.querySelector('.sres mark')`, { what: 'a mark' });
+  const forced = await f.eval(`(() => { const m = getComputedStyle(document.querySelector('.sres mark')); const probe = document.createElement('span'); probe.style.cssText = 'color: MarkText; background-color: Mark'; document.body.appendChild(probe); const p = getComputedStyle(probe); return [m.color === p.color, m.backgroundColor === p.backgroundColor]; })()`);
+  if (!forced[0] || !forced[1]) bad.push(`forced colors: mark is not Mark/MarkText (${forced})`);
+  assert(!bad.length, bad.join('; '));
+});
+
+check('search-404', 'The 404 page searches the missing address: matches replace the latest posts, escapes are decoded safely, nothing of the address becomes markup', async (c) => {
+  const state = (p) => p.eval(`({ field: document.getElementById('search-q').value, status: document.querySelector('.sst').textContent, titles: [...document.querySelectorAll('.sres li a')].map((a) => a.textContent), paths: [...document.querySelectorAll('.sres li a')].map((a) => new URL(a.href).pathname), latest: !document.getElementById('latest').hidden, focus: document.activeElement === document.body, listed: !document.querySelector('.sres').hidden })`);
+  const open = async (path) => {
+    const p = await c.open('base', path, { viewport: [1280, 900] });
+    await p.waitForEval(`!document.querySelector('#search form').hidden`, { what: `the search form on ${path}` });
+    await sleep(150);
+    return p;
+  };
+  let p = await open('/post/20260104-smug/');
+  await p.waitForEval(`document.querySelectorAll('.sres li').length > 0`, { what: 'the results for smug' });
+  let s = await state(p);
+  eq([s.field, s.status, s.latest, s.focus], ['smug', '2 results', false, true], '/post/20260104-smug/');
+  eq([...s.titles].sort(), ['An article with a SmugMug hero', 'SmugMug photos with sizes'], 'titles');
+  assert(await p.eval(`!!document.querySelector('.sres mark')`), 'no <mark> in the results');
+  await p.click('#search-q');
+  await p.key('Enter');
+  await p.waitForEval(`location.pathname === '/search/' && location.search === '?q=smug'`, { what: 'Enter to go to /search/?q=smug' });
+  p = await open('/post/2026/gallry-photos/');
+  await p.waitForEval(`document.querySelectorAll('.sres li').length > 0`, { what: 'the results for the typo' });
+  assert((await state(p)).paths.includes('/post/20260107-photo-gallery/'), 'one typo (gallry) did not find the gallery posts');
+  p = await open('/accnts/');
+  await p.waitForEval(`document.querySelectorAll('.sres li').length > 0`, { what: 'the results for accnts' });
+  assert((await state(p)).paths.includes('/accents/'), '/accnts/ did not find the accents page');
+  for (const path of ['/2017/05/', '/zzzqxv/', '/2017/05/awx-on-centos/']) {
+    p = await open(path);
+    s = await state(p);
+    eq([s.field, s.listed, s.latest], ['', false, true], path);
+    eq(await p.eval(`document.querySelectorAll('#latest li').length`), 5, `${path}: latest posts`);
+  }
+  for (const path of ['/caf%C3%A9%/', '/post/caf%C3%A9-%E0%A4%A/']) {
+    p = await open(path);
+    await p.waitForEval(`document.querySelectorAll('.sres li').length > 0`, { what: `results for ${path}` });
+    s = await state(p);
+    assert(s.field.split(' ').includes('cafe') && s.paths.includes('/accents/'), `${path}: field "${s.field}", ${s.paths}`);
+    assert(!s.field.split(' ').some((w) => ['c3', 'a9', 'e0', 'a4'].includes(w)), `${path}: stray byte words in "${s.field}"`);
+  }
+  for (const path of ['/%3Cimg%20src=x%20onerror=alert(1)%3E/', '/%E0%A4%A/']) {
+    const q = await c.open('base', path, { load: false });
+    let dialogs = 0;
+    q.on('Page.javascriptDialogOpening', () => { dialogs++; });
+    await q.goto(q.base + path);
+    await sleep(500);
+    eq(dialogs, 0, `${path}: dialogs`);
+    eq(await q.eval(`document.querySelectorAll('img[src=x], [onerror]').length`), 0, `${path}: markup from the address`);
+    const errs = [...q.errors, ...q.console.filter((m) => m.type === 'error' && !/Failed to load resource.*404|the server responded with a status of 404/.test(m.text))];
+    assert(!errs.length, `${path}: console errors ${JSON.stringify(errs)}`);
+  }
+});
+
+check('search-404-nojs', 'With JavaScript off the 404 page is the hero, the home link and the latest five posts, with no field', async (c) => {
+  const p = await c.open('base', '/post/20260104-smug/', { js: false, viewport: [1280, 900] });
+  eq(await p.eval(`getComputedStyle(document.querySelector('#search form')).display`), 'none', 'form');
+  eq(await p.eval(`document.querySelectorAll('#latest li').length`), 5, 'latest posts');
+  eq(await p.eval(`!!document.querySelector('a[href="/"]') && !document.querySelector('.sres li')`), true, 'home link and no results');
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Hero sizes
+
+check('hero-sizes', 'The home hero\'s photo size follows the screen (X2 up to 427px at 3x, X3 from 428px or at 4x), and the photo-post hero is 416px high (422.7px at 320px)', async (c) => {
+  const p = await c.open('base', '/', { js: false });
+  const size = () => p.eval(`getComputedStyle(document.querySelector('header.hero')).backgroundImage.match(/\\/(M|L|XL|X2|X3|X4|X5)\\//)[1]`);
+  const bad = [];
+  for (const [w, dpr, want] of [[390, 3, 'X2'], [412, 3, 'X2'], [427, 3, 'X2'], [428, 3, 'X3'], [430, 3, 'X3'], [390, 4, 'X3'], [390, 2, 'X2'], [390, 1, 'M'], [800, 1, 'L'], [1280, 1, 'X2']]) {
+    await p.setViewport(w, 900, { dpr, mobile: w < 500 });
+    await p.goto(p.base + '/'); // the size is chosen by media queries when the page loads
+    const got = await size();
+    if (got !== want) bad.push(`${w}px at ${dpr}x: expected ${want}, got ${got}`);
+  }
+  await p.setViewport(1280, 900);
+  const h = await p.eval(`document.querySelector('header.hero').getBoundingClientRect().height`);
+  if (Math.abs(h - 245.64) > 0.1) bad.push(`home hero at 1280px is ${h}px high, expected 245.64`);
+  assert(!bad.length, bad.join('; '));
+  const q = await c.open('base', '/post/20260110-deep-headings/', { js: false });
+  for (const [w, want] of [[320, 422.7], [390, 416], [1280, 416]]) {
+    await q.setViewport(w, 900);
+    const got = await q.eval(`document.querySelector('.phero').getBoundingClientRect().height`);
+    if (Math.abs(got - want) > 0.1) bad.push(`.phero at ${w}px is ${got}px high, expected ${want}`);
+  }
+  assert(!bad.length, bad.join('; '));
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Runner
+const args = process.argv.slice(2);
+if (args.includes('--list')) {
+  for (const k of checks) console.log(`${k.name.padEnd(24)} ${k.what}`);
+  process.exit(0);
+}
+if (!args.length || args[0].startsWith('-')) {
+  console.error('usage: node scripts/check-browser.mjs [--list] <out> [name ...]');
+  process.exit(2);
+}
+const [outArg, ...wanted] = args;
+if (!existsSync(outArg)) { console.error(`not a folder: ${outArg}`); process.exit(2); }
+const known = checks.map((k) => k.name);
+for (const w of wanted) {
+  if (!known.some((n) => n === w || n.startsWith(w + '-'))) { console.error(`unknown check: ${w} (see --list)`); process.exit(2); }
+}
+const todo = wanted.length ? checks.filter((k) => wanted.some((w) => k.name === w || k.name.startsWith(w + '-'))) : checks;
+
+const t0 = Date.now();
+let browser, ctx, failed = 0;
+const cleanup = async () => { try { await ctx?.close(); } catch { /* already gone */ } if (!ctx) await browser?.close().catch(() => {}); };
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, async () => { await cleanup(); process.exit(130); });
+try {
+  browser = await Browser.launch();
+  ctx = new Context(resolve(outArg), browser);
+  for (const k of todo) {
+    const t = Date.now();
+    try {
+      await Promise.race([k.fn(ctx), sleep(120000).then(() => { throw new Error('timed out after 120 s'); })]);
+      console.log(`PASS ${k.name} (${((Date.now() - t) / 1000).toFixed(1)} s)`);
+    } catch (e) {
+      failed++;
+      console.log(`FAIL ${k.name}: ${String(e.message || e).split('\n')[0]}`);
+    }
+    await ctx.closePages();
+  }
+} catch (e) {
+  console.error(`error: ${e.message}`);
+  failed = failed || 1;
+} finally {
+  await cleanup();
+}
+console.log(`${todo.length - failed} passed, ${failed} failed in ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+process.exit(failed ? 1 : 0);

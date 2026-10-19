@@ -7,17 +7,63 @@ a series (and a post in two series, whose series boxes hold two feed links that 
 `gallery`, the legacy `params.addtional_menus` nav, a footer menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
 hero photos on `photos.smugmug.com`, which make the build read each photo's size and write `width`/`height`, `srcset`,
 the hero's smaller sizes and its preload (they need a network the first time; Hugo then keeps them in its cache, and
-an offline build leaves those attributes out without a warning). Hugo doesn't use it when the theme is installed in a
-site. Build it from that folder:
+an offline build leaves those attributes out without a warning, and the lightbox checks then fail). Hugo doesn't use it when the theme is installed in a
+site. `scripts/build-fixtures.sh` builds it, as the next section describes.
+
+## Running the checks
+
+Scripts under `scripts/` (not mounted, so never published) run the builds, the comparison and the browser checks. They need
+Hugo, POSIX sh, Python 3 and Node (its built-in `WebSocket` and `fetch`; no packages), and the browser checks Chrome or Chromium
+(the `CHROME` environment variable, else the usual macOS path, then `google-chrome`, `chromium` and `chrome` on `PATH`).
+
+- `scripts/build-fixtures.sh [-t <theme dir>] <out> [name ...]` builds every fixture into `<out>/<name>`: `base` (production, not minified,
+  with `--printUnusedTemplates`), `min`, every `exampleSite/variants/*.toml` other than `dark-tokens`, minified (the list is read from the
+  folder, so a new variant is built too), and `dark-tokens`. Every build but `dark-tokens` runs with `--panicOnWarning` and must print no warning
+  (`base` also no unused template); `dark-tokens` must print its warning (below). Any other result exits non-zero. The script finds the
+  `hugo-theme-theblues` folder `--themesDir` needs, keeps Hugo's cache and the build logs in `<out>/.cache` and `<out>/.logs`, builds only the
+  names it is given, and `-t` (or `THEME_DIR`) builds another checkout of the theme, such as a `git worktree` of `develop`, for the comparison.
+  (`--printUnusedTemplates` is left out of the variants, since each one leaves some templates unused on purpose.)
+- `scripts/compare.py <before> <after>` compares two build trees file by file and lists the files only in one and the files that differ, with the
+  first difference. Before comparing it normalizes the versions in the footer (the theme's and Hugo's), 64-hex fingerprints (in names and in contents) and Subresource
+  Integrity values (`sha256-`, `sha384-`, `sha512-`, also with `+` written as `&#43;`); anything else that differs is a change in output. It exits
+  0 when the trees are identical, 1 when they differ and 2 on a usage error, and works on any Hugo output, such as a site built with the
+  branch's theme and with `develop`'s.
+- `node scripts/check-browser.mjs <out> [name ...]` serves the builds in `<out>` (a missing address gets that build's `404.html` with status 404) and runs
+  the browser checks below in headless Chrome, one `PASS` or `FAIL` line each with the reason, exiting non-zero on any failure. Names run only those
+  checks (a group name, such as `hero`, runs every `hero-…` check); `--list` prints the names. Photos are answered by the script, so the checks need no
+  network once the build has read the photos' sizes. `scripts/cdp.mjs` is the small DevTools Protocol helper they share.
+
+To check that a change leaves the output alone, build with the branch and with `develop`, and compare:
 
 ```bash
-cd exampleSite
-hugo --panicOnWarning --printPathWarnings --printUnusedTemplates --themesDir ../.. -d /tmp/theblues-after
+scripts/build-fixtures.sh /tmp/theblues-after
+scripts/build-fixtures.sh -t <develop worktree> /tmp/theblues-before
+scripts/compare.py /tmp/theblues-before /tmp/theblues-after
 ```
+
+Fingerprinted file names, `integrity` hashes and the footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does,
+and the comparison ignores them; anything else that differs is a change in output.
+
+`check-browser.mjs` automates these checks (the sections below say what each one looks for and why):
+
+| Checks | What they cover |
+| --- | --- |
+| `rtl-html`, `overflow`, `skip-link`, `rtl-mirror`, `rtl-arrows`, `rtl-group-triangle` | the right-to-left language: `<html>` attributes, no sideways scroll at 320 and 1280px, the skip link's place, the mirrored layout, the arrows, the group triangle |
+| `a11y-feed-names`, `a11y-newtab-names`, `links-origin`, `nav-search-current` | accessible names of feed and external links, links to another origin, the nav's search link |
+| `theme-switch` | the color theme switch |
+| `hero-nojs`, `hero-rotation`, `hero-pause`, `hero-focus-ring`, `hero-reduced-motion`, `hero-focus-kept`, `hero-bad-pool`, `hero-lang`, `hero-sizes` | the rotating hero (its timers shortened twentyfold) and the hero sizes by screen |
+| `lightbox-lang`, `lightbox-names`, `lightbox-keys`, `lightbox-size`, `lightbox-failed`, `lightbox-short-viewport` | the photo viewer |
+| `wall-nojs`, `wall-caption-lang`, `wall-script-text`, `wall-plural`, `comments-lang` | the wall and the scripts' English fallback |
+| `search-index`, `search-queries`, `search-url`, `search-nojs`, `search-loading`, `search-ui`, `search-mark-contrast`, `search-404`, `search-404-nojs` | search and the 404 page |
+
+What they do not cover stays by hand, as the sections below describe: the builds that fail on purpose (settings, `embed` hosts and ports,
+`og:locale`, the missing title), the other base URLs, the greps of the built files, the hero's whole cycle and random start, a hidden tab, the
+`hero_interval` and CSP checks, a blocked photo among a working pool, screenshots and pixel comparisons, touch and pen swipes, the Disqus embed itself,
+the grouped view's one-gallery caption, and the README's images.
 
 `hugo` builds for production by default (Hugo's `hugo server` uses development), which is what adds the Subresource
 Integrity hashes and fingerprinted names. The fixture builds that way, but not minified, so the readable output can be
-compared. Also build it minified, as a site is deployed, and the eight variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
+compared. Also build it minified, as a site is deployed, and the variants under `exampleSite/variants/` other than `dark-tokens` (tested on its own, below),
 which cover paths the base fixture can't hold at the same time: the primary nav from `[[menus.main]]` (the base fixture uses
 the legacy `params.addtional_menus`), the legacy nav with hrefs that carry a query or a fragment (`legacy-nav`, below), a second language with a partial translation (`i18n/de.toml`, content in
 `content-de/`, and one German photo post in `content-de-photos/`) that makes the English fallback, the per-language script names and the `theblues-i18n` check run, a
@@ -39,15 +85,6 @@ the left on the English pages) and be off screen before that. A change to `main.
 computed styles and pixels as they were. Its `exampleSite/i18n/ar.toml` also holds the cases that need a language other than English and German:
 Hugo has no abbreviated Arabic month name, so the dates (`<time>`, tile and series `aria-label`s, the archive) must show
 the month ("12 يناير 2026"), and the counts have all six plural forms (see "Plural forms" below):
-
-```bash
-hugo --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-min
-for v in main-menu multilingual analytics rtl adapter legacy-nav hero-none hero-one lightbox-names; do
-  hugo --config hugo.toml,variants/$v.toml --minify --panicOnWarning --printPathWarnings --themesDir ../.. -d /tmp/theblues-after-$v
-done
-```
-
-(`--printUnusedTemplates` is left out of the variants, since each one leaves some templates unused on purpose.)
 
 The `legacy-nav` variant (#350) replaces the legacy `params.addtional_menus` list with hrefs that carry a query or a fragment. In its
 nav, `/about#team` is `/about/#team`, `/search?x=1` is `/search/?x=1`, `/archive?s=a#b` is `/archive/?s=a#b`, `/feed.xml#x` is
@@ -72,14 +109,13 @@ and one portrait photo: the home page and `/tags/single/` show that photo from t
 Because the `hero-none` content must give the old output, compare it by building the variant with a worktree of `develop`, which needs `content-hero-none/` and
 `variants/hero-none.toml` copied into its `exampleSite/` (they don't exist there).
 
-In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me build, whose photos load), on a page with a pool of two or more:
+In a browser (the `hero-…` checks use headless Chrome; by hand, use the guyheckman.me build, whose photos load), on a page with a pool of two or more:
 
 - With JavaScript off, the hero shows the first photo (the computed `background-image` is its size for the viewport), `<head>` has its preload, and the page
   has no `.hr` and no `.hpp`. With JavaScript on, the hero starts on a random photo of the pool: unless it is the build's photo, its request starts at load and
   the `.hr` layer fades it in over the build's photo as soon as it has loaded. Then (with the default `hero_interval` of 30) at 25 s the next photo's request starts (one request, the size the viewport uses), at 30 s the `.hr` layer fades in
   (`opacity` rises over 1.5 s, only once the image has loaded) and the hero then holds that photo. Reloads give different start photos (from different galleries, given enough reloads)
-  and different sets of five; no photo comes back before the cycle ends and the sixth photo shown is the first of the five again. To see a whole cycle sooner, scale the page's timers before it loads
-  (`Page.addScriptToEvaluateOnNewDocument` wrapping `setTimeout` so a delay of 20 s or more is divided by 20; the 1.5 s fade stays as it is).
+  and different sets of five; no photo comes back before the cycle ends and the sixth photo shown is the first of the five again. `check-browser.mjs` sees a cycle sooner by scaling the page's timers before it loads: a delay of 20 s or more is divided by 20, and the 1.5 s fade stays as it is.
 - `params.hero_interval`: the show interval (`SHOW` in `assets/js/hero.js`, in milliseconds) is minified in every build but a development one,
   so the base build's `hero.js` has it as `3e4`, just before `LEAD`'s `5e3`; with `--config hugo.toml,<file setting hero_interval = 15>` it is
   `15e3` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`5e3` and `2147483e3`).
@@ -92,7 +128,7 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
 - Tab reaches the pause button (after the hero's links), its accessible name is "Pause the photo rotation" (`Accessibility.getFullAXTree`), Enter changes it to
   "Play the photo rotation" and the rotation stops: no change and no request for as long as it is paused; Space and a click change it back. The button has no `aria-pressed`, the
   layer is `aria-hidden` and there is no live region in the hero. It is 44 by 44 pixels and its focus ring is a 3px cream outline around a 2px dark halo (`box-shadow`, the scrim color), also with `forced-colors: active`
-  (`Emulation.setEmulatedMedia`). Over a white photo (serve a built term page with the hero's `--hi` and `--hi1` to `--hi6` pointed at a local white image) and a black
+  (`Emulation.setEmulatedMedia`). Over a white photo (serve a built term page with the hero's `--hi` and `--hi1` to `--hi8` pointed at a local white image) and a black
   one, Tab to the button (a real Tab key event) and screenshot it: the dark ring shows against the cream border and outline in both, and the outline shows against the black one.
   A tab reported hidden (`document.hidden` true, then a `visibilitychange` event) stops the rotation and a visible one restarts it.
 - Focus is not lost when the button goes away: Tab to the pause button (a real Tab key event), then turn on `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`),
@@ -101,8 +137,8 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
 - With `prefers-reduced-motion: reduce` (`Emulation.setEmulatedMedia`) there is no button, the layer is never shown, the hero keeps the build's photo
   (no random start) and makes no further photo request; changing the setting while the page is open starts or stops the rotation.
 - The text's computed colors and the hero's `background-image` (with the URL taken out) equal those of the same page before the change, in light and dark mode; and with the
-  layer shown over the hero with the hero's own photo (copy the hero's `--hi` to `--hi6` to the layer, `.on`, no transition) a screenshot of the hero is pixel for pixel the same as without it.
-- Hero sizes by screen (device metrics override, `getComputedStyle(hero).backgroundImage`): the home hero's photo is X2 at 390, 412 and 427px wide at three-x and X3 at 428 and 430px wide or at four-x, in each case at least the viewport width and the hero box's height in device pixels (`getBoundingClientRect().height` of the home `.hero`: 245.64 at 800px and wider with the fixture's one-line slogan and tagline, which `hero-sizes.html` takes as 246; it is taller where the slogan or tagline wraps); at two-x and one-x it is the same size as before the three-x tier (the .phero of a photo post or term keeps its X3 or X5 size at three-x).
+  layer shown over the hero with the hero's own photo (copy the hero's `--hi` to `--hi8` to the layer, `.on`, no transition) a screenshot of the hero is pixel for pixel the same as without it.
+- Hero sizes by screen (device metrics override, `getComputedStyle(hero).backgroundImage`): the home hero's photo is X2 at 390, 412 and 427px wide at three-x and X3 at 428 and 430px wide or at four-x, in each case at least the viewport width and the hero box's height in device pixels (`getBoundingClientRect().height` of the home `.hero`: 245.64 at 800px and wider with the fixture's one-line slogan and tagline, which `hero-sizes.html` takes as 246; it is taller where the slogan or tagline wraps); at two-x and one-x it is the same size as before the three-x tier (the .phero of a photo post or term keeps its X5 size at three-x, and its X3 size becomes X4 over two-x: the term hero's `getComputedStyle(hero).backgroundImage` on `/tags/photos/` is X4 at 390 and 430px wide at three-x and at 360px wide at four-x (mind the 16:9 and 3:2 photos: X3 is 900 or 1067px high against the 1248 needed), X3 at 390px wide at two-x, and the term hero's preloads name X4 for those tiers and X3 for the others; no screen has two matching preloads; the 428 and 430px phones' home hero keeps X3).
 - The photo-post hero is sized for its minimum height, 416px, and a title that wraps makes it taller: `getBoundingClientRect().height` of `.phero` on `/post/20260110-deep-headings/` is 416 at 390 and 1280px wide and 422.7 at 320px (about 1.6% more, so a tier's size can be shown slightly enlarged there).
 - At 320px (and 390px) the button is inside the window, overlaps no text and the page has no horizontal scroll; in a right-to-left page it is at the left.
 - Under the site's real CSP and under the README's example policy (`style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https://photos.smugmug.com; connect-src 'self'`), sent as a header, the
@@ -122,8 +158,8 @@ and one with a title to the post section. Its untitled pages must get distinct t
 and `<title>`, in previous/next links and in the feed, not the adapter's folder name ("Post") for all of them, and the page with a title
 and the pages in `content/` keep theirs. It is the only content-adapter case the fixture covers.
 
-`--themesDir` must contain the theme as a folder (or link) named `hugo-theme-theblues`, which `../..` is in the site's
-submodule checkout. Each build should finish with no warnings, and the first with no unused templates: the warnings the fixtures cause
+By hand, `--themesDir` must contain the theme as a folder (or link) named `hugo-theme-theblues`, which `../..` is in the site's
+submodule checkout (`build-fixtures.sh` finds it itself). Each build should finish with no warnings, and the first with no unused templates: the warnings the fixtures cause
 on purpose are listed in `ignoreLogs` in `exampleSite/hugo.toml`, and any other warning fails it.
 
 The same build with `-b http://127.0.0.1:8099/` (the base URL of the screenshot recipe below) must also pass
@@ -188,8 +224,8 @@ filter; recheck it against Hugo's when the Hugo version changes, README, "Upgrad
 the sitemaps match a build with Hugo's built-in template byte for byte, and with four pages for the marks (#320): `hindi.md` ("किताब", and
 "की" in its text) and `hindi-other.md` ("कमल", "कोई", "कुछ", "करता", "के", "को", "कि"), `decomposed.md` (Latin saved in
 NFD) and `vocalized.md` (Arabic with harakat; its last line holds "کتاب‌ها" with a U+200C inside), and the last lines of `accents.md` (Straße, Łódź, København, Øslo, Đan, Ærøe, cœur and the Greek capitals ΚΟΣΜΟΣ, #350). Check the build, in
-`<out>/search/`: `index.json` exists, has `"v":1` and no row for the unlisted page or the two unpublished ones, and `index.xml` doesn't exist. Then serve
-`<out>` (`python3 -m http.server`) and, in a browser (headless Chrome over the DevTools protocol works), on `/search/`:
+`<out>/search/`: `index.json` exists, has `"v":1` and no row for the unlisted page or the two unpublished ones, and `index.xml` doesn't exist. Then, in a browser (the `search-…`
+checks serve `<out>` and drive headless Chrome), on `/search/`:
 
 - `gallery` lists the gallery posts, with the matches in `<mark>`; `code` finds the post tagged `code`; `cafe creme`,
   `Café Crème`, `naive resume`, `MUNSTER` and `brulee` all find the accents page (case and accents folded);
@@ -232,9 +268,8 @@ build a copy with a page of links, for `-b http://127.0.0.1:8099/` and `-b https
 `http://example.org/z` are internal and `https://example.org:8443/x` and `http://127.0.0.1:8099/y` are external.
 
 The 404 page (`/404.html`, README, "Search") lists the latest five posts and, with the index, searches the missing address.
-`python3 -m http.server` can't answer a missing address with the 404 page and its status, so a script that drives headless
-Chrome answers it: with the DevTools `Fetch` domain, fulfill a request for a missing address with status 404 and the body of
-`<out>/404.html`, and the page runs as it would on a host that serves its 404 page at the address. Check:
+A plain static file server can't answer a missing address with the 404 page and its status; the server of `check-browser.mjs` answers it with status 404 and the body of
+`<out>/404.html`, so the page runs as it would on a host that serves its 404 page at the address. Check:
 
 - `/post/20260104-smug/` (`post` and the number are dropped) puts `smug` in the field, lists "SmugMug photos with sizes" and
   "An article with a SmugMug hero" under "Were you looking for…" with the matches in `<mark>`, hides the latest posts, says
@@ -311,10 +346,9 @@ holding one entry shows it: a template printing `{{ T "b" }}` on an `fr` page fo
 text, as it does on the English page.
 
 Plural forms: the `rtl` build's `js/wall.ar.min.<hash>.js` has `p:[0,1,2,3,…]` and `t:[…]` in each count, and the
-English and German scripts have only `one` and `other`. To see the six forms pick, copy `<out>/rtl` to a scratch folder,
-make pages from its `index.html` with the article tile (`<article class="tile article">…</article>`) repeated A times and a
+English and German scripts have only `one` and `other`. To see the six forms pick, make pages from the `rtl` build's `index.html` with the article tile (`<article class="tile article">…</article>`) repeated A times and a
 photo tile (`<figure class="tile photo">…</figure>`, from an English page) P times in `<div class=mas>`, with
-`data-articles=A data-photos=P` on `#stage`, serve the folder, and read the wall's caption (`.cap`) in headless Chrome. With
+`data-articles=A data-photos=P` on `#stage`, and read the wall's caption (`.cap`) in a browser (`wall-plural` does). With
 (A, P) = (0, 1), (2, 3), (5, 11), (12, 100), (21, 22), (101, 102), (103, 6) and (1, 2) the counts must read the forms the
 Arabic rules (CLDR) give: 0 zero; 1 one; 2 two; 3 to 10 few; 11 to 99 many; 100 to 102 other; 103 few. The search page's
 result count (`searchResultCount`) takes the same path.
@@ -331,22 +365,11 @@ which `--panicOnWarning` turns into a failure (#263). It checks the keys, not th
 
 The dark-token check (`layouts/_partials/dark-tokens-check.html`, README, "Extending from a site") has a test of its own: the
 `dark-tokens` variant builds the fixture with a stand-in `assets/css/main.css` (`exampleSite/variants/dark-tokens-assets/`)
-whose two dark-token blocks differ in `--link`. That build must warn, so run it without `--panicOnWarning`:
-
-```bash
-hugo --config hugo.toml,variants/dark-tokens.toml --themesDir ../.. -d /tmp/theblues-after-dark-tokens 2>&1 | grep 'dark-token'
-```
-
-It must print `WARN  assets/css/main.css: the two dark-token blocks differ: --link (system dark #d2c1b6, picked dark
+whose two dark-token blocks differ in `--link`. That build must warn, so `build-fixtures.sh` runs it without `--panicOnWarning` and
+checks its log for the warning. It must print `WARN  assets/css/main.css: the two dark-token blocks differ: --link (system dark #d2c1b6, picked dark
 #ffffff)…`; with `--panicOnWarning` the build fails instead. No line means the check no longer finds the blocks, for
 example after a format change in `main.css`, and its patterns need updating (#267). The theme's real stylesheet is the
 other half of the test: the base build, with `--panicOnWarning`, passes only if both blocks are found and equal.
-
-To check that a change leaves the output alone, build the same fixtures with the theme before the change (for example
-a `git worktree` of `develop`, linked as `hugo-theme-theblues` in another folder) into `/tmp/theblues-before`, then
-compare with `diff -r /tmp/theblues-before /tmp/theblues-after`. Fingerprinted file names, `integrity` hashes and the
-footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does; anything else that differs
-is a change in output.
 
 In the `rtl` build, with Group by gallery on, the closed group's triangle (`::before` of `details.grp > summary`) is "◂" in the Arabic pages and "▸" in
 the English ones, and the open one "▾" in both (#350; `getComputedStyle(summary, '::before').content`).
