@@ -62,7 +62,7 @@ The rotating hero (#356, README, "Rotating hero") has fixtures in the base build
 `photos.example.org`) has no photo whose size can be read, so the pool is the two landscape photos of `20260104-smugmug-photos`
 (its portrait photo is left out, and so is the `image` of the hero-image article, which is not a gallery photo): the home page, `/tags/photos/`,
 `/tags/fixtures/` and `/categories/photos/` (and their pager pages) have `data-pool` with two tokens (`photos/i-25Xwh4F/…|M,L,X2,X2,,X2` on the home page, `…|L,L,X2,X2,,` on the 416px term heroes),
-the first photo (`i-25Xwh4F`) in the hero's `--hi` and in the preload links, and a `<script src=/js/hero.…>`; `/tags/code/`, `/categories/tech/`
+the first photo (`i-25Xwh4F`) in the hero's `--hi` and in the preload links, and a `<script src=/js/hero.…>`; on page 1 the pool is the attribute, but on a pager page (`/page/2/`, `/tags/fixtures/page/2/` and the like) it is a `data-pool-key` (no `data-pool`) with a `<script src=/hero/pool-<key>.….js integrity=… defer>` just before `hero.js`'s, whose file holds both tokens and is the same file on every pager page of that home page or term (the home page's 4 pages, `/tags/fixtures/`, `/tags/photos/` and `/categories/photos/` each have one file: 4 in all); a build with the branch's theme differs from `develop`'s only in those pager pages, the new files and the `hero.js` bundles; `/tags/code/`, `/categories/tech/`
 and the pages of the other terms, and every other page, have none of that. The **`hero-none` variant** (`variants/hero-none.toml`,
 `content-hero-none/`) has landscape SmugMug photos only where no pool may take them: an article's inline gallery, `image` and Markdown image, a photo post
 that is a draft, one dated in the future and one that has expired, and a photo post with only a portrait and a photo of unknown size. Every page of its build must be
@@ -85,6 +85,10 @@ In a browser (headless Chrome over the DevTools protocol, with the guyheckman.me
   `15e3` (and `7.5` gives `7500`), and `"15"`, `4`, `0`, `true`, `nan`, `inf`, `-inf` and `2147484` each fail the build with the `params.hero_interval` error, and `5` and `2147483` build (`5e3` and `2147483e3`).
 - A photo that fails to load is replaced (block some of the pool's photo URLs with `Network.setBlockedURLs`, or fail them with `Fetch.failRequest`): the
   rotation goes on with the others, and ends, with the button hidden, only when fewer than two photos can be loaded.
+- Pager pages (#364), on `/page/2/` and `/tags/fixtures/page/2/`: the hero rotates and pauses as on page 1; the pool file is requested once, and
+  not again on `/page/3/` (served from the cache); with the file blocked (`Fetch.fulfillRequest` with 404) the build's photo stays, there is no `.hpp`, `.hr`
+  or `.rot` and no script error (only the browser's own failed-resource line); with reduced motion there is no rotation and no button, though the file is still downloaded; with
+  JavaScript off the hero shows the build's photo.
 - `data-pool` entries the build can't write are ignored (#368): serve a copy of a built page whose `data-pool` also holds a token with an unknown size name
   (`…|M,L,EVIL,X2,,X2`), one with five names, one over 512 characters and one whose path has the same `/M/` segment repeated many times; the
   script keeps only the build's entries (and parses the long path in well under a millisecond), and the hero still rotates.

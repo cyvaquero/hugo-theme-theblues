@@ -1,5 +1,5 @@
 {{- /* theblues:template */ -}}
-// Rotating hero (#356): the home and term heroes (header[data-pool]) show five of the landscape photos of the site's
+// Rotating hero (#356): the home and term heroes (header[data-pool], or header[data-pool-key] on pager pages, #364) show five of the landscape photos of the site's
 // photo posts, one after the other. The page paints the build's first photo with no script (the hero's own --hi), for a
 // visitor without script or who prefers reduced motion. This picks five at random from the data-pool attribute
 // (hero-pool.html lists every photo there, the build's first one too), so each visit starts on a random photo of a
@@ -25,7 +25,7 @@
   {{- end }}
 {{- end }}
 (function () {
-  var hero = document.querySelector('header[data-pool]');
+  var hero = document.querySelector('header[data-pool], header[data-pool-key]');
   if (!hero) return;
 
   var TX = {{ partial "js-text.html" "hero" | jsonify }};
@@ -41,7 +41,16 @@
   // characters, a path that isn't "directory/SIZE/stem-SIZE.ext" with the same size twice, or size names that aren't six
   // known ones. The path is split on "/" rather than matched with one pattern, so a long path can't make it backtrack.
   var pool = [];
-  (hero.getAttribute('data-pool') || '').split(' ').forEach(function (tok) {
+  // The pool text: the data-pool attribute (the home page, a term's first page and any page with no pager), or on page 2 and later
+  // the script file hero-pool-file.html writes, which sets window.theblues.pool[key] (data-pool-key) before this script runs. A
+  // file that failed to load, or has no such key, gives an empty pool, so the hero keeps the build's photo and gets no button.
+  function poolText() {
+    var attr = hero.getAttribute('data-pool');
+    if (attr !== null) return attr;
+    var key = hero.getAttribute('data-pool-key'), all = window.theblues && window.theblues.pool;
+    return key && all && Object.prototype.hasOwnProperty.call(all, key) && typeof all[key] === 'string' ? all[key] : '';
+  }
+  poolText().split(' ').forEach(function (tok) {
     if (tok.length > 512) return;
     var part = tok.split('|'), path = part[0];
     if (part.length > 2 || !URL_RE.test(path)) return;

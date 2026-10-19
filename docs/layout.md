@@ -12,7 +12,7 @@ assets/js/theme.js         color theme switch (System, Light, Dark): sets data-t
 assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; without JavaScript, assets/css/nojs.css shows the links)
 assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
-assets/js/hero.js          rotating hero: fades the home and term heroes through photos from the hero's data-pool, with a pause/play button; only on pages whose hero has two or more photos
+assets/js/hero.js          rotating hero: fades the home and term heroes through photos from the hero's data-pool (or, on pager pages 2+, data-pool-key), with a pause/play button; only on pages whose hero has two or more photos
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
 assets/js/search.js        client-side search: fetches /search/index.json on first use, matches in the browser, builds the results with textContent; only on the search page and the 404 page, and only when the index is published
@@ -32,7 +32,7 @@ layouts/search/section.searchindex.json  the search index, /search/index.json (t
 layouts/404.html           hero, the latest five posts and, with the search index, the search of the missing address
 layouts/sitemap.xml        sitemap: Hugo's embedded template plus a filter for pages that aren't written (_partials/is-written.html)
 layouts/rss.xml            home, section and term feeds (main sections only on the home and term feeds)
-layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, hero-pool, controls, wall, tile-photo, tile-photo-body,
+layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, hero-sizes, hero-pool, hero-pool-file, controls, wall, tile-photo, tile-photo-body,
                            tile-article, photos, is-photo, smug-full, smug-srcset, smug-size, smug-sizes,
                            img-size, remote-photo, gallery-figure, cover, series-info, series-box, series-items, series-item, post-nav, page-title, pagination, date,
                            comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
@@ -103,10 +103,19 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
 - **Page.** `home.html` and `term.html` use `src` as the hero's photo through `hero-style.html` in place of `header_image` or
   the term's cover (so the hero keeps its inline `--hi` and `--hi1` to `--hi6`, and `head.html` preloads it as before), write `data-pool` on the
   `<header>` when there are two photos or more, and set `hasHeroPool` in the page's Store, which makes `baseof.html` load
-  `hero.js`. A page with no pool writes nothing new, so its output is byte for byte what it was. The pool reaches the page as
-  an attribute and not as a JSON file so that no request, no `connect-src` entry and no failure mode are added; a file per
-  term would also be one more page to build for every tag.
-- **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, drops what isn't a
+  `hero.js`. A page with no pool writes nothing new, so its output is byte for byte what it was. On page 1 (and on a page with
+  no pager) the pool reaches the page as the attribute, so that no request and no failure mode are added. On page 2 and later
+  (`.Store "wall"`'s `pag.PageNumber` above 1) `hero-pool-file.html` writes the pool once per home page or term as
+  `hero/pool-<key>.js` (`resources.FromString`, then minify and fingerprint as `asset.html` does in production; `<key>` is the
+  first 12 characters of the MD5 of the page's path, only hex digits) and keeps its `<script src integrity defer>` tag in the
+  page's Store as `heroPoolTag`; the hero gets `data-pool-key="<key>"` in place of `data-pool`, and `baseof.html` prints the tag
+  just before `hero.js`'s, so the deferred scripts run in that order. The file is `(function(t){(t.pool=t.pool||{})["<key>"]="<tokens>"})(window.theblues=window.theblues||{})`:
+  data only, no inline script, so a CSP needs `script-src 'self'` and no `connect-src`. It was chosen over a JSON file fetched by
+  `hero.js` (a `connect-src` entry, an async path and a failure mode) and over repeating the attribute (about 50 KB per pager
+  page at 500 photos). One small file per home page or term that has a pager and a pool; the cost is one request per pool per
+  visitor, cached as immutable by the fingerprint. The script tag is also loaded with reduced motion, since only script can read
+  that setting.
+- **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, or `window.theblues.pool[data-pool-key]` when there is no attribute (a file that did not load, or lacks the key, gives an empty pool: the build's photo stays, with no button and no error), drops what isn't a
   SmugMug path of the form the pool writes (a token over 512 characters, a path that doesn't end in `SIZE/stem-SIZE.ext` with the same
   size twice, or size names that aren't six known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless
   the first pick is the build's photo, fetches it at once and fades it in as soon as it is ready (`cur` is -1 until then;

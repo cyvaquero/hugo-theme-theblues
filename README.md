@@ -187,9 +187,12 @@ The templates assume this layout; other structures are not supported yet.
     start, no timer, no fade, no other photo fetched and no button.
   - *Fallback.* A site, or a term, with no such photo keeps `header_image` (or the term's cover) and its pages are
     unchanged. With one photo there is nothing to rotate: the hero shows it and has no button and no script.
-  - The photos reach the page as a `data-pool` attribute on the hero, one short entry per photo (about 100 bytes), so
-    the cost grows with the number of landscape photos: 20 photos add about 2 KB to the home page and to each of its
-    pager pages, and the same to a term page for its own photos.
+  - The photos reach page 1 of the home page and of a term as a `data-pool` attribute on the hero, one short entry per
+    photo (about 100 bytes), so the cost grows with the number of landscape photos: 20 photos add about 2 KB to the page,
+    and 500 about 50 KB. Page 2 and later of a pager carry a short `data-pool-key` instead and load the pool from one
+    script file for the page (`/hero/pool-<key>.<hash>.js`, fingerprinted and cached by the browser), so the pool is
+    downloaded once for all its pager pages. If that file does not load, the hero keeps the build's first photo and has no
+    button. The file is also downloaded with reduced motion (the page cannot know the setting before script runs), and the script ignores it.
 - **Share image (`og:image`):** a page's own `image`, or the first photo the page shows from a `gallery` shortcode
   (photos Hugo doesn't render, inside an HTML comment or a `{{% galleries %}}` block, don't count). Otherwise
   `params.og_image` if set, and otherwise the cover, which is the site's `header_image`. Only an `http` or `https` URL is
@@ -430,7 +433,7 @@ the person building the site.
 - The rotating hero reads the size of every gallery photo of the site's photo posts at build time, not only those the
   wall shows, so a first build of a site with many photos fetches the first 32 KB of each one it has not read before (Hugo
   keeps them in its cache afterward, as for the wall). The pool is built once per home page and once per term, and its
-  list is written into each of that page's pager pages; a site with thousands of landscape photos writes about 100 bytes
+  list is written once as a script file shared by all that page's pager pages (page 1 keeps it inline); a site with thousands of landscape photos writes about 100 bytes
   for each into its home page, so it should expect a home page of hundreds of kilobytes.
 - The series box lists every post of the series on each of its posts, so a series of N posts writes N x N list entries
   and its build time grows with the square of its length: about a second for a 150-post series. The theme is built and
@@ -594,7 +597,7 @@ else can stay at `default-src 'none'`.
 
 | Directive | Value | Why |
 |---|---|---|
-| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `hero.js`, `search.js`, `comments.js`, `analytics.js`); there is nothing to hash. |
+| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `hero.js`, `search.js`, `comments.js`, `analytics.js`) and, on page 2 and later of a rotating hero's pager, its pool file (`/hero/pool-<key>.<hash>.js`); all are files on the site, with nothing inline to hash. |
 | `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
 | `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element. `hero.js` sets CSS custom properties on the hero from the script (`element.style.setProperty`), which a CSP does not restrict, so the rotating hero needs nothing more. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too, the rotating hero's photos included (SmugMug: below). |

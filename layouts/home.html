@@ -15,8 +15,18 @@
 {{- $pool := partial "hero-pool.html" (dict "page" $ "pages" (where site.RegularPages "Section" "in" site.MainSections) "h" 246) -}}
 {{- with $pool.src }}{{ $src = . }}{{ end -}}
 {{- $.Store.Set "hasHeroPool" (ne $pool.data "") -}}
+{{- /* Page 2 and later of the wall (#364): the pool comes from a script file, one for all the pager pages, and the hero carries its key; page 1 and a page with no pager keep the attribute. */ -}}
+{{- $pn := 1 }}{{ with $.Store.Get "wall" }}{{ with .pag }}{{ $pn = .PageNumber }}{{ end }}{{ end -}}
+{{- $poolAttr := "" -}}
+{{- if and $pool.data (gt $pn 1) -}}
+  {{- $f := partial "hero-pool-file.html" (dict "page" $ "data" $pool.data) -}}
+  {{- $.Store.Set "heroPoolTag" $f.tag -}}
+  {{- $poolAttr = printf ` data-pool-key="%s"` $f.key -}}
+{{- else if $pool.data -}}
+  {{- $poolAttr = printf ` data-pool="%s"` $pool.data -}}
+{{- end -}}
 {{- $hero := partial "hero-style.html" (dict "page" $ "src" $src "h" 246) -}}
-<header class="hero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}{{ with $pool.data }} data-pool="{{ . }}"{{ end }}>
+<header class="hero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}{{ $poolAttr | safeHTMLAttr }}>
   <p class="k">{{ site.Title }}</p>
   <h1>{{ with $head }}{{ . }} {{ end }}{{ if $core }}<span class="u">{{ $core }}<svg viewBox="0 0 60 8" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M1 5 C6 0 11 0 15 4 S25 8 30 4 S42 0 46 4 S55 7 59 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></span>{{ $punct }}{{ else }}{{ $last }}{{ end }}</h1>
   {{ with $tagline }}<p class="sub">{{ . }}</p>{{ end }}
