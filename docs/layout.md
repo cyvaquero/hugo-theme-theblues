@@ -136,10 +136,11 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
 - **Pan (#385).** `.hr` is the scrim (`::after`, above) over `.hp`, the photo, and clips it (`overflow: hidden`). Where `cover` would crop
   the photo vertically (the hero's box is wider than the photo's ratio), the script makes `.hp` as high as `cover` would draw the
   photo (the box's width times the photo's height over its width, from the size the image loaded at) and runs a Web Animations
-  `translateY` on it from `-crop/6` to `-5*crop/6` px, `linear`, `SHOW` long, where `crop` is that height minus the box's. A transform
+  `translateY` on it from `-crop/6` to `-5*crop/6` px (the build's photo, when the random start picks it, from `-crop/2`, where the hero's own
+  background draws it, so it doesn't move while it fades in over that background, #388), `linear`, `SHOW` long, where `crop` is that height minus the box's. A transform
   on a layer the browser has already rasterized runs on the compositor: a 3 s trace of the home hero on a desktop-size window
   showed 0 paint events with the pan, against 364 (the whole hero, twice per frame) for the same movement written as
-  `background-position-y`. The animation is made paused at progress 0 when the layer is prepared (the photo is at 1/6 while it
+  `background-position-y`. The animation is made paused at progress 0 when the layer is prepared (the photo is at its start, 1/6 or 1/2, while it
   fades in) and `syncAnim()` plays it only while `running()` is true (not paused, tab visible, no reduced motion) and no fade
   is in progress, so pause, a hidden tab and reduced motion hold it where it is, and `begin()` times the next fetch and fade from
   the animation's remaining time, so the pan and the fade end together after a pause. A `ResizeObserver` on the hero draws the
