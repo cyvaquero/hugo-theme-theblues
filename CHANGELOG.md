@@ -3,6 +3,14 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.12] - 2026-10-19
+
+### Fixed
+- `docs/testing.md` gives the hero pool entries with the eight size names the build writes, not six. The browser check
+  `hero-bad-pool` now gives its unknown-size token eight names too, so it is turned away by the unknown-name rule it is
+  there to test, not by its name count; with that rule taken out of `hero.js`, the check now fails. Theme files are
+  unchanged (#396).
+
 ## [1.8.11] - 2026-10-19
 
 ### Fixed
