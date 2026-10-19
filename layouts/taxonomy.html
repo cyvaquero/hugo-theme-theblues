@@ -26,7 +26,7 @@
     {{- range where $terms "letter" $letter }}
     {{- $n := .n }}
     {{- $name := .term.Page.Title }}
-    <li><a href="{{ .term.Page.RelPermalink }}" aria-label="{{ $name }}, {{ (or (T "postCount" $n) (partial "t.html" (slice "postCount" $n))) }}"><span class="nm">{{ if $isTag }}#{{ end }}{{ $name }}</span><span class="c">{{ (or (T "postCount" $n) (partial "t-en.html" (slice "postCount" $n))) }}</span></a></li>
+    <li><a href="{{ .term.Page.RelPermalink }}"><span class="nm">{{ if $isTag }}#{{ end }}{{ $name }}</span><span class="c">{{ (or (T "postCount" $n) (partial "t-en.html" (slice "postCount" $n))) }}</span></a></li>
     {{- end }}{{ if eq (add $i 1) (len $letters) }}
   {{ end }}</ul>
   {{- end }}

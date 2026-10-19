@@ -3,6 +3,40 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.11] - 2026-10-19
+
+### Fixed
+- The rotating hero's pan and photos follow the window and the network better. A hero that was not cropped vertically when its photo
+  loaded (a 320px window) and becomes cropped later (widened to 1280px) now gets its pan; before it never moved. A resize while a photo
+  fades in no longer leaves the incoming photo at the old size and pan for its whole interval: it is drawn again when the fade ends.
+  After the rotation ends because photos fail, a resize, a hidden or visible tab or the reduced-motion setting no longer start the
+  pan again with no button to stop it (WCAG 2.2.2). A photo that neither loads nor fails within 10 seconds counts as failed, so the
+  rotation no longer waits on it. The README and the `hero.js` header now say what a hidden tab does: a panning photo goes on from where
+  it was, and a photo without a pan gets its full time again (#396).
+- On the pager pages of a site with more than one language, each language's home page now loads its own hero pool file. The files were
+  named from the page's path alone, and the home pages of two languages both have the path `/`, so a build without fingerprints
+  (development) wrote one file for both and one language's pager pages rotated through the other's photos. The key and file name now
+  include the language when the site has more than one; a one-language site is unchanged. A rebuild under `hugo server` can no longer print a
+  stale pool script on page 1 of the home page or a term (#396).
+- A long unbreakable site title (a domain-style name) no longer pushes the Menu button off the screen at 320px or runs past the hero's
+  kicker and the footer line: they wrap (WCAG 1.4.10) (#396).
+- In forced colors (Windows high contrast) the scrims over the hero photos keep their colors. Chrome drops a background that is only a
+  gradient, so the rotating hero and a term hero's darker ramp lost their scrim and a light photo showed at full brightness behind the text.
+  The text keeps the system colors (WCAG 1.4.3, 1.4.11) (#396).
+- A Markdown table in a page body is in a labeled, focusable region (name "Table", from the new `tableRegion` entry of `i18n/en.toml`)
+  that scrolls it sideways, so a keyboard user can scroll a wide table in every browser, not only in Chrome and Firefox (WCAG 2.1.1). An
+  indented code block stays a plain `<pre>`, which Hugo gives no hook for; the README lists it under "Known limits" (#396).
+- Accessible names: the home heading is "Testing the blues." with no space before the period (the slogan's underlined word is an inline
+  box; its wavy underline is where it was, to within a pixel); the 404 page's heading is "404 Page not found" (the added text is visually
+  hidden, since the line under it shows it); the links of the tag, category and series indexes are named by their visible text, "#Fixtures 11
+  posts", which includes the "#" (WCAG 1.3.1, 2.4.6, 2.5.3, 4.1.2) (#396).
+- Pressing Enter in an empty search field says "Enter a search term." in the status line (the new `searchEmpty` entry of `i18n/en.toml`;
+  a site that translates the theme adds it) (WCAG 3.3.1, 4.1.3) (#396).
+- Fixture and checks: the `long-title` variant, a wide table and an indented code block in the About page and the `/q&a/` section, and two older German
+  articles in the `multilingual` variant (so the German home page has a page 2) cover these cases. Ten browser checks are new
+  (`hero-relayout`, `hero-relayout-fade`, `hero-pan-finished`, `hero-load-limit`, `hero-pool-lang`, `a11y-heading-names`, `search-empty`,
+  `layout-long-title`, `tables-scroll`, `forced-colors-scrim`), 55 in all, and `docs/testing.md` lists them (#396).
+
 ## [1.8.9] - 2026-10-19
 
 ### Security

@@ -1,0 +1,47 @@
+{{- /*
+  Markdown tables, as Hugo's own hook writes them (GitHub Flavored Markdown: a header row, a body, a cell's alignment as a
+  text-align style, and the table's Markdown attributes), inside a region that scrolls a wide table sideways. The region is
+  focusable (tabindex="0") and named, so a keyboard user can scroll it in every browser: only Chrome and Firefox make a
+  scrolling box focusable by themselves (WCAG 2.1.1). The name is the theme's text "Table" (a Markdown table has no caption);
+  as an attribute value it cannot carry lang="en" (t-en.html), so it stays plain text. HTML tables written into a page
+  (with markup.goldmark.renderer.unsafe) don't pass through here. The wrapper's rules are .tw in main.css.
+*/ -}}
+<div class="tw" role="region" tabindex="0" aria-label="{{ (or (T "tableRegion") (partial "t.html" "tableRegion")) }}">
+<table
+  {{- range $k, $v := .Attributes }}
+    {{- if $v }}
+      {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+    {{- end }}
+  {{- end }}>
+  <thead>
+    {{- range .THead }}
+      <tr>
+        {{- range . }}
+          <th
+            {{- with .Alignment }}
+              {{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
+            {{- end -}}
+          >
+            {{- .Text -}}
+          </th>
+        {{- end }}
+      </tr>
+    {{- end }}
+  </thead>
+  <tbody>
+    {{- range .TBody }}
+      <tr>
+        {{- range . }}
+          <td
+            {{- with .Alignment }}
+              {{- printf " style=%q" (printf "text-align: %s" .) | safeHTMLAttr }}
+            {{- end -}}
+          >
+            {{- .Text -}}
+          </td>
+        {{- end }}
+      </tr>
+    {{- end }}
+  </tbody>
+</table>
+</div>

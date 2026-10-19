@@ -18,11 +18,16 @@
 // painted instead of painting the photo again each frame; the scrim (.hr::after) never moves. The layer's photo is made as high
 // as `cover` would draw it and slid up, so the hero looks the same as the CSS background would at that point. The pan is
 // paused with the rotation (the pause button, a hidden tab, reduced motion) and goes on from where it was, and the timers
-// follow its progress. A photo that is cropped only left and right does not move.
+// follow its progress. A photo that is cropped only left and right does not move. When the hero changes size (a resize, a
+// rotated phone) the pan is drawn again from the same point, also when the photo had none before, and also for a photo that
+// was fading in when the size changed (relayout()).
 // A visitor who prefers reduced motion gets the build's photo and no timer, no fade and no button. The setting is read
 // through settle(), which applies a change once whether or not the browser delivers the `change` event (#384). Everyone else gets a
 // pause/play button (WCAG 2.2.2), made here so a page without script has none. A paused rotation stays paused for the
-// page view; a hidden tab pauses it too and starts the current photo's time again when the tab comes back.
+// page view; a hidden tab pauses it too, and when the tab comes back a panning photo goes on from where it was, while a photo
+// without a pan (the hero is not cropped vertically) gets its full time again. A rotation that has ended, because fewer than
+// two photos can be shown, keeps its photo and its pan paused for good (the button is gone), whatever the window does.
+// A photo that neither loads nor fails within 10 seconds counts as failed.
 // The text it shows is the site's language and the interval is the site's setting, both filled in when Hugo builds this
 // file (asset.html, js-text.html).
 {{- /* The raw value is checked, before any default: 0, nan and inf are not "unset". 2147483 s is the longest that fits a timer (2^31-1 ms). */ -}}
@@ -122,7 +127,9 @@
   var fading = false;
   var paused = false;          // the visitor's choice, for the page view
   var gen = 0;                 // changes when pending work must be forgotten
+  var finished = false;        // the rotation has ended (fewer than two photos can be shown): the photo stays, its pan paused
   var loadTimer = 0, showTimer = 0;
+  var LOAD_LIMIT = 10000;      // ms a photo may take to load or fail before it counts as failed
 
   function label() {
     var text = paused ? TX.play : TX.pause;
@@ -148,11 +155,20 @@
     return hero.style.getPropertyValue('--hi').indexOf(p.full) >= 0;
   }
 
+  // Calls done(true, size) once the photo has loaded and decoded, or done(false) once it fails or has not done either within
+  // LOAD_LIMIT (a request that hangs would otherwise stall the rotation on the photo showing until the browser gave up).
   function load(p, done) {
-    var img = new Image(), url = chosen(p);
-    function ok() { done(true, { w: img.naturalWidth, h: img.naturalHeight }); }
+    var img = new Image(), url = chosen(p), over = false, limit = setTimeout(function () { end(false); }, LOAD_LIMIT);
+    function end(good) {
+      if (over) return;
+      over = true;
+      clearTimeout(limit);
+      img.onload = img.onerror = null;
+      if (good) done(true, { w: img.naturalWidth, h: img.naturalHeight }); else done(false);
+    }
+    function ok() { end(true); }
     img.onload = function () { if (img.decode) img.decode().then(ok, ok); else ok(); };
-    img.onerror = function () { done(false); };
+    img.onerror = function () { end(false); };
     img.src = url;
   }
 
@@ -187,16 +203,18 @@
   // Plays the pan while the rotation runs, holds it where it is otherwise.
   function syncAnim() {
     if (!anim) return;
-    if (running() && !fading && anim.currentTime < SHOW) anim.play(); else anim.pause();
+    if (running() && !finished && !fading && anim.currentTime < SHOW) anim.play(); else anim.pause();
   }
 
-  // The photo's size changed with the hero's box: draw the pan again from the same point.
+  // The photo's size changed with the hero's box: draw the pan again from the same point. This also makes the pan of a photo that
+  // had none (the hero was not cropped, and now is), which then has its full time from now. A change during a fade is drawn when
+  // the fade ends, since the incoming photo is not `top` yet.
   function relayout() {
-    if (!top || !anim || fading) return;
-    var at = Math.min(1, anim.currentTime / SHOW);
-    anim.cancel();
+    if (!top || fading) return;
+    var had = !!anim, at = had ? Math.min(1, anim.currentTime / SHOW) : 0;
+    if (had) anim.cancel();
     anim = makePan(top, topDims, at, topFrom);
-    syncAnim();
+    if (anim && !had) begin(); else syncAnim();
   }
   if (window.ResizeObserver) new ResizeObserver(relayout).observe(hero); else window.addEventListener('resize', relayout);
 
@@ -204,7 +222,7 @@
   function begin() {
     clear();
     syncAnim();
-    if (!running() || fading) return;
+    if (finished || !running() || fading) return;
     if (cur < 0) { showTimer = setTimeout(advance, 0); return; }
     var left = anim ? Math.max(0, SHOW - anim.currentTime) : SHOW;   // a photo that was paused has the rest of its time
     loadTimer = setTimeout(prepare, Math.max(0, left - LEAD));
@@ -262,6 +280,7 @@
       if (anim) anim.cancel();
       top = layer; anim = pan; topDims = dims; topFrom = from;
       fading = false; cur = idx;
+      relayout();   // the hero may have changed size during the fade
       begin();
     }, FADE + 100);
   }
@@ -281,6 +300,7 @@
 
   // Fewer than two photos can be shown: no rotation, no button.
   function finish() {
+    finished = true;
     clear();
     if (anim) anim.pause();   // moving content needs a way to stop it (WCAG 2.2.2), and the button is going away
     hideButton();
