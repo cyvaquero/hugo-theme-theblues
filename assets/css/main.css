@@ -214,7 +214,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .phero .feed { color: var(--bt); }
 .phero .feed:hover { color: var(--hv); }
 .thero .ptype { display: flex; }
-/* Hero sizes (#149): on a SmugMug photo the hero also gets --hi1 to --hi6, a smaller size for each of these viewport
+/* Hero sizes (#149): on a SmugMug photo the hero also gets --hi1 to --hi8, a smaller size (or, on the last three tiers, X4 for an X3 photo, #362) for each of these viewport
    tiers (layouts/_partials/hero-sizes.html, which works them out, and whose preload links use the same media queries).
    A tier the page doesn't set leaves --hs invalid, so the hero falls back to --hi. */
 @media (resolution <= 1dppx) and (width <= 480px) { .hero, .phero, .hr { --hs: var(--hi1); } }
@@ -223,12 +223,14 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 @media (1dppx < resolution <= 2dppx) and (width <= 640px) { .hero, .phero, .hr { --hs: var(--hi4); } }
 @media (resolution <= 1dppx) and (1280px < width <= 1600px) { .hero, .phero, .hr { --hs: var(--hi5); } }
 @media (2dppx < resolution <= 3dppx) and (width <= 427px) { .hero, .phero, .hr { --hs: var(--hi6); } }
+@media (2dppx < resolution <= 3dppx) and (427px < width <= 533px) { .hero, .phero, .hr { --hs: var(--hi7); } }
+@media (3dppx < resolution <= 4dppx) and (width <= 400px) { .hero, .phero, .hr { --hs: var(--hi8); } }
 
 /* Rotating hero (#356, assets/js/hero.js): the script adds .rot to a hero that has a pool of photos and puts the layer .hr
    in it, first. The layer holds the same scrim (--sc) and the next photo, so it covers the hero's own background while
    the text and links, which paint above it (z-index -1 inside the hero's own stacking context), keep the contrast the
-   scrim gives. It gets its own --hi and --hi1 to --hi6 from the script and the tier rules above; the script sets
-   --hi1 to --hi6 to "initial" for a tier with no smaller size, since they would be inherited from the hero. The fade
+   scrim gives. It gets its own --hi and --hi1 to --hi8 from the script and the tier rules above; the script sets
+   --hi1 to --hi8 to "initial" for a tier with no smaller size, since they would be inherited from the hero. The fade
    is the 1.5s in hero.js (FADE) and only runs where motion is allowed; hero.js does nothing for a visitor who asks
    for less. The pause/play button (.hpp) is in the top corner, on its own dark disc, so its cream icon and ring keep
    their contrast over any photo. Its focus ring is two-tone: a dark halo (the scrim color, 2px, in the outline's offset)

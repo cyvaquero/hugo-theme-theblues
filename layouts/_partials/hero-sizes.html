@@ -8,18 +8,26 @@
   that wraps, at a narrow viewport or because it is long, makes the box taller, and no h bounds that, so such a box can show a
   tier's size up to a few percent enlarged). Returns dict "src", "vars" (extra
   declarations for the hero's style attribute, ";--hi1:url(…)" and so on) and "links" (slice of dict "href" "media"
-  for the preload) and "names" (slice of the size name each of the six tiers uses, "" for a tier that keeps the src size, for the
+  for the preload) and "names" (slice of the size name each of the eight tiers uses, "" for a tier that keeps the src size, for the
   rotating hero's script, #356), or an empty dict for any other URL, or when the size can't be read (offline build): the hero then
   keeps its one URL, as before.
   Tiers, the same as in main.css (section 4), by viewport width and pixel ratio:
     1: one-x, up to 480px     2: one-x, 481 to 800px     3: one-x, 801 to 1280px
     4: over one-x up to two-x, up to 640px                 5: one-x, 1281 to 1600px
     6: over two-x up to three-x, up to 427px
-  Wider or denser screens use the src size. Tier 6 stops at 427px because the widest size below an X3 src, X2, has a
+    7: over two-x up to three-x, 428 to 533px           8: over three-x up to four-x, up to 400px
+  Tiers 7 and 8 exist only for an X3 src (#362): see below. Wider or denser screens use the src size. Tier 6 stops at 427px because the widest size below an X3 src, X2, has a
   1280px long edge: 427 × 3 = 1281 is the widest viewport it covers (1px allowed), so a 428 or 430px phone (an iPhone
   Plus or Pro Max) keeps the src size. It stops at three-x because a denser screen would need more pixels than X2 has
   at the same width. A tall box can rule X2 out too: the 416px .phero needs 1248px of height at three-x and X2 is 960px
-  high, so only the 246px .hero (738px) gets a size at tier 6, and only a src larger than X3 can offer X3. For each tier, the hero gets the smallest of SmugMug's M, L, XL, X2 and X3
+  high, so only the 246px .hero (738px) gets a size at tier 6, and only a src larger than X3 can offer X3.
+  An X3 src is the largest the hero has, and above two-x it can fall short of one photo pixel per device pixel (#362): the
+  416px .phero needs 1248px of height at three-x and a landscape X3 is 1067px high (900 at 16:9). So on tiers 6 to 8, the
+  screens over two-x, an X3 src that does not cover the box at the tier's widest viewport and highest pixel ratio (tier 7 at
+  533px × 3 and tier 8 at 400px × 4: a 1600px-wide X3 covers both widths, so the height decides) is replaced by X4 (a 2047px
+  long edge), when the photo has one (its pixels are read like X3's; a photo too small for an X4 keeps X3, as one that
+  can't be read does). X4 can still fall short on a box this tall at four-x, but it is closer than X3. Like every tier, it
+  is chosen by the tier's highest ratio, so a screen at 2.5 to 3-x gets X4 where only 3-x needs it. For each smaller tier, the hero gets the smallest of SmugMug's M, L, XL, X2 and X3
   that is smaller than src and still covers the box at the tier's widest viewport and highest pixel ratio
   (background-size: cover needs the photo at least as wide as the viewport and as tall as the box, in device pixels; 1px
   is allowed for SmugMug's rounding, 1279 for 1280), so it is never shown at less than one photo pixel per device pixel.
@@ -37,10 +45,10 @@
 {{- if and $m (eq (index $m 0 1) (index $m 0 2)) -}}
   {{- $cur := index $m 0 1 -}}
   {{- $rank := 0 }}{{ range $i, $n := $names }}{{ if eq $n $cur }}{{ $rank = $i }}{{ end }}{{ end -}}
-  {{- /* Pixels of the X2 size, and of X3 for an X4 or X5 hero (X3's can't be worked out from X2's). Read like
-    img-size.html, but a failure of any kind is silent: the hero just keeps its one URL. */ -}}
+  {{- /* Pixels of the X2 size, of X3 for an X4 or X5 hero (X3's can't be worked out from X2's), and of X3 and X4 for an
+    X3 hero (#362). Read like img-size.html, but a failure of any kind is silent: the hero just keeps its one URL. */ -}}
   {{- $px := dict -}}
-  {{- range $n := cond (gt $rank 4) (slice "X2" "X3") (slice "X2") -}}
+  {{- range $n := cond (gt $rank 4) (slice "X2" "X3") (cond (eq $rank 4) (slice "X2" "X3" "X4") (slice "X2")) -}}
     {{- $r := partial "remote-photo.html" (partial "smug-size.html" (dict "src" $.src "from" $cur "to" $n)) -}}
     {{- if and (not $r.Err) $r.Value -}}{{- with $r.Value -}}{{- if reflect.IsImageResourceWithMeta . -}}
       {{- $w := try .Width }}{{ $h := try .Height -}}
@@ -63,6 +71,8 @@
       (dict "w" 640 "d" 2 "media" "(1dppx < resolution <= 2dppx) and (width <= 640px)")
       (dict "w" 1600 "d" 1 "media" "(resolution <= 1dppx) and (1280px < width <= 1600px)")
       (dict "w" 427 "d" 3 "media" "(2dppx < resolution <= 3dppx) and (width <= 427px)")
+      (dict "w" 533 "d" 3 "media" "(2dppx < resolution <= 3dppx) and (427px < width <= 533px)")
+      (dict "w" 400 "d" 4 "media" "(3dppx < resolution <= 4dppx) and (width <= 400px)")
     -}}
     {{- $vars := "" -}}
     {{- $urls := slice -}}
@@ -73,6 +83,10 @@
         {{- if and (eq $u $.src) (ge (add $c.w 1) (mul $t.w $t.d)) (ge (add $c.h 1) (mul $.h $t.d)) -}}
           {{- $u = partial "smug-size.html" (dict "src" $.src "from" $cur "to" $c.n) -}}{{- $nm = $c.n -}}
         {{- end -}}
+      {{- end -}}
+      {{- /* An X3 src is bumped to X4 over two-x when it falls short (#362). */ -}}
+      {{- if and (eq $u $.src) (eq $rank 4) (gt $t.d 2) $px.x3 $px.x4 (or (lt (add $px.x3.w 1) (mul $t.w $t.d)) (lt (add $px.x3.h 1) (mul $.h $t.d))) -}}
+        {{- $u = partial "smug-size.html" (dict "src" $.src "from" $cur "to" "X4") -}}{{- $nm = "X4" -}}
       {{- end -}}
       {{- $tierNames = $tierNames | append (cond (ne $u $.src) $nm "") -}}
       {{- if ne $u $.src }}{{ $vars = printf "%s;--hi%d:url(%s)" $vars (add $i 1) $u }}{{ end -}}
@@ -85,7 +99,7 @@
       {{- range $u := ($urls | append $.src | uniq) -}}
         {{- $media := slice -}}
         {{- range $i, $t := $tiers }}{{ if eq (index $urls $i) $u }}{{ $media = $media | append $t.media }}{{ end }}{{ end -}}
-        {{- if eq $u $.src }}{{ $media = $media | append "(resolution > 3dppx)" "(2dppx < resolution <= 3dppx) and (width > 427px)" "(resolution > 1dppx) and (width > 640px)" "(width > 1600px)" }}{{ end -}}
+        {{- if eq $u $.src }}{{ $media = $media | append "(resolution > 4dppx)" "(3dppx < resolution <= 4dppx) and (width > 400px)" "(2dppx < resolution <= 3dppx) and (width > 533px)" "(resolution > 1dppx) and (width > 640px)" "(width > 1600px)" }}{{ end -}}
         {{- $links = $links | append (dict "href" $u "media" (delimit $media ", ")) -}}
       {{- end -}}
       {{- $out = dict "src" $.src "vars" . "links" $links "names" $tierNames -}}

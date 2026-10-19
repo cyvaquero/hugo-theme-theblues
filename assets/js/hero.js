@@ -8,7 +8,7 @@
 // decoded, so the hero never shows an empty box.
 // The fade is a second layer (.hr) over the hero, holding the same scrim and the next photo; when it is done the hero
 // itself takes the photo and the layer is hidden again. The photo's sizes are chosen by main.css exactly as for the first
-// photo: the layer and the hero get --hi and --hi1 to --hi6 (hero-sizes.html's tiers), and the script reads the URL the
+// photo: the layer and the hero get --hi and --hi1 to --hi8 (hero-sizes.html's tiers), and the script reads the URL the
 // browser's media queries picked (--hs) to load it. Photos stay CSS backgrounds: the layer is aria-hidden and nothing is
 // announced.
 // A visitor who prefers reduced motion gets the build's photo and no timer, no fade and no button. Everyone else gets a
@@ -36,9 +36,9 @@
   var NAME_RE = /^(M|L|XL|X2|X3|X4|X5)?$/, SIZES = /^(M|L|XL|X2|X3|X4|X5)$/;
   var ORIGIN = 'https://photos.smugmug.com/';
 
-  // data-pool: tokens separated by spaces, each "path" or "path|M,L,XL,M,XL,X2" (the size name of each of the six tiers, empty
+  // data-pool: tokens separated by spaces, each "path" or "path|M,L,XL,M,XL,X2,,X4" (the size name of each of the eight tiers, empty
   // where the full size is used). Anything that doesn't look like what hero-pool.html writes is ignored: a token over 512
-  // characters, a path that isn't "directory/SIZE/stem-SIZE.ext" with the same size twice, or size names that aren't six
+  // characters, a path that isn't "directory/SIZE/stem-SIZE.ext" with the same size twice, or size names that aren't eight
   // known ones. The path is split on "/" rather than matched with one pattern, so a long path can't make it backtrack.
   var pool = [];
   (hero.getAttribute('data-pool') || '').split(' ').forEach(function (tok) {
@@ -48,7 +48,7 @@
     var segs = path.split('/'), m = FILE_RE.exec(segs.pop() || ''), size = segs.pop(), dir = segs.join('/');
     if (!m || !dir || !SIZES.test(size || '') || m[2] !== size) return;
     var names = part.length > 1 ? part[1].split(',') : [];
-    if (part.length > 1 && names.length !== 6) return;
+    if (part.length > 1 && names.length !== 8) return;
     for (var k = 0; k < names.length; k++) if (!NAME_RE.test(names[k])) return;
     pool.push({ full: ORIGIN + path, base: ORIGIN + dir, stem: m[1], ext: m[3], names: names });
   });
@@ -63,7 +63,7 @@
   // Sets a photo's custom properties on an element, the way the hero's style attribute does for the first photo.
   function paint(node, p) {
     node.style.setProperty('--hi', 'url("' + p.full + '")');
-    for (var k = 0; k < 6; k++) {
+    for (var k = 0; k < 8; k++) {
       var n = p.names[k];
       node.style.setProperty('--hi' + (k + 1), n ? 'url("' + p.base + '/' + n + '/' + p.stem + '-' + n + '.' + p.ext + '")' : 'initial');
     }

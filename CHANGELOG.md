@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.3] - 2026-10-18
+
+### Fixed
+- A photo-post or term hero (416px tall) no longer shows its X3 photo enlarged on a phone over two-x: at three-x it needs 1248px of
+  height and an X3 landscape photo is 1067px high (900 at 16:9), about 0.86 photo pixels per device pixel on a 390px phone at
+  three-x. Over two-x (up to three-x from 428 to 533px wide, and up to four-x up to 400px wide, besides the existing three-x
+  tier up to 427px) an X3 hero whose box X3 doesn't cover is served as X4 (a 2047px long edge), when the photo has an X4;
+  on the fixture's photos, that is 0.86 to 1.09 photo pixels per device pixel at 390px and three-x, for 0.5MB more (1.01MB
+  against 1.53MB). Every other screen keeps its size, and a hero whose X3 covers the box (the home hero) keeps X3. The hero
+  gets two more size tiers, `--hi7` and `--hi8`, and the rotating hero's `data-pool` entries list eight size names instead of
+  six (#362).
+
 ## [1.8.1] - 2026-10-16
 
 ### Fixed

@@ -311,7 +311,8 @@ A site can add its own page types without overriding theme files:
   fills the `main` block, and can replace the default hero by defining the `header` block. The nav, footer, stylesheet
   and menu script still come from the theme. The theme's heroes (home, About-style, 404, posts, and tag, category and
   series pages) preload their photo from `<head>` (`<link rel="preload" as="image" fetchpriority="high">`, one per
-  hero size with its `media` query when the hero has smaller SmugMug sizes). A `header` block of the site's own gets no preload unless
+  hero size with its `media` query when the hero has smaller SmugMug sizes, or an X4 size on a phone or tablet over
+  two-x, where an X3 photo would be shown enlarged, such as the 416px-tall photo-post and term hero at three-x). A `header` block of the site's own gets no preload unless
   it records its photo's URL with `{{ .Store.Set "theblues-hero" $url }}`. The theme's heroes all set
   theirs up through `layouts/_partials/hero-style.html`.
 - **`<head>`:** `layouts/_partials/head-end.html` is empty and is included last in `<head>`. A site's own
