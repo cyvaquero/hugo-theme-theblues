@@ -3,6 +3,13 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.8.9] - 2026-10-19
+
+### Security
+- A feed's `<atom:link rel="self">` escapes its address for XML. A page whose front matter `url` holds an `&` (a section
+  at `/q&a/`) had a feed that wasn't well-formed XML, so feed readers rejected it; the address was written with Go string
+  quoting instead. Every other feed is unchanged. The fixture has such a section (#395).
+
 ## [1.8.8] - 2026-10-19
 
 ### Fixed

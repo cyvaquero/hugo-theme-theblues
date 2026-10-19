@@ -3,7 +3,7 @@
 `exampleSite/` is a small fixture site whose content exercises the cases the guyheckman.me content doesn't: an untitled
 post, an undated post, a gallery with commented-out photos, a positional `gallery` call and an untitled photo, a
 `{{% galleries %}}` block, the `embed` shortcode, Markdown links and images (including a dropped `javascript:` link),
-a series (and a post in two series, whose series boxes hold two feed links that differ in their accessible names), a code block with line numbers, a post whose headings are all below the TOC levels, a post whose heading holds an external link, with the table of contents on (its names must not include "(opens in a new tab)"; the link's description must), the same post's links with Markdown titles (an external one, whose `title` and description are "Hugo & friends (opens in a new tab)" with no `aria-describedby`, and an internal one, whose title is its description; the feeds' copies of the post's links carry no `aria-describedby`), a page without a title, an article with an inline
+a series (and a post in two series, whose series boxes hold two feed links that differ in their accessible names), a code block with line numbers, a post whose headings are all below the TOC levels, a post whose heading holds an external link, with the table of contents on (its names must not include "(opens in a new tab)"; the link's description must), the same post's links with Markdown titles (an external one, whose `title` and description are "Hugo & friends (opens in a new tab)" with no `aria-describedby`, and an internal one, whose title is its description; the feeds' copies of the post's links carry no `aria-describedby`), a section whose address has an `&` (`/q&a/`), a page without a title, an article with an inline
 `gallery`, the legacy `params.addtional_menus` nav, a footer menu, wall pagination past page 1 (`tilesPerPage = 4`), a local header image (`static/img/head.jpg`), and gallery and
 hero photos on `photos.smugmug.com`, which make the build read each photo's size and write `width`/`height`, `srcset`,
 the hero's smaller sizes and its preload (they need a network the first time; Hugo then keeps them in its cache, and
@@ -264,7 +264,9 @@ terms used only by root pages (`/tags/münster/`, `/tags/crème-brûlée/`, `/ta
 "Subscribe via RSS" link in their header (their wall is empty too) and no `<link rel="alternate" type="application/rss+xml">` in their `<head>`
 (both ask `_partials/feed-has-items.html`; #350), while `/tags/fixtures/` keeps its link in both; a section's feed (`/post/index.xml`) is unchanged. In the accessibility tree
 of `/post/20260106-untitled/` the two feed links in the series boxes are named "Subscribe via RSS : Fixture Series" and "Subscribe via RSS :
-Second Fixture Series" (a link name starts with its visible text), and the term pages' links stay "Subscribe via RSS".
+Second Fixture Series" (a link name starts with its visible text), and the term pages' links stay "Subscribe via RSS". The section "Questions & answers"
+(`content/notes/`, `url: "/q&a/"`, #395) has a feed whose `<atom:link rel="self">` reads `href="https://example.org/q&amp;a/index.xml"`, and
+`xmllint --noout "<out>/base/q&a/index.xml"` passes.
 
 Links to another origin (#322): on the fixture's About page the link to `https://example.org:443/about/` is internal and the one to
 `https://example.org:8443/` has `target="_blank"` and `aria-describedby="tb-newtab"`. The fixture can't hold the other base URLs, so
