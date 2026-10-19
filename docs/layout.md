@@ -127,7 +127,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   after the fade hides the other layer and writes the same custom properties on the hero (its own background, which print and no layer use); if it isn't ready it waits for it. A layer is never hidden to hand the photo to the hero, so there is no handover to jump at. A photo that
   fails is replaced by one of the pool not yet tried (the pool beyond the five is kept in random order for that); the five shrink only
   when none is left, and the rotation ends (no button) when fewer than two photos remain. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
-  changes while the page is open) clear the timers and the pending load, and pause the pan; a fade in progress is allowed to finish, and the pan of the new photo starts when it has. Hiding the button (reduced motion, or fewer than
+  changes while the page is open: `settle()` applies a change once, from the `change` listener or from the first `running()` that reads it, since Chrome may never deliver the event to a script that reads `matches` first) clear the timers and the pending load, and pause the pan; a fade in progress is allowed to finish, and the pan of the new photo starts when it has. Hiding the button (reduced motion, or fewer than
   two photos left) while it has focus first moves focus to `<main>`, the skip link's target, so focus isn't dropped to `<body>`.
 - **Styles.** `.hero` and `.phero` keep their scrim in `--sc`, and `.hr` paints the same scrim over the next photo, so the layer
   covers the hero's own background but sits under its text (`z-index: -1` in the hero's own stacking context, `isolation:

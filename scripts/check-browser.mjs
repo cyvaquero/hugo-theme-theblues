@@ -492,17 +492,33 @@ check('hero-reduced-motion', 'With reduced motion: no button, no layer, no rotat
   assert(!p.requests.filter(isPhotoReq).some((r) => r.url.includes('i-8Nr9Vp5')), 'the other photo was requested');
   await p.setMedia({ 'prefers-reduced-motion': 'no-preference' });
   await p.waitForEval(`(() => { const b = document.querySelector('.hpp'); return b && !b.hidden; })()`, { what: 'the button to appear when reduced motion is switched off' });
-  await heroSequence(p, 3);
   // Chrome reports a media query change to a script one frame after it happens, and not at all if the script reads
-  // `matches` in between (the hero does when it starts a photo's timers, two frames after the photo changes): so switch
-  // when no timer is about to start or run.
-  await sleep(400);
+  // `matches` in between (the hero does when it starts a photo's timers, two frames after the photo changes). The hero reads the
+  // setting itself wherever it needs it, so switch the moment the photo has changed, with no wait.
+  await heroSequence(p, 2);
   await p.setMedia({ 'prefers-reduced-motion': 'reduce' });
   try {
     await p.waitForEval(`document.querySelector('.hpp').hidden`, { what: 'the button to go when reduced motion is switched on', timeout: 4000 });
   } catch (e) {
     throw new Error(`${e.message} (state: ${JSON.stringify(await p.eval(`[matchMedia('(prefers-reduced-motion: reduce)').matches, document.querySelector('.hpp').hidden, document.querySelector('.hr').hidden]`))})`);
   }
+});
+
+check('hero-reduced-motion-silent', 'When reduced motion is switched on and the page is never told (no change event), the next photo change still hides the button and ends the rotation', async (c) => {
+  // The page's matchMedia answers `matches` from a switch the check flips just before the timer that ends a fade (1.6 s) runs,
+  // and never fires a change event: what Chrome does when the script reads `matches` before the event arrives.
+  const SILENT = `(() => { const real = window.matchMedia.bind(window), Q = '(prefers-reduced-motion: reduce)'; let on = false;
+    window.matchMedia = (s) => { const m = real(s); if (s !== Q) return m; return new Proxy(m, { get: (t, k) => (k === 'matches' ? on : typeof t[k] === 'function' ? t[k].bind(t) : t[k]) }); };
+    window.__silent = { arm: false };
+    const st = window.setTimeout; window.setTimeout = function (f, d, ...a) { if (d === 1600 && window.__silent.arm) { window.__silent.arm = false; const g = f; f = function () { on = true; return g.apply(this, arguments); }; } return st.call(this, f, d, ...a); }; })();`;
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800], init: SILENT });
+  await p.waitForEval(`(() => { const b = document.querySelector('.hpp'); return b && !b.hidden; })()`, { what: 'the pause button' });
+  await p.eval('window.__silent.arm = true');
+  await p.waitForEval(`document.querySelector('.hpp').hidden`, { what: 'the button to go when the setting changed with no event', timeout: 8000 });
+  await sleep(2500); // longer than the scaled interval and a fade: the rotation must have ended
+  const id = await heroId(p);
+  await sleep(2500);
+  eq(await heroId(p), id, 'photo after the rotation should have ended');
 });
 
 check('hero-focus-kept', 'Focus moves to main#main, not body, when the button goes away (reduced motion switched on, or every photo fails)', async (c) => {

@@ -19,7 +19,8 @@
 // as `cover` would draw it and slid up, so the hero looks the same as the CSS background would at that point. The pan is
 // paused with the rotation (the pause button, a hidden tab, reduced motion) and goes on from where it was, and the timers
 // follow its progress. A photo that is cropped only left and right does not move.
-// A visitor who prefers reduced motion gets the build's photo and no timer, no fade and no button. Everyone else gets a
+// A visitor who prefers reduced motion gets the build's photo and no timer, no fade and no button. The setting is read
+// through settle(), which applies a change once whether or not the browser delivers the `change` event (#384). Everyone else gets a
 // pause/play button (WCAG 2.2.2), made here so a page without script has none. A paused rotation stays paused for the
 // page view; a hidden tab pauses it too and starts the current photo's time again when the tab comes back.
 // The text it shows is the site's language and the interval is the site's setting, both filled in when Hugo builds this
@@ -162,7 +163,9 @@
     nextState = 'idle'; waiting = false;
   }
 
-  function running() { return !paused && !document.hidden && !reduce.matches; }
+  // Every read of the reduced-motion setting goes through here, so the page follows the setting even when Chrome does not deliver
+  // the `change` event (it reports a change a frame late, and not at all to a script that reads `matches` in between).
+  function running() { settle(); return !paused && !document.hidden && !reduce.matches; }
 
   // The pan of a photo (#385) in a layer: null when `cover` doesn't crop it vertically (or the browser has no animate()).
   // `at` is how far through the interval it is, 0 to 1; `from` is where in the cropped part it starts (1/6, or 1/2 for the
@@ -233,6 +236,7 @@
 
   function advance() {
     showTimer = 0;
+    if (!running()) return;
     if (nextState === 'ready') go();
     else { waiting = true; prepare(); }
   }
@@ -288,12 +292,19 @@
     begin();
   });
   document.addEventListener('visibilitychange', begin);
-  function motion() {
-    if (reduce.matches || seq.length < 2) hideButton(); else btn.hidden = false;
+  // Applies the setting once per change: hides or shows the button, and starts the timers again (begin() clears them, and starts
+  // none while reduced motion is on). It runs from the `change` listener and from running(), whichever sees the change first;
+  // `applied` is the setting it last applied, so the second one finds nothing to do.
+  var applied = null;
+  function settle() {
+    var now = reduce.matches;
+    if (now === applied) return;
+    applied = now;
+    if (now || seq.length < 2) hideButton(); else btn.hidden = false;
     begin();
   }
-  if (reduce.addEventListener) reduce.addEventListener('change', motion); else if (reduce.addListener) reduce.addListener(motion);
+  if (reduce.addEventListener) reduce.addEventListener('change', settle); else if (reduce.addListener) reduce.addListener(settle);
 
   label();
-  motion();
+  settle();
 })();
