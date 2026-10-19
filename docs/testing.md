@@ -442,6 +442,9 @@ New fixtures, each for a case the fixture did not exercise before:
   centered); the block is four-space indented, so Hugo writes a plain `<pre>` with no `tabindex`. `tables-scroll` finds one `.tw` region per page (`role="region"`,
   `tabindex="0"`, name "Table", scrolling itself, the `<table>` not), reaches it with Tab (a 3px solid `:focus-visible` outline) and scrolls it with ArrowRight. The unhighlighted
   `<pre>` is a documented limit (README, "Known limits"): Hugo has no render hook for indented blocks.
+  An HTML table written into a page doesn't pass through the hook and must still scroll by itself: the fixture can't hold one (it renders no raw HTML), so build a copy
+  with `markup.goldmark.renderer.unsafe = true` and a post with a wide `<table>`; at 320px that table is `display: block` and scrolls inside its
+  box, and the page doesn't scroll sideways.
 - **Two older German articles** (`content-de-pager/`, mounted only by `variants/multilingual.toml`): with the German posts they fill the German home page past `tilesPerPage = 4`, so
   `/page/2/` has a pager and a pool file as `/en/page/2/` has. The two home pages share the path `/`. `hero-pool-lang` finds different `data-pool-key`s on the two, one
   pool file each (the key is in the file name, so the names differ even with fingerprints), and each file setting its own key. By hand, a development build

@@ -477,6 +477,9 @@ dialog.lb button { scroll-margin: 6px; }  /* room for the focus ring when the di
 :is(.abody, .pbody) figcaption:where(:not(.gal *)) { font: .85rem var(--sans); color: var(--muted); text-align: center; margin-top: .4rem; }
 :is(.abody, .pbody) blockquote { margin-inline: 0; padding-inline-start: 1rem; border-inline-start: 4px solid var(--line); color: var(--muted); }
 :is(.abody, .pbody) table { border-collapse: collapse; }
+/* A table the render hook did not wrap (an HTML table written into the page) still scrolls by itself, as before; :where() keeps the
+   specificity of the rule above, so the .highlight table rules below still win. */
+:is(.abody, .pbody) table:where(:not(.tw > table)) { max-width: 100%; display: block; overflow-x: auto; }
 :is(.abody, .pbody) :is(th, td) { border: 1px solid var(--line); padding: .4rem .7rem; }
 :is(.abody, .pbody) code { font-size: .9em; background: var(--code); border-radius: 4px; padding: .05em .3em; }
 :is(.abody, .pbody) pre { background: var(--code); padding: 1rem; overflow: auto; border-radius: 6px; font-size: .85rem; line-height: 1.5; }
@@ -525,7 +528,7 @@ dialog.lb button { scroll-margin: 6px; }  /* room for the focus ring when the di
 .abt2 { max-width: var(--measure); margin: 1.5rem auto 0; padding: 0 1rem; }
 /* Page bodies (.pb) don't get the prose rules; keep wide content inside them (#13). */
 .pb img { height: auto; }
-.pb pre { max-width: 100%; overflow-x: auto; }
+.pb pre, .pb table:where(:not(.tw > table)) { max-width: 100%; overflow-x: auto; }
 
 /* 12 Archive, tag index, About, Search ---------------------------------------------------------------------- */
 .atw { max-width: var(--measure); margin: 0 auto; padding: 2rem 1rem 0; overflow-wrap: break-word; }

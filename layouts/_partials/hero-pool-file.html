@@ -1,7 +1,7 @@
 {{- /*
   The pool of a rotating hero on a pager page (page 2 and later of the home page or a term) as a script file, so the
   pages don't each repeat the pool in their data-pool attribute (#364). Context: a map with "page" (the home page or
-   term page whose hero it is) and "data" (hero-pool.html's data: the tokens separated by spaces). Returns a map with
+  term page whose hero it is) and "data" (hero-pool.html's data: the tokens separated by spaces). Returns a map with
   "key" (a short name for this page's pool, the first 12 characters of the MD5 of its path, and of its language when the site has more than one, only hex digits, for the
   hero's data-pool-key) and "tag" (the <script> tag that loads the file). The file, hero/pool-KEY.js, sets
   window.theblues.pool[KEY] to the data, and goes through the same minify and fingerprint steps as asset.html, with the

@@ -25,6 +25,7 @@ All notable changes to this theme are documented here. The format follows
   The text keeps the system colors (WCAG 1.4.3, 1.4.11) (#396).
 - A Markdown table in a page body is in a labeled, focusable region (name "Table", from the new `tableRegion` entry of `i18n/en.toml`)
   that scrolls it sideways, so a keyboard user can scroll a wide table in every browser, not only in Chrome and Firefox (WCAG 2.1.1). An
+  HTML table written into a page still scrolls by itself, as before. An
   indented code block stays a plain `<pre>`, which Hugo gives no hook for; the README lists it under "Known limits" (#396).
 - Accessible names: the home heading is "Testing the blues." with no space before the period (the slogan's underlined word is an inline
   box; its wavy underline is where it was, to within a pixel); the 404 page's heading is "404 Page not found" (the added text is visually
