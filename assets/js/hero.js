@@ -12,7 +12,9 @@
 // main.css exactly as for the first photo: the layer and the hero get --hi and --hi1 to --hi8 (hero-sizes.html's tiers), and
 // the script reads the URL the browser's media queries picked (--hs) to load it. Nothing is announced.
 // Pan (#385): where `cover` crops the photo vertically, the photo moves while it shows, from 1/6 to 5/6 of the cropped part,
-// linearly over the whole interval. Only .hp moves, by a Web Animations API transform, so the browser moves a layer it already
+// linearly over the whole interval. The one photo that fades in over the same photo in the hero's own background (the pick that is
+// the build's photo) starts at the middle (1/2) instead, where that background draws it, so nothing moves while it fades in (#388).
+// Only .hp moves, by a Web Animations API transform, so the browser moves a layer it already
 // painted instead of painting the photo again each frame; the scrim (.hr::after) never moves. The layer's photo is made as high
 // as `cover` would draw it and slid up, so the hero looks the same as the CSS background would at that point. The pan is
 // paused with the rotation (the pause button, a hidden tab, reduced motion) and goes on from where it was, and the timers
@@ -113,7 +115,7 @@
   hero.appendChild(btn);
 
   var cur = -1;   // index in seq of the photo on screen; -1 while the build's photo shows (the first fade replaces it, as that is what pans)
-  var anim = null, topDims = null, nextDims = null;   // the pan of the photo on screen, its size, and the size of the one being fetched
+  var anim = null, topDims = null, topFrom = 1 / 6, nextDims = null;   // the pan of the photo on screen, its size, and the size of the one being fetched
   var nextIdx = 0, nextState = 'idle';   // the photo being fetched for next: 'idle', 'loading' or 'ready'
   var waiting = false;         // the show timer ran out before the next photo was ready
   var fading = false;
@@ -140,6 +142,11 @@
     return m ? m[1] : p.full;
   }
 
+  // Whether a photo is the one the hero's own background shows (its --hi, set by the page), which is drawn centered.
+  function builds(p) {
+    return hero.style.getPropertyValue('--hi').indexOf(p.full) >= 0;
+  }
+
   function load(p, done) {
     var img = new Image(), url = chosen(p);
     function ok() { done(true, { w: img.naturalWidth, h: img.naturalHeight }); }
@@ -158,8 +165,9 @@
   function running() { return !paused && !document.hidden && !reduce.matches; }
 
   // The pan of a photo (#385) in a layer: null when `cover` doesn't crop it vertically (or the browser has no animate()).
-  // `at` is how far through the interval it is, 0 to 1. The animation is made paused; syncAnim() plays it.
-  function makePan(layer, dims, at) {
+  // `at` is how far through the interval it is, 0 to 1; `from` is where in the cropped part it starts (1/6, or 1/2 for the
+  // photo that fades in over itself, #388). It ends at 5/6. The animation is made paused; syncAnim() plays it.
+  function makePan(layer, dims, at, from) {
     var ph = layer.firstChild;
     ph.style.height = ph.style.transform = '';
     if (!dims || !dims.w || !dims.h || !ph.animate) return null;
@@ -167,7 +175,7 @@
     var high = dims.h * Math.max(box.width / dims.w, box.height / dims.h), crop = high - box.height;   // the photo as cover draws it, and the part it crops
     if (!(crop >= 1)) return null;
     ph.style.height = high + 'px';
-    var a = ph.animate([{ transform: 'translateY(' + (-crop / 6) + 'px)' }, { transform: 'translateY(' + (-crop * 5 / 6) + 'px)' }], { duration: SHOW, easing: 'linear', fill: 'both' });
+    var a = ph.animate([{ transform: 'translateY(' + (-crop * from) + 'px)' }, { transform: 'translateY(' + (-crop * 5 / 6) + 'px)' }], { duration: SHOW, easing: 'linear', fill: 'both' });
     a.pause();
     a.currentTime = at * SHOW;
     return a;
@@ -184,7 +192,7 @@
     if (!top || !anim || fading) return;
     var at = Math.min(1, anim.currentTime / SHOW);
     anim.cancel();
-    anim = makePan(top, topDims, at);
+    anim = makePan(top, topDims, at, topFrom);
     syncAnim();
   }
   if (window.ResizeObserver) new ResizeObserver(relayout).observe(hero); else window.addEventListener('resize', relayout);
@@ -229,14 +237,16 @@
     else { waiting = true; prepare(); }
   }
 
-  // Fades the spare layer in over the one showing (or over the hero's own photo), at the start of its pan (1/6), and when it is
-  // done hides the other one. The pan starts then, so the photo has its whole interval after the fade.
+  // Fades the spare layer in over the one showing (or over the hero's own photo), at the start of its pan (1/6; the middle for the
+  // build's photo over the hero's own background, which draws it there), and when it is done hides the other one. The pan starts
+  // then, so the photo has its whole interval after the fade.
   function go() {
     var p = seq[nextIdx], idx = nextIdx, dims = nextDims, layer = idleLayer();
+    var from = !top && builds(p) ? 1 / 2 : 1 / 6;
     waiting = false; fading = true;
     clearTimeout(loadTimer); clearTimeout(showTimer);
     paint(layer, p);
-    var pan = makePan(layer, dims, 0);
+    var pan = makePan(layer, dims, 0, from);
     if (top) hero.insertBefore(layer, top.nextSibling);
     layer.hidden = false;
     layer.classList.remove('on');
@@ -246,7 +256,7 @@
       paint(hero, p);   // the hero's own background follows, for whatever shows it (a print, a layer that is gone)
       if (top) { top.hidden = true; top.classList.remove('on'); }
       if (anim) anim.cancel();
-      top = layer; anim = pan; topDims = dims;
+      top = layer; anim = pan; topDims = dims; topFrom = from;
       fading = false; cur = idx;
       begin();
     }, FADE + 100);
