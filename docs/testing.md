@@ -44,17 +44,18 @@ scripts/compare.py /tmp/theblues-before /tmp/theblues-after
 Fingerprinted file names, `integrity` hashes and the footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does,
 and the comparison ignores them; anything else that differs is a change in output.
 
-`check-browser.mjs` automates these 45 checks (the sections below say what each one looks for and why):
+`check-browser.mjs` automates these 55 checks (the sections below say what each one looks for and why):
 
 | Checks | What they cover |
 | --- | --- |
 | `rtl-html`, `overflow`, `skip-link`, `rtl-mirror`, `rtl-arrows`, `rtl-group-triangle` | the right-to-left language: `<html>` attributes, no sideways scroll at 320 and 1280px, the skip link's place, the mirrored layout, the arrows, the group triangle |
 | `a11y-feed-names`, `a11y-newtab-names`, `links-origin`, `nav-search-current` | accessible names of feed and external links, links to another origin, the nav's search link |
 | `theme-switch` | the color theme switch |
-| `hero-nojs`, `hero-rotation`, `hero-pause`, `hero-pan`, `hero-pan-second`, `hero-pan-hold`, `hero-pan-none`, `hero-focus-ring`, `hero-reduced-motion`, `hero-reduced-motion-silent`, `hero-focus-kept`, `hero-bad-pool`, `hero-lang`, `hero-sizes` | the rotating hero (its timers shortened twentyfold, except in the pan checks that need a photo to stay) with its two layers and its pan, and the hero sizes by screen |
+| `hero-nojs`, `hero-rotation`, `hero-pause`, `hero-pan`, `hero-pan-second`, `hero-pan-hold`, `hero-pan-none`, `hero-relayout`, `hero-relayout-fade`, `hero-pan-finished`, `hero-load-limit`, `hero-pool-lang`, `hero-focus-ring`, `hero-reduced-motion`, `hero-reduced-motion-silent`, `hero-focus-kept`, `hero-bad-pool`, `hero-lang`, `hero-sizes` | the rotating hero (its timers shortened twentyfold, except in the pan checks that need a photo to stay) with its two layers and its pan, resizes, a finished rotation, a photo that never answers, the pager pages' pool file in two languages, and the hero sizes by screen |
 | `lightbox-lang`, `lightbox-names`, `lightbox-keys`, `lightbox-size`, `lightbox-failed`, `lightbox-short-viewport` | the photo viewer |
 | `wall-nojs`, `wall-caption-lang`, `wall-script-text`, `wall-plural`, `comments-lang` | the wall and the scripts' English fallback |
-| `search-index`, `search-queries`, `search-url`, `search-nojs`, `search-loading`, `search-ui`, `search-mark-contrast`, `search-404`, `search-404-nojs` | search and the 404 page |
+| `search-index`, `search-queries`, `search-url`, `search-nojs`, `search-loading`, `search-ui`, `search-empty`, `search-mark-contrast`, `search-404`, `search-404-nojs` | search and the 404 page |
+| `a11y-heading-names`, `layout-long-title`, `tables-scroll`, `forced-colors-scrim` | the home and 404 headings' names and the tag index's link names, a long unbreakable site title at 320px, page-body tables, and the scrims in forced colors |
 
 What they do not cover stays by hand, as the sections below describe: the builds that fail on purpose (settings, `embed` hosts and ports,
 `og:locale`, the missing title), the other base URLs, the greps of the built files, the hero's whole cycle and random start, a hidden tab's timers (`hero-pan-hold` checks its pan), the
@@ -429,3 +430,40 @@ are not made this way. To recreate the README images:
   - `tag-page`: `/tags/photos/` at the top.
   - `theme-switch`: the article page after clicking the Dark button in the nav, with the system in light mode.
   - `mobile-menu`: `/` at phone size with a clean `localStorage`, after clicking the Menu button.
+
+## Review notes of release 1.9.0 (#396)
+
+New fixtures, each for a case the fixture did not exercise before:
+
+- **`long-title` variant** (`variants/long-title.toml`): a site title that is one 47-character word with no space or hyphen. `layout-long-title` opens it at 320px
+  (the window is 305px wide with the scrollbar): the Menu button lies inside the window and the brand ends before it, and the kicker's, the footer line's and the
+  brand's `scrollWidth` equal their `clientWidth`. Before the change the Menu button was at x 508 to 570 and the kicker 504px and the footer line 339px wide in a 273px box.
+- **A wide table and an indented code block** in the About page (`.abody`) and in the `/q&a/` section page (`.pb`): the table has eight columns of long unbreakable words (the first, fourth and seventh
+  centered); the block is four-space indented, so Hugo writes a plain `<pre>` with no `tabindex`. `tables-scroll` finds one `.tw` region per page (`role="region"`,
+  `tabindex="0"`, name "Table", scrolling itself, the `<table>` not), reaches it with Tab (a 3px solid `:focus-visible` outline) and scrolls it with ArrowRight. The unhighlighted
+  `<pre>` is a documented limit (README, "Known limits"): Hugo has no render hook for indented blocks.
+  An HTML table written into a page doesn't pass through the hook and must still scroll by itself: the fixture can't hold one (it renders no raw HTML), so build a copy
+  with `markup.goldmark.renderer.unsafe = true` and a post with a wide `<table>`; at 320px that table is `display: block` and scrolls inside its
+  box, and the page doesn't scroll sideways.
+- **Two older German articles** (`content-de-pager/`, mounted only by `variants/multilingual.toml`): with the German posts they fill the German home page past `tilesPerPage = 4`, so
+  `/page/2/` has a pager and a pool file as `/en/page/2/` has. The two home pages share the path `/`. `hero-pool-lang` finds different `data-pool-key`s on the two, one
+  pool file each (the key is in the file name, so the names differ even with fingerprints), and each file setting its own key. By hand, a development build
+  (`hugo --environment development`, no fingerprints) of `multilingual` has one `hero/pool-<key>.js` per language; with the theme before the change it had a single file for both.
+  The German caption is now "This page: …", which `wall-caption-lang` accepts.
+
+New browser checks (all in `scripts/check-browser.mjs`, each fails on the build of the release branch before the fixes):
+
+- `hero-relayout`: at 320px the photo has no animation; after `setViewport(1280)` the same photo gets its pan (one running 30 s animation, crop over 100px) within 4 s.
+- `hero-relayout-fade`: while the first fade runs, the viewport goes from 1280 to 685px; when the fade ends the photo is `800 * max(w/1200, h/800)` px high for the new box (within 1.5px), its crop matches and its pan runs. Before: 843px high, the size for 1280px.
+- `hero-pan-finished`: `Math.random` is fixed so the pool keeps its page order, and the second photo answers 404; the button goes and the pan is paused. A resize, a hidden and a visible tab (`visibilitychange`) and reduced motion switched on and off
+  leave it `paused` for 700 ms each (polled every 50 ms). Before: it played again at the resize.
+- `hero-load-limit`: the second photo's request is held for ever (`wait` with a promise that never resolves); the button is still shown after 6 s and gone between 9 and 12.5 s after the request. Before: it stays for good. The check takes about 13 s because `hero.js`
+  keeps its 10 s limit (the page's `SCALE` only divides delays of 20 s or more).
+- `a11y-heading-names`: the home `h1`'s accessible name is "Testing the blues." (before "Testing the blues ."), the 404 page's is "404 Page not found" (a visually hidden part, `.vh`, so the design is unchanged), and the tag index's links are named "#Fixtures 11 posts" with no `aria-label`.
+- `search-empty`: Enter in the empty field puts "Enter a search term." in the `role="status"` line; after a search, emptying the field leaves the status empty.
+- `forced-colors-scrim`: with `forced-colors: active` emulated and light (235) stand-in photos, a screenshot's pixel in the rotating home hero, at the term hero's bottom edge and at the top of a post hero are dark (under 110, 110 and 190, against 235 before for the first two);
+  `.hr::after` and `.phero .in::before` have `forced-color-adjust: none` and `.in` itself keeps `auto`. The PNG is decoded with Node's `zlib`.
+
+By hand: the home `h1` at 320, 800 and 1280px, before and after (a screenshot, and `getBoundingClientRect()` of the underline's svg): the screenshots at 800 and 1280px are byte for byte the same, and at 320px the underline's top is 0.45px higher
+(it moved 2.1px with the plain change to an inline box; `bottom: -.09em` puts it back); the `.phero` term hero and the static post hero in forced colors keep a dark scrim over a light photo (screenshots, with `Emulation.setEmulatedMedia` for `forced-colors`); a table and a long title at 320px;
+`hugo server` (`hugo server --renderToMemory`, then a change to a content file): before the change, `/` printed the pool script of `/page/2/` after the rebuild; after it, it does not.

@@ -17,6 +17,8 @@
 {{- /* Page 2 and later of the wall (#364): the pool comes from a script file, one for all the pager pages, and the hero carries its key; page 1 and a page with no pager keep the attribute. */ -}}
 {{- $pn := 1 }}{{ with $.Store.Get "wall" }}{{ with .pag }}{{ $pn = .PageNumber }}{{ end }}{{ end -}}
 {{- $poolAttr := "" -}}
+{{- /* Cleared first: the Store survives a rebuild of `hugo server`, and a stale tag would print a pool script on a page that has none (#396). */ -}}
+{{- $.Store.Delete "heroPoolTag" -}}
 {{- if and $pool.data (gt $pn 1) -}}
   {{- $f := partial "hero-pool-file.html" (dict "page" $ "data" $pool.data) -}}
   {{- $.Store.Set "heroPoolTag" $f.tag -}}

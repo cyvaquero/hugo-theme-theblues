@@ -38,7 +38,7 @@ layouts/_partials/         head, head-end, analytics-on, nav, hero, hero-style, 
                            comments, social, rss-icon, feed-link, footer, search, search-box, search-form, search-index, asset, script, stylesheet, tile-more, wall-tiles, wall-stand,
                            wall-pager, wall-page, term-stats, memo, build-token, dark-tokens-check, i18n-check, title-check, js-text, js-forms, t, t-en, setting-int, https-check, is-written, arrow, url-port, feed-has-items
 layouts/_shortcodes/       gallery, galleries (masonry), embed
-layouts/_markup/           render-link, render-image
+layouts/_markup/           render-link, render-image, render-table (a labeled, focusable region around each Markdown table)
 static/                    favicon.svg, favicon.ico, apple-touch-icon.png
 exampleSite/               fixture site for testing the theme (see testing.md); not used by sites
 ```
@@ -107,8 +107,8 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   no pager) the pool reaches the page as the attribute, so that no request and no failure mode are added. On page 2 and later
   (`.Store "wall"`'s `pag.PageNumber` above 1) `hero-pool-file.html` writes the pool once per home page or term as
   `hero/pool-<key>.js` (`resources.FromString`, then minify and fingerprint as `asset.html` does in production; `<key>` is the
-  first 12 characters of the MD5 of the page's path, only hex digits) and keeps its `<script src integrity defer>` tag in the
-  page's Store as `heroPoolTag`; the hero gets `data-pool-key="<key>"` in place of `data-pool`, and `baseof.html` prints the tag
+  first 12 characters of the MD5 of the page's path, and of its language when the site has more than one, since two languages' home pages share the path `/` and a build without fingerprints would give both the same file; only hex digits) and keeps its `<script src integrity defer>` tag in the
+  page's Store as `heroPoolTag` (`home.html` and `term.html` delete it before they decide, since the Store survives a rebuild under `hugo server`); the hero gets `data-pool-key="<key>"` in place of `data-pool`, and `baseof.html` prints the tag
   just before `hero.js`'s, so the deferred scripts run in that order. The file is `(function(t){(t.pool=t.pool||{})["<key>"]="<tokens>"})(window.theblues=window.theblues||{})`:
   data only, no inline script, so a CSP needs `script-src 'self'` and no `connect-src`. It was chosen over a JSON file fetched by
   `hero.js` (a `connect-src` entry, an async path and a failure mode) and over repeating the attribute (about 50 KB per pager
@@ -125,14 +125,20 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   `--hi` to `--hi8` on the hidden layer and reads `--hs`, so `main.css`'s media queries stay the one place that chooses a size), loads it with
   `Image()` and waits for `decode()`; at 30 s, if it is ready, it shows the layer that is not showing, above the one that is, and adds `.on` (the opacity transition), and
   after the fade hides the other layer and writes the same custom properties on the hero (its own background, which print and no layer use); if it isn't ready it waits for it. A layer is never hidden to hand the photo to the hero, so there is no handover to jump at. A photo that
-  fails is replaced by one of the pool not yet tried (the pool beyond the five is kept in random order for that); the five shrink only
-  when none is left, and the rotation ends (no button) when fewer than two photos remain. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
+  fails, or has neither loaded nor failed after `LOAD_LIMIT` (10 s), is replaced by one of the pool not yet tried (the pool beyond the five is kept in random order for that); the five shrink only
+  when none is left, and the rotation ends (no button, `finished` set, which keeps the pan paused in `syncAnim()` and `begin()` whatever the window or the tab does) when fewer than two photos remain. Pause, a hidden tab (`visibilitychange`) and `prefers-reduced-motion` (also when it
   changes while the page is open: `settle()` applies a change once, from the `change` listener or from the first `running()` that reads it, since Chrome may never deliver the event to a script that reads `matches` first) clear the timers and the pending load, and pause the pan; a fade in progress is allowed to finish, and the pan of the new photo starts when it has. Hiding the button (reduced motion, or fewer than
   two photos left) while it has focus first moves focus to `<main>`, the skip link's target, so focus isn't dropped to `<body>`.
 - **Styles.** `.hero` and `.phero` keep their scrim in `--sc`, and `.hr` paints the same scrim over the next photo, so the layer
   covers the hero's own background but sits under its text (`z-index: -1` in the hero's own stacking context, `isolation:
   isolate` on `.rot`), and the contrast of the text is the scrim's, as before. The tier media queries also set `--hs` on `.hr`.
-  The script sets a tier a photo has no size for to `initial`, since the layer would inherit the hero's.
+  The script sets a tier a photo has no size for to `initial`, since the layer would inherit the hero's. In forced colors Chrome drops a
+  background that is only a gradient, so the scrims (`.hr::after`, and the term hero's darker ramp, which is the background of `.phero .in::before`
+  behind `.in`'s content, with `isolation: isolate` on `.in`) set `forced-color-adjust: none` in the forced-colors block of `main.css`; `.in` itself and
+  the text keep the system colors. (`.hero .u`, the slogan's last word with its wavy underline, is an inline box, since an inline-block adds a space after itself to the heading's accessible name.)
+- **Page-body tables.** `layouts/_markup/render-table.html` writes Hugo's default table inside `<div class="tw" role="region" tabindex="0"
+  aria-label="Table">`, and `.tw` (in `main.css`) is the box that scrolls sideways, so the region, not the table, is what a keyboard user focuses
+  (WCAG 2.1.1; Safari does not make a scrolling box focusable by itself). Hugo has no hook for an indented code block, so that `<pre>` stays plain.
 - **Pan (#385).** `.hr` is the scrim (`::after`, above) over `.hp`, the photo, and clips it (`overflow: hidden`). Where `cover` would crop
   the photo vertically (the hero's box is wider than the photo's ratio), the script makes `.hp` as high as `cover` would draw the
   photo (the box's width times the photo's height over its width, from the size the image loaded at) and runs a Web Animations
@@ -144,7 +150,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   fades in) and `syncAnim()` plays it only while `running()` is true (not paused, tab visible, no reduced motion) and no fade
   is in progress, so pause, a hidden tab and reduced motion hold it where it is, and `begin()` times the next fetch and fade from
   the animation's remaining time, so the pan and the fade end together after a pause. A `ResizeObserver` on the hero draws the
-  pan again at the same progress when the box changes (a window resize, a wrapped title). No animation is made for a photo with
+  pan again at the same progress when the box changes (a window resize, a wrapped title); a photo that had no pan (the box was not cropped) gets one then, at progress 0 and with its full time from then, and a change during a fade is applied when the fade ends (`relayout()`). No animation is made for a photo with
   less than 1px to crop, so a photo cropped only at the sides, and a browser without `Element.animate`, show it as before.
 
 ## How the theme's text and settings are read

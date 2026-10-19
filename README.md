@@ -176,7 +176,7 @@ The templates assume this layout; other structures are not supported yet.
     `params.hero_interval` seconds before fading to the next, then starts again with the first of the five.
     The interval is 30 by default; anything but a number from 5 to 2147483 (just under 25 days) fails the build once a hero rotates. The next
     photo is fetched 5 seconds before it is shown, never all at once, and is faded in only when it has loaded, with the
-    SmugMug size that suits the screen, as for the first photo. A photo that fails to load is replaced by another of the site's photos, and the rotation stops only when fewer than two can be loaded. The photos are
+    SmugMug size that suits the screen, as for the first photo. A photo that fails to load, or has neither loaded nor failed after about 10 seconds, is replaced by another of the site's photos, and the rotation stops only when fewer than two can be loaded. The photos are
     CSS backgrounds under the same scrim as before, so the text keeps its contrast, and nothing is announced to
     screen readers.
   - *Pan.* While a photo shows, it moves slowly where the hero crops it from the top and bottom (a wide hero over a
@@ -189,8 +189,11 @@ The templates assume this layout; other structures are not supported yet.
     costs no repainting of the hero.
   - *Pause.* A pause and play button in the hero's top corner (44 by 44 pixels, named "Pause the photo rotation" or
     "Play the photo rotation") stops and starts the rotation and the pan. Only `hero.js` adds it, so a page without JavaScript has none, and
-    it stays paused for the page view. A hidden tab pauses the rotation too, and the photo on screen gets its full time
-    again when the tab is visible. A paused pan stays where it is, and goes on from there.
+    it stays paused for the page view. A hidden tab pauses the rotation too. When the tab is visible again, a photo that is
+    panning goes on from where it was, and a photo with no pan (the hero doesn't crop it vertically) gets its full time again. A paused
+    pan stays where it is, and goes on from there. When the rotation has ended because fewer than two photos can be shown,
+    the button is gone and the pan stays paused for good. If the hero changes size (a resize, a phone turned), the pan is drawn again
+    from the same point, also when the photo had none before.
   - *Reduced motion.* With `prefers-reduced-motion: reduce` the hero shows the build's first photo only: no random
     start, no timer, no fade, no pan, no other photo fetched and no button; if the setting is turned on while the page is
     open, the pan stops where it is.
@@ -440,6 +443,13 @@ the person building the site.
   number, `true` or `false`, and a number with a fraction (`2.9`) or too big for a whole number (`1e30`), fails the build
   with a message naming the setting. The pager shows the first and last pages and two on
   each side of the current one.
+- A Markdown table in a page body is wrapped in a labeled region (`<div class="tw" role="region" tabindex="0" aria-label="Table">`, from
+  `layouts/_markup/render-table.html`) that scrolls it sideways, so a keyboard user can scroll a wide table in every browser (the
+  scroller of a table is focusable by itself only in Chrome and Firefox); the region's name is the `tableRegion` text, since a Markdown table has no
+  caption. Two things stay outside it: an HTML table written into a page (with `markup.goldmark.renderer.unsafe`), which still scrolls by itself, and an indented
+  code block (four spaces, no fence), which Hugo writes as a plain `<pre>`. A `<pre>` that scrolls sideways is reachable from the
+  keyboard in Chrome and Firefox but, as far as is known, not in Safari; a fenced block is highlighted and gets `tabindex="0"` from Hugo in every browser, so
+  use a fence for code with long lines.
 - The rotating hero reads the size of every gallery photo of the site's photo posts at build time, not only those the
   wall shows, so a first build of a site with many photos fetches the first 32 KB of each one it has not read before (Hugo
   keeps them in its cache afterward, as for the wall). The pool is built once per home page and once per term, and its
@@ -721,7 +731,7 @@ on photos):
 
 **Search.** The field has a visible label, "Search this site", and Enter submits. The result count ("3 results", "No
 results for …") is a polite `role="status"` that is on the page from the start and is said once typing pauses, not on
-every key. Focus is never moved: not on load, not when results appear. Results are a list of links named by the page title,
+every key. Pressing Enter in an empty field says "Enter a search term." in the same status line (emptying the field says nothing). Focus is never moved: not on load, not when results appear. Results are a list of links named by the page title,
 with the date, section and snippet after the link, and matches are in `<mark>` (bold as well as colored). The field and the
 button are at least 44px tall, and on touch screens (`pointer: coarse`) so are the result links; the page reflows to 320px.
 
@@ -742,7 +752,9 @@ Photo tiles have names that start with their visible text ("Monterrey, Mexico Ga
 of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a visually hidden "Posts" h2, and wall
 pages after the first have their own title. With Group by gallery on, each group title ("Articles · 5 articles") is an
 h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
-box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s.
+box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s. The 404 page's h1 shows "404"; its
+accessible name also holds the page-not-found text ("404 Page not found"), in a visually hidden part, since the line under
+it already shows that text. The links of the tag, category and series indexes are named by what they show ("#Fixtures 11 posts").
 Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, are
 described as "(opens in a new tab)" by a hidden element on the page (`id="tb-newtab"`), not named by it (a link with a
 Markdown title is described by the title followed by the notice instead): the notice is
@@ -750,8 +762,8 @@ read after the link's name, and a heading that contains such a link is named by 
 
 **Color, motion and display.** Text is 4.5:1 or more in light and dark mode and in both ways of choosing a mode (the
 system setting or the switch); body text is 10.5:1 (light) and 12.8:1 (dark). The borders of controls (type chips, the View options mode switch and selects, and pager links) are at least 3:1 against the page and the popover (WCAG 1.4.11), in both modes; the tag pills in a post's hero are sand on the navy hero, 6.6:1 or more. Body text is sized in `rem`, so it follows the reader's default font size like the rest of the page. In forced-colors mode (Windows high
-contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state. Transitions are
-off unless `prefers-reduced-motion` allows them, and a rotating hero with that setting shows its first photo only, with no timer, fade or button. Pages reflow to 320px wide with no horizontal scrolling. On touch
+contrast) pressed chips, the current page, the theme switch and the Group switch keep a visible state, and the scrims over hero photos keep their colors (they are gradients, which forced colors would otherwise drop, leaving the text over a bare photo), while the text takes the system colors. Transitions are
+off unless `prefers-reduced-motion` allows them, and a rotating hero with that setting shows its first photo only, with no timer, fade or button. Pages reflow to 320px wide with no horizontal scrolling, also with a site title that is one long unbreakable word (it wraps in the nav, the hero's kicker and the footer). On touch
 screens (`pointer: coarse`) these are at least 44px tall: the type chips, View options, Clear, the rows of the popover
 (switch and selects), the Menu button, the color theme switch, the nav links and brand, tag links (hero, tiles, lists),
 the footer links, the "Subscribe via RSS" links, pagination, the table of contents entries, the series box's list and previous/next links, post
