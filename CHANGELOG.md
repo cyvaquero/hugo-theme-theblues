@@ -3,59 +3,34 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
-## [1.8.8] - 2026-10-19
+## [1.9.0] - 2026-10-19
 
-### Fixed
-- Switching on reduced motion just as the rotating hero changes photo no longer leaves its pause button showing. Chrome
-  reports a `prefers-reduced-motion` change to the page one frame late, and not at all to a script that reads the setting
-  in between, which `hero.js` does when a photo changes; the rotation stopped but the button stayed. The script now applies
-  the setting (hides or shows the button, and starts or clears the timers) once per change, from the `change` listener or
-  from the first place that reads it. The browser check `hero-reduced-motion` no longer waits 400 ms before switching, and
-  the new `hero-reduced-motion-silent` covers a setting that changes with no event (#384).
-
-## [1.8.7] - 2026-10-19
-
-### Fixed
-- The browser checks `hero-rotation` and `hero-pause` (`scripts/check-browser.mjs`) now follow the hero's two alternating
-  layers: they wait for the visible layer to change, not for the first layer to be hidden, which only happened after the
-  second photo, so they no longer skipped the first fade. `hero-pause` also checks that the pause stops the pan and that
-  playing continues it from where it stopped. Four new checks cover the pan, which `docs/testing.md` listed as manual
-  steps: `hero-pan` (one linear animation on the visible layer's photo, moving down the crop to 5/6, the layer itself
-  still), `hero-pan-second` (the next photo fades in at 1/6 and does not jump), `hero-pan-hold` (the pause button, a hidden
-  tab and reduced motion hold the pan and it goes on from there) and `hero-pan-none` (no pan with reduced motion, without a
-  pool, or where the photo is not cropped). Theme files are unchanged (#389).
-## [1.8.6] - 2026-10-19
-
-### Fixed
-- With the rotating hero's pan, the first photo no longer slides upward while it fades in. When the random start is the
-  build's photo, which the hero's own background draws centered, the photo now starts its pan at the middle of the
-  cropped part, where it already is, and pans to 5/6 over the same `params.hero_interval`; before, it started at 1/6, so it
-  visibly moved from the middle to 1/6 during the 1.5 second fade. Every other photo still pans from 1/6 to 5/6, and the
-  hero without script or with reduced motion is unchanged (#388).
-
-## [1.8.5] - 2026-10-19
+### Added
+- The rotating hero's photo pans slowly while it shows, wherever the hero crops it from the top and bottom: from 1/6 to
+  5/6 of the cropped part, in a straight line over the whole `params.hero_interval`, then the next photo fades in at its
+  starting point. It is on by default, with no setting; a longer interval is a slower pan. When the first photo shown is the
+  build's photo, which the hero's own background draws centered, it starts at the middle, where it already is, so it doesn't
+  slide while it fades in. Only the photo moves, never the scrim or the text, and a photo cropped only at the sides does not
+  move. The pause button stops the pan (WCAG 2.2.2), as do a hidden tab and reduced motion; a panning photo goes on from where
+  it stopped, and one without a pan gets its full time again. The pan follows the window: a hero that becomes cropped later
+  (a 320px window widened to 1280px) gets its pan, and a resize while a photo fades in is drawn when the fade ends. Once the
+  rotation has ended because photos failed, the pan stays paused whatever the window does. A page with no script, one photo,
+  reduced motion or a hero that doesn't rotate shows what it did. The pan is a transform on a layer the browser has already
+  painted, so it doesn't repaint the hero each frame. The photo on screen is now in a layer (`.hr` over the hero's background)
+  from the first fade on, and the hero no longer takes the photo from the layer when a fade ends (#385, #388, #396).
 
 ### Changed
 - Page 2 and later of the home page and of a term no longer repeat the rotating hero's whole pool in each page. They load
   it from one script file for the pool (`/hero/pool-<key>.<hash>.js`, minified and fingerprinted, with a Subresource
   Integrity hash like the theme's other scripts), which the browser caches, and carry a short `data-pool-key` in place of
   `data-pool`; the hero keeps rotating there. With 500 photos that is about 50 KB once per visitor instead of about 50 KB in
-  each pager page. Page 1 and a page with no pager are unchanged, byte for byte. If the file does not load, the hero keeps
-  the page's own photo with no button, as it does without script. It needs nothing new in a Content Security Policy (#364).
-
-## [1.8.4] - 2026-10-18
-
-### Added
-- The rotating hero's photo pans slowly while it shows, wherever the hero crops it from the top and bottom: from 1/6 to
-  5/6 of the cropped part, in a straight line over the whole `params.hero_interval`, then the next photo fades in at its
-  starting point. It is on by default, with no setting; a longer interval is a slower pan. Only the photo moves, never the
-  scrim or the text. A photo cropped only at the sides does not move. The pause button stops the pan (WCAG 2.2.2), as do a
-  hidden tab and reduced motion, and it goes on from where it stopped. A page with no script, one photo, reduced motion
-  or a hero that doesn't rotate shows what it did. The pan is a transform on a layer the browser has already painted, so it
-  doesn't repaint the hero each frame. The photo on screen is now in a layer (`.hr` over the hero's background) from the first
-  fade on, and the hero no longer takes the photo from the layer when a fade ends (#385).
-
-## [1.8.3] - 2026-10-18
+  each pager page. In a site with more than one language, each language's home page has its own file. Page 1 and a page with
+  no pager are unchanged. If the file does not load, the hero keeps the page's own photo with no button, as it does without
+  script. It needs nothing new in a Content Security Policy (#364, #396).
+- A Markdown table in a page body is in a labeled, focusable region (name "Table", from the new `tableRegion` entry of
+  `i18n/en.toml`) that scrolls it sideways, so a keyboard user can scroll a wide table in every browser, not only in Chrome and
+  Firefox (WCAG 2.1.1). An HTML table written into a page still scrolls by itself, as before. An indented code block stays a
+  plain `<pre>`, which Hugo gives no hook for; the README lists it under "Known limits" (#396).
 
 ### Fixed
 - A photo-post or term hero (416px tall) no longer shows its X3 photo enlarged on a phone over two-x: at three-x it needs 1248px of
@@ -66,26 +41,30 @@ All notable changes to this theme are documented here. The format follows
   against 1.53MB). Every other screen keeps its size, and a hero whose X3 covers the box (the home hero) keeps X3. The hero
   gets two more size tiers, `--hi7` and `--hi8`, and the rotating hero's `data-pool` entries list eight size names instead of
   six (#362).
-
-## [1.8.2] - 2026-10-16
-
-### Added
-- Scripts that run the checks `docs/testing.md` describes, in a new `scripts/` folder that is not mounted, so nothing from it
-  reaches a site's output: `build-fixtures.sh` makes every fixture build (the base and minified builds, each variant it finds in
-  `exampleSite/variants/`, and `dark-tokens`, which must warn) and fails on a warning or a missing one; `compare.py` compares two
-  build trees file by file, ignoring the theme version, fingerprints and Subresource Integrity values, and exits non-zero on any other
-  difference; `check-browser.mjs` serves the builds and runs 40 browser checks in headless Chrome (right-to-left layout, skip link,
-  accessible names, the rotating hero, the photo viewer, search and the 404 page, the language marking of the scripts' English), each
-  with a PASS or FAIL line; `cdp.mjs` is the small DevTools Protocol helper they share. They need only Hugo, Python 3 and Node, with no
-  packages. `docs/testing.md` and the contributor notes point to them, and the README's Hugo upgrade steps use them. The theme's output
-  is unchanged (#382).
-
-## [1.8.1] - 2026-10-16
-
-### Fixed
+- Switching on reduced motion just as the rotating hero changes photo no longer leaves its pause button showing. Chrome
+  reports a `prefers-reduced-motion` change to the page one frame late, and not at all to a script that reads the setting in
+  between; the script now applies the setting once per change, from the `change` listener or from the first place that reads
+  it (#384).
+- A hero photo that neither loads nor fails within 10 seconds counts as failed, so the rotation no longer waits on it (#396).
 - A lightbox button whose name falls back to the theme's English no longer marks its visible text English when that text is
   translated: the Previous, Next and Close text is in a span in the page's language, so a screen reader, braille display or
   translation tool takes it as that language. The name is still spoken in English, as before (#377).
+- A long unbreakable site title (a domain-style name) no longer pushes the Menu button off the screen at 320px or runs past the
+  hero's kicker and the footer line: they wrap (WCAG 1.4.10) (#396).
+- In forced colors (Windows high contrast) the scrims over the hero photos keep their colors. Chrome drops a background that is
+  only a gradient, so the rotating hero and a term hero's darker ramp lost their scrim and a light photo showed at full
+  brightness behind the text. The text keeps the system colors (WCAG 1.4.3, 1.4.11) (#396).
+- Accessible names: the home heading is "Testing the blues." with no space before the period (its wavy underline is where it
+  was, to within a pixel); the 404 page's heading is "404 Page not found" (the added text is visually hidden, since the line
+  under it shows it); the links of the tag, category and series indexes are named by their visible text, "#Fixtures 11 posts",
+  which includes the "#" (WCAG 1.3.1, 2.4.6, 2.5.3, 4.1.2) (#396).
+- Pressing Enter in an empty search field says "Enter a search term." in the status line (the new `searchEmpty` entry of
+  `i18n/en.toml`; a site that translates the theme adds it) (WCAG 3.3.1, 4.1.3) (#396).
+
+### Security
+- A feed's `<atom:link rel="self">` escapes its address for XML. A page whose front matter `url` holds an `&` (a section
+  at `/q&a/`) had a feed that wasn't well-formed XML, so feed readers rejected it; the address was written with Go string
+  quoting instead. Every other feed is unchanged (#395).
 
 ## [1.8.0] - 2026-10-16
 

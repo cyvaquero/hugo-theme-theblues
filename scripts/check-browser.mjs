@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Runs the browser checks of docs/testing.md against the fixture builds that scripts/build-fixtures.sh makes.
 // Usage: node scripts/check-browser.mjs [--list] <out> [name ...]
-//   <out>   the folder build-fixtures.sh wrote (it needs base, rtl, multilingual and lightbox-names)
+//   <out>   the folder build-fixtures.sh wrote (it needs base, rtl, multilingual, lightbox-names and long-title)
 //   name    run only these checks; a name also runs every check that starts with "name-"
 //   --list  print the check names and stop
 // One PASS or FAIL line per check, the reason on FAIL. Exit status: 0 all passed, 1 a check failed, 2 usage error.
@@ -9,6 +9,7 @@
 // are answered by the script, not fetched.
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { inflateSync } from 'node:zlib';
 import { Browser, serve, png, sleep, waitFor } from './cdp.mjs';
 
 const checks = [];
@@ -553,7 +554,7 @@ check('hero-focus-kept', 'Focus moves to main#main, not body, when the button go
 });
 
 check('hero-bad-pool', 'data-pool tokens the build can not write are ignored (unknown size, five names, over 512 characters) and the hero still rotates', async (c) => {
-  const bad = ['photos/b1/0/zz/X3/badone-X3.jpg|M,L,EVIL,X2,,X2', 'photos/b2/0/zz/X3/badfive-X3.jpg|M,L,X2,X2,', 'photos/' + 'a'.repeat(600) + '/0/zz/X3/badlong-X3.jpg|M,L,X2,X2,,X2', 'photos/b4/0/zz/X2/badmix-X3.jpg|M,L,X2,X2,,X2'];
+  const bad = ['photos/b1/0/zz/X3/badone-X3.jpg|M,L,EVIL,X2,,X2,,', 'photos/b2/0/zz/X3/badfive-X3.jpg|M,L,X2,X2,', 'photos/' + 'a'.repeat(600) + '/0/zz/X3/badlong-X3.jpg|M,L,X2,X2,,X2', 'photos/b4/0/zz/X2/badmix-X3.jpg|M,L,X2,X2,,X2'];
   const rewrite = (path, body) => (path === '/' ? Buffer.from(body.toString().replace('data-pool="', `data-pool="${bad.join(' ')} `)) : undefined);
   const p = await c.open('base', '/', { scale: true, viewport: [1280, 800], hooks: { rewrite }, key: 'bad-pool' });
   await p.waitForEval(`!!document.querySelector('.hpp')`, { what: 'the pause button' });
@@ -749,7 +750,7 @@ check('wall-nojs', 'Without JavaScript the wall controls and the theme switch co
 check('wall-caption-lang', 'The wall\'s caption and group headings put the theme\'s English in lang="en" spans and nothing else (German, Arabic); English pages have none', async (c) => {
   const cap = (p) => p.eval(`document.querySelector('.cap').innerHTML`);
   const de = await c.open('multilingual', '/', { viewport: [1280, 900] });
-  assert(/^<span lang="en">Showing \d+ articles?, \d+ photos?<\/span>$/.test(await cap(de)), `German caption: ${await cap(de)}`);
+  assert(/^<span lang="en">(Showing|This page: )\s*\d+ articles?, \d+ photos?<\/span>$/.test(await cap(de)), `German caption: ${await cap(de)}`);   // "This page:" because the German home page has a pager
   const ar = await c.open('rtl', '/', { viewport: [1280, 900] });
   assert(/^<span lang="en">This page: <\/span>[^<]+<span lang="en">, <\/span>[^<]+$/.test(await cap(ar)), `Arabic caption: ${await cap(ar)}`);
   for (const [build, path] of [['base', '/'], ['multilingual', '/en/'], ['rtl', '/en/']]) {
@@ -764,7 +765,7 @@ check('wall-caption-lang', 'The wall\'s caption and group headings put the theme
   assert(g.articles.startsWith('<span lang="en">Articles</span> · '), `"Articles" heading: ${g.articles}`);
   assert(g.gallery.startsWith('Fotos auf Deutsch · '), `gallery heading: ${g.gallery}`);
   assert(g.badge.includes('lang="en"') && g.badge.includes('class="vh"'), `badge: ${g.badge}`);
-  assert(/^<span lang="en">Showing 1 article, 2 photos, grouped into 1 gallery<\/span>$/.test(g.cap), `grouped caption: ${g.cap}`);
+  assert(/^<span lang="en">This page: \d+ articles?, 2 photos, grouped into 1 gallery<\/span>$/.test(g.cap), `grouped caption: ${g.cap}`);   // "This page": the German home page has a pager
 });
 
 check('wall-script-text', 'Each language\'s wall script lists the entries it lacks as en:[…]; the Arabic one has the plural forms', async (c) => {
@@ -1065,6 +1066,185 @@ check('hero-sizes', 'The home hero\'s photo size follows the screen (X2 up to 42
     if (Math.abs(got - want) > 0.1) bad.push(`.phero at ${w}px is ${got}px high, expected ${want}`);
   }
   assert(!bad.length, bad.join('; '));
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// The rotating hero's size changes, finished rotation and slow photos (#396)
+
+// The pool of the base build in its page order (a shuffle with a random of .999 swaps nothing), so the rotation starts on the build's
+// photo and the other, i-8Nr9Vp5, is the next one.
+const NO_SHUFFLE = `Math.random = () => 0.999;`;
+const OTHER_PHOTO = 'i-8Nr9Vp5';
+
+check('hero-relayout', 'A hero that becomes vertically cropped after the photo loaded (320px, then 1280px) gets its pan', async (c) => {
+  const p = await c.open('base', '/', { viewport: [320, 800] });
+  const s0 = await waitFor(async () => settledLayer(await layerState(p)), { timeout: 15000, interval: 25, what: 'the first photo to show at 320px' });
+  eq(s0.anims, 0, 'animations at 320px (the photo is not cropped vertically)');
+  await p.setViewport(1280, 800);
+  const s1 = await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.anims === 1 && s.state === 'running' && s; }, { timeout: 4000, interval: 25, what: 'the pan to be made once the hero is cropped (1280px)' });
+  assert(s1.crop > 100, `the photo is cropped by only ${s1.crop}px at 1280px`);
+  eq(s1.dur, 30000, 'the new pan\'s duration');
+});
+
+check('hero-relayout-fade', 'A resize while a photo fades in is applied to the incoming photo when the fade ends: it is sized for the new hero, and its pan runs', async (c) => {
+  const q = await c.open('base', '/', { viewport: [1280, 800] });
+  await waitFor(async () => (await layerState(q)).some((l) => l.shown && l.opacity > 0 && l.opacity < 1), { timeout: 15000, interval: 5, what: 'the first fade to run' });
+  await q.setViewport(685, 800);
+  const s2 = await waitFor(async () => { const s = settledLayer(await layerState(q)); return s && s.state === 'running' && s; }, { timeout: 5000, interval: 25, what: 'the photo to settle and its pan to start after the fade' });
+  const fit = await q.eval(`(() => { const hb = document.querySelector('header[data-pool]').getBoundingClientRect(), hp = [...document.querySelectorAll('header[data-pool] .hr')].find((l) => !l.hidden).firstElementChild; return { high: hp.getBoundingClientRect().height, want: 800 * Math.max(hb.width / 1200, hb.height / 800), box: [hb.width, hb.height] }; })()`);
+  assert(Math.abs(fit.high - fit.want) <= 1.5, `after a resize during the fade the photo is ${fit.high}px high in a ${fit.box} hero, not the ${fit.want}px that fits`);
+  eq(s2.state, 'running', 'the pan after the fade');
+  assert(s2.crop > 100 && Math.abs(s2.crop - (fit.want - fit.box[1])) <= 1.5, `the photo's crop is ${s2.crop}px, not ${fit.want - fit.box[1]}px`);
+});
+
+check('hero-pan-finished', 'When the rotation ends because a photo fails, a resize, a hidden and visible tab and the reduced-motion setting leave the pan paused (the button is gone)', async (c) => {
+  const fail = (url) => (url.includes(OTHER_PHOTO) ? { fulfill: { status: 404, body: '' } } : { fulfill: { body: PHOTO } });
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800], init: NO_SHUFFLE, photos: fail });
+  await p.waitForEval(`document.querySelector('.hpp') && document.querySelector('.hpp').hidden`, { timeout: 15000, what: 'the button to go when the second photo fails' });
+  const held = await waitFor(async () => { const s = settledLayer(await layerState(p)); return s && s.anims === 1 && s.state === 'paused' && s; }, { timeout: 3000, what: 'the pan to be paused after the rotation ended' });
+  const stays = async (what, act) => {
+    await act();
+    const end = Date.now() + 700;
+    while (Date.now() < end) {
+      const s = settledLayer(await layerState(p));
+      assert(s && s.state === 'paused', `${what}: the pan is ${s ? s.state : 'not settled'} after the rotation ended`);
+      await sleep(50);
+    }
+  };
+  await stays('a resize', () => p.setViewport(1100, 800));
+  await stays('a hidden tab', () => p.eval(`Object.defineProperty(document, 'hidden', { value: true, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); true`));
+  await stays('a visible tab', () => p.eval(`Object.defineProperty(document, 'hidden', { value: false, configurable: true }); document.dispatchEvent(new Event('visibilitychange')); true`));
+  await stays('reduced motion switched off and on', async () => { await p.setMedia({ 'prefers-reduced-motion': 'reduce' }); await p.setMedia({ 'prefers-reduced-motion': 'no-preference' }); });
+  assert(held.t >= 0, 'no pan time');
+});
+
+check('hero-load-limit', 'A photo that neither loads nor fails is treated as failed after about 10 s: the rotation ends and the button goes', async (c) => {
+  const hang = (url) => (url.includes(OTHER_PHOTO) ? { wait: new Promise(() => {}) } : { fulfill: { body: PHOTO } });
+  const p = await c.open('base', '/', { scale: true, viewport: [1280, 800], init: NO_SHUFFLE, photos: hang });
+  await waitFor(() => p.requests.some((r) => r.url.includes(OTHER_PHOTO)), { timeout: 8000, interval: 25, what: 'the request for the second photo' });
+  const t0 = Date.now();
+  await sleep(6000);
+  eq(await p.eval(`document.querySelector('.hpp').hidden`), false, 'the button after 6 s of waiting');
+  await waitFor(() => p.eval(`document.querySelector('.hpp').hidden`), { timeout: 9000, interval: 100, what: 'the hanging photo to count as failed' });
+  const took = Date.now() - t0;
+  assert(took >= 9000 && took <= 12500, `the hanging photo was given up after ${took} ms, not about 10000`);
+});
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Review notes of release 1.9.0 (#396): names, the empty search, long titles, tables and forced colors
+
+check('a11y-heading-names', 'The home h1 is "Testing the blues." with no space before the period; the 404 h1 holds "404 Page not found"; a tag link in the index is named by its visible "#name N posts" with no aria-label', async (c) => {
+  const home = await c.open('base', '/', { viewport: [1280, 800] });
+  eq(await names(home, 'heading').then((n) => n.filter((x) => /Testing/.test(x))), ['Testing the blues.'], 'home heading');
+  const nf = await c.open('base', '/no-such-page/', { viewport: [1280, 800] });
+  eq((await names(nf, 'heading')).filter((x) => /404/.test(x)), ['404 Page not found'], '404 heading');
+  eq(await nf.eval(`getComputedStyle(document.querySelector('h1')).fontSize === getComputedStyle(document.querySelector('.hero h1')).fontSize && document.querySelector('h1 .vh').textContent`), ' Page not found', 'the hidden part of the 404 heading');
+  const idx = await c.open('base', '/tags/', { viewport: [1280, 800] });
+  const link = (await idx.axNodes((n) => n.role === 'link' && /^#Fixtures\b/.test(n.name)))[0];
+  assert(link && /^#Fixtures \d+ posts?$/.test(link.name), `the name of the tag link is ${JSON.stringify(link && link.name)}, not "#Fixtures N posts"`);
+  eq(await idx.eval(`document.querySelectorAll('.atl a[aria-label]').length`), 0, 'links with an aria-label in the tag index');
+});
+
+check('search-empty', 'Enter in an empty search field says "Enter a search term." in the status line; emptying the field says nothing', async (c) => {
+  const p = await c.open('base', '/search/', { viewport: [1280, 900] });
+  await p.eval(`document.getElementById('search-q').focus()`);
+  await p.key('Enter');
+  await p.waitForEval(`document.querySelector('.sst').textContent === 'Enter a search term.'`, { timeout: 3000, what: 'the empty-search message' });
+  eq(await p.eval(`document.querySelector('.sst').getAttribute('role')`), 'status', 'the message is in the status line');
+  await p.typeText('galery');
+  await p.key('Enter');
+  await p.waitForEval(`document.querySelector('.sst').textContent === '4 results'`, { what: 'the count' });
+  await p.eval(`const i = document.getElementById('search-q'); i.value = ''; i.dispatchEvent(new Event('input', { bubbles: true }))`);
+  await sleep(1000); // typing is followed by a 700 ms wait before the status speaks
+  eq(await p.eval(`document.querySelector('.sst').textContent`), '', 'the status after emptying the field');
+});
+
+check('layout-long-title', 'A site title that is one 47-character word wraps in the nav, kicker and footer: the Menu button stays inside the window at 320px and nothing is wider than its box', async (c) => {
+  const p = await c.open('long-title', '/', { viewport: [320, 800], photos: 'ok' });
+  const m = await p.eval(`(() => { const w = document.documentElement.clientWidth, r = (s) => document.querySelector(s).getBoundingClientRect(), over = (s) => { const e = document.querySelector(s); return e.scrollWidth - e.clientWidth; };
+    return { w, menuRight: r('nav.site .menu').right, menuLeft: r('nav.site .menu').left, brand: r('nav.site .brand').right, kicker: over('.hero .k'), footer: over('footer.site p'), brandOver: over('nav.site .brand') }; })()`);
+  assert(m.menuLeft >= 0 && m.menuRight <= m.w, `the Menu button is at ${m.menuLeft} to ${m.menuRight} in a ${m.w}px window`);
+  assert(m.brand <= m.menuLeft, `the brand ends at ${m.brand}, over the Menu button at ${m.menuLeft}`);
+  eq([m.kicker, m.footer, m.brandOver], [0, 0, 0], 'overflow of the kicker, footer line and brand');
+  await p.click('nav.site .menu');
+  await p.waitForEval(`document.querySelector('nav.site .links.open')`, { what: 'the menu to open' });
+  const wide = await c.open('long-title', '/', { viewport: [1280, 800], photos: 'ok' });
+  assert(await wide.eval(`document.querySelector('nav.site .brand').getBoundingClientRect().height < 80`), 'the brand wraps at 1280px');
+});
+
+check('tables-scroll', 'A Markdown table is in a focusable, labeled region that scrolls sideways (the table does not scroll itself); Tab reaches it with a visible ring and an arrow key scrolls it', async (c) => {
+  for (const path of ['/about/', '/q&a/']) {
+    const p = await c.open('base', path, { viewport: [320, 800] });
+    const t = await p.eval(`(() => { const w = document.querySelectorAll('.tw'), r = w[0]; return { n: w.length, role: r.getAttribute('role'), tab: r.getAttribute('tabindex'), label: r.getAttribute('aria-label'), wide: r.scrollWidth > r.clientWidth, over: getComputedStyle(r).overflowX, own: getComputedStyle(r.firstElementChild).overflowX, tag: r.firstElementChild.tagName, th: r.querySelectorAll('th').length, align: r.querySelector('th').style.textAlign }; })()`);
+    eq([t.n, t.role, t.tab, t.label, t.wide, t.over, t.own, t.tag], [1, 'region', '0', 'Table', true, 'auto', 'visible', 'TABLE'], `${path} table region`);
+    eq([t.th, t.align], [8, 'center'], `${path} header cells and the first one's alignment`);
+    assert((await names(p, 'region')).includes('Table'), `${path}: the accessibility tree has no region named "Table"`);
+    await tabTo(p, '.tw');
+    const f = await p.eval(`(() => { const s = getComputedStyle(document.activeElement); return [s.outlineStyle, s.outlineWidth, document.activeElement.matches(':focus-visible')]; })()`);
+    eq(f, ['solid', '3px', true], `${path} focus ring`);
+    const before = await p.eval(`document.activeElement.scrollLeft`);
+    await p.key('ArrowRight');
+    await waitFor(() => p.eval(`document.activeElement.scrollLeft`).then((v) => v > before), { timeout: 2000, what: `${path}: an arrow key to scroll the table` });
+  }
+});
+
+check('hero-pool-lang', 'In a two-language site the pager pages of the two home pages (both at "/") load different pool files, each setting its own key', async (c) => {
+  const key = async (build, path) => {
+    const p = await c.open(build, path, { viewport: [1280, 800] });
+    return p.eval(`(() => { const h = document.querySelector('header[data-pool-key]'), s = [...document.scripts].filter((x) => /\\/hero\\/pool-/.test(x.src)); return h && { key: h.getAttribute('data-pool-key'), files: s.map((x) => new URL(x.src).pathname), pool: Object.keys((window.theblues || {}).pool || {}) }; })()`);
+  };
+  const de = await key('multilingual', '/page/2/'), en = await key('multilingual', '/en/page/2/');
+  assert(de && en, `a pager page has no data-pool-key (German: ${JSON.stringify(de)}, English: ${JSON.stringify(en)})`);
+  assert(de.key !== en.key, `both languages' pager pages have the key ${de.key}`);
+  eq([de.files.length, en.files.length], [1, 1], 'pool files per page');
+  assert(de.files[0] !== en.files[0] && de.files[0].includes(de.key) && en.files[0].includes(en.key), `the pool files are ${de.files[0]} and ${en.files[0]}`);
+  eq([de.pool, en.pool], [[de.key], [en.key]], 'the keys each page\'s file sets');
+});
+
+// Light photos, so that a scrim which is missing shows as a bright hero.
+const LIGHT = png(1200, 800, [235, 235, 235]);
+/** The [r, g, b] of one pixel of a PNG screenshot (8-bit RGB or RGBA, not interlaced), decoded with Node's zlib only. */
+function pixel(buf, px, py) {
+  const idat = []; let w = 0, h = 0, ct = 0, o = 8;
+  while (o < buf.length) {
+    const len = buf.readUInt32BE(o), type = buf.toString('latin1', o + 4, o + 8), d = buf.subarray(o + 8, o + 8 + len);
+    if (type === 'IHDR') { w = d.readUInt32BE(0); h = d.readUInt32BE(4); ct = d[9]; }
+    if (type === 'IDAT') idat.push(d);
+    o += 12 + len;
+  }
+  const bpp = ct === 6 ? 4 : 3, raw = inflateSync(Buffer.concat(idat)), stride = w * bpp, rows = [];
+  let prev = Buffer.alloc(stride);
+  for (let y = 0; y < h; y++) {
+    const f = raw[y * (stride + 1)], line = Buffer.from(raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1)));
+    for (let i = 0; i < stride; i++) {
+      const a = i >= bpp ? line[i - bpp] : 0, b = prev[i], cc = i >= bpp ? prev[i - bpp] : 0;
+      const pa = Math.abs(b - cc), pb = Math.abs(a - cc), pc = Math.abs(a + b - 2 * cc);
+      line[i] = (line[i] + (f === 1 ? a : f === 2 ? b : f === 3 ? (a + b) >> 1 : f === 4 ? (pa <= pb && pa <= pc ? a : pb <= pc ? b : cc) : 0)) & 255;
+    }
+    rows.push(line); prev = line;
+  }
+  return [rows[py][px * bpp], rows[py][px * bpp + 1], rows[py][px * bpp + 2]];
+}
+const shotPixel = async (p, x, y) => pixel(Buffer.from((await p.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'), x, y);
+const bright = (rgb) => 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+
+check('forced-colors-scrim', 'With forced colors the scrim over a light photo is still there: the rotating home hero, the term hero\'s ramp and a post hero are dark where the text is', async (c) => {
+  const open = (path, w = 1100) => c.open('base', path, { viewport: [w, 700], media: { 'forced-colors': 'active' }, photos: () => ({ fulfill: { body: LIGHT } }) });
+  const home = await open('/');
+  await waitFor(async () => settledLayer(await layerState(home)), { timeout: 15000, interval: 25, what: 'the first photo to show' });
+  await home.eval(`document.querySelectorAll('.hpp').forEach((b) => { b.hidden = true; })`);
+  const h = bright(await shotPixel(home, 900, 150));
+  assert(h < 110, `the rotating home hero is ${Math.round(h)} bright over a light photo (the scrim is 85% navy)`);
+  const term = await open('/tags/fixtures/');
+  await waitFor(async () => settledLayer(await layerState(term)), { timeout: 15000, interval: 25, what: 'the term hero\'s photo to show' });
+  const bottom = await term.eval(`Math.round(document.querySelector('.phero').getBoundingClientRect().bottom) - 20`);
+  const t = bright(await shotPixel(term, 900, bottom));
+  assert(t < 110, `the term hero is ${Math.round(t)} bright at its bottom edge, under the ramp over a light photo`);
+  const post = await open('/post/20260104-smugmug-photos/');
+  const s = bright(await shotPixel(post, 900, 90));
+  assert(s < 190, `the post hero is ${Math.round(s)} bright at its top: the static hero lost its scrim`);
+  assert((await names(post, 'heading')).includes('SmugMug photos with sizes'), 'the post heading is not in the accessibility tree');
+  eq(await term.eval(`[getComputedStyle(document.querySelector('.hr'), '::after').forcedColorAdjust, getComputedStyle(document.querySelector('.phero .in'), '::before').forcedColorAdjust, getComputedStyle(document.querySelector('.phero .in')).forcedColorAdjust]`), ['none', 'none', 'auto'], 'forced-color-adjust of the scrims and of the hero text');
 });
 
 // ---------------------------------------------------------------------------------------------------------------------

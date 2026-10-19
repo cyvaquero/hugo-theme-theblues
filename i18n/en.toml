@@ -38,7 +38,7 @@ other = "Embedded content"
 other = "SEARCH"
 [searchUnavailable]
 other = "Search is not available yet."
-# The search page; assets/js/search.js gets the count, no-results, loading, failed and capped entries through
+# The search page; assets/js/search.js gets the count, no-results, loading, failed, empty and capped entries through
 # js-text.html. The count has one and other forms.
 [searchInput]
 other = "Search this site"
@@ -53,6 +53,8 @@ other = "{{ .Count }} results"
 other = "No results for “{{ .query }}”."
 [searchLoading]
 other = "Loading the search index…"
+[searchEmpty]
+other = "Enter a search term."
 [searchFailed]
 other = "The search couldn’t be loaded. Try again later."
 [searchCapped]
@@ -249,6 +251,11 @@ other = "Comments loaded."
 other = "Comments couldn’t be loaded. Check your connection or content blocker, then try again."
 [tryAgain]
 other = "Try again"
+
+# The label of the region around a Markdown table (layouts/_markup/render-table.html): the table scrolls sideways there, and the region is a
+# stop for Tab so that a keyboard user can scroll it.
+[tableRegion]
+other = "Table"
 
 # --- Lightbox ---
 [photoViewer]

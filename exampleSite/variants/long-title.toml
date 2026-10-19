@@ -1,0 +1,4 @@
+# Test variant (docs/testing.md): a site title that is one 47-character word, a domain-style name with no space or hyphen to break at,
+# which must wrap in the nav's brand, the home hero's kicker and the footer's copyright line instead of pushing the Menu button
+# off screen at 320px. Build with: --config hugo.toml,variants/long-title.toml
+title = "thebluesfixturesverylongdomainstylename.example"

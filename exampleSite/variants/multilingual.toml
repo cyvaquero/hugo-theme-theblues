@@ -31,6 +31,13 @@ defaultContentLanguage = "de"
     target = "content"
     [module.mounts.sites.matrix]
       languages = ["de"]
+  # Two older German articles (docs/testing.md): with the posts above they fill the German home page past its first page, so it has a pager and
+  # its hero a pool file on page 2, as the English one has (the two languages' home pages share the path "/").
+  [[module.mounts]]
+    source = "content-de-pager"
+    target = "content"
+    [module.mounts.sites.matrix]
+      languages = ["de"]
   [[module.mounts]]
     source = "archetypes"
     target = "archetypes"
