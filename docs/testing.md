@@ -44,7 +44,7 @@ scripts/compare.py /tmp/theblues-before /tmp/theblues-after
 Fingerprinted file names, `integrity` hashes and the footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does,
 and the comparison ignores them; anything else that differs is a change in output.
 
-`check-browser.mjs` automates these 55 checks (the sections below say what each one looks for and why):
+`check-browser.mjs` automates these 56 checks (the sections below say what each one looks for and why):
 
 | Checks | What they cover |
 | --- | --- |
@@ -55,7 +55,7 @@ and the comparison ignores them; anything else that differs is a change in outpu
 | `lightbox-lang`, `lightbox-names`, `lightbox-keys`, `lightbox-size`, `lightbox-failed`, `lightbox-short-viewport` | the photo viewer |
 | `wall-nojs`, `wall-caption-lang`, `wall-script-text`, `wall-plural`, `comments-lang` | the wall and the scripts' English fallback |
 | `search-index`, `search-queries`, `search-url`, `search-nojs`, `search-loading`, `search-ui`, `search-empty`, `search-mark-contrast`, `search-404`, `search-404-nojs` | search and the 404 page |
-| `a11y-heading-names`, `layout-long-title`, `tables-scroll`, `forced-colors-scrim` | the home and 404 headings' names and the tag index's link names, a long unbreakable site title at 320px, page-body tables, and the scrims in forced colors |
+| `a11y-heading-names`, `layout-long-title`, `tables-scroll`, `tables-tabstop`, `forced-colors-scrim` | the home and 404 headings' names (and that the 404 text is in the accessibility tree once) and the tag index's link names, a long unbreakable site title at 320px, page-body tables, which table regions are Tab stops, and the scrims in forced colors |
 
 What they do not cover stays by hand, as the sections below describe: the builds that fail on purpose (settings, `embed` hosts and ports,
 `og:locale`, the missing title), the other base URLs, the greps of the built files, the hero's whole cycle and random start, a hidden tab's timers (`hero-pan-hold` checks its pan), the
@@ -442,6 +442,11 @@ New fixtures, each for a case the fixture did not exercise before:
   centered); the block is four-space indented, so Hugo writes a plain `<pre>` with no `tabindex`. `tables-scroll` finds one `.tw` region per page (`role="region"`,
   `tabindex="0"`, name "Table", scrolling itself, the `<table>` not), reaches it with Tab (a 3px solid `:focus-visible` outline) and scrolls it with ArrowRight. The unhighlighted
   `<pre>` is a documented limit (README, "Known limits"): Hugo has no render hook for indented blocks.
+  The About page also holds a medium table (two columns of long unbreakable words) that fits the column at 1280px (704px) and is wider than it at 320px (290px in 273px).
+  `tables-tabstop` checks that the script takes the `tabindex` off the region of the table that fits at 1280px (the wide table keeps its stop, and a real Tab visits only that one),
+  puts it back at 320px (a real Tab visits both regions), removes it again when the window widens, keeps it on a region that has focus, leaves every region a Tab stop with JavaScript off,
+  and loads no table script on a page without a table. `a11y-heading-names` also checks that the 404 line under the heading is `aria-hidden` and that only the heading and its text hold the
+  page-not-found text in the accessibility tree, in the base fixture and the multilingual one.
   An HTML table written into a page doesn't pass through the hook and must still scroll by itself: the fixture can't hold one (it renders no raw HTML), so build a copy
   with `markup.goldmark.renderer.unsafe = true` and a post with a wide `<table>`; at 320px that table is `display: block` and scrolls inside its
   box, and the page doesn't scroll sideways.

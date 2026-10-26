@@ -13,6 +13,7 @@ assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; 
 assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
 assets/js/hero.js          rotating hero: fades the home and term heroes through photos from the hero's data-pool (or, on pager pages 2+, data-pool-key), with a pause/play button; only on pages whose hero has two or more photos
+assets/js/tables.js        takes the tabindex off a Markdown table's region when the table fits; only on pages with a Markdown table
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
 assets/js/search.js        client-side search: fetches /search/index.json on first use, matches in the browser, builds the results with textContent; only on the search page and the 404 page, and only when the index is published
@@ -138,7 +139,8 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   the text keep the system colors. (`.hero .u`, the slogan's last word with its wavy underline, is an inline box, since an inline-block adds a space after itself to the heading's accessible name.)
 - **Page-body tables.** `layouts/_markup/render-table.html` writes Hugo's default table inside `<div class="tw" role="region" tabindex="0"
   aria-label="Table">`, and `.tw` (in `main.css`) is the box that scrolls sideways, so the region, not the table, is what a keyboard user focuses
-  (WCAG 2.1.1; Safari does not make a scrolling box focusable by itself). Hugo has no hook for an indented code block, so that `<pre>` stays plain.
+  (WCAG 2.1.1; Safari does not make a scrolling box focusable by itself). `assets/js/tables.js`, which a page loads when a table passed through the hook
+  (the hook sets the page's `hasTables` store flag, which `baseof.html` reads), removes the `tabindex` from a region that does not overflow (`scrollWidth <= clientWidth`) and sets it again when it does, re-checking when a `ResizeObserver` reports a new size of the region or its table; a focused region keeps its `tabindex`. Without script every region keeps it. Hugo has no hook for an indented code block, so that `<pre>` stays plain.
 - **Pan (#385).** `.hr` is the scrim (`::after`, above) over `.hp`, the photo, and clips it (`overflow: hidden`). Where `cover` would crop
   the photo vertically (the hero's box is wider than the photo's ratio), the script makes `.hp` as high as `cover` would draw the
   photo (the box's width times the photo's height over its width, from the size the image loaded at) and runs a Web Animations
