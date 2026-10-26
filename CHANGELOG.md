@@ -3,6 +3,18 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.9.1] - 2026-10-25
+
+### Fixed
+- A screen reader no longer says the 404 page's text twice. The heading's name is "404 Page not found" and the visible line
+  under it is now `aria-hidden`, so the text is read once, from the heading (#403).
+- A Markdown table's region is a Tab stop only while its table scrolls. A new script, `tables.js`, loaded only on a page with
+  a Markdown table, takes the `tabindex` off the region of a table that fits and puts it back when the window or the
+  content makes the table wider than the region, so a page of small tables no longer adds empty stops. A region with focus
+  keeps its stop. Without JavaScript every region keeps its `tabindex` as before, so a scrolling table stays reachable
+  from the keyboard. The script is a same-origin file with a Subresource Integrity hash, like the theme's others, and needs
+  nothing new in a Content Security Policy (#404).
+
 ## [1.9.0] - 2026-10-19
 
 ### Added

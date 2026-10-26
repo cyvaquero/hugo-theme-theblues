@@ -20,5 +20,12 @@ A wide table and an indented (so unhighlighted) block of preformatted text in a 
 | cell1x1-with-text-that-does-not-wrap | cell1x2-with-text-that-does-not-wrap | cell1x3-with-text-that-does-not-wrap | cell1x4-with-text-that-does-not-wrap | cell1x5-with-text-that-does-not-wrap | cell1x6-with-text-that-does-not-wrap | cell1x7-with-text-that-does-not-wrap | cell1x8-with-text-that-does-not-wrap |
 | cell2x1-with-text-that-does-not-wrap | cell2x2-with-text-that-does-not-wrap | cell2x3-with-text-that-does-not-wrap | cell2x4-with-text-that-does-not-wrap | cell2x5-with-text-that-does-not-wrap | cell2x6-with-text-that-does-not-wrap | cell2x7-with-text-that-does-not-wrap | cell2x8-with-text-that-does-not-wrap |
 
+A medium table in the same page: two columns that fit the column at 1280px and are wider than it at 320px.
+
+| Setting-name-in-one-long-unbreakable-word | Default-value-in-one-long-unbreakable-word |
+| --- | --- |
+| first-setting-in-one-long-unbreakable-word | first-default-in-one-long-unbreakable-word |
+| second-setting-in-one-long-unbreakable-word | second-default-in-one-long-unbreakable-word |
+
     $ a-very-long-line-of-unhighlighted-text --that-has-no-break --and-runs-past-the-edge-of-the-column --on-a-phone --and-a-desktop --too --and-more --and-more --and-more
     second line

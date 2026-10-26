@@ -1138,6 +1138,13 @@ check('a11y-heading-names', 'The home h1 is "Testing the blues." with no space b
   eq(await names(home, 'heading').then((n) => n.filter((x) => /Testing/.test(x))), ['Testing the blues.'], 'home heading');
   const nf = await c.open('base', '/no-such-page/', { viewport: [1280, 800] });
   eq((await names(nf, 'heading')).filter((x) => /404/.test(x)), ['404 Page not found'], '404 heading');
+  // The visible line under the heading is aria-hidden, so the text is in the accessibility tree once (the heading's), also in another language (#403).
+  for (const [build, path, text] of [['base', '/no-such-page/', 'Page not found'], ['multilingual', '/no-such-page/', 'Seite nicht gefunden']]) {
+    const q = build === 'base' ? nf : await c.open(build, path, { viewport: [1280, 800] });
+    eq(await q.eval(`[document.querySelector('.hero .sub').getAttribute('aria-hidden'), document.querySelector('.hero .sub').textContent]`), ['true', text], `${build}: the 404 line under the heading`);
+    const said = await q.axNodes((n) => n.name.includes(text) && n.role !== 'RootWebArea' && n.role !== 'InlineTextBox');
+    eq(said.map((n) => n.role).sort(), ['StaticText', 'heading'], `${build}: nodes of the accessibility tree that hold "${text}"`);
+  }
   eq(await nf.eval(`getComputedStyle(document.querySelector('h1')).fontSize === getComputedStyle(document.querySelector('.hero h1')).fontSize && document.querySelector('h1 .vh').textContent`), ' Page not found', 'the hidden part of the 404 heading');
   const idx = await c.open('base', '/tags/', { viewport: [1280, 800] });
   const link = (await idx.axNodes((n) => n.role === 'link' && /^#Fixtures\b/.test(n.name)))[0];
@@ -1176,7 +1183,7 @@ check('tables-scroll', 'A Markdown table is in a focusable, labeled region that 
   for (const path of ['/about/', '/q&a/']) {
     const p = await c.open('base', path, { viewport: [320, 800] });
     const t = await p.eval(`(() => { const w = document.querySelectorAll('.tw'), r = w[0]; return { n: w.length, role: r.getAttribute('role'), tab: r.getAttribute('tabindex'), label: r.getAttribute('aria-label'), wide: r.scrollWidth > r.clientWidth, over: getComputedStyle(r).overflowX, own: getComputedStyle(r.firstElementChild).overflowX, tag: r.firstElementChild.tagName, th: r.querySelectorAll('th').length, align: r.querySelector('th').style.textAlign }; })()`);
-    eq([t.n, t.role, t.tab, t.label, t.wide, t.over, t.own, t.tag], [1, 'region', '0', 'Table', true, 'auto', 'visible', 'TABLE'], `${path} table region`);
+    eq([t.n, t.role, t.tab, t.label, t.wide, t.over, t.own, t.tag], [path === '/about/' ? 2 : 1, 'region', '0', 'Table', true, 'auto', 'visible', 'TABLE'], `${path} table region`);
     eq([t.th, t.align], [8, 'center'], `${path} header cells and the first one's alignment`);
     assert((await names(p, 'region')).includes('Table'), `${path}: the accessibility tree has no region named "Table"`);
     await tabTo(p, '.tw');
@@ -1186,6 +1193,42 @@ check('tables-scroll', 'A Markdown table is in a focusable, labeled region that 
     await p.key('ArrowRight');
     await waitFor(() => p.eval(`document.activeElement.scrollLeft`).then((v) => v > before), { timeout: 2000, what: `${path}: an arrow key to scroll the table` });
   }
+});
+
+check('tables-tabstop', 'A Markdown table\'s region is a Tab stop only while its table scrolls: not at 1280px for a table that fits, yes at 320px (a real Tab reaches it), and it follows a resize both ways; without script every region keeps its tabindex', async (c) => {
+  const state = (p) => p.eval(`[...document.querySelectorAll('.tw')].map((r) => [r.getAttribute('tabindex'), r.scrollWidth > r.clientWidth, r.getAttribute('role'), r.getAttribute('aria-label')])`);
+  // The About page holds a wide table (first) and a medium one (second) whose columns fit at 1280px and not at 320px.
+  const p = await c.open('base', '/about/', { viewport: [1280, 900] });
+  await p.waitForEval(`!document.querySelectorAll('.tw')[1].hasAttribute('tabindex')`, { timeout: 3000, what: 'the script to take the tabindex off the table that fits' });
+  eq(await state(p), [['0', true, 'region', 'Table'], [null, false, 'region', 'Table']], 'regions at 1280px: the wide one keeps its Tab stop, the medium one has none');
+  assert((await names(p, 'region')).filter((n) => n === 'Table').length === 2, 'both regions stay in the accessibility tree');
+  const stops = [];
+  for (let i = 0; i < 60; i++) { await p.key('Tab'); const t = await p.eval(`document.activeElement.matches('.tw') ? [...document.querySelectorAll('.tw')].indexOf(document.activeElement) : -1`); if (t >= 0 && !stops.includes(t)) stops.push(t); }
+  eq(stops, [0], 'regions Tab stops through the page at 1280px');
+  await p.setViewport(320, 800);
+  await p.waitForEval(`document.querySelectorAll('.tw')[1].getAttribute('tabindex') === '0'`, { timeout: 3000, what: 'the Tab stop to come back when the window narrows' });
+  eq((await state(p)).map((r) => [r[0], r[1]]), [['0', true], ['0', true]], 'regions at 320px');
+  await p.eval(`document.activeElement.blur(); window.scrollTo(0, 0)`);
+  await p.eval(`document.body.focus()`);
+  const seen = [];
+  for (let i = 0; i < 60; i++) { await p.key('Tab'); const t = await p.eval(`document.activeElement.matches('.tw') ? [...document.querySelectorAll('.tw')].indexOf(document.activeElement) : -1`); if (t >= 0 && !seen.includes(t)) seen.push(t); }
+  eq(seen, [0, 1], 'regions a real Tab reaches at 320px');
+  await p.setViewport(1280, 900);
+  await p.waitForEval(`!document.querySelectorAll('.tw')[1].hasAttribute('tabindex')`, { timeout: 3000, what: 'the Tab stop to go when the window widens' });
+  eq((await state(p)).map((r) => r[0]), ['0', null], 'regions after widening again');
+  // A focused region keeps its stop when it stops overflowing, so focus is not dropped.
+  await p.setViewport(320, 800);
+  await p.waitForEval(`document.querySelectorAll('.tw')[1].getAttribute('tabindex') === '0'`, { timeout: 3000, what: 'the Tab stop again' });
+  await p.eval(`document.querySelectorAll('.tw')[1].focus()`);
+  await p.setViewport(1280, 900);
+  await sleep(500);
+  eq(await p.eval(`[document.activeElement === document.querySelectorAll('.tw')[1], document.querySelectorAll('.tw')[1].getAttribute('tabindex')]`), [true, '0'], 'the focused region keeps its tabindex');
+  // Without JavaScript the markup stays as it was: every region is a Tab stop.
+  const n = await c.open('base', '/about/', { js: false, viewport: [1280, 900] });
+  eq(await state(n), [['0', true, 'region', 'Table'], ['0', false, 'region', 'Table']], 'regions without JavaScript at 1280px');
+  // A page with no table loads no table script.
+  const h = await c.open('base', '/', { viewport: [1280, 800] });
+  eq(await h.eval(`[...document.scripts].filter((x) => /tables/.test(x.src)).length`), 0, 'table scripts on the home page');
 });
 
 check('hero-pool-lang', 'In a two-language site the pager pages of the two home pages (both at "/") load different pool files, each setting its own key', async (c) => {

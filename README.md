@@ -61,12 +61,13 @@ How the images were made is in [docs/testing.md](docs/testing.md).
   (`layouts/_partials/asset.html`): a production build (`hugo`) publishes `css/main.min.<hash>.css` with the comments
   stripped, while a development build (`hugo server`) serves the readable source unchanged. The JavaScript files follow the
   same rule.
-- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is eight small files:
+- No external fonts, frameworks, or CDN scripts, and no inline scripts. JavaScript is nine small files:
   - `theme.js` (in `<head>`, not deferred, so a picked mode applies before the first paint) and `menu.js`, on every
     page;
   - `wall.js`, `gallery.js`, `hero.js` and `search.js`, only where needed (`hero.js` on a home or term page whose hero has two
     or more photos to rotate through, see "Rotating hero"; `search.js` on the search page and the 404 page, and only when
     the site publishes the search index; see "Search");
+  - `tables.js`, only on a page with a Markdown table (see "Known limits");
   - `analytics.js`, only when the site sets a GA ID, and only in production builds. It has no consent step (see
     `[services.googleAnalytics] id` under "Site settings it reads");
   - `comments.js`, on posts when the site sets a Disqus shortname.
@@ -446,7 +447,7 @@ the person building the site.
 - A Markdown table in a page body is wrapped in a labeled region (`<div class="tw" role="region" tabindex="0" aria-label="Table">`, from
   `layouts/_markup/render-table.html`) that scrolls it sideways, so a keyboard user can scroll a wide table in every browser (the
   scroller of a table is focusable by itself only in Chrome and Firefox); the region's name is the `tableRegion` text, since a Markdown table has no
-  caption. Two things stay outside it: an HTML table written into a page (with `markup.goldmark.renderer.unsafe`), which still scrolls by itself, and an indented
+  caption. The region is a Tab stop only while its table scrolls: `tables.js` takes the `tabindex` off a region whose table fits and puts it back when the window or the content makes the table wider than the region (it watches both with a `ResizeObserver`, and never removes it from a region that has focus), so a page of small tables adds no empty stops. Without JavaScript every region keeps its `tabindex`. Two things stay outside it: an HTML table written into a page (with `markup.goldmark.renderer.unsafe`), which still scrolls by itself, and an indented
   code block (four spaces, no fence), which Hugo writes as a plain `<pre>`. A `<pre>` that scrolls sideways is reachable from the
   keyboard in Chrome and Firefox but, as far as is known, not in Safari; a fenced block is highlighted and gets `tabindex="0"` from Hugo in every browser, so
   use a fence for code with long lines.
@@ -617,7 +618,7 @@ else can stay at `default-src 'none'`.
 
 | Directive | Value | Why |
 |---|---|---|
-| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `hero.js`, `search.js`, `comments.js`, `analytics.js`) and, on page 2 and later of a rotating hero's pager, its pool file (`/hero/pool-<key>.<hash>.js`); all are files on the site, with nothing inline to hash. |
+| `script-src` | `'self'` | The theme's scripts are files on the site (`theme.js`, `menu.js`, `wall.js`, `gallery.js`, `hero.js`, `search.js`, `tables.js`, `comments.js`, `analytics.js`) and, on page 2 and later of a rotating hero's pager, its pool file (`/hero/pool-<key>.<hash>.js`); all are files on the site, with nothing inline to hash. |
 | `style-src` | `'self'` | `main.css`, and `nojs.css` inside `<noscript>`. |
 | `style-src-attr` (or `style-src`) | `'unsafe-inline'` | Heroes, including a photo post's cover hero, set their image through a `style="--hi:url(…)"` attribute. This is only for `style=` attributes: the theme has no `<style>` element. `hero.js` sets CSS custom properties on the hero from the script (`element.style.setProperty`), which a CSP does not restrict, so the rotating hero needs nothing more. |
 | `img-src` | `'self'` | The favicons and any local photo. A photo or hero on another host needs that host here too, the rotating hero's photos included (SmugMug: below). |
@@ -753,8 +754,8 @@ of 9: La Huasteca"). Each page's h1 is in its hero; wall tiles are h3 under a vi
 pages after the first have their own title. With Group by gallery on, each group title ("Articles · 5 articles") is an
 h3 inside its disclosure button and the article tiles drop to h4, so the heading list stays in order. A post's series
 box title ("Part 2 of 3: Name") and the table of contents label ("On this page") are h2s. The 404 page's h1 shows "404"; its
-accessible name also holds the page-not-found text ("404 Page not found"), in a visually hidden part, since the line under
-it already shows that text. The links of the tag, category and series indexes are named by what they show ("#Fixtures 11 posts").
+accessible name also holds the page-not-found text ("404 Page not found"), in a visually hidden part, and the visible line
+under it is `aria-hidden`, so a screen reader says that text once. The links of the tag, category and series indexes are named by what they show ("#Fixtures 11 posts").
 Links that open a new tab, which are links to other hosts in post text and the footer's LinkedIn and GitHub links, are
 described as "(opens in a new tab)" by a hidden element on the page (`id="tb-newtab"`), not named by it (a link with a
 Markdown title is described by the title followed by the notice instead): the notice is
