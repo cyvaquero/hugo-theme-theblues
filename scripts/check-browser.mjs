@@ -1290,6 +1290,52 @@ check('forced-colors-scrim', 'With forced colors the scrim over a light photo is
   eq(await term.eval(`[getComputedStyle(document.querySelector('.hr'), '::after').forcedColorAdjust, getComputedStyle(document.querySelector('.phero .in'), '::before').forcedColorAdjust, getComputedStyle(document.querySelector('.phero .in')).forcedColorAdjust]`), ['none', 'none', 'auto'], 'forced-color-adjust of the scrims and of the hero text');
 });
 
+check('analytics-query', 'With analytics on, the search query is not sent to Google Analytics: a direct load of /search/?q= and a result page reached from a search send no q in page_location or page_referrer (the gtag() arguments; gtag.js itself is a stand-in)', async (c) => {
+  // Nothing reaches Google: gtag.js is answered with an empty script, and every call the theme makes is read from dataLayer.
+  const stub = (url) => (new URL(url).hostname === 'www.googletagmanager.com' ? { fulfill: { body: '', type: 'text/javascript' } } : undefined);
+  const rule = (u, r, t) => stub(u) || photos()(u, r, t);
+  const calls = (p) => p.eval(`dataLayer.map((a) => Array.from(a))`);
+  const sent = (cs) => cs.filter((a) => a[0] === 'config' || a[0] === 'set').map((a) => a[a.length - 1]);
+  const direct = await c.open('analytics', '/search/?q=gallery', { viewport: [1280, 900], photos: rule });
+  const dc = await calls(direct);
+  assert(dc.some((a) => a[0] === 'config' && a[1] === 'G-TEST000000'), `no config call: ${JSON.stringify(dc)}`);
+  eq(sent(dc).map((o) => o.page_location), [direct.base + '/search/', direct.base + '/search/'], 'page_location of a direct load');
+  assert(!/q=|gallery/.test(JSON.stringify(dc)), `the query is in a gtag() call: ${JSON.stringify(dc)}`);
+  // A search, then a click on a result: the next page's referrer is /search/?q=..., sent without the q.
+  const s = await c.open('analytics', '/search/', { viewport: [1280, 900], photos: rule });
+  await s.eval(`document.getElementById('search-q').focus()`);
+  await s.typeText('gallery');
+  await s.key('Enter');
+  await s.waitForEval(`/^\\d+ results?$/.test(document.querySelector('.sst').textContent) && location.search === '?q=gallery'`, { what: 'the results, with ?q= in the address' });
+  assert(!/q=gallery/.test(JSON.stringify(await calls(s))), 'the query is in a gtag() call on the search page');
+  await s.eval(`document.querySelector('.sres li a').click()`);
+  await s.waitForEval(`location.pathname !== '/search/' && window.dataLayer && dataLayer.length > 1`, { what: 'the result page' });
+  assert(await s.eval(`document.referrer.includes('q=gallery')`), 'the check needs a referrer with the query');
+  const rc = await calls(s);
+  eq(sent(rc).map((o) => o.page_referrer), [s.base + '/search/', s.base + '/search/'], 'page_referrer of the result page');
+  assert(!/q=gallery/.test(JSON.stringify(rc)), `the query is in a gtag() call: ${JSON.stringify(rc)}`);
+  // A referrer from another site is passed as it is.
+  const o = await c.open('analytics', '/post/20260106-untitled/', { photos: rule, init: `Object.defineProperty(document, 'referrer', { get: () => 'https://other.example/find?q=x&y=1' });` });
+  eq(sent(await calls(o)).map((x) => x.page_referrer), ['https://other.example/find?q=x&y=1', 'https://other.example/find?q=x&y=1'], 'another site\'s referrer');
+});
+
+check('tag-target', 'A tag link in a post hero is at least 24px tall with a fine pointer (light and dark, 1280px and 320px), its text centered on one line with no sideways scroll, and 44px with a coarse pointer', async (c) => {
+  for (const [label, vp, scheme] of [['1280 light', [1280, 800], 'light'], ['1280 dark', [1280, 800], 'dark'], ['320 light', [320, 700], 'light'], ['320 dark', [320, 700], 'dark']]) {
+    const p = await c.open('base', '/post/20260106-untitled/', { viewport: vp, media: { 'prefers-color-scheme': scheme } });
+    const m = await p.eval(`[...document.querySelectorAll('.phero .tag')].map((a) => { const r = a.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(a); const t = g.getBoundingClientRect(); return { h: r.height, w: r.width, lines: g.getClientRects().length, off: Math.abs((t.top + t.bottom) / 2 - (r.top + r.bottom) / 2), over: r.right > document.documentElement.clientWidth }; })`);
+    assert(m.length > 0, `${label}: no tag link in the hero`);
+    assert(await p.eval(`matchMedia('(pointer: fine)').matches`), `${label}: the pointer is not fine`);
+    for (const t of m) assert(t.h >= 24 && t.lines === 1 && t.off <= 1.5 && !t.over, `${label}: tag ${JSON.stringify(t)}`);
+    eq(await p.eval(`document.documentElement.scrollWidth <= document.documentElement.clientWidth`), true, `${label}: no sideways scroll`);
+  }
+  const t = await c.open('base', '/post/20260106-untitled/', { viewport: [390, 800, { dpr: 2, mobile: true }] });
+  await t.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 }); // a touch screen: pointer: coarse
+  await t.frame();
+  assert(await t.eval(`matchMedia('(pointer: coarse)').matches`), 'touch emulation did not give a coarse pointer');
+  const h = await t.eval(`[...document.querySelectorAll('.phero .tag')].map((a) => a.getBoundingClientRect().height)`);
+  assert(h.length && h.every((x) => x >= 44), `coarse pointer: heights ${h}`);
+});
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Runner
 const args = process.argv.slice(2);

@@ -238,8 +238,11 @@ The templates assume this layout; other structures are not supported yet.
 
 Search runs in the visitor's browser over one JSON file that the normal build writes. There is no search service, no key,
 no step after the build and no dependency. The script's only request is for the index file, and it sends nothing
-anywhere; but the query is kept in the address (`?q=`), so anything that records page addresses records it too, the theme's
-optional Google Analytics loader among them (GA4's site search measurement reads `q` as the search term by default).
+anywhere; but the query is kept in the address (`?q=`), so anything that records page addresses records it too. The theme's
+optional Google Analytics loader sends the page address and the referrer without the `q` parameter (the referrer only when
+it is a page of the site). Google's enhanced measurement can also send a page view when the address changes, and the
+documentation doesn't say which address that one carries, so a site that cannot take the risk should add `q` under the
+data stream's "Redact data" settings (URL query parameters) and turn off site search measurement there.
 
 **Turning it on.** The theme defines an output format, `searchindex`, and a template for the search section. A site
 publishes the index by listing the format in that section's outputs. Hugo doesn't merge a theme's `outputs` with the
@@ -560,6 +563,8 @@ It keeps the parameter names the site already uses, so the site's `hugo.toml` (o
   - Analytics loads only in production builds, unless `[privacy.googleAnalytics] disable = true`. A site can ask the
     theme whether it loads with `layouts/_partials/analytics-on.html` (see Extending from a site).
   - A visitor who sends Do Not Track or Global Privacy Control gets nothing: no gtag.js request and no hit.
+  - The page location and the same-site referrer are sent without a `q` parameter, so a search page's query isn't
+    reported (see Search).
   - **There is no consent step.** In a production build with a GA ID and `[privacy.googleAnalytics] disable` unset,
     Google Analytics loads as soon as a page is viewed, for every visitor who doesn't send Do Not Track or Global
     Privacy Control: the browser requests `gtag.js` from `www.googletagmanager.com` and Google Analytics records the
@@ -770,7 +775,7 @@ screens (`pointer: coarse`) these are at least 44px tall: the type chips, View o
 the footer links, the "Subscribe via RSS" links, pagination, the table of contents entries, the series box's list and previous/next links, post
 navigation and the category link in a post's hero. Only the height is set, so a short link stays narrow. Not enlarged:
 links inside running text (post bodies, the comments note), the series name link in the series box title, and an
-article tile's title link, which is covered by the tile, itself one link. A print stylesheet prints black on white.
+article tile's title link, which is covered by the tile, itself one link. With a fine pointer the tag links in a post's hero are at least 24px tall (WCAG 2.2, 2.5.8). A print stylesheet prints black on white.
 
 **Writing accessible content.**
 
