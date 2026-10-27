@@ -3,6 +3,24 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.9.3] - 2026-10-27
+
+### Fixed
+- A Markdown table's attributes (`{title="..." class="..."}` after the table, with `markup.goldmark.parser.attribute.block` on) are
+  written with their values HTML-escaped, and only for a name that is a plain attribute name. A value holding a quote used to end
+  the attribute early, and the rest became real attributes (an `onmouseover` handler, for one). The fixture has a new
+  `table-attributes` variant and the browser check `tables-attributes` (#409, #410).
+- The photo viewer's Next, Previous and Close buttons work when the visible text is clicked, on a site that translates only a
+  button's text or only its name (the text is then in a `<span>`, and the click landed on it and did nothing) (#410).
+- A long unbroken tag, category, series name, series item, hero description or excerpt word wraps instead of being clipped at
+  320px (WCAG 1.4.10), and a series item keeps its date visible. The `long-title` variant has the new check `layout-long-names` (#410).
+- A Markdown table's region is a landmark named "Table" only while its table scrolls: `tables.js` takes the `role` and `aria-label`
+  off together with the `tabindex` of a region whose table fits and puts all three back when it overflows or has focus, so a page of
+  small tables no longer lists several identical landmarks. Without JavaScript nothing changes (#410).
+- With `uglyURLs = true` the 404 page's search no longer takes `/index.html` as the site's base address (under a sub-path it became a
+  search word), and the nav's Search link gets `aria-current="page"` on the search page. The new `ugly-urls` variant and the check
+  `nav-search-current-ugly` cover it (#410).
+
 ## [1.9.2] - 2026-10-27
 
 ### Fixed

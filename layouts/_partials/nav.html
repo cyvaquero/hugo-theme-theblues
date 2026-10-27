@@ -43,7 +43,7 @@
     {{- end }}
     {{- if and site.Params.search_enabled (site.GetPage "/search") }}
     {{- $search := "search/" | relLangURL }}
-    <li><a href="{{ $search }}"{{ if eq $search $page.RelPermalink }} aria-current="page"{{ end }}>{{ site.Params.search_label | default ((or (T "searchLabel") (partial "t-en.html" "searchLabel"))) }}</a></li>
+    <li><a href="{{ $search }}"{{ if eq $search (strings.TrimSuffix "index.html" $page.RelPermalink) }} aria-current="page"{{ end }}>{{ site.Params.search_label | default ((or (T "searchLabel") (partial "t-en.html" "searchLabel"))) }}</a></li>
     {{- end }}
     <li class="theme" hidden><div class="thm" role="group" aria-label="{{ (or (T "colorTheme") (partial "t.html" "colorTheme")) }}">
       <button type="button" data-mode="system" aria-pressed="true" title="{{ (or (T "themeSystem") (partial "t.html" "themeSystem")) }}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span class="vh">{{ (or (T "themeSystem") (partial "t-en.html" "themeSystem")) }}</span></button>

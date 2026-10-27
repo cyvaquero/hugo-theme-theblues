@@ -12,7 +12,7 @@
             matches above the form, which goes to the search page instead of running here (#151).
 */ -}}
 {{- .page.Store.Set "hasSearch" true -}}
-<div id="search" data-index="{{ .index }}"{{ if eq .kind "404" }} data-kind="404" data-base="{{ site.Home.RelPermalink }}"{{ end }}>
+<div id="search" data-index="{{ .index }}"{{ if eq .kind "404" }} data-kind="404" data-base="{{ strings.TrimSuffix "index.html" site.Home.RelPermalink }}"{{ end }}>
   {{- if ne .kind "404" }}
   <p class="soff">{{ (or (T "searchUnavailable") (partial "t-en.html" "searchUnavailable")) }}</p>
   {{- end }}
