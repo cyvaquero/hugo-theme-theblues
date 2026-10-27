@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.9.4] - 2026-10-27
+
+### Changed
+- Documentation corrections from the release's docs review (#410): the README gives the hero pool file's production
+  name as `pool-<key>.min.<hash>.js`, `docs/layout.md` says the hero fetches its first pick at once unless it is the
+  build's own photo, `scripts/compare.py` cites the existing "Running the checks" section, and
+  `scripts/check-browser.mjs`'s usage lists the `analytics` build its search-analytics check needs. Documentation
+  only.
+
 ## [1.9.3] - 2026-10-27
 
 ### Fixed
