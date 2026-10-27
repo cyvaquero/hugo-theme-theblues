@@ -2,17 +2,20 @@
   Markdown tables, as Hugo's own hook writes them (GitHub Flavored Markdown: a header row, a body, a cell's alignment as a
   text-align style, and the table's Markdown attributes), inside a region that scrolls a wide table sideways. The region is
   focusable (tabindex="0") and named, so a keyboard user can scroll it in every browser: only Chrome and Firefox make a
-  scrolling box focusable by themselves (WCAG 2.1.1). Without script it stays a Tab stop; assets/js/tables.js, which the
-  page loads because of the Store flag below, removes the tabindex from a region whose table fits (#404). The name is the theme's text "Table" (a Markdown table has no caption);
+  scrolling box focusable by themselves (WCAG 2.1.1). Without script it stays a Tab stop and a named region; assets/js/tables.js,
+  which the page loads because of the Store flag below, removes the tabindex, role and name together from a region whose table
+  fits, so a page of small tables adds no empty landmarks or Tab stops (#404, #410). The name is the theme's text "Table" (a Markdown table has no caption);
   as an attribute value it cannot carry lang="en" (t-en.html), so it stays plain text. HTML tables written into a page
   (with markup.goldmark.renderer.unsafe) don't pass through here. The wrapper's rules are .tw in main.css.
+  The table's Markdown attributes ({.foo #bar title="x"}, with markup.goldmark.parser.attribute.block on) are written with the value
+  HTML-escaped and only for a name that is a plain attribute name, so a value with a quote cannot add an attribute (#409).
 */ -}}
 {{- .Page.Store.Set "hasTables" true -}}
 <div class="tw" role="region" tabindex="0" aria-label="{{ (or (T "tableRegion") (partial "t.html" "tableRegion")) }}">
 <table
   {{- range $k, $v := .Attributes }}
-    {{- if $v }}
-      {{- printf " %s=%q" $k $v | safeHTMLAttr }}
+    {{- if and $v (findRE `^[A-Za-z][A-Za-z0-9_:.-]*$` $k) }}
+      {{- printf ` %s="%s"` $k (htmlEscape (string $v)) | safeHTMLAttr }}
     {{- end }}
   {{- end }}>
   <thead>

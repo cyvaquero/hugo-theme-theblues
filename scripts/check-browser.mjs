@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Runs the browser checks of docs/testing.md against the fixture builds that scripts/build-fixtures.sh makes.
 // Usage: node scripts/check-browser.mjs [--list] <out> [name ...]
-//   <out>   the folder build-fixtures.sh wrote (it needs base, rtl, multilingual, lightbox-names and long-title)
+//   <out>   the folder build-fixtures.sh wrote (it needs base, rtl, multilingual, lightbox-names, long-title, table-attributes and ugly-urls)
 //   name    run only these checks; a name also runs every check that starts with "name-"
 //   --list  print the check names and stop
 // One PASS or FAIL line per check, the reason on FAIL. Exit status: 0 all passed, 1 a check failed, 2 usage error.
@@ -216,6 +216,12 @@ check('nav-search-current', 'The nav\'s search link has aria-current="page" on t
   eq(ml, ['/en/search/'], 'multilingual /en/search/');
   const de = await c.open('multilingual', '/');
   eq(await de.eval(`[...document.querySelectorAll('nav.site a')].some((a) => /search/i.test(a.getAttribute('href')))`), false, 'German page has a search link');
+});
+
+check('nav-search-current-ugly', 'With uglyURLs the search page\'s nav link still has aria-current="page" and the 404 page\'s search gets data-base "/", not "/index.html" (#410)', async (c) => {
+  eq(await (await c.open('ugly-urls', '/search/')).eval(`[...document.querySelectorAll('nav.site a[aria-current]')].map((a) => a.getAttribute('href'))`), ['/search/'], 'ugly-urls /search/ current links');
+  const n = await c.open('ugly-urls', '/no-such-page/');
+  eq(await n.eval(`document.getElementById('search').getAttribute('data-base')`), '/', 'ugly-urls 404 data-base');
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -621,6 +627,14 @@ check('lightbox-names', 'A button whose name is English but whose text is transl
   assert(lang === 'fr-FR', `page language is ${lang}`);
   const ax = (await p.axNodes((n) => n.role === 'button')).map((n) => n.name);
   for (const n of ['Previous photo', 'Next photo', 'Close photo viewer']) assert(ax.includes(n), `accessibility tree has no button "${n}" (has ${ax})`);
+  // Clicking the visible text (the span inside the button) works like clicking the button (#410).
+  eq(await lbCounter(p), '1 / 2', 'counter on opening');
+  await p.click(`${LB} [data-a="n"] span`);
+  await p.waitForEval(`document.querySelector('${LB} .count').textContent === '2 / 2' && !document.querySelector('${LB}').hasAttribute('aria-busy')`, { what: 'the counter to read 2 / 2 after clicking the text of Next' });
+  await p.click(`${LB} [data-a="p"] span`);
+  await p.waitForEval(`document.querySelector('${LB} .count').textContent === '1 / 2' && !document.querySelector('${LB}').hasAttribute('aria-busy')`, { what: 'the counter to read 1 / 2 after clicking the text of Previous' });
+  await p.click(`${LB} [data-a="c"] span`);
+  await p.waitForEval(`!document.querySelector('${LB}').open`, { what: 'the lightbox to close after clicking the text of Close' });
 });
 
 check('lightbox-keys', 'Arrow, Home and End keys change the photo only without Alt, Ctrl, Meta or Shift; Tab cycles; Escape returns focus to the photo; arrows follow the direction', async (c) => {
@@ -1179,6 +1193,24 @@ check('layout-long-title', 'A site title that is one 47-character word wraps in 
   assert(await wide.eval(`document.querySelector('nav.site .brand').getBoundingClientRect().height < 80`), 'the brand wraps at 1280px');
 });
 
+check('layout-long-names', 'A tag, category, series name, series item and description word of 70 unbroken characters wrap at 320px: nothing reaches past the window, no text is clipped (the hero description included) and the series item keeps its date (#410)', async (c) => {
+  const clipped = (p) => p.eval(`(() => { const w = document.documentElement.clientWidth, bad = [];
+    for (const e of document.querySelectorAll('body *')) { if (e.closest('.skip, [hidden], .vh, nav.site .links:not(.open)')) continue; const r = e.getBoundingClientRect(); if (r.width && (r.right > w + 0.5 || r.left < -0.5)) bad.push(e.tagName + '.' + e.className + ' ' + Math.round(r.left) + '..' + Math.round(r.right)); }
+    for (const e of document.querySelectorAll('body *')) if (e.scrollWidth > e.clientWidth + 1 && e.clientWidth && !e.closest('.vh, .skip, pre, .tw, [hidden]')) bad.push('clipped ' + e.tagName + '.' + e.className + ' ' + e.scrollWidth + '/' + e.clientWidth);
+    return { w, bad, scroll: document.documentElement.scrollWidth }; })()`);
+  const post = await c.open('long-title', '/post/20260116-long-1/', { viewport: [320, 800], photos: 'ok' });
+  const a = await clipped(post);
+  eq([a.bad, a.scroll <= a.w], [[], true], 'post page: elements past the window or with clipped text');
+  const s = await post.eval(`(() => { const li = document.querySelector('.series li:not(:has(strong))'), d = li.querySelector('.meta').getBoundingClientRect(), l = li.querySelector('a').getBoundingClientRect(); return { dateIn: d.left >= 0 && d.right <= document.documentElement.clientWidth && d.width > 0, linkEndsBeforeDate: l.right <= d.left + 0.5, over: [...document.querySelectorAll('.tag, .series .t, .phero .meta a')].filter((e) => e.scrollWidth > e.clientWidth + 1).map((e) => e.className) }; })()`);
+  eq(s, { dateIn: true, linkEndsBeforeDate: true, over: [] }, 'series item date and clipped text');
+  for (const path of ['/', '/tags/tagunbrokenwordwithnobreakopportunityatallsoitmustwrapatthreetwentypx/']) {
+    const h = await c.open('long-title', path, { viewport: [320, 800], photos: 'ok' });
+    const r = await clipped(h);
+    eq([path, r.bad, r.scroll <= r.w], [path, [], true], `${path}: elements past the window`);
+    eq(await h.eval(`[...document.querySelectorAll('.tile.article p')].filter((e) => e.scrollWidth > e.clientWidth + 1).length`), 0, `${path}: clipped tile descriptions`);
+  }
+});
+
 check('tables-scroll', 'A Markdown table is in a focusable, labeled region that scrolls sideways (the table does not scroll itself); Tab reaches it with a visible ring and an arrow key scrolls it', async (c) => {
   for (const path of ['/about/', '/q&a/']) {
     const p = await c.open('base', path, { viewport: [320, 800] });
@@ -1200,14 +1232,15 @@ check('tables-tabstop', 'A Markdown table\'s region is a Tab stop only while its
   // The About page holds a wide table (first) and a medium one (second) whose columns fit at 1280px and not at 320px.
   const p = await c.open('base', '/about/', { viewport: [1280, 900] });
   await p.waitForEval(`!document.querySelectorAll('.tw')[1].hasAttribute('tabindex')`, { timeout: 3000, what: 'the script to take the tabindex off the table that fits' });
-  eq(await state(p), [['0', true, 'region', 'Table'], [null, false, 'region', 'Table']], 'regions at 1280px: the wide one keeps its Tab stop, the medium one has none');
-  assert((await names(p, 'region')).filter((n) => n === 'Table').length === 2, 'both regions stay in the accessibility tree');
+  eq(await state(p), [['0', true, 'region', 'Table'], [null, false, null, null]], 'regions at 1280px: the wide one keeps its Tab stop, role and name, the medium one has none of the three (#410)');
+  eq((await names(p, 'region')).filter((n) => n === 'Table').length, 1, 'regions named "Table" in the accessibility tree at 1280px');
   const stops = [];
   for (let i = 0; i < 60; i++) { await p.key('Tab'); const t = await p.eval(`document.activeElement.matches('.tw') ? [...document.querySelectorAll('.tw')].indexOf(document.activeElement) : -1`); if (t >= 0 && !stops.includes(t)) stops.push(t); }
   eq(stops, [0], 'regions Tab stops through the page at 1280px');
   await p.setViewport(320, 800);
   await p.waitForEval(`document.querySelectorAll('.tw')[1].getAttribute('tabindex') === '0'`, { timeout: 3000, what: 'the Tab stop to come back when the window narrows' });
-  eq((await state(p)).map((r) => [r[0], r[1]]), [['0', true], ['0', true]], 'regions at 320px');
+  eq(await state(p), [['0', true, 'region', 'Table'], ['0', true, 'region', 'Table']], 'regions at 320px: all three are back');
+  eq((await names(p, 'region')).filter((n) => n === 'Table').length, 2, 'regions named "Table" in the accessibility tree at 320px');
   await p.eval(`document.activeElement.blur(); window.scrollTo(0, 0)`);
   await p.eval(`document.body.focus()`);
   const seen = [];
@@ -1215,7 +1248,7 @@ check('tables-tabstop', 'A Markdown table\'s region is a Tab stop only while its
   eq(seen, [0, 1], 'regions a real Tab reaches at 320px');
   await p.setViewport(1280, 900);
   await p.waitForEval(`!document.querySelectorAll('.tw')[1].hasAttribute('tabindex')`, { timeout: 3000, what: 'the Tab stop to go when the window widens' });
-  eq((await state(p)).map((r) => r[0]), ['0', null], 'regions after widening again');
+  eq(await state(p), [['0', true, 'region', 'Table'], [null, false, null, null]], 'regions after widening again');
   // A focused region keeps its stop when it stops overflowing, so focus is not dropped.
   await p.setViewport(320, 800);
   await p.waitForEval(`document.querySelectorAll('.tw')[1].getAttribute('tabindex') === '0'`, { timeout: 3000, what: 'the Tab stop again' });
@@ -1223,12 +1256,19 @@ check('tables-tabstop', 'A Markdown table\'s region is a Tab stop only while its
   await p.setViewport(1280, 900);
   await sleep(500);
   eq(await p.eval(`[document.activeElement === document.querySelectorAll('.tw')[1], document.querySelectorAll('.tw')[1].getAttribute('tabindex')]`), [true, '0'], 'the focused region keeps its tabindex');
+  eq(await p.eval(`[document.querySelectorAll('.tw')[1].getAttribute('role'), document.querySelectorAll('.tw')[1].getAttribute('aria-label')]`), ['region', 'Table'], 'the focused region keeps its role and name');
   // Without JavaScript the markup stays as it was: every region is a Tab stop.
   const n = await c.open('base', '/about/', { js: false, viewport: [1280, 900] });
   eq(await state(n), [['0', true, 'region', 'Table'], ['0', false, 'region', 'Table']], 'regions without JavaScript at 1280px');
   // A page with no table loads no table script.
   const h = await c.open('base', '/', { viewport: [1280, 800] });
   eq(await h.eval(`[...document.scripts].filter((x) => /tables/.test(x.src)).length`), 0, 'table scripts on the home page');
+});
+
+check('tables-attributes', 'With Markdown attributes on tables, {.fancy #prices} become a class and an id as before, and a value with a quote stays whole in one title attribute: no onmouseover attribute, no handler (#409)', async (c) => {
+  const p = await c.open('table-attributes', '/post/20260115-table-attributes/', { viewport: [1280, 800] });
+  const t = await p.eval(`[...document.querySelectorAll('.tw > table')].map((t) => Object.fromEntries([...t.attributes].map((a) => [a.name, a.value])))`);
+  eq(t, [{ class: 'fancy', id: 'prices' }, { class: 'crafted', title: 'x" onmouseover=alert(1) y="' }, {}], 'attributes of the three tables');
 });
 
 check('hero-pool-lang', 'In a two-language site the pager pages of the two home pages (both at "/") load different pool files, each setting its own key', async (c) => {

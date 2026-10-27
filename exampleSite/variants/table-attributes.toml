@@ -1,0 +1,33 @@
+# Test variant (docs/testing.md): Markdown attributes on tables (markup.goldmark.parser.attribute.block, #409), with the content folder
+# content-table-attributes/: a table with ordinary attributes ({.fancy #prices}), one whose title value holds a quote and an attempt at a
+# second attribute, and one with none. The title must come out as one escaped attribute. Listing a mount turns off Hugo's default
+# mounts, so they are all listed here.
+# Build with: --config hugo.toml,variants/table-attributes.toml
+[markup.goldmark.parser.attribute]
+  block = true
+
+[module]
+  [[module.mounts]]
+    source = "archetypes"
+    target = "archetypes"
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    source = "content-table-attributes"
+    target = "content"
+  [[module.mounts]]
+    source = "data"
+    target = "data"
+  [[module.mounts]]
+    source = "i18n"
+    target = "i18n"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "../layouts"
+    target = "assets/theblues-layouts"
