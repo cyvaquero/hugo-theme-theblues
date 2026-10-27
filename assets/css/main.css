@@ -257,7 +257,7 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .hpp svg { width: 18px; height: 18px; fill: currentColor; }
 
 /* 5 Shared bits ------------------------------------------------------------------------------------------- */
-.tag { display: inline-block; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem 0; margin-inline-end: .25rem; text-decoration: none; }
+.tag { display: inline-flex; align-items: center; min-height: 24px; box-sizing: border-box; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .12rem 0; margin-inline-end: .25rem; text-decoration: none; }
 .meta { font-size: .85rem; color: var(--muted); }
 .series { border: 1px solid var(--line); border-inline-start: .9rem solid var(--link); border-radius: 4px; padding: 1rem; background: var(--surface); margin: 2.5rem 0; }
 /* The title is an h2 (#172): the box is a section of the post, and its title belongs in the heading list. */

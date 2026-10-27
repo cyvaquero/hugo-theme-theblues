@@ -3,6 +3,15 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.9.2] - 2026-10-27
+
+### Fixed
+- The search page's query no longer goes to Google Analytics. The loader now passes `page_location` without the `q` parameter
+  and `page_referrer` without it when the referrer is a page of the site, so a search followed by a click on a result, and a
+  direct load of `/search/?q=`, report no query text. The address bar still holds `?q=`. Google's documentation doesn't say which
+  address enhanced measurement's history-change page view carries; the README says to redact `q` in the data stream too (#406).
+- Tag links in a post's hero are 24px tall with a fine pointer, not 23px, meeting WCAG 2.2's target size minimum (2.5.8) (#407).
+
 ## [1.9.1] - 2026-10-25
 
 ### Fixed
