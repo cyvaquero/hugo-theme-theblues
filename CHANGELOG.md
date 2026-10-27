@@ -3,6 +3,34 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.10.0] - 2026-10-27
+
+### Fixed
+- A Markdown table's region is a Tab stop and a landmark named "Table" only while its table scrolls. A new script,
+  `tables.js`, loaded only on a page with a Markdown table, takes the `tabindex`, `role` and `aria-label` off the region of
+  a table that fits and puts all three back when the window or the content makes the table wider than the region, or while
+  the region has focus, so a page of small tables adds no empty Tab stops or identical landmarks. Without JavaScript every
+  region keeps all three, so a scrolling table stays reachable from the keyboard. The script is a same-origin file with a
+  Subresource Integrity hash, like the theme's others, and needs nothing new in a Content Security Policy (#404, #410).
+- A screen reader no longer says the 404 page's text twice. The heading's name is "404 Page not found" and the visible line
+  under it is `aria-hidden`, so the text is read once, from the heading (#403).
+- The photo viewer's Next, Previous and Close buttons work when the visible text is clicked, on a site that translates only a
+  button's text or only its name (#410).
+- A long unbroken tag, category, series name, series item, hero description or excerpt word wraps instead of being clipped at
+  320px (WCAG 1.4.10), and a series item keeps its date visible (#410).
+- With `uglyURLs = true` the 404 page's search no longer takes `/index.html` as the site's base address (under a sub-path it
+  became a search word), and the nav's Search link gets `aria-current="page"` on the search page (#410).
+- Tag links in a post's hero are 24px tall with a fine pointer, not 23px, meeting WCAG 2.2's target size minimum (2.5.8) (#407).
+
+### Security
+- The search page's query no longer goes to Google Analytics. The loader passes `page_location` without the `q` parameter
+  and `page_referrer` without it when the referrer is a page of the site, so a search followed by a click on a result, and a
+  direct load of `/search/?q=`, report no query text. The address bar still holds `?q=`. Google's documentation doesn't say which
+  address enhanced measurement's history-change page view carries; the README says to redact `q` in the data stream too (#406).
+- A Markdown table's attributes (`{title="..." class="..."}` after the table, with `markup.goldmark.parser.attribute.block` on) are
+  written with their values HTML-escaped, and only for a name that is a plain attribute name. A value holding a quote used to end
+  the attribute early, and the rest became real attributes (an `onmouseover` handler, for one) (#409, #410).
+
 ## [1.9.0] - 2026-10-19
 
 ### Added
@@ -841,6 +869,10 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.10.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.9.0...1.10.0
+[1.9.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.8.0...1.9.0
+[1.8.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.7.0...1.8.0
+[1.7.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.6.0...1.7.0
 [1.6.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.4.0...1.5.0
 [1.4.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.3.0...1.4.0

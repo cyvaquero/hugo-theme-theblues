@@ -1,10 +1,10 @@
 {{ define "header" }}
-{{- /* The heading is "404" on the page; its accessible name also has the page-not-found text (WCAG 2.4.6), hidden because the line under it shows it. */ -}}
+{{- /* The heading is "404" on the page; its accessible name also has the page-not-found text (WCAG 2.4.6), hidden because the line under it shows it, and that line is aria-hidden so the text is read once (#403). */ -}}
 {{ $notFound := site.Params.title_404 | default ((or (T "pageNotFound") (partial "t-en.html" "pageNotFound"))) }}
 {{ $src := "" }}{{ with site.Params.image_404 }}{{ $src = . | absURL }}{{ end }}{{ $hero := partial "hero-style.html" (dict "page" $ "src" $src "h" 246) -}}
 <header class="hero"{{ with $hero.src }} style="--hi:url('{{ . }}'){{ with $hero.vars }}{{ . | safeCSS }}{{ end }}"{{ end }}>
   <h1>404<span class="vh"> {{ $notFound }}</span></h1>
-  <p class="sub">{{ $notFound }}</p>
+  <p class="sub" aria-hidden="true">{{ $notFound }}</p>
 </header>
 {{ end }}
 {{ define "main" }}

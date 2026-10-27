@@ -44,18 +44,20 @@ scripts/compare.py /tmp/theblues-before /tmp/theblues-after
 Fingerprinted file names, `integrity` hashes and the footer's theme version change whenever a stylesheet, a script or `data/theblues.toml` does,
 and the comparison ignores them; anything else that differs is a change in output.
 
-`check-browser.mjs` automates these 55 checks (the sections below say what each one looks for and why):
+`check-browser.mjs` automates these 61 checks (the sections below say what each one looks for and why):
 
 | Checks | What they cover |
 | --- | --- |
 | `rtl-html`, `overflow`, `skip-link`, `rtl-mirror`, `rtl-arrows`, `rtl-group-triangle` | the right-to-left language: `<html>` attributes, no sideways scroll at 320 and 1280px, the skip link's place, the mirrored layout, the arrows, the group triangle |
-| `a11y-feed-names`, `a11y-newtab-names`, `links-origin`, `nav-search-current` | accessible names of feed and external links, links to another origin, the nav's search link |
+| `a11y-feed-names`, `a11y-newtab-names`, `links-origin`, `nav-search-current`, `nav-search-current-ugly` | accessible names of feed and external links, links to another origin, the nav's search link (also with `uglyURLs`, with the 404 page's search base) |
 | `theme-switch` | the color theme switch |
 | `hero-nojs`, `hero-rotation`, `hero-pause`, `hero-pan`, `hero-pan-second`, `hero-pan-hold`, `hero-pan-none`, `hero-relayout`, `hero-relayout-fade`, `hero-pan-finished`, `hero-load-limit`, `hero-pool-lang`, `hero-focus-ring`, `hero-reduced-motion`, `hero-reduced-motion-silent`, `hero-focus-kept`, `hero-bad-pool`, `hero-lang`, `hero-sizes` | the rotating hero (its timers shortened twentyfold, except in the pan checks that need a photo to stay) with its two layers and its pan, resizes, a finished rotation, a photo that never answers, the pager pages' pool file in two languages, and the hero sizes by screen |
 | `lightbox-lang`, `lightbox-names`, `lightbox-keys`, `lightbox-size`, `lightbox-failed`, `lightbox-short-viewport` | the photo viewer |
 | `wall-nojs`, `wall-caption-lang`, `wall-script-text`, `wall-plural`, `comments-lang` | the wall and the scripts' English fallback |
+| `analytics-query` | with the `analytics` variant, no `q` text in the `page_location` and `page_referrer` the loader passes to `gtag()` (direct load of `/search/?q=`; a result page reached from a search; another site's referrer is left as it is). gtag.js is answered with an empty script, so nothing reaches Google and only the arguments are checked |
+| `tag-target` | the tag links in a post's hero: 24px or more with a fine pointer (light and dark, 1280px and 320px), text centered on one line, 44px with touch emulation |
 | `search-index`, `search-queries`, `search-url`, `search-nojs`, `search-loading`, `search-ui`, `search-empty`, `search-mark-contrast`, `search-404`, `search-404-nojs` | search and the 404 page |
-| `a11y-heading-names`, `layout-long-title`, `tables-scroll`, `forced-colors-scrim` | the home and 404 headings' names and the tag index's link names, a long unbreakable site title at 320px, page-body tables, and the scrims in forced colors |
+| `a11y-heading-names`, `layout-long-title`, `layout-long-names`, `tables-scroll`, `tables-tabstop`, `tables-attributes`, `forced-colors-scrim` | the home and 404 headings' names (and that the 404 text is in the accessibility tree once) and the tag index's link names, a long unbreakable site title at 320px, long unbroken tag, category, series and description words at 320px, page-body tables, which table regions are Tab stops and keep their role and name, a table's Markdown attributes, and the scrims in forced colors |
 
 What they do not cover stays by hand, as the sections below describe: the builds that fail on purpose (settings, `embed` hosts and ports,
 `og:locale`, the missing title), the other base URLs, the greps of the built files, the hero's whole cycle and random start, a hidden tab's timers (`hero-pan-hold` checks its pan), the
@@ -324,11 +326,14 @@ is not marked. The announcement (`[aria-live]` in the dialog) is `<span lang="en
 alt text as plain text; a photo that fails to load (block its URL) adds a second `<span lang="en">` with the failure text, in the
 announcement and the counter. On `/en/` and the English photo posts (`/en/post/20260107-photo-gallery/`) none of these has a `lang`.
 
+The `ugly-urls` variant (`variants/ugly-urls.toml`, #410) sets `uglyURLs = true`, where the home page's `RelPermalink` is `/index.html`. `nav-search-current-ugly` requires `aria-current="page"` on the Search link at `/search/`
+and `data-base="/"` (not `/index.html`) on the 404 page's search; with a sub-path `baseURL` the base must be the sub-path (`/sub/`), which the fixture's root address can't serve, so check it by building with `-b https://example.org/sub/`.
+
 The `lightbox-names` variant (#377) has a French photo post (`content-fr-photos/`) and `i18n/fr.toml`, which translates the lightbox buttons'
 visible text (`previous`, `next`, `close`) but not their names (`previousPhoto`, `nextPhoto`, `closeViewer`). In Chrome, on
 `/post/20260114-photos/` with a photo opened, each of the three buttons has `lang="en"` and its English name ("Previous photo", "Next
 photo", "Close photo viewer"), and its visible text ("Précédent", "Suivant", "Fermer") is inside a `<span lang="fr-FR">` that sets it back to
-the page's language. The opposite case (a translated name with English text) has `<span lang="en">` around the text and no `lang` on the button.
+the page's language. Clicking that span works like clicking the button: Next and Previous change the photo and Close closes the viewer (#410). The opposite case (a translated name with English text) has `<span lang="en">` around the text and no `lang` on the button.
 
 The other scripts mark theirs the same way, and each script's text in the built file has `en:[…]`, the names of the entries the
 language lacks (`js/wall.de.min.<hash>.js` lists the caption sentences and counts, `js/wall.ar.min.<hash>.js` lists the sentences
@@ -438,10 +443,22 @@ New fixtures, each for a case the fixture did not exercise before:
 - **`long-title` variant** (`variants/long-title.toml`): a site title that is one 47-character word with no space or hyphen. `layout-long-title` opens it at 320px
   (the window is 305px wide with the scrollbar): the Menu button lies inside the window and the brand ends before it, and the kicker's, the footer line's and the
   brand's `scrollWidth` equal their `clientWidth`. Before the change the Menu button was at x 508 to 570 and the kicker 504px and the footer line 339px wide in a 273px box.
+  The variant also mounts `content-long-title/` next to `content/` (#410): two posts in one series whose tag, category, series name, first post title and description word are each one
+  unbroken word of about 70 characters. `layout-long-names` opens the first post, the home page and that tag's page at 320px and requires that no element reaches past the
+  window, no text is clipped (an element whose `scrollWidth` exceeds its `clientWidth`), the series item keeps its date inside the window and its link ends before it.
 - **A wide table and an indented code block** in the About page (`.abody`) and in the `/q&a/` section page (`.pb`): the table has eight columns of long unbreakable words (the first, fourth and seventh
   centered); the block is four-space indented, so Hugo writes a plain `<pre>` with no `tabindex`. `tables-scroll` finds one `.tw` region per page (`role="region"`,
   `tabindex="0"`, name "Table", scrolling itself, the `<table>` not), reaches it with Tab (a 3px solid `:focus-visible` outline) and scrolls it with ArrowRight. The unhighlighted
   `<pre>` is a documented limit (README, "Known limits"): Hugo has no render hook for indented blocks.
+  The `table-attributes` variant (`variants/table-attributes.toml`, `content-table-attributes/`, #409) turns on `markup.goldmark.parser.attribute.block` and has a post with three
+  tables: `{.fancy #prices}`, one with `{title="x\" onmouseover=alert(1) y=\"" class="crafted"}` and one with none. `tables-attributes` reads the parsed DOM: the first `<table>` has
+  exactly `class` and `id`, the second exactly `class="crafted"` and a `title` holding the whole value (`x" onmouseover=alert(1) y="`), with no `onmouseover` attribute, and the third none.
+  Before the fix the second table had a real `onmouseover` attribute. The base fixture has block attributes off, so its tables are unchanged.
+  The About page also holds a medium table (two columns of long unbreakable words) that fits the column at 1280px (704px) and is wider than it at 320px (290px in 273px).
+  `tables-tabstop` checks that the script takes the `tabindex`, `role` and `aria-label` off the region of the table that fits at 1280px (the wide table keeps its stop, role and name, only one region named "Table" is in the accessibility tree, and a real Tab visits only the wide one),
+  puts all three back at 320px (a real Tab visits both regions), removes it again when the window widens, keeps them on a region that has focus, leaves every region a Tab stop, region and name with JavaScript off,
+  and loads no table script on a page without a table. `a11y-heading-names` also checks that the 404 line under the heading is `aria-hidden` and that only the heading and its text hold the
+  page-not-found text in the accessibility tree, in the base fixture and the multilingual one.
   An HTML table written into a page doesn't pass through the hook and must still scroll by itself: the fixture can't hold one (it renders no raw HTML), so build a copy
   with `markup.goldmark.renderer.unsafe = true` and a post with a wide `<table>`; at 320px that table is `display: block` and scrolls inside its
   box, and the page doesn't scroll sideways.

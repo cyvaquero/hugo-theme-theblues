@@ -209,9 +209,9 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .phero .in { position: relative; isolation: isolate; width: 100%; padding: 5rem max(1rem, calc((100% - var(--wide)) / 2 + 1rem)) 2rem; }
 .phero .in::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(rgb(var(--scrim) / 0), rgb(var(--scrim) / .73) 4.5rem, rgb(var(--scrim) / .86)); }
 .phero h1 { margin: .3rem 0; font: 700 clamp(2rem, 6.5vw, 3.4rem) / 1.1 var(--serif); overflow-wrap: anywhere; }
-.phero .sub { margin: .2rem 0 .4rem; font-size: 1.05rem; color: var(--bt); max-width: 46rem; }
+.phero .sub { margin: .2rem 0 .4rem; font-size: 1.05rem; color: var(--bt); max-width: 46rem; overflow-wrap: anywhere; }
 .phero .meta, .phero .ptype { color: var(--hv); }
-.phero .meta a:not(.tag) { color: inherit; text-underline-offset: .15em; }
+.phero .meta a:not(.tag) { color: inherit; text-underline-offset: .15em; overflow-wrap: anywhere; }
 .phero .tag { color: var(--bt); border-color: var(--hv); }
 .phero .tag:hover { color: var(--hv); }
 .ptype { display: inline-flex; align-items: center; gap: .4rem; font-size: .75rem; letter-spacing: .14em; font-weight: 700; text-transform: uppercase; color: var(--muted); }
@@ -257,14 +257,16 @@ nav.site li.theme { display: flex; align-items: center; padding: .6rem 0; }
 .hpp svg { width: 18px; height: 18px; fill: currentColor; }
 
 /* 5 Shared bits ------------------------------------------------------------------------------------------- */
-.tag { display: inline-block; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .15rem 0; margin-inline-end: .25rem; text-decoration: none; }
+.tag { display: inline-flex; align-items: center; min-height: 24px; box-sizing: border-box; border: 1px solid var(--ctl-line); border-radius: 99px; padding: 0 .7rem; font-size: .8rem; margin: .12rem 0; margin-inline-end: .25rem; text-decoration: none; overflow-wrap: anywhere; max-width: 100%; }
 .meta { font-size: .85rem; color: var(--muted); }
 .series { border: 1px solid var(--line); border-inline-start: .9rem solid var(--link); border-radius: 4px; padding: 1rem; background: var(--surface); margin: 2.5rem 0; }
 /* The title is an h2 (#172): the box is a section of the post, and its title belongs in the heading list. */
-.series .t { display: block; font: 700 1.15rem / 1.3 var(--serif); margin: 0; }
+.series .t { display: block; font: 700 1.15rem / 1.3 var(--serif); margin: 0; overflow-wrap: anywhere; }
 .series ol { list-style: none; margin: .5rem 0 1rem; padding: 0; }
 .series li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); padding: .35rem 0; font-size: .95rem; }
 .series li .meta { flex: none; }
+/* A long unbroken name wraps in the flex row and leaves the date its room (WCAG 1.4.10, #410), as ul.atl .nm does. */
+.series li > :not(.meta) { min-width: 0; overflow-wrap: anywhere; }
 /* Feed link (#313): the RSS icon and "Subscribe via RSS", in the term and section heroes and the series box. */
 .feed { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; text-underline-offset: .15em; }
 .feed svg { width: 1.05em; height: 1.05em; fill: currentColor; flex: none; }
@@ -372,9 +374,9 @@ label.swt .r { display: inline-flex; align-items: center; gap: .4rem; }
 .tile.article :is(h3, h4) a { color: var(--art-fg); text-decoration: none; }
 .tile.article :is(h3, h4) a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }  /* whole tile is the link */
 .tile.article :is(h3, h4) a:hover { color: var(--hv); text-decoration: underline; }
-.tile.article p { margin: 0 0 .6rem; font-size: .95rem; line-height: 1.5; color: var(--art-fg); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.tile.article p { overflow-wrap: anywhere; margin: 0 0 .6rem; font-size: .95rem; line-height: 1.5; color: var(--art-fg); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .tile.article .meta { color: var(--art-sub); font-size: .8rem; }
-.tile .meta a { position: relative; z-index: 1; display: inline-block; min-height: 24px; line-height: 24px; color: inherit; text-decoration: underline; text-underline-offset: .15em; margin-inline-start: .35rem; }
+.tile .meta a { position: relative; z-index: 1; display: inline-block; min-height: 24px; line-height: 24px; color: inherit; text-decoration: underline; text-underline-offset: .15em; margin-inline-start: .35rem; overflow-wrap: anywhere; }
 /* Tag links sit on the navy tile, so their focus ring is sand (6.6:1), not steel (1.96:1). */
 .tile.article .meta { --focus: var(--hv); }
 /* The whole tile shows the focus ring of its cover link, in --focus on the page (5.4:1 light, 8.1:1 dark). Only where

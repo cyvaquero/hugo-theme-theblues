@@ -90,7 +90,8 @@
 
     dlg.addEventListener('close', function () { down = 0; sx = sy = null; if (opener) opener.focus(); });
     dlg.addEventListener('click', function (e) {
-      var a = e.target.dataset && e.target.dataset.a;
+      // A button's text may be in a span (label()), so the click lands on the span: find the button from there.
+      var b = e.target.closest && e.target.closest('[data-a]'), a = b && b.dataset.a;
       if (a === 'n') show(idx + 1);
       else if (a === 'p') show(idx - 1);
       else if (a === 'c' || e.target === dlg || e.target.classList.contains('in') || e.target.classList.contains('bb')) dlg.close();
