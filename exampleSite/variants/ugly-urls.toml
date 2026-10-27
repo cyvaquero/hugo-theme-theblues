@@ -1,0 +1,4 @@
+# Test variant (docs/testing.md): uglyURLs, where the home page's RelPermalink is /index.html and the search page's is /search.html
+# (#410). The 404 page's search must still get "/" as its base address (data-base), and the nav's Search link carries
+# aria-current="page" on the search page. Build with: --config hugo.toml,variants/ugly-urls.toml
+uglyURLs = true

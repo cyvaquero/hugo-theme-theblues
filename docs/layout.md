@@ -13,7 +13,7 @@ assets/js/menu.js          hamburger dropdown for the nav (820 px and narrower; 
 assets/js/wall.js          wall controls: type chips, filter or highlight, sort, group by gallery, popover
 assets/js/gallery.js       <dialog> lightbox (buttons, arrow/Home/End keys, swipe), only loaded on pages with a gallery
 assets/js/hero.js          rotating hero: fades the home and term heroes through photos from the hero's data-pool (or, on pager pages 2+, data-pool-key), with a pause/play button; only on pages whose hero has two or more photos
-assets/js/tables.js        takes the tabindex off a Markdown table's region when the table fits; only on pages with a Markdown table
+assets/js/tables.js        takes the tabindex, role and name off a Markdown table's region when the table fits; only on pages with a Markdown table
 assets/js/analytics.js     Google Analytics loader (production builds with a GA ID; skips Do Not Track and Global Privacy Control)
 assets/js/comments.js      click-to-load Disqus, on posts when the site sets a shortname
 assets/js/search.js        client-side search: fetches /search/index.json on first use, matches in the browser, builds the results with textContent; only on the search page and the 404 page, and only when the index is published
@@ -118,8 +118,8 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   that setting.
 - **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, or `window.theblues.pool[data-pool-key]` when there is no attribute (a file that did not load, or lacks the key, gives an empty pool: the build's photo stays, with no button and no error), drops what isn't a
   SmugMug path of the form the pool writes (a token over 512 characters, a path that doesn't end in `SIZE/stem-SIZE.ext` with the same
-  size twice, or size names that aren't eight known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, 
-  fetches it at once (the browser has the build's photo already) and fades it in as soon as it is ready (`cur` is -1 until then;
+  size twice, or size names that aren't eight known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless the first of them is
+  the build's photo, fetches it at once (the browser already has the build's photo) and fades it in as soon as it is ready (`cur` is -1 until then;
   `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, two `aria-hidden` layers `.hr` (each holding a photo `.hp`) as its first children and the pause button as its last. Timers
   (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a
   number from 5 to 2147483 (a timer's longest delay in milliseconds is 2^31-1), checked before any default so that 0, `nan` and `inf` fail too; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
@@ -140,7 +140,7 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
 - **Page-body tables.** `layouts/_markup/render-table.html` writes Hugo's default table inside `<div class="tw" role="region" tabindex="0"
   aria-label="Table">`, and `.tw` (in `main.css`) is the box that scrolls sideways, so the region, not the table, is what a keyboard user focuses
   (WCAG 2.1.1; Safari does not make a scrolling box focusable by itself). `assets/js/tables.js`, which a page loads when a table passed through the hook
-  (the hook sets the page's `hasTables` store flag, which `baseof.html` reads), removes the `tabindex` from a region that does not overflow (`scrollWidth <= clientWidth`) and sets it again when it does, re-checking when a `ResizeObserver` reports a new size of the region or its table; a focused region keeps its `tabindex`. Without script every region keeps it. Hugo has no hook for an indented code block, so that `<pre>` stays plain.
+  (the hook sets the page's `hasTables` store flag, which `baseof.html` reads), removes the `tabindex`, `role` and `aria-label` from a region that does not overflow (`scrollWidth <= clientWidth`) and sets all three again when it does (the name is read once, from the markup), re-checking when a `ResizeObserver` reports a new size of the region or its table; a focused region keeps all three. Without script every region keeps them. The table's Markdown attributes are written as `name="escaped value"`, and only for names matching `^[A-Za-z][A-Za-z0-9_:.-]*$`. Hugo has no hook for an indented code block, so that `<pre>` stays plain.
 - **Pan (#385).** `.hr` is the scrim (`::after`, above) over `.hp`, the photo, and clips it (`overflow: hidden`). Where `cover` would crop
   the photo vertically (the hero's box is wider than the photo's ratio), the script makes `.hp` as high as `cover` would draw the
   photo (the box's width times the photo's height over its width, from the size the image loaded at) and runs a Web Animations
