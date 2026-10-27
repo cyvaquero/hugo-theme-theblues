@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Runs the browser checks of docs/testing.md against the fixture builds that scripts/build-fixtures.sh makes.
 // Usage: node scripts/check-browser.mjs [--list] <out> [name ...]
-//   <out>   the folder build-fixtures.sh wrote (it needs base, rtl, multilingual, lightbox-names, long-title, table-attributes and ugly-urls)
+//   <out>   the folder build-fixtures.sh wrote (it needs analytics, base, rtl, multilingual, lightbox-names, long-title, table-attributes and ugly-urls)
 //   name    run only these checks; a name also runs every check that starts with "name-"
 //   --list  print the check names and stop
 // One PASS or FAIL line per check, the reason on FAIL. Exit status: 0 all passed, 1 a check failed, 2 usage error.

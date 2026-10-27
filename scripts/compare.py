@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compares two Hugo output trees file by file (docs/testing.md, "Checking that a change leaves the output alone").
+"""Compares two Hugo output trees file by file (docs/testing.md, "Running the checks").
 
 Before comparing, it normalizes what changes whenever a stylesheet, a script or the theme's version does:
   - the versions in the footer (`<p class="ver">`: the theme's, and Hugo's, since any dotted version in that paragraph),

@@ -118,8 +118,8 @@ Measured on a 550-post site (about 450 pages, Hugo 0.167.0, production with `--m
   that setting.
 - **Script.** `hero.js` (a Hugo template for its text, `js-text.html` "hero") reads `data-pool`, or `window.theblues.pool[data-pool-key]` when there is no attribute (a file that did not load, or lacks the key, gives an empty pool: the build's photo stays, with no button and no error), drops what isn't a
   SmugMug path of the form the pool writes (a token over 512 characters, a path that doesn't end in `SIZE/stem-SIZE.ext` with the same
-  size twice, or size names that aren't eight known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, 
-  fetches it at once (the browser has the build's photo already) and fades it in as soon as it is ready (`cur` is -1 until then;
+  size twice, or size names that aren't eight known ones or empty ones; the path is split on `/`, not matched with one pattern, so a long path can't make it backtrack), picks five at random from the whole pool (a Fisher-Yates shuffle) and, unless the first of them is
+  the build's photo, fetches it at once (the browser already has the build's photo) and fades it in as soon as it is ready (`cur` is -1 until then;
   `begin()` calls `advance()` with no wait), and puts `.rot` on the hero, two `aria-hidden` layers `.hr` (each holding a photo `.hp`) as its first children and the pause button as its last. Timers
   (`SHOW` from `params.hero_interval`, 30 s by default, written in when Hugo builds the file, which fails on a value that isn't a
   number from 5 to 2147483 (a timer's longest delay in milliseconds is 2^31-1), checked before any default so that 0, `nan` and `inf` fail too; a site with no pool never builds the file, so never checks it; `LEAD` 5 s; `FADE` 1.5 s; the times below are for the default): at 25 s it asks the browser which URL the CSS would use for the next photo (it sets
