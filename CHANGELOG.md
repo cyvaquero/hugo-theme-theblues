@@ -3,6 +3,11 @@
 All notable changes to this theme are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions are git-flow tags with no `v` prefix.
 
+## [1.10.1] - 2026-10-29
+
+### Fixed
+- The previous and next links of a post's series box and of the post navigation wrap a long unbroken title instead of widening the page, so a post next to a post with a long URL-like title no longer scrolls sideways at 320px (WCAG 1.4.10) (#415).
+
 ## [1.10.0] - 2026-10-27
 
 ### Fixed
@@ -869,6 +874,7 @@ First release. Known limits are listed in the README.
 - `docs/retheme/`: decision records (D1 to D14; D14 deferred), the Clean White inventory, and the layout and palette mockups.
 - Apache-2.0 `LICENSE` and a `NOTICE` crediting Clean White and its upstreams.
 
+[1.10.1]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.10.0...1.10.1
 [1.10.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/cyvaquero/hugo-theme-theblues/compare/1.7.0...1.8.0

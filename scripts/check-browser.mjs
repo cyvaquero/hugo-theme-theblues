@@ -1193,7 +1193,7 @@ check('layout-long-title', 'A site title that is one 47-character word wraps in 
   assert(await wide.eval(`document.querySelector('nav.site .brand').getBoundingClientRect().height < 80`), 'the brand wraps at 1280px');
 });
 
-check('layout-long-names', 'A tag, category, series name, series item and description word of 70 unbroken characters wrap at 320px: nothing reaches past the window, no text is clipped (the hero description included) and the series item keeps its date (#410)', async (c) => {
+check('layout-long-names', 'A tag, category, series name, series item and description word of 70 unbroken characters wrap at 320px: nothing reaches past the window, no text is clipped (the hero description included) and the series item keeps its date (#410), and so do the previous links of the series box and the post navigation (#415)', async (c) => {
   const clipped = (p) => p.eval(`(() => { const w = document.documentElement.clientWidth, bad = [];
     for (const e of document.querySelectorAll('body *')) { if (e.closest('.skip, [hidden], .vh, nav.site .links:not(.open)')) continue; const r = e.getBoundingClientRect(); if (r.width && (r.right > w + 0.5 || r.left < -0.5)) bad.push(e.tagName + '.' + e.className + ' ' + Math.round(r.left) + '..' + Math.round(r.right)); }
     for (const e of document.querySelectorAll('body *')) if (e.scrollWidth > e.clientWidth + 1 && e.clientWidth && !e.closest('.vh, .skip, pre, .tw, [hidden]')) bad.push('clipped ' + e.tagName + '.' + e.className + ' ' + e.scrollWidth + '/' + e.clientWidth);
@@ -1203,6 +1203,12 @@ check('layout-long-names', 'A tag, category, series name, series item and descri
   eq([a.bad, a.scroll <= a.w], [[], true], 'post page: elements past the window or with clipped text');
   const s = await post.eval(`(() => { const li = document.querySelector('.series li:not(:has(strong))'), d = li.querySelector('.meta').getBoundingClientRect(), l = li.querySelector('a').getBoundingClientRect(); return { dateIn: d.left >= 0 && d.right <= document.documentElement.clientWidth && d.width > 0, linkEndsBeforeDate: l.right <= d.left + 0.5, over: [...document.querySelectorAll('.tag, .series .t, .phero .meta a')].filter((e) => e.scrollWidth > e.clientWidth + 1).map((e) => e.className) }; })()`);
   eq(s, { dateIn: true, linkEndsBeforeDate: true, over: [] }, 'series item date and clipped text');
+  // The second post's previous link, in the series box (.pager) and in the post navigation (.nav2), is the first post's 70-character title (#415).
+  const next = await c.open('long-title', '/post/20260117-long-2/', { viewport: [320, 800], photos: 'ok' });
+  const n = await clipped(next);
+  eq([n.bad, n.scroll <= n.w], [[], true], 'second post: elements past the window or with clipped text');
+  eq(await next.eval(`['.pager a[rel=prev]', '.nav2 a[rel=prev]'].map((q) => { const a = document.querySelector(q); return [q, !!a, a && a.scrollWidth <= a.clientWidth + 1 && a.getBoundingClientRect().right <= document.documentElement.clientWidth]; })`),
+    [['.pager a[rel=prev]', true, true], ['.nav2 a[rel=prev]', true, true]], 'second post: previous links stay inside the window');
   for (const path of ['/', '/tags/tagunbrokenwordwithnobreakopportunityatallsoitmustwrapatthreetwentypx/']) {
     const h = await c.open('long-title', path, { viewport: [320, 800], photos: 'ok' });
     const r = await clipped(h);
